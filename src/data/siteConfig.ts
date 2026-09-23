@@ -8,91 +8,190 @@ import {
   Gauge,
 } from 'lucide-react';
 import type { ComponentType } from 'react';
+import type { Lang } from '@/lib/i18n';
+
+export interface LocalizedString {
+  ar: string;
+  en: string;
+  fr: string;
+}
 
 export interface ServiceItem {
   id: string;
   icon: ComponentType<{ className?: string }>;
-  title: string;
-  description: string;
+  title: LocalizedString;
+  description: LocalizedString;
 }
 
 export const services: ServiceItem[] = [
   {
     id: 'water-quality',
     icon: Droplets,
-    title: 'تحليل جودة المياه',
-    description: 'فحص شامل لجودة مياه الشرب والاستخدام المنزلي والصناعي وفق المعايير المعتمدة.',
+    title: {
+      ar: 'تحليل جودة المياه',
+      en: 'Water Quality Analysis',
+      fr: 'Analyse de la qualité de l\'eau',
+    },
+    description: {
+      ar: 'فحص شامل لجودة مياه الشرب والاستخدام المنزلي والصناعي وفق المعايير المعتمدة.',
+      en: 'Comprehensive testing for drinking, domestic, and industrial water quality according to certified standards.',
+      fr: 'Contrôle complet de la qualité de l\'eau potable, domestique et industrielle selon les normes certifiées.',
+    },
   },
   {
     id: 'chemical',
     icon: FlaskConical,
-    title: 'الفحوصات الكيميائية',
-    description: 'تحليل العناصر الكيميائية والمعادن الثقيلة والمركبات في عينات المياه.',
+    title: {
+      ar: 'الفحوصات الكيميائية',
+      en: 'Chemical Testing',
+      fr: 'Analyses chimiques',
+    },
+    description: {
+      ar: 'تحليل العناصر الكيميائية والمعادن الثقيلة والمركبات في عينات المياه.',
+      en: 'Analysis of chemical elements, heavy metals, and compounds in water samples.',
+      fr: 'Analyse des éléments chimiques, métaux lourds et composés dans les échantillons d\'eau.',
+    },
   },
   {
     id: 'physical',
     icon: Gauge,
-    title: 'الفحوصات الفيزيائية',
-    description: 'قياس الخصائص الفيزيائية للمياه من حيث درجة الحرارة والعكارة والناقلية.',
+    title: {
+      ar: 'الفحوصات الفيزيائية',
+      en: 'Physical Testing',
+      fr: 'Analyses physiques',
+    },
+    description: {
+      ar: 'قياس الخصائص الفيزيائية للمياه من حيث درجة الحرارة والعكارة والناقلية.',
+      en: 'Measurement of physical properties of water, including temperature, turbidity, and conductivity.',
+      fr: 'Mesure des propriétés physiques de l\'eau, notamment la température, la turbidité et la conductivité.',
+    },
   },
   {
     id: 'microbiological',
     icon: Microscope,
-    title: 'الفحوصات الميكروبيولوجية',
-    description: 'كشف البكتيريا والكائنات الدقيقة والتحاليل البيولوجية لضمان سلامة المياه.',
+    title: {
+      ar: 'الفحوصات الميكروبيولوجية',
+      en: 'Microbiological Testing',
+      fr: 'Analyses microbiologiques',
+    },
+    description: {
+      ar: 'كشف البكتيريا والكائنات الدقيقة والتحاليل البيولوجية لضمان سلامة المياه.',
+      en: 'Detection of bacteria, microorganisms, and biological analysis to ensure water safety.',
+      fr: 'Détection des bactéries, micro-organismes et analyses biologiques pour garantir la sécurité de l\'eau.',
+    },
   },
   {
     id: 'sampling',
     icon: TestTube,
-    title: 'تحليل العينات',
-    description: 'استقبال وتحضير وتحليل العينات المخبرية وفق بروتوكولات الجودة المعتمدة.',
+    title: {
+      ar: 'تحليل العينات',
+      en: 'Sample Analysis',
+      fr: 'Analyse d\'échantillons',
+    },
+    description: {
+      ar: 'استقبال وتحضير وتحليل العينات المخبرية وفق بروتوكولات الجودة المعتمدة.',
+      en: 'Receiving, preparing, and analyzing laboratory samples in accordance with approved quality protocols.',
+      fr: 'Réception, préparation et analyse d\'échantillons de laboratoire selon des protocoles de qualité approuvés.',
+    },
   },
   {
     id: 'monitoring',
     icon: ShieldCheck,
-    title: 'مراقبة جودة المياه',
-    description: 'برامج مراقبة مستمرة لمؤشرات جودة المياه في المصادر والشبكات.',
+    title: {
+      ar: 'مراقبة جودة المياه',
+      en: 'Water Quality Monitoring',
+      fr: 'Surveillance de la qualité de l\'eau',
+    },
+    description: {
+      ar: 'برامج مراقبة مستمرة لمؤشرات جودة المياه في المصادر والشبكات.',
+      en: 'Continuous monitoring programs for water quality indicators in sources and networks.',
+      fr: 'Programmes de surveillance continue des indicateurs de qualité de l\'eau dans les sources et les réseaux.',
+    },
   },
   {
     id: 'specialized',
     icon: Beaker,
-    title: 'الخدمات المخبرية المتخصصة',
-    description: 'تحاليل متخصصة حسب طلب الجهات والمؤسسات لتقييم جودة المياه.',
+    title: {
+      ar: 'الخدمات المخبرية المتخصصة',
+      en: 'Specialized Laboratory Services',
+      fr: 'Services de laboratoire spécialisés',
+    },
+    description: {
+      ar: 'تحاليل متخصصة حسب طلب الجهات والمؤسسات لتقييم جودة المياه.',
+      en: 'Specialized analysis requested by entities and institutions to evaluate water quality.',
+      fr: 'Analyses spécialisées à la demande des organismes et institutions pour évaluer la qualité de l\'eau.',
+    },
   },
 ];
 
 export interface NewsItem {
   id: string;
-  category: string;
+  category: LocalizedString;
   date: string;
-  title: string;
-  description: string;
+  title: LocalizedString;
+  description: LocalizedString;
   image: string;
 }
 
 export const newsItems: NewsItem[] = [
   {
     id: 'news-1',
-    category: 'إعلان',
+    category: {
+      ar: 'إعلان',
+      en: 'Announcement',
+      fr: 'Annonce',
+    },
     date: '2026-09-10',
-    title: 'انطلاق خدمات التسجيل الإلكتروني للزوار',
-    description: 'أعلنت مختبرات المياه عن إطلاق خدمة التسجيل الإلكتروني للزوار، لتسهيل عملية حجز المواعيد وتسجيل الزيارات.',
+    title: {
+      ar: 'انطلاق خدمات التسجيل الإلكتروني للزوار',
+      en: 'Launch of Online Visitor Registration Services',
+      fr: 'Lancement du service d\'enregistrement en ligne des visiteurs',
+    },
+    description: {
+      ar: 'أعلنت مختبرات المياه عن إطلاق خدمة التسجيل الإلكتروني للزوار، لتسهيل عملية حجز المواعيد وتسجيل الزيارات.',
+      en: 'Water Laboratories announced the launch of an online visitor registration service to facilitate appointment booking and visit registration.',
+      fr: 'Les Laboratoires de l\'Eau ont annoncé le lancement du service d\'enregistrement en ligne des visiteurs afin de faciliter la prise de rendez-vous.',
+    },
     image: '',
   },
   {
     id: 'news-2',
-    category: 'تحديث',
+    category: {
+      ar: 'تحديث',
+      en: 'Update',
+      fr: 'Mise à jour',
+    },
     date: '2026-08-28',
-    title: 'تطوير منظومة الفحوصات المخبرية',
-    description: 'تواصل مختبرات المياه تطوير منظومتها المخبرية بإضافة أحدث الأجهزة والتقنيات لضمان دقة النتائج.',
+    title: {
+      ar: 'تطوير منظومة الفحوصات المخبرية',
+      en: 'Upgrading the Laboratory Testing System',
+      fr: 'Modernisation du système d\'analyses en laboratoire',
+    },
+    description: {
+      ar: 'تواصل مختبرات المياه تطوير منظومتها المخبرية بإضافة أحدث الأجهزة والتقنيات لضمان دقة النتائج.',
+      en: 'Water Laboratories continues to upgrade its lab system by adding state-of-the-art equipment to ensure accuracy.',
+      fr: 'Les Laboratoires de l\'Eau continuent de moderniser leurs équipements pour garantir une précision maximale des résultats.',
+    },
     image: '',
   },
   {
     id: 'news-3',
-    category: 'فعالية',
+    category: {
+      ar: 'فعالية',
+      en: 'Event',
+      fr: 'Événement',
+    },
     date: '2026-08-15',
-    title: 'ورشة عمل حول جودة المياه',
-    description: 'نظمت مختبرات المياه ورشة عمل توعوية حول أهمية مراقبة جودة المياه وطرق الفحص المخبري.',
+    title: {
+      ar: 'ورشة عمل حول جودة المياه',
+      en: 'Workshop on Water Quality',
+      fr: 'Atelier sur la qualité de l\'eau',
+    },
+    description: {
+      ar: 'نظمت مختبرات المياه ورشة عمل توعوية حول أهمية مراقبة جودة المياه وطرق الفحص المخبري.',
+      en: 'Water Laboratories organized an awareness workshop on the importance of water quality monitoring and testing methods.',
+      fr: 'Les Laboratoires de l\'Eau ont organisé un atelier de sensibilisation sur l\'importance de la surveillance de la qualité de l\'eau.',
+    },
     image: '',
   },
 ];
@@ -114,31 +213,26 @@ export const siteStats: SiteStats = {
 export interface ContactConfig {
   phone: string;
   email: string;
-  address: string;
-  workingHours: string;
+  address: LocalizedString;
+  workingHours: LocalizedString;
 }
 
 export const contactConfig: ContactConfig = {
   phone: '[رقم التواصل]',
   email: '[البريد الإلكتروني]',
-  address: '[العنوان - المملكة العربية السعودية]',
-  workingHours: 'الأحد - الخميس: 8:00 ص - 4:00 م',
+  address: {
+    ar: '[العنوان - المملكة العربية السعودية]',
+    en: '[Address - Kingdom of Saudi Arabia]',
+    fr: '[Adresse - Royaume d\'Arabie Saoudite]',
+  },
+  workingHours: {
+    ar: 'الأحد - الخميس: 8:00 ص - 4:00 م',
+    en: 'Sunday - Thursday: 8:00 AM - 4:00 PM',
+    fr: 'Dimanche - Jeudi : 8h00 - 16h00',
+  },
 };
 
-export interface NavItem {
-  label: string;
-  to: string;
-  children?: { label: string; to: string }[];
+// Exemple de fonction utilitaire pour extraire la bonne chaîne selon la langue active dans vos composants React :
+export function getLocalizedText(text: LocalizedString, lang: Lang): string {
+  return text[lang] || text.ar || '';
 }
-
-export const navItems: NavItem[] = [
-  { label: 'الرئيسية', to: '/' },
-  { label: 'عن المختبرات', to: '/about' },
-  {
-    label: 'المراكز والفروع',
-    to: '/laboratories',
-  },
-  { label: 'الخدمات', to: '/services' },
-  { label: 'الأخبار', to: '/news' },
-  { label: 'تواصل معنا', to: '/contact' },
-];
