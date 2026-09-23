@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Droplets, User, Building2, Phone, Mail, Calendar, FileText, Send, AlertCircle, Loader2 } from 'lucide-react';
+import { Droplets, User, Calendar, Send, AlertCircle, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { laboratoryCenters } from '@/data/laboratories';
 import { useLang } from '@/lib/i18n';

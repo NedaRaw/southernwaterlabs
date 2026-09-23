@@ -1,4 +1,4 @@
-import { Phone, Mail, MapPin, Clock, Globe } from 'lucide-react';
+import { Phone, Mail, MapPin, Clock } from 'lucide-react';
 import type { ContactInfo } from '@/data/laboratories';
 
 export default function ContactCard({ contact }: { contact: ContactInfo }) {

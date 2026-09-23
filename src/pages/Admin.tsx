@@ -4,7 +4,6 @@ import {
   UserCog, LogOut, Search, Trash2, Plus, Edit, Eye, Download,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { laboratoryCenters } from '@/data/laboratories';
 
 interface AdminUser {
   id: string;
@@ -210,8 +209,6 @@ export default function Admin() {
   const filteredEnquiries = enquiries.filter(e =>
     e.name.includes(searchTerm) || e.subject.includes(searchTerm)
   );
-
-  const statusLabels: Record<string, string> = { pending: 'في الانتظار', checked_in: 'تم الدخول', checked_out: 'تم المغادرة', new: 'جديد', responded: 'تم الرد', closed: 'مغلق' };
 
   const exportCSV = (data: Record<string, unknown>[], filename: string) => {
     if (data.length === 0) return;

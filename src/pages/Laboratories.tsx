@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Building2, MapPin, ChevronLeft, Network, Droplets, ArrowLeft } from 'lucide-react';
+import { Building2, MapPin, ChevronLeft, Network, Droplets } from 'lucide-react';
 import { laboratoryCenters } from '@/data/laboratories';
 import Breadcrumb from '@/components/Breadcrumb';
 
