@@ -1,31 +1,36 @@
 import { Link } from 'react-router-dom';
-import { Building2, MapPin, ChevronLeft, Network, Droplets } from 'lucide-react';
-import { laboratoryCenters } from '@/data/laboratories';
+import { Building2, MapPin, ChevronLeft, ChevronRight, Network, Droplets } from 'lucide-react';
+import { getLocalizedCenters } from '@/data/laboratories';
+import { useLang } from '@/lib/i18n';
 import Breadcrumb from '@/components/Breadcrumb';
 
 export default function Laboratories() {
+  const { lang, t, dir } = useLang();
+  const Chevron = dir === 'rtl' ? ChevronLeft : ChevronRight;
+  const centers = getLocalizedCenters(lang);
+
   return (
     <div className="pt-28 pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Breadcrumb items={[{ label: 'المراكز والفروع' }]} />
+        <Breadcrumb items={[{ label: t('nav.labs') }]} />
 
         <div className="mt-6 mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-navy-100 text-navy-700 text-sm font-medium mb-4">
             <Droplets className="w-4 h-4" />
-            شبكة المختبرات
+            {t('labs.badge')}
           </div>
-          <h1 className="section-title mb-3">المختبرات  المركزية والفروع</h1>
-          <p className="section-subtitle max-w-2xl">استعرض جميع المختبرات  المركزية والفروع التابعة لها في مناطق المملكة.</p>
+          <h1 className="section-title mb-3">{t('labs.title')}</h1>
+          <p className="section-subtitle max-w-2xl">{t('labs.desc')}</p>
         </div>
 
         <div className="space-y-6">
-          {laboratoryCenters.map((center, index) => (
+          {centers.map((center, index) => (
             <div key={center.id} className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-lg hover:border-navy-300 transition-all duration-300 animate-fade-in-up" style={{ animationDelay: `${index * 0.08}s` }}>
               <div className="grid grid-cols-1 lg:grid-cols-3">
                 <Link to={`/laboratories/${center.id}`} className={`relative p-8 ${center.type === 'regional_center' ? 'bg-slate-100' : 'bg-navy-800'}`}>
-                  <div className="absolute top-4 left-4">
+                  <div className="absolute top-4 end-4">
                     <span className={`px-2.5 py-1 rounded text-xs font-bold ${center.type === 'regional_center' ? 'bg-slate-200 text-slate-600' : 'bg-white/15 text-white'}`}>
-                      {center.type === 'regional_center' ? 'مركز إقليمي مستقل' : 'مختبر مركزي'}
+                      {center.type === 'regional_center' ? t('network.independent') : t('network.central')}
                     </span>
                   </div>
                   <div className="mt-8">
@@ -39,8 +44,8 @@ export default function Laboratories() {
                     </div>
                   </div>
                   <div className={`mt-6 flex items-center gap-2 text-sm font-bold ${center.type === 'regional_center' ? 'text-slate-600' : 'text-white'}`}>
-                    عرض صفحة المركز
-                    <ChevronLeft className="w-4 h-4" />
+                    {t('labs.viewCenter')}
+                    <Chevron className="w-4 h-4" />
                   </div>
                 </Link>
 
@@ -49,7 +54,7 @@ export default function Laboratories() {
                     <>
                       <div className="flex items-center gap-2 mb-5">
                         <div className="w-1 h-6 rounded-full bg-navy-600" />
-                        <h3 className="text-lg font-bold text-slate-700">الفروع التابعة</h3>
+                        <h3 className="text-lg font-bold text-slate-700">{t('network.branches')}</h3>
                         <span className="px-2.5 py-0.5 rounded-full bg-navy-100 text-navy-700 text-xs font-bold">{center.branches.length}</span>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -65,7 +70,7 @@ export default function Laboratories() {
                                 {branch.location}
                               </p>
                             </div>
-                            <ChevronLeft className="w-4 h-4 text-slate-300 group-hover/branch:text-navy-500" />
+                            <Chevron className="w-4 h-4 text-slate-300 group-hover/branch:text-navy-500" />
                           </Link>
                         ))}
                       </div>
@@ -75,8 +80,8 @@ export default function Laboratories() {
                       <div className="w-16 h-16 rounded-xl bg-slate-100 flex items-center justify-center mb-4">
                         <Building2 className="w-8 h-8 text-slate-400" />
                       </div>
-                      <h3 className="text-lg font-bold text-slate-600 mb-1">لا توجد فروع حاليًا</h3>
-                      <p className="text-sm text-slate-400">مركز إقليمي مستقل</p>
+                      <h3 className="text-lg font-bold text-slate-600 mb-1">{t('network.noBranches')}</h3>
+                      <p className="text-sm text-slate-400">{t('network.independent')}</p>
                     </div>
                   )}
                 </div>

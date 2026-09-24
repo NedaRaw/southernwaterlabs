@@ -1,12 +1,15 @@
 import { Phone, Mail, MapPin, Clock } from 'lucide-react';
 import type { ContactInfo } from '@/data/laboratories';
+import { useLang } from '@/lib/i18n';
 
 export default function ContactCard({ contact }: { contact: ContactInfo }) {
+  const { t } = useLang();
+
   const items = [
-    { icon: Phone, label: 'الهاتف', value: contact.phone, dir: 'ltr' },
-    { icon: Mail, label: 'البريد الإلكتروني', value: contact.email, dir: 'ltr' },
-    { icon: MapPin, label: 'العنوان', value: contact.address },
-    { icon: Clock, label: 'ساعات العمل', value: contact.workingHours },
+    { icon: Phone, label: t('contact.phone'), value: contact.phone, dir: 'ltr' },
+    { icon: Mail, label: t('contact.email'), value: contact.email, dir: 'ltr' },
+    { icon: MapPin, label: t('contact.address'), value: contact.address },
+    { icon: Clock, label: t('contact.hours'), value: contact.workingHours },
   ];
 
   return (

@@ -1,148 +1,723 @@
 import { Link, useLocation } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import { Droplets, Menu, X, ChevronDown, UserPlus, FileText, MessageSquare, Headphones, Globe } from 'lucide-react';
-import { useLang } from '@/lib/i18n';
+import { useState, useEffect, useRef } from 'react';
+import {
+  Menu, X, ChevronDown, UserPlus, FileText, MessageSquare,
+  Globe, Check, Building2, FlaskConical, ChevronLeft, ChevronRight,
+  ShieldAlert, Activity, CheckCircle2, Waves, LogIn, Users
+} from 'lucide-react';
+import { useLang, type Lang } from '@/lib/i18n';
+import LabLogo from '@/components/LabLogo';
+
+const languages: { code: Lang; label: string; native: string }[] = [
+  { code: 'ar', label: 'العربية', native: 'العربية' },
+  { code: 'en', label: 'English', native: 'English' },
+  { code: 'fr', label: 'Français', native: 'Français' },
+];
 
 export default function Header() {
   const location = useLocation();
-  const { lang, setLang, t } = useLang();
+  const { lang, setLang, t, dir } = useLang();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [servicesOpen, setServicesOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<'labs' | 'services' | 'cs' | 'lang' | null>(null);
+
+  const navRef = useRef<HTMLElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const mobileToggleRef = useRef<HTMLButtonElement>(null);
+
+  const Arrow = dir === 'rtl' ? ChevronLeft : ChevronRight;
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
+    const handleScroll = () => setScrolled(window.scrollY > 15);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
     setMenuOpen(false);
-    setServicesOpen(false);
+    setOpenDropdown(null);
   }, [location.pathname]);
+
+  // Click outside to close dropdowns
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(e.target as Node)) {
+        setOpenDropdown(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Global Escape key listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (openDropdown !== null) {
+          setOpenDropdown(null);
+        } else if (menuOpen) {
+          setMenuOpen(false);
+          mobileToggleRef.current?.focus();
+        }
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [openDropdown, menuOpen]);
 
   const isActive = (path: string) => {
     if (path === '/') return location.pathname === '/';
     return location.pathname.startsWith(path);
   };
 
-  const navLinks = [
-    { to: '/', label: t('nav.home') },
-    { to: '/about', label: t('nav.about') },
-    { to: '/laboratories', label: t('nav.labs') },
-    { to: '/services', label: t('nav.services') },
-    { to: '/news', label: t('nav.news') },
-    { to: '/contact', label: t('nav.contact') },
+  const labItems = [
+    { id: 'asir', name: t('nav.asir'), region: 'عسير', path: '/laboratories/asir' },
+    { id: 'najran', name: t('nav.najran'), region: 'نجران', path: '/laboratories/najran' },
+    { id: 'baha', name: t('nav.baha'), region: 'الباحة', path: '/laboratories/baha' },
+    { id: 'jazan', name: t('nav.jazan'), region: 'جازان', path: '/laboratories/jazan' },
   ];
 
-  const customerServices = [
-    { to: '/register', label: t('cs.register'), icon: UserPlus },
-    { to: '/survey', label: t('cs.survey'), icon: FileText },
-    { to: '/enquiry', label: t('cs.enquiry'), icon: MessageSquare },
+  const serviceItems = [
+    { key: 'svc.drinking', icon: Waves, path: '/services' },
+    { key: 'svc.chemical', icon: FlaskConical, path: '/services' },
+    { key: 'svc.physical', icon: Activity, path: '/services' },
+    { key: 'svc.microbiological', icon: ShieldAlert, path: '/services' },
+    { key: 'svc.samples', icon: CheckCircle2, path: '/services' },
+    { key: 'svc.specialized', icon: Building2, path: '/services' },
+    { key: 'svc.monitoring', icon: Waves, path: '/services' },
   ];
+
+  // Visitor Services: Registration, Survey, and Enquiry are fully preserved inside here
+  const customerServices = [
+    { to: '/register', label: t('cs.register'), icon: UserPlus, desc: t('quick.register.desc') },
+    { to: '/survey', label: t('cs.survey'), icon: FileText, desc: t('quick.survey.desc') },
+    { to: '/enquiry', label: t('cs.enquiry'), icon: MessageSquare, desc: t('quick.enquiry.desc') },
+  ];
+
+  const currentLangObj = languages.find((l) => l.code === lang) || languages[0];
+
+  // Keyboard navigation handler for dropdown menus
+  const handleDropdownKeyDown = (e: React.KeyboardEvent, dropdownKey: 'labs' | 'services' | 'cs' | 'lang') => {
+    if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setOpenDropdown(openDropdown === dropdownKey ? null : dropdownKey);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setOpenDropdown(null);
+    }
+  };
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white shadow-md py-2' : 'bg-white py-3'}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-11 h-11 rounded-xl bg-navy-800 flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
-              <Droplets className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="font-bold text-lg leading-tight text-navy-800">{t('brand.name')}</h1>
-              <p className="text-xs text-slate-400">{t('brand.subtitle')}</p>
-            </div>
-          </Link>
+    <>
+      {/* Skip to Main Content Link for Accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:start-3 focus:z-[100] focus:px-3.5 focus:py-2 focus:bg-cyan-700 focus:text-white focus:font-semibold focus:text-xs focus:rounded-lg focus:shadow-xl focus:outline-none focus:ring-2 focus:ring-white"
+      >
+        {lang === 'ar' ? 'الانتقال إلى المحتوى الرئيسي' : lang === 'fr' ? 'Passer au contenu principal' : 'Skip to main content'}
+      </a>
 
-          <nav className="hidden lg:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <Link key={link.to} to={link.to} className={`nav-link ${isActive(link.to) ? 'nav-link-active' : ''}`}>
-                {link.label}
-              </Link>
-            ))}
-          </nav>
+      <header
+        ref={navRef}
+        role="banner"
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 ${
+          scrolled
+            ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-200/80 h-[70px] sm:h-[72px] md:h-[74px] lg:h-[76px]'
+            : 'bg-white border-b border-slate-100 h-[72px] sm:h-[76px] md:h-[78px] lg:h-[80px]'
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-3 sm:px-5 lg:px-8 h-full">
+          <div className="flex items-center justify-between h-full gap-2 sm:gap-4">
 
-          <div className="hidden lg:flex items-center gap-3">
-            <button
-              onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-navy-700 hover:bg-slate-50 transition-colors"
-              title={lang === 'ar' ? 'English' : 'العربية'}
+            {/* RTL: Right / LTR: Left -> [Official Logo + Official Website Name] */}
+            <Link
+              to="/"
+              className="flex items-center shrink-0 rounded-lg py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600"
+              aria-label={`${t('brand.name')} - ${t('nav.home')}`}
             >
-              <Globe className="w-4 h-4" />
-              {lang === 'ar' ? 'EN' : 'ع'}
-            </button>
-
-            <div className="relative">
-              <button
-                onClick={() => setServicesOpen(!servicesOpen)}
-                onBlur={() => setTimeout(() => setServicesOpen(false), 150)}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-navy-700 hover:bg-slate-50 transition-colors"
-              >
-                <Headphones className="w-4 h-4" />
-                {t('cs.title')}
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${servicesOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {servicesOpen && (
-                <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-slate-100 py-2 animate-fade-in">
-                  {customerServices.map((svc) => {
-                    const Icon = svc.icon;
-                    return (
-                      <Link key={svc.to} to={svc.to} className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:bg-navy-50 hover:text-navy-700 transition-colors">
-                        <Icon className="w-4 h-4" />
-                        {svc.label}
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-            <Link to="/register" className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-navy-800 text-white text-sm font-bold hover:bg-navy-700 transition-colors shadow-sm">
-              <UserPlus className="w-4 h-4" />
-              {t('cs.register')}
+              <LabLogo size="md" showSubtitle={false} />
             </Link>
+
+            {/* Desktop Navigation Bar: Compact, Institutional, Single-line, No standalone "تسجيل زيارة" */}
+            <nav
+              aria-label={lang === 'ar' ? 'التنقل الرئيسي' : 'Main Navigation'}
+              className="hidden xl:flex items-center gap-0.5 2xl:gap-1 text-[13.5px] 2xl:text-[14px]"
+            >
+              {/* 1. الرئيسية */}
+              <Link
+                to="/"
+                aria-current={isActive('/') && location.pathname === '/' ? 'page' : undefined}
+                className={`relative px-2.5 py-1.5 font-semibold transition-colors rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 whitespace-nowrap ${
+                  isActive('/') && location.pathname === '/'
+                    ? 'text-cyan-700'
+                    : 'text-slate-700 hover:text-cyan-700'
+                }`}
+              >
+                {t('nav.home')}
+                {isActive('/') && location.pathname === '/' && (
+                  <span aria-hidden="true" className="absolute bottom-0 left-2 right-2 h-[2px] bg-cyan-600 rounded-full animate-fade-in" />
+                )}
+              </Link>
+
+              {/* 2. عن المختبرات */}
+              <Link
+                to="/about"
+                aria-current={isActive('/about') ? 'page' : undefined}
+                className={`relative px-2.5 py-1.5 font-semibold transition-colors rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 whitespace-nowrap ${
+                  isActive('/about')
+                    ? 'text-cyan-700'
+                    : 'text-slate-700 hover:text-cyan-700'
+                }`}
+              >
+                {t('nav.about')}
+                {isActive('/about') && (
+                  <span aria-hidden="true" className="absolute bottom-0 left-2 right-2 h-[2px] bg-cyan-600 rounded-full animate-fade-in" />
+                )}
+              </Link>
+
+              {/* 3. المختبرات */}
+              <div className="relative">
+                <button
+                  type="button"
+                  id="nav-labs-button"
+                  aria-haspopup="true"
+                  aria-expanded={openDropdown === 'labs'}
+                  aria-controls="nav-labs-menu"
+                  onClick={() => setOpenDropdown(openDropdown === 'labs' ? null : 'labs')}
+                  onKeyDown={(e) => handleDropdownKeyDown(e, 'labs')}
+                  className={`relative flex items-center gap-1 px-2.5 py-1.5 font-semibold transition-colors rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 whitespace-nowrap ${
+                    isActive('/laboratories') || openDropdown === 'labs'
+                      ? 'text-cyan-700'
+                      : 'text-slate-700 hover:text-cyan-700'
+                  }`}
+                >
+                  <Building2 aria-hidden="true" className="w-3.5 h-3.5 opacity-70 shrink-0" />
+                  <span>{t('nav.labs')}</span>
+                  <ChevronDown
+                    aria-hidden="true"
+                    className={`w-3 h-3 transition-transform duration-200 ${
+                      openDropdown === 'labs' ? 'rotate-180 text-cyan-600' : 'text-slate-400'
+                    }`}
+                  />
+                  {isActive('/laboratories') && (
+                    <span aria-hidden="true" className="absolute bottom-0 left-2 right-2 h-[2px] bg-cyan-600 rounded-full animate-fade-in" />
+                  )}
+                </button>
+
+                {openDropdown === 'labs' && (
+                  <div
+                    id="nav-labs-menu"
+                    role="menu"
+                    aria-labelledby="nav-labs-button"
+                    className="absolute start-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-100 p-2 z-50 animate-fade-in focus:outline-none"
+                  >
+                    <div className="p-2 border-b border-slate-100 mb-1" role="presentation">
+                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                        {t('hero.metric.regions')}
+                      </p>
+                    </div>
+                    <div className="space-y-1" role="none">
+                      {labItems.map((lab) => (
+                        <Link
+                          key={lab.id}
+                          to={lab.path}
+                          role="menuitem"
+                          className="flex items-center justify-between p-2 rounded-lg hover:bg-cyan-50/70 transition-colors group focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-7 h-7 rounded-md bg-slate-50 flex items-center justify-center text-slate-700 group-hover:bg-cyan-600 group-hover:text-white transition-colors" aria-hidden="true">
+                              <Building2 className="w-3.5 h-3.5" />
+                            </div>
+                            <div>
+                              <p className="text-xs font-semibold text-slate-800 group-hover:text-cyan-800">
+                                {lab.name}
+                              </p>
+                              <p className="text-[10px] text-slate-400">{lab.region}</p>
+                            </div>
+                          </div>
+                          <Arrow aria-hidden="true" className="w-3.5 h-3.5 text-slate-300 group-hover:text-cyan-600" />
+                        </Link>
+                      ))}
+                    </div>
+                    <div className="mt-2 pt-2 border-t border-slate-100" role="none">
+                      <Link
+                        to="/laboratories"
+                        role="menuitem"
+                        className="flex items-center justify-center gap-1.5 w-full py-1.5 rounded-lg bg-slate-50 hover:bg-cyan-50 text-xs font-semibold text-cyan-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600"
+                      >
+                        <span>{t('nav.allLabs')}</span>
+                        <Arrow aria-hidden="true" className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 4. الخدمات */}
+              <div className="relative">
+                <button
+                  type="button"
+                  id="nav-services-button"
+                  aria-haspopup="true"
+                  aria-expanded={openDropdown === 'services'}
+                  aria-controls="nav-services-menu"
+                  onClick={() => setOpenDropdown(openDropdown === 'services' ? null : 'services')}
+                  onKeyDown={(e) => handleDropdownKeyDown(e, 'services')}
+                  className={`relative flex items-center gap-1 px-2.5 py-1.5 font-semibold transition-colors rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 whitespace-nowrap ${
+                    isActive('/services') || openDropdown === 'services'
+                      ? 'text-cyan-700'
+                      : 'text-slate-700 hover:text-cyan-700'
+                  }`}
+                >
+                  <FlaskConical aria-hidden="true" className="w-3.5 h-3.5 opacity-70 shrink-0" />
+                  <span>{t('nav.services')}</span>
+                  <ChevronDown
+                    aria-hidden="true"
+                    className={`w-3 h-3 transition-transform duration-200 ${
+                      openDropdown === 'services' ? 'rotate-180 text-cyan-600' : 'text-slate-400'
+                    }`}
+                  />
+                  {isActive('/services') && (
+                    <span aria-hidden="true" className="absolute bottom-0 left-2 right-2 h-[2px] bg-cyan-600 rounded-full animate-fade-in" />
+                  )}
+                </button>
+
+                {openDropdown === 'services' && (
+                  <div
+                    id="nav-services-menu"
+                    role="menu"
+                    aria-labelledby="nav-services-button"
+                    className="absolute start-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-slate-100 p-2 z-50 animate-fade-in focus:outline-none"
+                  >
+                    <div className="p-2 border-b border-slate-100 mb-1" role="presentation">
+                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                        {t('services.title')}
+                      </p>
+                    </div>
+                    <div className="space-y-1" role="none">
+                      {serviceItems.map((svc, i) => {
+                        const Icon = svc.icon;
+                        return (
+                          <Link
+                            key={i}
+                            to={svc.path}
+                            role="menuitem"
+                            className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-cyan-50/70 transition-colors group focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600"
+                          >
+                            <div className="w-7 h-7 rounded-md bg-cyan-50 flex items-center justify-center text-cyan-700 group-hover:bg-cyan-600 group-hover:text-white transition-colors" aria-hidden="true">
+                              <Icon className="w-3.5 h-3.5" />
+                            </div>
+                            <span className="text-xs font-semibold text-slate-700 group-hover:text-cyan-800">
+                              {t(svc.key)}
+                            </span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                    <div className="mt-2 pt-2 border-t border-slate-100" role="none">
+                      <Link
+                        to="/services"
+                        role="menuitem"
+                        className="flex items-center justify-center gap-1.5 w-full py-1.5 rounded-lg bg-slate-50 hover:bg-cyan-50 text-xs font-semibold text-cyan-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600"
+                      >
+                        <span>{t('nav.allServices')}</span>
+                        <Arrow aria-hidden="true" className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 5. خدمات الزوار */}
+              <div className="relative">
+                <button
+                  type="button"
+                  id="nav-cs-button"
+                  aria-haspopup="true"
+                  aria-expanded={openDropdown === 'cs'}
+                  aria-controls="nav-cs-menu"
+                  onClick={() => setOpenDropdown(openDropdown === 'cs' ? null : 'cs')}
+                  onKeyDown={(e) => handleDropdownKeyDown(e, 'cs')}
+                  className={`relative flex items-center gap-1 px-2.5 py-1.5 font-semibold transition-colors rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 whitespace-nowrap ${
+                    isActive('/register') || isActive('/survey') || isActive('/enquiry') || openDropdown === 'cs'
+                      ? 'text-cyan-700'
+                      : 'text-slate-700 hover:text-cyan-700'
+                  }`}
+                >
+                  <Users aria-hidden="true" className="w-3.5 h-3.5 opacity-70 shrink-0" />
+                  <span>{t('cs.title')}</span>
+                  <ChevronDown
+                    aria-hidden="true"
+                    className={`w-3 h-3 transition-transform duration-200 ${
+                      openDropdown === 'cs' ? 'rotate-180 text-cyan-600' : 'text-slate-400'
+                    }`}
+                  />
+                  {(isActive('/register') || isActive('/survey') || isActive('/enquiry')) && (
+                    <span aria-hidden="true" className="absolute bottom-0 left-2 right-2 h-[2px] bg-cyan-600 rounded-full animate-fade-in" />
+                  )}
+                </button>
+
+                {openDropdown === 'cs' && (
+                  <div
+                    id="nav-cs-menu"
+                    role="menu"
+                    aria-labelledby="nav-cs-button"
+                    className="absolute start-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-100 p-2 z-50 animate-fade-in focus:outline-none"
+                  >
+                    <div className="space-y-1" role="none">
+                      {customerServices.map((svc) => {
+                        const Icon = svc.icon;
+                        return (
+                          <Link
+                            key={svc.to}
+                            to={svc.to}
+                            role="menuitem"
+                            className="flex items-start gap-2.5 p-2 rounded-lg hover:bg-cyan-50/70 transition-colors group focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600"
+                          >
+                            <div className="w-8 h-8 rounded-lg bg-cyan-100/70 flex items-center justify-center text-cyan-700 group-hover:bg-cyan-600 group-hover:text-white transition-colors shrink-0 mt-0.5" aria-hidden="true">
+                              <Icon className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <p className="text-xs font-semibold text-slate-800 group-hover:text-cyan-800">
+                                {svc.label}
+                              </p>
+                              <p className="text-[11px] text-slate-400 line-clamp-1">{svc.desc}</p>
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 6. الأخبار */}
+              <Link
+                to="/news"
+                aria-current={isActive('/news') ? 'page' : undefined}
+                className={`relative px-2.5 py-1.5 font-semibold transition-colors rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 whitespace-nowrap ${
+                  isActive('/news')
+                    ? 'text-cyan-700'
+                    : 'text-slate-700 hover:text-cyan-700'
+                }`}
+              >
+                {t('nav.news')}
+                {isActive('/news') && (
+                  <span aria-hidden="true" className="absolute bottom-0 left-2 right-2 h-[2px] bg-cyan-600 rounded-full animate-fade-in" />
+                )}
+              </Link>
+
+              {/* 7. تواصل معنا */}
+              <Link
+                to="/contact"
+                aria-current={isActive('/contact') ? 'page' : undefined}
+                className={`relative px-2.5 py-1.5 font-semibold transition-colors rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 whitespace-nowrap ${
+                  isActive('/contact')
+                    ? 'text-cyan-700'
+                    : 'text-slate-700 hover:text-cyan-700'
+                }`}
+              >
+                {t('nav.contact')}
+                {isActive('/contact') && (
+                  <span aria-hidden="true" className="absolute bottom-0 left-2 right-2 h-[2px] bg-cyan-600 rounded-full animate-fade-in" />
+                )}
+              </Link>
+
+              {/* 8. بوابة الموظفين */}
+              <Link
+                to="/admin"
+                aria-current={isActive('/admin') ? 'page' : undefined}
+                className={`relative px-2.5 py-1.5 font-semibold transition-colors flex items-center gap-1.5 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 whitespace-nowrap ${
+                  isActive('/admin')
+                    ? 'text-cyan-700'
+                    : 'text-slate-700 hover:text-cyan-700'
+                }`}
+              >
+                <LogIn aria-hidden="true" className="w-3.5 h-3.5 opacity-70 shrink-0" />
+                <span>{t('nav.admin')}</span>
+                {isActive('/admin') && (
+                  <span aria-hidden="true" className="absolute bottom-0 left-2 right-2 h-[2px] bg-cyan-600 rounded-full animate-fade-in" />
+                )}
+              </Link>
+
+              {/* 9. Language Selector: Clean & Compact (🌐 العربية ▾) - No flags */}
+              <div className="relative ms-1.5">
+                <button
+                  type="button"
+                  id="lang-selector-button"
+                  aria-haspopup="listbox"
+                  aria-expanded={openDropdown === 'lang'}
+                  aria-controls="lang-selector-listbox"
+                  aria-label={`Language: ${currentLangObj.label}`}
+                  onClick={() => setOpenDropdown(openDropdown === 'lang' ? null : 'lang')}
+                  onKeyDown={(e) => handleDropdownKeyDown(e, 'lang')}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-cyan-800 hover:bg-slate-100 border border-slate-200 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 whitespace-nowrap"
+                >
+                  <Globe aria-hidden="true" className="w-3.5 h-3.5 text-cyan-600 shrink-0" />
+                  <span>{currentLangObj.label}</span>
+                  <ChevronDown
+                    aria-hidden="true"
+                    className={`w-3 h-3 transition-transform ${
+                      openDropdown === 'lang' ? 'rotate-180' : ''
+                    }`}
+                  />
+                </button>
+
+                {openDropdown === 'lang' && (
+                  <div
+                    id="lang-selector-listbox"
+                    role="listbox"
+                    aria-labelledby="lang-selector-button"
+                    className="absolute end-0 mt-2 w-36 bg-white rounded-xl shadow-xl border border-slate-100 py-1 z-50 animate-fade-in focus:outline-none"
+                  >
+                    {languages.map((l) => (
+                      <button
+                        key={l.code}
+                        role="option"
+                        aria-selected={lang === l.code}
+                        onClick={() => {
+                          setLang(l.code);
+                          setOpenDropdown(null);
+                        }}
+                        className={`w-full flex items-center justify-between px-3 py-1.5 text-xs text-start transition-colors focus:outline-none focus:bg-cyan-100/70 ${
+                          lang === l.code
+                            ? 'bg-cyan-50 text-cyan-800 font-semibold'
+                            : 'text-slate-600 hover:bg-slate-50'
+                        }`}
+                      >
+                        <span className="flex items-center gap-2">
+                          <Globe aria-hidden="true" className="w-3 h-3 text-cyan-600 opacity-60" />
+                          <span>{l.label}</span>
+                        </span>
+                        {lang === l.code && <Check aria-hidden="true" className="w-3.5 h-3.5 text-cyan-700" />}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </nav>
+
+            {/* Mobile Controls: Compact Language Selector + Hamburger */}
+            <div className="flex xl:hidden items-center gap-1.5">
+              {/* Compact Mobile Language Switcher (🌐 العربية ▾) */}
+              <div className="relative">
+                <button
+                  type="button"
+                  id="mobile-lang-btn"
+                  aria-haspopup="listbox"
+                  aria-expanded={openDropdown === 'lang'}
+                  onClick={() => setOpenDropdown(openDropdown === 'lang' ? null : 'lang')}
+                  className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold text-slate-700 bg-slate-50 border border-slate-200"
+                >
+                  <Globe aria-hidden="true" className="w-3 h-3 text-cyan-600" />
+                  <span>{currentLangObj.label}</span>
+                  <ChevronDown aria-hidden="true" className="w-2.5 h-2.5 text-slate-400" />
+                </button>
+
+                {openDropdown === 'lang' && (
+                  <div className="absolute end-0 mt-2 w-32 bg-white rounded-lg shadow-xl border border-slate-100 py-1 z-50">
+                    {languages.map((l) => (
+                      <button
+                        key={l.code}
+                        onClick={() => {
+                          setLang(l.code);
+                          setOpenDropdown(null);
+                        }}
+                        className={`w-full text-xs text-start px-2.5 py-1.5 flex items-center justify-between ${
+                          lang === l.code ? 'font-semibold text-cyan-800 bg-cyan-50' : 'text-slate-600'
+                        }`}
+                      >
+                        <span>{l.label}</span>
+                        {lang === l.code && <Check className="w-3 h-3 text-cyan-700" />}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Mobile Menu Toggle Button */}
+              <button
+                ref={mobileToggleRef}
+                type="button"
+                id="mobile-menu-button"
+                aria-haspopup="true"
+                aria-expanded={menuOpen}
+                aria-controls="mobile-navigation-drawer"
+                aria-label={menuOpen ? 'إغلاق القائمة الرئيسية' : 'فتح القائمة الرئيسية'}
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="p-1.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600"
+              >
+                {menuOpen ? <X aria-hidden="true" className="w-5 h-5" /> : <Menu aria-hidden="true" className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
 
-          <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden p-2 rounded-lg text-navy-800" aria-label="Menu">
-            {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </div>
+          {/* Mobile Navigation Drawer */}
+          {menuOpen && (
+            <div
+              ref={mobileMenuRef}
+              id="mobile-navigation-drawer"
+              role="dialog"
+              aria-modal="true"
+              aria-label={lang === 'ar' ? 'قائمة التنقل للأجهزة الذكية' : 'Mobile Navigation Menu'}
+              className="xl:hidden mt-2 pb-5 border-t border-slate-100 pt-3 flex flex-col gap-1.5 animate-fade-in max-h-[82vh] overflow-y-auto"
+            >
+              {/* Compact Language Selection in Drawer */}
+              <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-100 mb-1">
+                <p className="text-[11px] font-semibold text-slate-500 mb-1.5 flex items-center gap-1.5">
+                  <Globe aria-hidden="true" className="w-3 h-3 text-cyan-600" /> Language / اللغة
+                </p>
+                <div role="group" className="grid grid-cols-3 gap-1.5">
+                  {languages.map((l) => (
+                    <button
+                      key={l.code}
+                      type="button"
+                      aria-pressed={lang === l.code}
+                      onClick={() => setLang(l.code)}
+                      className={`py-1.5 px-1 text-xs font-semibold rounded-md text-center transition-colors flex items-center justify-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 ${
+                        lang === l.code
+                          ? 'bg-cyan-700 text-white shadow-sm'
+                          : 'bg-white text-slate-700 border border-slate-200'
+                      }`}
+                    >
+                      <Globe aria-hidden="true" className="w-3 h-3 opacity-60" />
+                      <span>{l.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-        {menuOpen && (
-          <nav className="lg:hidden mt-4 pb-4 flex flex-col gap-1 animate-fade-in">
-            {navLinks.map((link) => (
-              <Link key={link.to} to={link.to} className={`nav-link ${isActive(link.to) ? 'nav-link-active' : ''}`}>
-                {link.label}
-              </Link>
-            ))}
-            <div className="border-t border-slate-100 mt-2 pt-2">
-              <p className="px-4 py-1 text-xs font-bold text-slate-400">{t('cs.title')}</p>
-              {customerServices.map((svc) => {
-                const Icon = svc.icon;
-                return (
-                  <Link key={svc.to} to={svc.to} className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:bg-navy-50 hover:text-navy-700 transition-colors">
-                    <Icon className="w-4 h-4" />
-                    {svc.label}
-                  </Link>
-                );
-              })}
+              {/* Direct Links (Strict order requested, NO standalone "تسجيل زيارة") */}
+              <nav aria-label={lang === 'ar' ? 'روابط التنقل للأجهزة الذكية' : 'Mobile Nav Links'} className="flex flex-col gap-1">
+                {/* 1. الرئيسية */}
+                <Link
+                  to="/"
+                  aria-current={isActive('/') && location.pathname === '/' ? 'page' : undefined}
+                  className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 ${
+                    isActive('/') && location.pathname === '/'
+                      ? 'bg-cyan-50 text-cyan-800'
+                      : 'text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  {t('nav.home')}
+                </Link>
+
+                {/* 2. عن المختبرات */}
+                <Link
+                  to="/about"
+                  aria-current={isActive('/about') ? 'page' : undefined}
+                  className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 ${
+                    isActive('/about') ? 'bg-cyan-50 text-cyan-800' : 'text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  {t('nav.about')}
+                </Link>
+
+                {/* 3. المختبرات */}
+                <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                  <p className="text-xs font-semibold text-slate-500 mb-1.5 flex items-center gap-1.5">
+                    <Building2 aria-hidden="true" className="w-3.5 h-3.5 text-cyan-600" /> {t('nav.labs')}
+                  </p>
+                  <div className="space-y-1">
+                    {labItems.map((lab) => (
+                      <Link
+                        key={lab.id}
+                        to={lab.path}
+                        className="block px-2.5 py-1.5 rounded-md text-xs font-semibold text-slate-700 hover:bg-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600"
+                      >
+                        {lab.name}
+                      </Link>
+                    ))}
+                    <Link
+                      to="/laboratories"
+                      className="block px-2.5 py-1.5 rounded-md text-xs font-semibold text-cyan-700 hover:bg-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600"
+                    >
+                      {t('nav.allLabs')} ←
+                    </Link>
+                  </div>
+                </div>
+
+                {/* 4. الخدمات */}
+                <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                  <p className="text-xs font-semibold text-slate-500 mb-1.5 flex items-center gap-1.5">
+                    <FlaskConical aria-hidden="true" className="w-3.5 h-3.5 text-cyan-600" /> {t('nav.services')}
+                  </p>
+                  <div className="grid grid-cols-1 gap-1">
+                    {serviceItems.map((svc, i) => (
+                      <Link
+                        key={i}
+                        to={svc.path}
+                        className="block px-2.5 py-1 rounded-md text-xs font-medium text-slate-700 hover:bg-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600"
+                      >
+                        {t(svc.key)}
+                      </Link>
+                    ))}
+                    <Link
+                      to="/services"
+                      className="block px-2.5 py-1.5 rounded-md text-xs font-semibold text-cyan-700 hover:bg-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600"
+                    >
+                      {t('nav.allServices')} ←
+                    </Link>
+                  </div>
+                </div>
+
+                {/* 5. خدمات الزوار (Contains visitor registration, satisfaction survey, and enquiries) */}
+                <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                  <p className="text-xs font-semibold text-slate-500 mb-1.5 flex items-center gap-1.5">
+                    <Users aria-hidden="true" className="w-3.5 h-3.5 text-cyan-600" /> {t('cs.title')}
+                  </p>
+                  <div className="space-y-1">
+                    {customerServices.map((svc) => (
+                      <Link
+                        key={svc.to}
+                        to={svc.to}
+                        className="flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-semibold text-slate-700 hover:bg-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600"
+                      >
+                        <svc.icon aria-hidden="true" className="w-3.5 h-3.5 text-cyan-600" />
+                        <span>{svc.label}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 6. الأخبار */}
+                <Link
+                  to="/news"
+                  aria-current={isActive('/news') ? 'page' : undefined}
+                  className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 ${
+                    isActive('/news') ? 'bg-cyan-50 text-cyan-800' : 'text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  {t('nav.news')}
+                </Link>
+
+                {/* 7. تواصل معنا */}
+                <Link
+                  to="/contact"
+                  aria-current={isActive('/contact') ? 'page' : undefined}
+                  className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 ${
+                    isActive('/contact') ? 'bg-cyan-50 text-cyan-800' : 'text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  {t('nav.contact')}
+                </Link>
+
+                {/* 8. بوابة الموظفين */}
+                <Link
+                  to="/admin"
+                  aria-current={isActive('/admin') ? 'page' : undefined}
+                  className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 ${
+                    isActive('/admin') ? 'bg-cyan-50 text-cyan-800' : 'text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  <LogIn aria-hidden="true" className="w-4 h-4 text-cyan-600" />
+                  <span>{t('nav.admin')}</span>
+                </Link>
+              </nav>
             </div>
-            <div className="flex items-center gap-3 mt-2">
-              <button
-                onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
-                className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
-              >
-                <Globe className="w-4 h-4" />
-                {lang === 'ar' ? 'English' : 'العربية'}
-              </button>
-              <Link to="/register" className="flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-lg bg-navy-800 text-white text-sm font-bold">
-                <UserPlus className="w-4 h-4" />
-                {t('cs.register')}
-              </Link>
-            </div>
-          </nav>
-        )}
-      </div>
-    </header>
+          )}
+        </div>
+      </header>
+    </>
   );
 }

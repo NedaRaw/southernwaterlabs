@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700&family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,44 +6,161 @@
 
 @layer base {
   html {
+    /*
+     * Direction is controlled dynamically by the application:
+     * Arabic  -> dir="rtl"
+     * English/French -> dir="ltr"
+     *
+     * Do not force RTL here.
+     */
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  html[dir="rtl"] {
     direction: rtl;
+    font-family: 'Noto Sans Arabic', 'Noto Sans', system-ui, -apple-system, sans-serif;
+    line-height: 1.85;
+  }
+
+  html[dir="ltr"] {
+    direction: ltr;
+    font-family: 'Noto Sans', system-ui, -apple-system, sans-serif;
+    line-height: 1.65;
   }
 
   body {
-    font-family: 'Tajawal', sans-serif;
     background-color: #f8fafc;
     color: #1e293b;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /*
+   * Direction-aware text alignment.
+   * "start" automatically means:
+   * RTL  -> right
+   * LTR  -> left
+   */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  li,
+  label {
+    text-align: start;
+  }
+
+  /* Controlled Headings Hierarchy */
+  h1 {
+    font-weight: 700;
+    letter-spacing: -0.015em;
+  }
+
+  h2 {
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-weight: 600;
+  }
+
+  h4,
+  h5,
+  h6 {
+    font-weight: 600;
+  }
+
+  /* Controlled Line-height for Arabic Comfort */
+  html[dir="rtl"] p,
+  html[dir="rtl"] li,
+  html[dir="rtl"] span,
+  html[dir="rtl"] label {
+    line-height: 1.85;
+  }
+
+  html[dir="ltr"] p,
+  html[dir="ltr"] li,
+  html[dir="ltr"] span,
+  html[dir="ltr"] label {
+    line-height: 1.65;
   }
 }
 
 @layer components {
   .nav-link {
-    @apply px-4 py-2 text-sm font-medium text-slate-600 transition-colors duration-200 hover:text-blue-700;
+    padding-inline: 0.875rem;
+    padding-block: 0.5rem;
+    font-size: 14px;
+    font-weight: 500;
+    @apply text-slate-600 transition-colors duration-200 hover:text-navy-700;
   }
 
   .nav-link-active {
-    @apply text-blue-700 font-bold;
+    @apply text-navy-800 font-semibold;
   }
 
   .section-title {
-    @apply text-2xl sm:text-3xl font-extrabold text-slate-800;
+    @apply text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight;
+    text-align: start;
   }
 
   .section-subtitle {
-    @apply text-slate-500 text-base sm:text-lg;
+    @apply text-slate-600 text-base sm:text-lg max-w-3xl;
+    text-align: start;
+  }
+
+  /* Logical layout helpers for fluid RTL/LTR adaptation */
+  .start-auto {
+    inset-inline-start: auto;
+  }
+  .end-auto {
+    inset-inline-end: auto;
+  }
+  .start-0 {
+    inset-inline-start: 0;
+  }
+  .end-0 {
+    inset-inline-end: 0;
+  }
+  .ms-auto {
+    margin-inline-start: auto;
+  }
+  .me-auto {
+    margin-inline-end: auto;
+  }
+  .text-start {
+    text-align: start;
+  }
+  .text-end {
+    text-align: end;
   }
 }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .animate-fade-in-up {
@@ -54,16 +171,59 @@
   animation: fadeIn 0.3s ease-out forwards;
 }
 
-.stagger-1 { animation-delay: 0.05s; opacity: 0; }
-.stagger-2 { animation-delay: 0.1s; opacity: 0; }
-.stagger-3 { animation-delay: 0.15s; opacity: 0; }
-.stagger-4 { animation-delay: 0.2s; opacity: 0; }
-.stagger-5 { animation-delay: 0.25s; opacity: 0; }
-.stagger-6 { animation-delay: 0.3s; opacity: 0; }
-.stagger-7 { animation-delay: 0.35s; opacity: 0; }
-.stagger-8 { animation-delay: 0.4s; opacity: 0; }
+.stagger-1 {
+  animation-delay: 0.05s;
+  opacity: 0;
+}
 
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: #e2e8f0; }
-::-webkit-scrollbar-thumb { background: #1e3a5f; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #1e293b; }
+.stagger-2 {
+  animation-delay: 0.1s;
+  opacity: 0;
+}
+
+.stagger-3 {
+  animation-delay: 0.15s;
+  opacity: 0;
+}
+
+.stagger-4 {
+  animation-delay: 0.2s;
+  opacity: 0;
+}
+
+.stagger-5 {
+  animation-delay: 0.25s;
+  opacity: 0;
+}
+
+.stagger-6 {
+  animation-delay: 0.3s;
+  opacity: 0;
+}
+
+.stagger-7 {
+  animation-delay: 0.35s;
+  opacity: 0;
+}
+
+.stagger-8 {
+  animation-delay: 0.4s;
+  opacity: 0;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #e2e8f0;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e3a5f;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #1e293b;
+}

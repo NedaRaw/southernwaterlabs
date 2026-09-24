@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom';
-import { Droplets, ArrowLeft } from 'lucide-react';
-import { services } from '@/data/siteConfig';
+import { Droplets, ArrowLeft, ArrowRight } from 'lucide-react';
+import { services, getLocalizedService } from '@/data/siteConfig';
 import { useLang } from '@/lib/i18n';
 import Breadcrumb from '@/components/Breadcrumb';
 
 export default function Services() {
-  const { t } = useLang();
+  const { lang, t, dir } = useLang();
+  const Arrow = dir === 'rtl' ? ArrowLeft : ArrowRight;
 
   return (
     <div className="pt-28 pb-20">
@@ -22,10 +23,15 @@ export default function Services() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map((service, i) => {
+          {services.map((rawService, i) => {
+            const service = getLocalizedService(rawService, lang);
             const Icon = service.icon;
             return (
-              <div key={service.id} className="group p-8 rounded-xl bg-white border border-slate-200 hover:shadow-lg hover:border-navy-300 transition-all duration-300 animate-fade-in-up" style={{ animationDelay: `${i * 0.08}s` }}>
+              <div
+                key={service.id}
+                className="group p-8 rounded-xl bg-white border border-slate-200 hover:shadow-lg hover:border-navy-300 transition-all duration-300 animate-fade-in-up"
+                style={{ animationDelay: `${i * 0.08}s` }}
+              >
                 <div className="w-14 h-14 rounded-xl bg-navy-100 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
                   <Icon className="w-7 h-7 text-navy-700" />
                 </div>
@@ -33,7 +39,7 @@ export default function Services() {
                 <p className="text-sm text-slate-500 leading-relaxed mb-4">{service.description}</p>
                 <Link to="/contact" className="inline-flex items-center gap-1 text-navy-700 text-sm font-bold hover:gap-2 transition-all">
                   {t('services.more')}
-                  <ArrowLeft className="w-4 h-4" />
+                  <Arrow className="w-4 h-4" />
                 </Link>
               </div>
             );

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ChevronLeft, Home } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Home } from 'lucide-react';
 import { useLang } from '@/lib/i18n';
 
 export interface BreadcrumbItem {
@@ -9,7 +9,7 @@ export interface BreadcrumbItem {
 
 export default function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
   const { t, dir } = useLang();
-  const ArrowIcon = dir === 'rtl' ? ChevronLeft : ChevronLeft;
+  const ArrowIcon = dir === 'rtl' ? ChevronLeft : ChevronRight;
 
   return (
     <nav className="flex items-center gap-1.5 text-sm flex-wrap" aria-label="Breadcrumb">
