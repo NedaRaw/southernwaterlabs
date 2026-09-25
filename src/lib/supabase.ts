@@ -17,7 +17,7 @@ const STORAGE_KEYS = {
   ADMIN_USERS: 'swl_admin_users',
 };
 
-interface AdminUserData {
+export interface AdminUserData {
   id: string;
   username: string;
   password?: string;
@@ -25,43 +25,71 @@ interface AdminUserData {
   role: string;
 }
 
-interface VisitorDataRecord {
+export interface VisitorDataRecord {
   id: string;
-  visitor_name: string;
-  company: string | null;
-  job_title: string | null;
+  visitor_id?: string;
+  first_name?: string;
+  last_name?: string;
+  national_id?: string;
+  visitor_name?: string;
+  company?: string | null;
+  job_title?: string | null;
   phone: string;
-  email: string | null;
+  email?: string | null;
+  laboratory?: string | null;
+  branch?: string | null;
+  department?: string | null;
+  employee?: string | null;
+  purpose?: string | null;
   visit_date: string;
+  arrival_time?: string | null;
+  qr_url?: string | null;
+  notes?: string | null;
+  status: string;
+  created_at: string;
+  [key: string]: unknown;
+}
+
+export interface SurveyDataRecord {
+  id: string;
   laboratory: string;
-  visit_purpose: string;
-  notes: string | null;
-  status: string;
+  branch?: string | null;
+  service_used: string;
+  how_heard?: string | null;
+  overall_satisfaction?: string | null;
+  staff_professionalism?: number | null;
+  service_speed?: number | null;
+  sample_submission?: number | null;
+  report_clarity?: number | null;
+  communication?: number | null;
+  laboratory_cleanliness?: number | null;
+  overall_experience?: number | null;
+  results_on_time?: string | null;
+  reports_understandable?: string | null;
+  recommendation_score?: number | null;
+  liked_most?: string | null;
+  improvements?: string | null;
+  contact_me?: string | null;
+  additional_comments?: string | null;
   created_at: string;
   [key: string]: unknown;
 }
 
-interface SurveyDataRecord {
+export interface EnquiryDataRecord {
   id: string;
-  respondent_name: string | null;
-  respondent_contact: string | null;
-  service_quality_rating: number;
-  facility_rating: number;
-  staff_rating: number;
-  overall_rating: number;
-  comments: string | null;
-  would_recommend: boolean | null;
-  created_at: string;
-  [key: string]: unknown;
-}
-
-interface EnquiryDataRecord {
-  id: string;
-  name: string;
-  contact_info: string;
-  subject: string;
+  laboratory?: string | null;
+  branch?: string | null;
+  full_name?: string;
+  name?: string;
+  company_name?: string | null;
+  email?: string;
+  phone?: string | null;
+  contact_info?: string;
+  location?: string | null;
+  service_required?: string | null;
+  subject?: string | null;
   message: string;
-  status: string;
+  status?: string;
   created_at: string;
   [key: string]: unknown;
 }

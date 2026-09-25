@@ -1,46 +1,109 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Star, Send, AlertCircle, Loader2, CheckCircle2, Droplets } from 'lucide-react';
+import {
+  Star, Send, AlertCircle, Loader2, CheckCircle2, Droplets,
+  Building2, MessageSquare, ThumbsUp
+} from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useLang } from '@/lib/i18n';
 import Breadcrumb from '@/components/Breadcrumb';
+import { LAB_HIERARCHY, APPROVED_SERVICES } from '@/data/labServices';
 
 interface FormData {
-  respondent_name: string;
-  respondent_contact: string;
-  service_quality_rating: number;
-  facility_rating: number;
-  staff_rating: number;
-  overall_rating: number;
-  comments: string;
-  would_recommend: boolean | null;
+  laboratory: string;
+  branch: string;
+  service_used: string;
+  how_heard: string;
+  overall_satisfaction: string;
+  staff_professionalism: number;
+  service_speed: number;
+  sample_submission: number;
+  report_clarity: number;
+  communication: number;
+  laboratory_cleanliness: number;
+  overall_experience: number;
+  results_on_time: string;
+  reports_understandable: string;
+  recommendation_score: number;
+  liked_most: string;
+  improvements: string;
+  contact_me: string;
+  additional_comments: string;
 }
 
 export default function Survey() {
-  const { t } = useLang();
+  const { lang, t, dir } = useLang();
+
   const [formData, setFormData] = useState<FormData>({
-    respondent_name: '',
-    respondent_contact: '',
-    service_quality_rating: 0,
-    facility_rating: 0,
-    staff_rating: 0,
-    overall_rating: 0,
-    comments: '',
-    would_recommend: null,
+    laboratory: 'asir',
+    branch: '',
+    service_used: 'Drinking Water Analysis',
+    how_heard: 'Website',
+    overall_satisfaction: 'Very Satisfied',
+    staff_professionalism: 5,
+    service_speed: 5,
+    sample_submission: 5,
+    report_clarity: 5,
+    communication: 5,
+    laboratory_cleanliness: 5,
+    overall_experience: 5,
+    results_on_time: 'Yes',
+    reports_understandable: 'Yes',
+    recommendation_score: 10,
+    liked_most: '',
+    improvements: '',
+    contact_me: 'No',
+    additional_comments: '',
   });
+
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState('');
 
+  const selectedLab = LAB_HIERARCHY.find((l) => l.id === formData.laboratory);
+  const availableBranches = selectedLab?.branches || [];
+
+  const awarenessOptions = [
+    { value: 'Website', label: t('survey.source.website') },
+    { value: 'Social Media', label: t('survey.source.social') },
+    { value: 'Government Agency', label: t('survey.source.gov') },
+    { value: 'Company', label: t('survey.source.company') },
+    { value: 'Friend / Colleagues', label: t('survey.source.friend') },
+    { value: 'Other', label: t('survey.source.other') },
+  ];
+
+  const satisfactionOptions = [
+    { value: 'Very Satisfied', label: t('survey.sat.verySatisfied') },
+    { value: 'Satisfied', label: t('survey.sat.satisfied') },
+    { value: 'Neutral', label: t('survey.sat.neutral') },
+    { value: 'Dissatisfied', label: t('survey.sat.dissatisfied') },
+    { value: 'Very Dissatisfied', label: t('survey.sat.veryDissatisfied') },
+  ];
+
   const validate = (): boolean => {
     const e: Record<string, string> = {};
-    if (formData.service_quality_rating === 0) e.service_quality_rating = t('survey.rating');
-    if (formData.facility_rating === 0) e.facility_rating = t('survey.rating');
-    if (formData.staff_rating === 0) e.staff_rating = t('survey.rating');
-    if (formData.overall_rating === 0) e.overall_rating = t('survey.rating');
+    if (!formData.laboratory) e.laboratory = t('register.required');
+    if (!formData.service_used) e.service_used = t('register.required');
     setErrors(e);
     return Object.keys(e).length === 0;
+  };
+
+  const handleChange = (field: keyof FormData, value: string | number) => {
+    setFormData((prev) => {
+      const next = { ...prev, [field]: value };
+      if (field === 'laboratory') {
+        next.branch = '';
+      }
+      return next;
+    });
+    if (errors[field]) {
+      setErrors((prev) => {
+        const n = { ...prev };
+        delete n[field];
+        return n;
+      });
+    }
   };
 
   const handleSubmit = async (ev: React.FormEvent) => {
@@ -48,52 +111,74 @@ export default function Survey() {
     setSubmitError('');
     if (!validate()) return;
     setSubmitting(true);
+
     try {
-      const { error } = await supabase.from('surveys').insert({
-        respondent_name: formData.respondent_name.trim() || null,
-        respondent_contact: formData.respondent_contact.trim() || null,
-        service_quality_rating: formData.service_quality_rating,
-        facility_rating: formData.facility_rating,
-        staff_rating: formData.staff_rating,
-        overall_rating: formData.overall_rating,
-        comments: formData.comments.trim() || null,
-        would_recommend: formData.would_recommend,
-      });
-      if (error) throw error;
+      // Real Supabase INSERT ONLY into public.surveys (No SELECT by public)
+      const { error } = await supabase.from('surveys').insert([
+        {
+          laboratory: formData.laboratory,
+          branch: formData.branch || null,
+          service_used: formData.service_used,
+          how_heard: formData.how_heard || null,
+          overall_satisfaction: formData.overall_satisfaction || null,
+          staff_professionalism: Number(formData.staff_professionalism) || 5,
+          service_speed: Number(formData.service_speed) || 5,
+          sample_submission: Number(formData.sample_submission) || 5,
+          report_clarity: Number(formData.report_clarity) || 5,
+          communication: Number(formData.communication) || 5,
+          laboratory_cleanliness: Number(formData.laboratory_cleanliness) || 5,
+          overall_experience: Number(formData.overall_experience) || 5,
+          results_on_time: formData.results_on_time || null,
+          reports_understandable: formData.reports_understandable || null,
+          recommendation_score: Number(formData.recommendation_score) || 10,
+          liked_most: formData.liked_most.trim() || null,
+          improvements: formData.improvements.trim() || null,
+          contact_me: formData.contact_me || null,
+          additional_comments: formData.additional_comments.trim() || null,
+        },
+      ]);
+
+      if (error) {
+        console.error('Survey submission error:', error);
+        throw error;
+      }
+
       setSubmitted(true);
-    } catch (err) {
-      setSubmitError(t('survey.error'));
-      console.error('Survey error:', err);
+    } catch (err: unknown) {
+      console.error('Survey submit failed:', err);
+      setSubmitError(t('survey.errorMsg'));
     } finally {
       setSubmitting(false);
     }
   };
 
   const StarRating = ({
+    label,
     value,
     onChange,
-    error,
   }: {
+    label: string;
     value: number;
     onChange: (v: number) => void;
-    error?: string;
   }) => (
-    <div>
-      <div className="flex items-center gap-1">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-lg bg-slate-50 border border-slate-100 gap-2">
+      <span className="text-sm font-semibold text-slate-700">{label}</span>
+      <div className="flex items-center gap-1.5 shrink-0">
         {[1, 2, 3, 4, 5].map((n) => (
           <button
             key={n}
             type="button"
             onClick={() => onChange(n)}
-            className={`transition-transform hover:scale-110 ${
-              n <= value ? 'text-amber-400' : 'text-slate-300'
-            } ${error ? 'ring-2 ring-red-200 rounded' : ''}`}
+            className="p-1 hover:scale-110 transition-transform focus:outline-none"
+            aria-label={`${n} of 5`}
           >
-            <Star className="w-7 h-7" fill={n <= value ? 'currentColor' : 'none'} />
+            <Star
+              className={`w-6 h-6 ${n <= value ? 'text-amber-400 fill-amber-400' : 'text-slate-300'}`}
+            />
           </button>
         ))}
+        <span className="text-xs font-bold text-navy-800 ms-2 w-7 text-center">{value}/5</span>
       </div>
-      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
     </div>
   );
 
@@ -104,29 +189,60 @@ export default function Survey() {
           <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4 animate-fade-in">
             <CheckCircle2 className="w-12 h-12 text-green-600" />
           </div>
-          <h1 className="text-2xl font-extrabold text-slate-800 mb-2">{t('survey.success')}</h1>
+          <h1 className="text-2xl font-extrabold text-slate-800 mb-2">{t('survey.successMsg')}</h1>
           <p className="text-slate-500 mb-6">{t('survey.successDesc')}</p>
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-navy-800 text-white font-bold text-sm hover:bg-navy-700 transition-colors shadow-sm"
-          >
-            {t('success.home')}
-          </Link>
+          <div className="flex justify-center gap-3">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-navy-800 text-white font-bold text-sm hover:bg-navy-700 transition-colors shadow-sm"
+            >
+              {t('success.home')}
+            </Link>
+            <button
+              onClick={() => {
+                setSubmitted(false);
+                setFormData({
+                  laboratory: 'asir',
+                  branch: '',
+                  service_used: 'Drinking Water Analysis',
+                  how_heard: 'Website',
+                  overall_satisfaction: 'Very Satisfied',
+                  staff_professionalism: 5,
+                  service_speed: 5,
+                  sample_submission: 5,
+                  report_clarity: 5,
+                  communication: 5,
+                  laboratory_cleanliness: 5,
+                  overall_experience: 5,
+                  results_on_time: 'Yes',
+                  reports_understandable: 'Yes',
+                  recommendation_score: 10,
+                  liked_most: '',
+                  improvements: '',
+                  contact_me: 'No',
+                  additional_comments: '',
+                });
+              }}
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-white border border-slate-200 text-slate-700 font-bold text-sm hover:bg-slate-50 transition-colors shadow-sm"
+            >
+              {t('survey.submit')}
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
-  const ratingFields = [
-    { key: 'service_quality_rating' as const, label: t('survey.quality') },
-    { key: 'facility_rating' as const, label: t('survey.facility') },
-    { key: 'staff_rating' as const, label: t('survey.staff') },
-    { key: 'overall_rating' as const, label: t('survey.overall') },
-  ];
+  const inputClass = (field: string) =>
+    `w-full px-4 py-3 rounded-lg bg-slate-50 border ${
+      errors[field] ? 'border-red-400 bg-red-50' : 'border-slate-200'
+    } text-slate-700 focus:outline-none focus:border-navy-500 focus:bg-white transition-all`;
+  const labelClass = 'block text-sm font-bold text-slate-600 mb-2';
+  const req = <span className="text-red-500">*</span>;
 
   return (
     <div className="pt-28 pb-20">
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <Breadcrumb items={[{ label: t('survey.title') }]} />
 
         <div className="mt-6 mb-8 text-center">
@@ -141,94 +257,310 @@ export default function Survey() {
         {submitError && (
           <div className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm font-medium flex items-center gap-2 animate-fade-in">
             <AlertCircle className="w-5 h-5 shrink-0" />
-            {submitError}
+            <span>{submitError}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="p-6 sm:p-8 rounded-xl bg-white border border-slate-200">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6">
+        <form onSubmit={handleSubmit} className="space-y-8" dir={dir}>
+          {/* Card 1: Laboratory & Service Context */}
+          <div className="p-6 sm:p-8 rounded-xl bg-white border border-slate-200 shadow-sm">
+            <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-100">
+              <div className="w-10 h-10 rounded-lg bg-navy-100 flex items-center justify-center">
+                <Building2 className="w-5 h-5 text-navy-600" />
+              </div>
+              <h2 className="text-lg font-bold text-slate-800">{t('survey.lab')}</h2>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
-                <label className="block text-sm font-bold text-slate-600 mb-2">{t('survey.name')}</label>
-                <input
-                  type="text"
-                  placeholder={t('survey.name')}
-                  value={formData.respondent_name}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, respondent_name: e.target.value }))}
-                  className="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 focus:outline-none focus:border-navy-500 focus:bg-white transition-all"
-                />
+                <label className={labelClass}>{t('survey.lab')} {req}</label>
+                <select
+                  value={formData.laboratory}
+                  onChange={(e) => handleChange('laboratory', e.target.value)}
+                  className={inputClass('laboratory')}
+                >
+                  {LAB_HIERARCHY.map((lab) => (
+                    <option key={lab.id} value={lab.id}>
+                      {lab.name[lang] || lab.name.en}
+                    </option>
+                  ))}
+                </select>
+                {errors.laboratory && <p className="text-red-500 text-xs mt-1">{errors.laboratory}</p>}
+              </div>
+
+              <div>
+                <label className={labelClass}>{t('survey.branch')}</label>
+                <select
+                  value={formData.branch}
+                  onChange={(e) => handleChange('branch', e.target.value)}
+                  className={inputClass('branch')}
+                >
+                  <option value="">{t('register.selectBranch')}</option>
+                  {availableBranches.map((br) => (
+                    <option key={br.id} value={br.id}>
+                      {br.name[lang] || br.name.en}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className={labelClass}>{t('survey.serviceUsed')} {req}</label>
+                <select
+                  value={formData.service_used}
+                  onChange={(e) => handleChange('service_used', e.target.value)}
+                  className={inputClass('service_used')}
+                >
+                  {APPROVED_SERVICES.map((svc) => (
+                    <option key={svc.value} value={svc.value}>
+                      {svc[lang] || svc.en}
+                    </option>
+                  ))}
+                </select>
+                {errors.service_used && <p className="text-red-500 text-xs mt-1">{errors.service_used}</p>}
+              </div>
+
+              <div>
+                <label className={labelClass}>{t('survey.howHeard')}</label>
+                <select
+                  value={formData.how_heard}
+                  onChange={(e) => handleChange('how_heard', e.target.value)}
+                  className={inputClass('how_heard')}
+                >
+                  {awarenessOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className={labelClass}>{t('survey.overallSat')}</label>
+                <select
+                  value={formData.overall_satisfaction}
+                  onChange={(e) => handleChange('overall_satisfaction', e.target.value)}
+                  className={inputClass('overall_satisfaction')}
+                >
+                  {satisfactionOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 2: 1 to 5 Rating Matrix */}
+          <div className="p-6 sm:p-8 rounded-xl bg-white border border-slate-200 shadow-sm">
+            <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-100">
+              <div className="w-10 h-10 rounded-lg bg-navy-100 flex items-center justify-center">
+                <Star className="w-5 h-5 text-navy-600" />
               </div>
               <div>
-                <label className="block text-sm font-bold text-slate-600 mb-2">{t('survey.contact')}</label>
-                <input
-                  type="text"
-                  placeholder={t('survey.contact')}
-                  value={formData.respondent_contact}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, respondent_contact: e.target.value }))}
-                  className="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 focus:outline-none focus:border-navy-500 focus:bg-white transition-all"
-                />
+                <h2 className="text-lg font-bold text-slate-800">{t('survey.ratingsTitle')}</h2>
+                <p className="text-xs text-slate-400">1 = {t('survey.sat.veryDissatisfied')} | 5 = {t('survey.sat.verySatisfied')}</p>
               </div>
             </div>
 
-            <div className="space-y-5">
-              {ratingFields.map((field) => (
-                <div key={field.key} className="p-4 rounded-lg bg-slate-50">
-                  <label className="block text-sm font-bold text-slate-600 mb-2">
-                    {field.label} <span className="text-red-500">*</span>
-                  </label>
-                  <StarRating
-                    value={formData[field.key]}
-                    onChange={(v) => {
-                      setFormData((prev) => ({ ...prev, [field.key]: v }));
-                      setErrors((prev) => {
-                        const n = { ...prev };
-                        delete n[field.key];
-                        return n;
-                      });
-                    }}
-                    error={errors[field.key]}
-                  />
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-6">
-              <label className="block text-sm font-bold text-slate-600 mb-2">{t('survey.recommend')}</label>
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setFormData((prev) => ({ ...prev, would_recommend: true }))}
-                  className={`px-5 py-2.5 rounded-lg text-sm font-bold transition-colors ${
-                    formData.would_recommend === true
-                      ? 'bg-green-100 text-green-700 border-2 border-green-300'
-                      : 'bg-slate-50 text-slate-500 border-2 border-slate-200'
-                  }`}
-                >
-                  {t('survey.yes')}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFormData((prev) => ({ ...prev, would_recommend: false }))}
-                  className={`px-5 py-2.5 rounded-lg text-sm font-bold transition-colors ${
-                    formData.would_recommend === false
-                      ? 'bg-red-100 text-red-700 border-2 border-red-300'
-                      : 'bg-slate-50 text-slate-500 border-2 border-slate-200'
-                  }`}
-                >
-                  {t('survey.no')}
-                </button>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <label className="block text-sm font-bold text-slate-600 mb-2">{t('survey.comments')}</label>
-              <textarea
-                rows={4}
-                placeholder={t('survey.comments')}
-                value={formData.comments}
-                onChange={(e) => setFormData((prev) => ({ ...prev, comments: e.target.value }))}
-                className="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 focus:outline-none focus:border-navy-500 focus:bg-white transition-all resize-none"
+            <div className="space-y-3">
+              <StarRating
+                label={t('survey.staffProf')}
+                value={formData.staff_professionalism}
+                onChange={(v) => handleChange('staff_professionalism', v)}
               />
+              <StarRating
+                label={t('survey.serviceSpeed')}
+                value={formData.service_speed}
+                onChange={(v) => handleChange('service_speed', v)}
+              />
+              <StarRating
+                label={t('survey.sampleSubmission')}
+                value={formData.sample_submission}
+                onChange={(v) => handleChange('sample_submission', v)}
+              />
+              <StarRating
+                label={t('survey.reportClarity')}
+                value={formData.report_clarity}
+                onChange={(v) => handleChange('report_clarity', v)}
+              />
+              <StarRating
+                label={t('survey.comm')}
+                value={formData.communication}
+                onChange={(v) => handleChange('communication', v)}
+              />
+              <StarRating
+                label={t('survey.cleanliness')}
+                value={formData.laboratory_cleanliness}
+                onChange={(v) => handleChange('laboratory_cleanliness', v)}
+              />
+              <StarRating
+                label={t('survey.overallExp')}
+                value={formData.overall_experience}
+                onChange={(v) => handleChange('overall_experience', v)}
+              />
+            </div>
+          </div>
+
+          {/* Card 3: Additional Timeliness & Reports Questions */}
+          <div className="p-6 sm:p-8 rounded-xl bg-white border border-slate-200 shadow-sm">
+            <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-100">
+              <div className="w-10 h-10 rounded-lg bg-navy-100 flex items-center justify-center">
+                <ThumbsUp className="w-5 h-5 text-navy-600" />
+              </div>
+              <h2 className="text-lg font-bold text-slate-800">{t('survey.resultsOnTime')}</h2>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div>
+                <label className={labelClass}>{t('survey.resultsOnTime')}</label>
+                <div className="flex gap-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                  {['Yes', 'Partially', 'No'].map((val) => (
+                    <label key={val} className="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700">
+                      <input
+                        type="radio"
+                        name="results_on_time"
+                        value={val}
+                        checked={formData.results_on_time === val}
+                        onChange={(e) => handleChange('results_on_time', e.target.value)}
+                        className="text-navy-600 focus:ring-navy-500"
+                      />
+                      <span>
+                        {val === 'Yes'
+                          ? t('survey.yesPartialNo.yes')
+                          : val === 'Partially'
+                          ? t('survey.yesPartialNo.partial')
+                          : t('survey.yesPartialNo.no')}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className={labelClass}>{t('survey.reportsEasy')}</label>
+                <div className="flex gap-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                  {['Yes', 'Somewhat', 'No'].map((val) => (
+                    <label key={val} className="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700">
+                      <input
+                        type="radio"
+                        name="reports_understandable"
+                        value={val}
+                        checked={formData.reports_understandable === val}
+                        onChange={(e) => handleChange('reports_understandable', e.target.value)}
+                        className="text-navy-600 focus:ring-navy-500"
+                      />
+                      <span>
+                        {val === 'Yes'
+                          ? t('survey.yesSomeNo.yes')
+                          : val === 'Somewhat'
+                          ? t('survey.yesSomeNo.somewhat')
+                          : t('survey.yesSomeNo.no')}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Recommendation Score Slider (0 to 10) */}
+            <div className="mt-6 pt-5 border-t border-slate-100">
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-sm font-bold text-slate-700">
+                  {t('survey.recommendTitle')}
+                </label>
+                <span className="px-3 py-1 bg-navy-100 text-navy-800 text-sm font-bold rounded-full">
+                  {formData.recommendation_score} / 10
+                </span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="10"
+                step="1"
+                value={formData.recommendation_score}
+                onChange={(e) => handleChange('recommendation_score', parseInt(e.target.value, 10))}
+                className="w-full accent-navy-600 cursor-pointer"
+              />
+              <div className="flex justify-between text-xs text-slate-400 mt-1">
+                <span>0 (غير محتمل)</span>
+                <span>5</span>
+                <span>10 (محتمل جداً)</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 4: Qualitative Feedback & Comments */}
+          <div className="p-6 sm:p-8 rounded-xl bg-white border border-slate-200 shadow-sm">
+            <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-100">
+              <div className="w-10 h-10 rounded-lg bg-navy-100 flex items-center justify-center">
+                <MessageSquare className="w-5 h-5 text-navy-600" />
+              </div>
+              <h2 className="text-lg font-bold text-slate-800">{t('survey.comments')}</h2>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className={labelClass}>{t('survey.likedMost')}</label>
+                <input
+                  type="text"
+                  placeholder={lang === 'ar' ? 'أكثر ما أعجبك في الخدمة أو تعامل الفريق...' : 'What you liked most...'}
+                  value={formData.liked_most}
+                  onChange={(e) => handleChange('liked_most', e.target.value)}
+                  className={inputClass('liked_most')}
+                />
+              </div>
+
+              <div>
+                <label className={labelClass}>{t('survey.improvements')}</label>
+                <input
+                  type="text"
+                  placeholder={lang === 'ar' ? 'أي جانب ترى أنه بحاجة إلى تحسين...' : 'Suggestions for improvement...'}
+                  value={formData.improvements}
+                  onChange={(e) => handleChange('improvements', e.target.value)}
+                  className={inputClass('improvements')}
+                />
+              </div>
+
+              <div>
+                <label className={labelClass}>{t('survey.contactMe')}</label>
+                <div className="flex gap-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                  <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700">
+                    <input
+                      type="radio"
+                      name="contact_me"
+                      value="Yes"
+                      checked={formData.contact_me === 'Yes'}
+                      onChange={(e) => handleChange('contact_me', e.target.value)}
+                      className="text-navy-600 focus:ring-navy-500"
+                    />
+                    <span>{t('survey.yes')}</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700">
+                    <input
+                      type="radio"
+                      name="contact_me"
+                      value="No"
+                      checked={formData.contact_me === 'No'}
+                      onChange={(e) => handleChange('contact_me', e.target.value)}
+                      className="text-navy-600 focus:ring-navy-500"
+                    />
+                    <span>{t('survey.no')}</span>
+                  </label>
+                </div>
+              </div>
+
+              <div>
+                <label className={labelClass}>{t('survey.additionalComments')}</label>
+                <textarea
+                  rows={3}
+                  placeholder={lang === 'ar' ? 'أي ملاحظات أو رسائل أخرى تود مشاركتها...' : 'Additional feedback or notes...'}
+                  value={formData.additional_comments}
+                  onChange={(e) => handleChange('additional_comments', e.target.value)}
+                  className={`${inputClass('additional_comments')} resize-none`}
+                />
+              </div>
             </div>
           </div>
 

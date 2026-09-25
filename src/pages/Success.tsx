@@ -1,44 +1,65 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { CheckCircle2, Download, Home, Star, User, Calendar, Building2, Hash, AlertCircle, Loader2, Printer } from 'lucide-react';
+import {
+  CheckCircle2, Download, Home, Star, User, Calendar,
+  Building2, Hash, AlertCircle, Loader2, Printer, ShieldCheck
+} from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useLang } from '@/lib/i18n';
 import Breadcrumb from '@/components/Breadcrumb';
+import { getLabLabel, getBranchLabel } from '@/data/labServices';
 
 interface VisitorData {
   id: string;
-  visitor_name: string;
+  visitor_id?: string;
+  first_name?: string;
+  last_name?: string;
+  visitor_name?: string;
   visit_date: string;
-  laboratory: string;
-  visit_purpose: string;
+  arrival_time?: string;
+  laboratory?: string;
+  branch?: string | null;
+  department?: string;
+  employee?: string;
+  purpose?: string;
+  visit_purpose?: string;
   phone: string;
-  company: string | null;
-  job_title: string | null;
-  email: string | null;
-  notes: string | null;
+  company?: string | null;
+  job_title?: string | null;
+  email?: string | null;
+  notes?: string | null;
+  qr_url?: string;
   status: string;
   created_at: string;
 }
 
 export default function Success() {
   const [searchParams] = useSearchParams();
-  const visitorId = searchParams.get('id');
-  const { t } = useLang();
+  const rawId = searchParams.get('id');
+  const { lang, t, dir } = useLang();
   const [visitor, setVisitor] = useState<VisitorData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showBadge, setShowBadge] = useState(false);
 
   useEffect(() => {
-    if (!visitorId) {
+    if (!rawId) {
       setError(t('success.notFound'));
       setLoading(false);
       return;
     }
     const fetchVisitor = async () => {
       try {
-        const { data, error } = await supabase.from('visitors').select('*').eq('id', visitorId).single();
-        if (error || !data) {
+        // Query by visitor_id first, then by uuid id
+        let query = supabase.from('visitors').select('*');
+        if (rawId.startsWith('LAB-')) {
+          query = query.eq('visitor_id', rawId);
+        } else {
+          query = query.or(`visitor_id.eq.${rawId},id.eq.${rawId}`);
+        }
+
+        const { data, error: queryError } = await query.single();
+        if (queryError || !data) {
           setError(t('success.notFound'));
           return;
         }
@@ -50,11 +71,26 @@ export default function Success() {
       }
     };
     fetchVisitor();
-  }, [visitorId, t]);
+  }, [rawId, t]);
 
   const handlePrint = () => {
     window.print();
   };
+
+  const displayName = visitor
+    ? visitor.first_name && visitor.last_name
+      ? `${visitor.first_name} ${visitor.last_name}`
+      : visitor.visitor_name || visitor.first_name || 'Visitor'
+    : '';
+
+  const displayRefId = visitor?.visitor_id || visitor?.id || rawId || '';
+
+  const displayLab = visitor?.laboratory
+    ? getLabLabel(visitor.laboratory, lang) +
+      (visitor.branch ? ` - ${getBranchLabel(visitor.laboratory, visitor.branch, lang)}` : '')
+    : visitor?.department || 'Southern Sector Water Laboratories';
+
+  const displayPurpose = visitor?.purpose || visitor?.visit_purpose || '';
 
   if (loading) {
     return (
@@ -85,50 +121,76 @@ export default function Success() {
   }
 
   return (
-    <div className="pt-28 pb-20">
+    <div className="pt-28 pb-20" dir={dir}>
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <Breadcrumb items={[{ label: t('register.title'), to: '/register' }, { label: t('success.title') }]} />
 
         <div className="mt-6">
           <div className="text-center mb-8">
-            <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4 animate-fade-in">
+            <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4 animate-fade-in shadow-inner">
               <CheckCircle2 className="w-12 h-12 text-green-600" />
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-800 mb-2">{t('success.title')}</h1>
-            <p className="text-slate-500">{t('success.desc')}</p>
+            <p className="text-slate-500 max-w-lg mx-auto">{t('success.desc')}</p>
           </div>
 
-          <div className="p-6 sm:p-8 rounded-xl bg-white border border-slate-200">
+          {/* Reference badge highlight */}
+          <div className="mb-6 p-4 rounded-xl bg-navy-50 border border-navy-100 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <ShieldCheck className="w-6 h-6 text-navy-700" />
+              <div>
+                <p className="text-xs font-semibold text-navy-600">{t('success.ref')}</p>
+                <p className="text-base font-extrabold text-navy-900 tracking-wider font-mono">{displayRefId}</p>
+              </div>
+            </div>
+            <span className="px-3 py-1 rounded-full bg-green-100 text-green-800 text-xs font-bold">
+              {visitor.status || 'Pending'}
+            </span>
+          </div>
+
+          <div className="p-6 sm:p-8 rounded-xl bg-white border border-slate-200 shadow-sm">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div className="flex items-center gap-3 p-4 rounded-lg bg-slate-50">
                 <User className="w-5 h-5 text-navy-600 shrink-0" />
                 <div>
                   <p className="text-xs text-slate-400">{t('visitor.name')}</p>
-                  <p className="text-sm font-bold text-slate-700">{visitor.visitor_name}</p>
+                  <p className="text-sm font-bold text-slate-700">{displayName}</p>
                 </div>
               </div>
+
               <div className="flex items-center gap-3 p-4 rounded-lg bg-slate-50">
                 <Calendar className="w-5 h-5 text-navy-600 shrink-0" />
                 <div>
                   <p className="text-xs text-slate-400">{t('visitor.date')}</p>
-                  <p className="text-sm font-bold text-slate-700">{visitor.visit_date}</p>
+                  <p className="text-sm font-bold text-slate-700">
+                    {visitor.visit_date} {visitor.arrival_time ? `(${visitor.arrival_time})` : ''}
+                  </p>
                 </div>
               </div>
+
               <div className="flex items-center gap-3 p-4 rounded-lg bg-slate-50">
                 <Building2 className="w-5 h-5 text-navy-600 shrink-0" />
                 <div>
                   <p className="text-xs text-slate-400">{t('visitor.lab')}</p>
-                  <p className="text-sm font-bold text-slate-700">{visitor.laboratory}</p>
+                  <p className="text-sm font-bold text-slate-700">{displayLab}</p>
                 </div>
               </div>
+
               <div className="flex items-center gap-3 p-4 rounded-lg bg-slate-50">
                 <Hash className="w-5 h-5 text-navy-600 shrink-0" />
                 <div>
-                  <p className="text-xs text-slate-400">{t('success.ref')}</p>
-                  <p className="text-sm font-bold text-navy-700 break-all">{visitor.id}</p>
+                  <p className="text-xs text-slate-400">{t('register.purpose')}</p>
+                  <p className="text-sm font-bold text-slate-700">{displayPurpose || '-'}</p>
                 </div>
               </div>
             </div>
+
+            {visitor.employee && (
+              <div className="mt-4 p-3.5 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-between text-xs">
+                <span className="text-slate-500 font-medium">{t('register.employee')}:</span>
+                <span className="font-bold text-slate-800">{visitor.employee}</span>
+              </div>
+            )}
           </div>
 
           {/* Printable Visitor Badge Card */}
@@ -151,31 +213,39 @@ export default function Success() {
               <div className="space-y-3 text-sm">
                 <div>
                   <p className="text-xs text-navy-300">{t('visitor.name')}</p>
-                  <p className="text-lg font-bold text-white">{visitor.visitor_name}</p>
+                  <p className="text-lg font-bold text-white">{displayName}</p>
                 </div>
+
                 {visitor.company && (
                   <div>
                     <p className="text-xs text-navy-300">{t('register.company')}</p>
-                    <p className="font-medium text-slate-200">{visitor.company}</p>
+                    <p className="font-medium text-slate-200">
+                      {visitor.company} {visitor.job_title ? `(${visitor.job_title})` : ''}
+                    </p>
                   </div>
                 )}
+
                 <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10">
                   <div>
                     <p className="text-xs text-navy-300">{t('visitor.date')}</p>
-                    <p className="font-medium text-slate-200">{visitor.visit_date}</p>
+                    <p className="font-medium text-slate-200">
+                      {visitor.visit_date} {visitor.arrival_time ? `- ${visitor.arrival_time}` : ''}
+                    </p>
                   </div>
                   <div>
                     <p className="text-xs text-navy-300">{t('visitor.lab')}</p>
-                    <p className="font-medium text-slate-200">{visitor.laboratory}</p>
+                    <p className="font-medium text-slate-200">{displayLab}</p>
                   </div>
                 </div>
+
                 <div className="pt-2 border-t border-white/10">
                   <p className="text-xs text-navy-300">{t('visitor.purpose')}</p>
-                  <p className="font-medium text-slate-200">{visitor.visit_purpose}</p>
+                  <p className="font-medium text-slate-200">{displayPurpose}</p>
                 </div>
+
                 <div className="pt-2 border-t border-white/10">
                   <p className="text-xs text-navy-300">{t('success.ref')}</p>
-                  <p className="text-xs font-mono text-navy-200 break-all">{visitor.id}</p>
+                  <p className="text-xs font-mono text-navy-200 break-all">{displayRefId}</p>
                 </div>
               </div>
             </div>

@@ -1,28 +1,41 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { User, Calendar, Building2, Phone, Mail, FileText, Hash, AlertCircle, Loader2, Download, Home, Printer } from 'lucide-react';
+import {
+  User, Calendar, Building2, Phone, Mail, FileText,
+  Hash, AlertCircle, Loader2, Download, Home, Printer
+} from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useLang } from '@/lib/i18n';
 import Breadcrumb from '@/components/Breadcrumb';
+import { getLabLabel, getBranchLabel } from '@/data/labServices';
 
 interface VisitorData {
   id: string;
-  visitor_name: string;
+  visitor_id?: string;
+  first_name?: string;
+  last_name?: string;
+  visitor_name?: string;
   company: string | null;
   job_title: string | null;
   phone: string;
   email: string | null;
   visit_date: string;
-  laboratory: string;
-  visit_purpose: string;
+  arrival_time?: string;
+  laboratory?: string;
+  branch?: string | null;
+  department?: string;
+  employee?: string;
+  purpose?: string;
+  visit_purpose?: string;
   notes: string | null;
+  qr_url?: string;
   status: string;
   created_at: string;
 }
 
 export default function VisitorDetail() {
   const { id } = useParams<{ id: string }>();
-  const { t } = useLang();
+  const { lang, t, dir } = useLang();
   const [visitor, setVisitor] = useState<VisitorData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -36,8 +49,15 @@ export default function VisitorDetail() {
     }
     const fetchVisitor = async () => {
       try {
-        const { data, error } = await supabase.from('visitors').select('*').eq('id', id).single();
-        if (error || !data) {
+        let query = supabase.from('visitors').select('*');
+        if (id.startsWith('LAB-')) {
+          query = query.eq('visitor_id', id);
+        } else {
+          query = query.or(`visitor_id.eq.${id},id.eq.${id}`);
+        }
+
+        const { data, error: queryError } = await query.single();
+        if (queryError || !data) {
           setError(t('success.notFound'));
           return;
         }
@@ -54,6 +74,21 @@ export default function VisitorDetail() {
   const handlePrint = () => {
     window.print();
   };
+
+  const displayName = visitor
+    ? visitor.first_name && visitor.last_name
+      ? `${visitor.first_name} ${visitor.last_name}`
+      : visitor.visitor_name || visitor.first_name || 'Visitor'
+    : '';
+
+  const displayRefId = visitor?.visitor_id || visitor?.id || id || '';
+
+  const displayLab = visitor?.laboratory
+    ? getLabLabel(visitor.laboratory, lang) +
+      (visitor.branch ? ` - ${getBranchLabel(visitor.laboratory, visitor.branch, lang)}` : '')
+    : visitor?.department || 'Southern Sector Water Laboratories';
+
+  const displayPurpose = visitor?.purpose || visitor?.visit_purpose || '';
 
   if (loading) {
     return (
@@ -84,27 +119,30 @@ export default function VisitorDetail() {
   }
 
   const getStatusLabel = (status: string) => {
-    if (status === 'pending') return t('admin.pending');
-    if (status === 'checked_in') return t('admin.checkedIn');
-    if (status === 'checked_out') return t('admin.checkedOut');
+    if (status === 'pending' || status === 'Pending') return t('status.pending');
+    if (status === 'checked_in' || status === 'Approved') return t('status.checked_in');
+    if (status === 'checked_out') return t('status.checked_out');
     return status;
   };
 
   return (
-    <div className="pt-28 pb-20">
+    <div className="pt-28 pb-20" dir={dir}>
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Breadcrumb items={[{ label: t('visitor.details') }]} />
+        <Breadcrumb items={[{ label: t('visitor.title') }]} />
 
         <div className="mt-6">
-          <div className="p-6 sm:p-8 rounded-xl bg-white border border-slate-200">
-            <div className="flex items-center justify-between mb-6">
-              <h1 className="text-xl font-bold text-slate-800">{t('visitor.details')}</h1>
+          <div className="p-6 sm:p-8 rounded-xl bg-white border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between mb-6 pb-3 border-b border-slate-100">
+              <div>
+                <h1 className="text-xl font-bold text-slate-800">{t('visitor.title')}</h1>
+                <p className="text-xs font-mono text-slate-400 mt-0.5">{displayRefId}</p>
+              </div>
               <span
-                className={`px-3 py-1 rounded text-xs font-bold ${
-                  visitor.status === 'pending'
-                    ? 'bg-yellow-100 text-yellow-700'
-                    : visitor.status === 'checked_in'
-                    ? 'bg-green-100 text-green-700'
+                className={`px-3 py-1 rounded-full text-xs font-bold ${
+                  visitor.status === 'pending' || visitor.status === 'Pending'
+                    ? 'bg-yellow-100 text-yellow-800'
+                    : visitor.status === 'checked_in' || visitor.status === 'Approved'
+                    ? 'bg-green-100 text-green-800'
                     : 'bg-slate-100 text-slate-600'
                 }`}
               >
@@ -117,30 +155,36 @@ export default function VisitorDetail() {
                 <User className="w-5 h-5 text-navy-600 shrink-0" />
                 <div>
                   <p className="text-xs text-slate-400">{t('visitor.name')}</p>
-                  <p className="text-sm font-bold text-slate-700">{visitor.visitor_name}</p>
+                  <p className="text-sm font-bold text-slate-700">{displayName}</p>
                 </div>
               </div>
+
               <div className="flex items-center gap-3 p-4 rounded-lg bg-slate-50">
                 <Calendar className="w-5 h-5 text-navy-600 shrink-0" />
                 <div>
                   <p className="text-xs text-slate-400">{t('visitor.date')}</p>
-                  <p className="text-sm font-bold text-slate-700">{visitor.visit_date}</p>
+                  <p className="text-sm font-bold text-slate-700">
+                    {visitor.visit_date} {visitor.arrival_time ? `(${visitor.arrival_time})` : ''}
+                  </p>
                 </div>
               </div>
+
               <div className="flex items-center gap-3 p-4 rounded-lg bg-slate-50">
                 <Building2 className="w-5 h-5 text-navy-600 shrink-0" />
                 <div>
                   <p className="text-xs text-slate-400">{t('visitor.lab')}</p>
-                  <p className="text-sm font-bold text-slate-700">{visitor.laboratory}</p>
+                  <p className="text-sm font-bold text-slate-700">{displayLab}</p>
                 </div>
               </div>
+
               <div className="flex items-center gap-3 p-4 rounded-lg bg-slate-50">
                 <FileText className="w-5 h-5 text-navy-600 shrink-0" />
                 <div>
                   <p className="text-xs text-slate-400">{t('visitor.purpose')}</p>
-                  <p className="text-sm font-bold text-slate-700">{visitor.visit_purpose}</p>
+                  <p className="text-sm font-bold text-slate-700">{displayPurpose}</p>
                 </div>
               </div>
+
               <div className="flex items-center gap-3 p-4 rounded-lg bg-slate-50">
                 <Phone className="w-5 h-5 text-navy-600 shrink-0" />
                 <div>
@@ -148,6 +192,7 @@ export default function VisitorDetail() {
                   <p className="text-sm font-bold text-slate-700" dir="ltr">{visitor.phone}</p>
                 </div>
               </div>
+
               {visitor.email && (
                 <div className="flex items-center gap-3 p-4 rounded-lg bg-slate-50">
                   <Mail className="w-5 h-5 text-navy-600 shrink-0" />
@@ -157,6 +202,7 @@ export default function VisitorDetail() {
                   </div>
                 </div>
               )}
+
               {visitor.company && (
                 <div className="flex items-center gap-3 p-4 rounded-lg bg-slate-50">
                   <Building2 className="w-5 h-5 text-navy-600 shrink-0" />
@@ -166,6 +212,7 @@ export default function VisitorDetail() {
                   </div>
                 </div>
               )}
+
               {visitor.job_title && (
                 <div className="flex items-center gap-3 p-4 rounded-lg bg-slate-50">
                   <User className="w-5 h-5 text-navy-600 shrink-0" />
@@ -175,11 +222,22 @@ export default function VisitorDetail() {
                   </div>
                 </div>
               )}
+
+              {visitor.employee && (
+                <div className="flex items-center gap-3 p-4 rounded-lg bg-slate-50 sm:col-span-2">
+                  <User className="w-5 h-5 text-navy-600 shrink-0" />
+                  <div>
+                    <p className="text-xs text-slate-400">{t('register.employee')}</p>
+                    <p className="text-sm font-bold text-slate-700">{visitor.employee}</p>
+                  </div>
+                </div>
+              )}
+
               <div className="flex items-center gap-3 p-4 rounded-lg bg-slate-50 sm:col-span-2">
                 <Hash className="w-5 h-5 text-navy-600 shrink-0" />
                 <div>
                   <p className="text-xs text-slate-400">{t('success.ref')}</p>
-                  <p className="text-sm font-bold text-navy-700 break-all">{visitor.id}</p>
+                  <p className="text-sm font-bold text-navy-700 font-mono break-all">{displayRefId}</p>
                 </div>
               </div>
             </div>
@@ -212,7 +270,7 @@ export default function VisitorDetail() {
               <div className="space-y-3 text-sm">
                 <div>
                   <p className="text-xs text-navy-300">{t('visitor.name')}</p>
-                  <p className="text-lg font-bold text-white">{visitor.visitor_name}</p>
+                  <p className="text-lg font-bold text-white">{displayName}</p>
                 </div>
                 {visitor.company && (
                   <div>
@@ -227,16 +285,16 @@ export default function VisitorDetail() {
                   </div>
                   <div>
                     <p className="text-xs text-navy-300">{t('visitor.lab')}</p>
-                    <p className="font-medium text-slate-200">{visitor.laboratory}</p>
+                    <p className="font-medium text-slate-200">{displayLab}</p>
                   </div>
                 </div>
                 <div className="pt-2 border-t border-white/10">
                   <p className="text-xs text-navy-300">{t('visitor.purpose')}</p>
-                  <p className="font-medium text-slate-200">{visitor.visit_purpose}</p>
+                  <p className="font-medium text-slate-200">{displayPurpose}</p>
                 </div>
                 <div className="pt-2 border-t border-white/10">
                   <p className="text-xs text-navy-300">{t('success.ref')}</p>
-                  <p className="text-xs font-mono text-navy-200 break-all">{visitor.id}</p>
+                  <p className="text-xs font-mono text-navy-200 break-all">{displayRefId}</p>
                 </div>
               </div>
             </div>
