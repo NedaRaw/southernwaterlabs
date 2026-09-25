@@ -123,11 +123,11 @@ export default function HeroSection() {
 
             {/* Main Title - Enhanced Typography */}
             <motion.h1
-              variants={slideUpFadeVariants}
-              className="text-3xl sm:text-5xl lg:text-[54px] font-black text-white leading-[1.18] tracking-tight mb-4 drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]"
-            >
-              {t('hero.title')}
-            </motion.h1>
+  variants={slideUpFadeVariants}
+  className="text-xl sm:text-2xl lg:text-3xl font-black text-white leading-[1.2] tracking-tight mb-4 drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]"
+>
+  {t('hero.title')}
+</motion.h1>
 
             {/* Subtitle / Core Message - Enhanced Gradient Typography */}
             <motion.div variants={slideUpFadeVariants} className="mb-6">
