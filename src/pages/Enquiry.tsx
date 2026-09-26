@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Send, AlertCircle, Loader2, CheckCircle2, Droplets,
+  Send, AlertCircle, Loader2, CheckCircle2,
   Building2, Mail, MessageSquare
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
@@ -157,10 +157,10 @@ export default function Enquiry() {
   }
 
   const inputClass = (field: string) =>
-    `w-full px-4 py-3 rounded-lg bg-slate-50 border ${
-      errors[field] ? 'border-red-400 bg-red-50' : 'border-slate-200'
-    } text-slate-700 focus:outline-none focus:border-navy-500 focus:bg-white transition-all`;
-  const labelClass = 'block text-sm font-bold text-slate-600 mb-2';
+    `w-full px-3.5 py-2.5 rounded-lg bg-white border ${
+      errors[field] ? 'border-red-400 bg-red-50/40' : 'border-slate-200'
+    } text-slate-800 text-sm focus:outline-none focus:border-navy-600 focus:ring-1 focus:ring-navy-600 transition-all`;
+  const labelClass = 'block text-xs font-semibold text-slate-700 mb-1.5';
   const req = <span className="text-red-500">*</span>;
 
   return (
@@ -168,13 +168,9 @@ export default function Enquiry() {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <Breadcrumb items={[{ label: t('enquiry.title') }]} />
 
-        <div className="mt-6 mb-8 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-navy-100 text-navy-700 text-sm font-medium mb-4">
-            <Droplets className="w-4 h-4" />
-            {t('enquiry.title')}
-          </div>
-          <h1 className="section-title mb-2">{t('enquiry.title')}</h1>
-          <p className="section-subtitle">{t('enquiry.desc')}</p>
+        <div className="mt-4 mb-8 text-start max-w-2xl">
+          <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900 tracking-tight mb-2">{t('enquiry.title')}</h1>
+          <p className="text-slate-600 text-sm sm:text-base leading-relaxed">{t('enquiry.desc')}</p>
         </div>
 
         {submitError && (
@@ -184,14 +180,14 @@ export default function Enquiry() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-8" dir={dir}>
+        <form onSubmit={handleSubmit} className="space-y-6" dir={dir}>
           {/* Card 1: Target Laboratory & Branch */}
-          <div className="p-6 sm:p-8 rounded-xl bg-white border border-slate-200 shadow-sm">
+          <div className="p-6 sm:p-7 rounded-xl bg-white border border-slate-200 shadow-sm">
             <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-100">
-              <div className="w-10 h-10 rounded-lg bg-navy-100 flex items-center justify-center">
-                <Building2 className="w-5 h-5 text-navy-600" />
+              <div className="w-9 h-9 rounded-lg bg-navy-50 flex items-center justify-center">
+                <Building2 className="w-4 h-4 text-navy-700" />
               </div>
-              <h2 className="text-lg font-bold text-slate-800">{t('enquiry.lab')}</h2>
+              <h2 className="text-base font-semibold text-slate-800">{t('enquiry.lab')}</h2>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -230,12 +226,12 @@ export default function Enquiry() {
           </div>
 
           {/* Card 2: Contact Information */}
-          <div className="p-6 sm:p-8 rounded-xl bg-white border border-slate-200 shadow-sm">
+          <div className="p-6 sm:p-7 rounded-xl bg-white border border-slate-200 shadow-sm">
             <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-100">
-              <div className="w-10 h-10 rounded-lg bg-navy-100 flex items-center justify-center">
-                <Mail className="w-5 h-5 text-navy-600" />
+              <div className="w-9 h-9 rounded-lg bg-navy-50 flex items-center justify-center">
+                <Mail className="w-4 h-4 text-navy-700" />
               </div>
-              <h2 className="text-lg font-bold text-slate-800">{t('enquiry.contact')}</h2>
+              <h2 className="text-base font-semibold text-slate-800">{t('enquiry.contact')}</h2>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -305,12 +301,12 @@ export default function Enquiry() {
           </div>
 
           {/* Card 3: Request & Message */}
-          <div className="p-6 sm:p-8 rounded-xl bg-white border border-slate-200 shadow-sm">
+          <div className="p-6 sm:p-7 rounded-xl bg-white border border-slate-200 shadow-sm">
             <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-100">
-              <div className="w-10 h-10 rounded-lg bg-navy-100 flex items-center justify-center">
-                <MessageSquare className="w-5 h-5 text-navy-600" />
+              <div className="w-9 h-9 rounded-lg bg-navy-50 flex items-center justify-center">
+                <MessageSquare className="w-4 h-4 text-navy-700" />
               </div>
-              <h2 className="text-lg font-bold text-slate-800">{t('enquiry.message')}</h2>
+              <h2 className="text-base font-semibold text-slate-800">{t('enquiry.message')}</h2>
             </div>
 
             <div className="space-y-5">
@@ -357,7 +353,7 @@ export default function Enquiry() {
           <button
             type="submit"
             disabled={submitting}
-            className="flex items-center justify-center gap-2 w-full py-4 rounded-lg bg-navy-800 text-white font-bold text-sm hover:bg-navy-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed shadow-md"
+            className="flex items-center justify-center gap-2 w-full py-3.5 rounded-lg bg-navy-800 text-white font-semibold text-sm hover:bg-navy-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed shadow-sm"
           >
             {submitting ? (
               <>
@@ -366,7 +362,7 @@ export default function Enquiry() {
               </>
             ) : (
               <>
-                <Send className="w-5 h-5" />
+                <Send className="w-4 h-4" />
                 {t('enquiry.submit')}
               </>
             )}

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Star, Send, AlertCircle, Loader2, CheckCircle2, Droplets,
+  Star, Send, AlertCircle, Loader2, CheckCircle2,
   Building2, MessageSquare, ThumbsUp
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
@@ -161,8 +161,8 @@ export default function Survey() {
     value: number;
     onChange: (v: number) => void;
   }) => (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-lg bg-slate-50 border border-slate-100 gap-2">
-      <span className="text-sm font-semibold text-slate-700">{label}</span>
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg bg-slate-50 border border-slate-100 gap-2">
+      <span className="text-sm font-medium text-slate-700">{label}</span>
       <div className="flex items-center gap-1.5 shrink-0">
         {[1, 2, 3, 4, 5].map((n) => (
           <button
@@ -173,11 +173,11 @@ export default function Survey() {
             aria-label={`${n} of 5`}
           >
             <Star
-              className={`w-6 h-6 ${n <= value ? 'text-amber-400 fill-amber-400' : 'text-slate-300'}`}
+              className={`w-5 h-5 ${n <= value ? 'text-amber-400 fill-amber-400' : 'text-slate-300'}`}
             />
           </button>
         ))}
-        <span className="text-xs font-bold text-navy-800 ms-2 w-7 text-center">{value}/5</span>
+        <span className="text-xs font-semibold text-navy-800 ms-2 w-7 text-center">{value}/5</span>
       </div>
     </div>
   );
@@ -234,10 +234,10 @@ export default function Survey() {
   }
 
   const inputClass = (field: string) =>
-    `w-full px-4 py-3 rounded-lg bg-slate-50 border ${
-      errors[field] ? 'border-red-400 bg-red-50' : 'border-slate-200'
-    } text-slate-700 focus:outline-none focus:border-navy-500 focus:bg-white transition-all`;
-  const labelClass = 'block text-sm font-bold text-slate-600 mb-2';
+    `w-full px-3.5 py-2.5 rounded-lg bg-white border ${
+      errors[field] ? 'border-red-400 bg-red-50/40' : 'border-slate-200'
+    } text-slate-800 text-sm focus:outline-none focus:border-navy-600 focus:ring-1 focus:ring-navy-600 transition-all`;
+  const labelClass = 'block text-xs font-semibold text-slate-700 mb-1.5';
   const req = <span className="text-red-500">*</span>;
 
   return (
@@ -245,13 +245,9 @@ export default function Survey() {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <Breadcrumb items={[{ label: t('survey.title') }]} />
 
-        <div className="mt-6 mb-8 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-navy-100 text-navy-700 text-sm font-medium mb-4">
-            <Droplets className="w-4 h-4" />
-            {t('survey.title')}
-          </div>
-          <h1 className="section-title mb-2">{t('survey.title')}</h1>
-          <p className="section-subtitle">{t('survey.desc')}</p>
+        <div className="mt-4 mb-8 text-start max-w-2xl">
+          <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900 tracking-tight mb-2">{t('survey.title')}</h1>
+          <p className="text-slate-600 text-sm sm:text-base leading-relaxed">{t('survey.desc')}</p>
         </div>
 
         {submitError && (
@@ -261,14 +257,14 @@ export default function Survey() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-8" dir={dir}>
+        <form onSubmit={handleSubmit} className="space-y-6" dir={dir}>
           {/* Card 1: Laboratory & Service Context */}
-          <div className="p-6 sm:p-8 rounded-xl bg-white border border-slate-200 shadow-sm">
+          <div className="p-6 sm:p-7 rounded-xl bg-white border border-slate-200 shadow-sm">
             <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-100">
-              <div className="w-10 h-10 rounded-lg bg-navy-100 flex items-center justify-center">
-                <Building2 className="w-5 h-5 text-navy-600" />
+              <div className="w-9 h-9 rounded-lg bg-navy-50 flex items-center justify-center">
+                <Building2 className="w-4 h-4 text-navy-700" />
               </div>
-              <h2 className="text-lg font-bold text-slate-800">{t('survey.lab')}</h2>
+              <h2 className="text-base font-semibold text-slate-800">{t('survey.lab')}</h2>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -353,13 +349,13 @@ export default function Survey() {
           </div>
 
           {/* Card 2: 1 to 5 Rating Matrix */}
-          <div className="p-6 sm:p-8 rounded-xl bg-white border border-slate-200 shadow-sm">
+          <div className="p-6 sm:p-7 rounded-xl bg-white border border-slate-200 shadow-sm">
             <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-100">
-              <div className="w-10 h-10 rounded-lg bg-navy-100 flex items-center justify-center">
-                <Star className="w-5 h-5 text-navy-600" />
+              <div className="w-9 h-9 rounded-lg bg-navy-50 flex items-center justify-center">
+                <Star className="w-4 h-4 text-navy-700" />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-slate-800">{t('survey.ratingsTitle')}</h2>
+                <h2 className="text-base font-semibold text-slate-800">{t('survey.ratingsTitle')}</h2>
                 <p className="text-xs text-slate-400">1 = {t('survey.sat.veryDissatisfied')} | 5 = {t('survey.sat.verySatisfied')}</p>
               </div>
             </div>
@@ -404,20 +400,20 @@ export default function Survey() {
           </div>
 
           {/* Card 3: Additional Timeliness & Reports Questions */}
-          <div className="p-6 sm:p-8 rounded-xl bg-white border border-slate-200 shadow-sm">
+          <div className="p-6 sm:p-7 rounded-xl bg-white border border-slate-200 shadow-sm">
             <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-100">
-              <div className="w-10 h-10 rounded-lg bg-navy-100 flex items-center justify-center">
-                <ThumbsUp className="w-5 h-5 text-navy-600" />
+              <div className="w-9 h-9 rounded-lg bg-navy-50 flex items-center justify-center">
+                <ThumbsUp className="w-4 h-4 text-navy-700" />
               </div>
-              <h2 className="text-lg font-bold text-slate-800">{t('survey.resultsOnTime')}</h2>
+              <h2 className="text-base font-semibold text-slate-800">{t('survey.resultsOnTime')}</h2>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
                 <label className={labelClass}>{t('survey.resultsOnTime')}</label>
-                <div className="flex gap-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <div className="flex gap-4 p-2.5 bg-slate-50 rounded-lg border border-slate-200">
                   {['Yes', 'Partially', 'No'].map((val) => (
-                    <label key={val} className="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700">
+                    <label key={val} className="flex items-center gap-2 cursor-pointer text-xs sm:text-sm font-medium text-slate-700">
                       <input
                         type="radio"
                         name="results_on_time"
@@ -440,9 +436,9 @@ export default function Survey() {
 
               <div>
                 <label className={labelClass}>{t('survey.reportsEasy')}</label>
-                <div className="flex gap-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <div className="flex gap-4 p-2.5 bg-slate-50 rounded-lg border border-slate-200">
                   {['Yes', 'Somewhat', 'No'].map((val) => (
-                    <label key={val} className="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700">
+                    <label key={val} className="flex items-center gap-2 cursor-pointer text-xs sm:text-sm font-medium text-slate-700">
                       <input
                         type="radio"
                         name="reports_understandable"
@@ -467,10 +463,10 @@ export default function Survey() {
             {/* Recommendation Score Slider (0 to 10) */}
             <div className="mt-6 pt-5 border-t border-slate-100">
               <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-bold text-slate-700">
+                <label className="text-xs font-semibold text-slate-700">
                   {t('survey.recommendTitle')}
                 </label>
-                <span className="px-3 py-1 bg-navy-100 text-navy-800 text-sm font-bold rounded-full">
+                <span className="px-2.5 py-0.5 bg-navy-50 text-navy-800 text-xs font-bold rounded-full">
                   {formData.recommendation_score} / 10
                 </span>
               </div>
@@ -484,20 +480,20 @@ export default function Survey() {
                 className="w-full accent-navy-600 cursor-pointer"
               />
               <div className="flex justify-between text-xs text-slate-400 mt-1">
-                <span>0 (غير محتمل)</span>
+                <span>{lang === 'ar' ? '0 (غير محتمل)' : '0 (Not likely)'}</span>
                 <span>5</span>
-                <span>10 (محتمل جداً)</span>
+                <span>{lang === 'ar' ? '10 (محتمل جداً)' : '10 (Very likely)'}</span>
               </div>
             </div>
           </div>
 
           {/* Card 4: Qualitative Feedback & Comments */}
-          <div className="p-6 sm:p-8 rounded-xl bg-white border border-slate-200 shadow-sm">
+          <div className="p-6 sm:p-7 rounded-xl bg-white border border-slate-200 shadow-sm">
             <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-100">
-              <div className="w-10 h-10 rounded-lg bg-navy-100 flex items-center justify-center">
-                <MessageSquare className="w-5 h-5 text-navy-600" />
+              <div className="w-9 h-9 rounded-lg bg-navy-50 flex items-center justify-center">
+                <MessageSquare className="w-4 h-4 text-navy-700" />
               </div>
-              <h2 className="text-lg font-bold text-slate-800">{t('survey.comments')}</h2>
+              <h2 className="text-base font-semibold text-slate-800">{t('survey.comments')}</h2>
             </div>
 
             <div className="space-y-4">
@@ -525,8 +521,8 @@ export default function Survey() {
 
               <div>
                 <label className={labelClass}>{t('survey.contactMe')}</label>
-                <div className="flex gap-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
-                  <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700">
+                <div className="flex gap-4 p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                  <label className="flex items-center gap-2 cursor-pointer text-xs sm:text-sm font-medium text-slate-700">
                     <input
                       type="radio"
                       name="contact_me"
@@ -537,7 +533,7 @@ export default function Survey() {
                     />
                     <span>{t('survey.yes')}</span>
                   </label>
-                  <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700">
+                  <label className="flex items-center gap-2 cursor-pointer text-xs sm:text-sm font-medium text-slate-700">
                     <input
                       type="radio"
                       name="contact_me"
@@ -567,7 +563,7 @@ export default function Survey() {
           <button
             type="submit"
             disabled={submitting}
-            className="flex items-center justify-center gap-2 w-full py-4 rounded-lg bg-navy-800 text-white font-bold text-sm hover:bg-navy-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed shadow-md"
+            className="flex items-center justify-center gap-2 w-full py-3.5 rounded-lg bg-navy-800 text-white font-semibold text-sm hover:bg-navy-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed shadow-sm"
           >
             {submitting ? (
               <>
@@ -576,7 +572,7 @@ export default function Survey() {
               </>
             ) : (
               <>
-                <Send className="w-5 h-5" />
+                <Send className="w-4 h-4" />
                 {t('survey.submit')}
               </>
             )}

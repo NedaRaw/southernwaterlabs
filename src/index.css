@@ -1,10 +1,37 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700&family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Noto+Sans+Arabic:wght@500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --bg-page: #f8fafc;
+    --bg-surface: #ffffff;
+    --bg-surface-secondary: #f1f5f9;
+    --bg-elevated: #ffffff;
+    --border-color: #e2e8f0;
+    --text-main: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --primary-navy: #1e3a5f;
+    --accent-blue: #2563eb;
+  }
+
+  html.dark {
+    --bg-page: #0b1220;
+    --bg-surface: #172033;
+    --bg-surface-secondary: #111827;
+    --bg-elevated: #1e293b;
+    --border-color: #334155;
+    --text-main: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --primary-navy: #3b82f6;
+    --accent-blue: #38bdf8;
+    color-scheme: dark;
+  }
+
   html {
     /*
      * Direction is controlled dynamically by the application:
@@ -18,22 +45,88 @@
 
   html[dir="rtl"] {
     direction: rtl;
-    font-family: 'Noto Sans Arabic', 'Noto Sans', system-ui, -apple-system, sans-serif;
-    line-height: 1.85;
+    font-family: 'IBM Plex Sans Arabic', system-ui, -apple-system, sans-serif;
+    line-height: 1.8;
   }
 
   html[dir="ltr"] {
     direction: ltr;
-    font-family: 'Noto Sans', system-ui, -apple-system, sans-serif;
-    line-height: 1.65;
+    font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
   }
 
   body {
-    background-color: #f8fafc;
-    color: #1e293b;
+    background-color: var(--bg-page);
+    color: var(--text-main);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+  }
+
+  /* Global smooth transitions across all theme-dependent elements */
+  html,
+  body,
+  header,
+  footer,
+  nav,
+  main,
+  section,
+  aside,
+  article,
+  div,
+  input,
+  select,
+  textarea,
+  button,
+  a,
+  p,
+  span,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  label,
+  li,
+  table,
+  thead,
+  tbody,
+  tr,
+  th,
+  td {
+    transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+    transition-duration: 250ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Accessibility: Respect user reduced-motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    html,
+    body,
+    header,
+    footer,
+    nav,
+    main,
+    section,
+    div,
+    input,
+    select,
+    textarea,
+    button,
+    a,
+    p,
+    span,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    label,
+    li {
+      transition-duration: 0.01ms !important;
+    }
   }
 
   /*
@@ -54,14 +147,14 @@
     text-align: start;
   }
 
-  /* Controlled Headings Hierarchy */
+  /* Controlled Headings Hierarchy - Elegant, Institutional, Never Oversized */
   h1 {
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: -0.015em;
   }
 
   h2 {
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: -0.01em;
   }
 
@@ -80,14 +173,14 @@
   html[dir="rtl"] li,
   html[dir="rtl"] span,
   html[dir="rtl"] label {
-    line-height: 1.85;
+    line-height: 1.8;
   }
 
   html[dir="ltr"] p,
   html[dir="ltr"] li,
   html[dir="ltr"] span,
   html[dir="ltr"] label {
-    line-height: 1.65;
+    line-height: 1.6;
   }
 }
 
@@ -105,12 +198,12 @@
   }
 
   .section-title {
-    @apply text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight;
+    @apply text-xl sm:text-2xl lg:text-3xl font-semibold text-slate-900 tracking-tight;
     text-align: start;
   }
 
   .section-subtitle {
-    @apply text-slate-600 text-base sm:text-lg max-w-3xl;
+    @apply text-slate-600 text-sm sm:text-base max-w-2xl;
     text-align: start;
   }
 
@@ -226,4 +319,164 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: #1e293b;
+}
+
+/* ========================================================
+   INSTITUTIONAL DARK MODE COMPONENT & FORM ADAPTATION
+   ======================================================== */
+html.dark body {
+  background-color: #0b1220;
+  color: #f8fafc;
+}
+
+/* Section titles and subtitles */
+html.dark .section-title {
+  color: #f8fafc;
+}
+
+html.dark .section-subtitle {
+  color: #94a3b8;
+}
+
+/* Cards & Forms (Surface #172033) */
+html.dark .bg-white {
+  background-color: #172033 !important;
+}
+
+html.dark .bg-white\/95,
+html.dark .bg-white\/90 {
+  background-color: rgba(23, 32, 51, 0.95) !important;
+}
+
+html.dark .bg-white\/80 {
+  background-color: rgba(23, 32, 51, 0.8) !important;
+}
+
+/* Secondary Surfaces (#111827) */
+html.dark .bg-slate-50 {
+  background-color: #111827 !important;
+}
+
+/* Elevated Surfaces (#1E293B) */
+html.dark .bg-slate-100 {
+  background-color: #1e293b !important;
+}
+
+html.dark .bg-slate-200 {
+  background-color: #1e293b !important;
+}
+
+/* Borders (#334155) */
+html.dark .border-slate-100,
+html.dark .border-slate-200,
+html.dark .border-slate-200\/80 {
+  border-color: #334155 !important;
+}
+
+html.dark .border-slate-300 {
+  border-color: #475569 !important;
+}
+
+/* Typography Contrast in Dark Mode */
+html.dark .text-slate-900,
+html.dark .text-slate-800 {
+  color: #f8fafc !important;
+}
+
+html.dark .text-slate-700 {
+  color: #cbd5e1 !important;
+}
+
+html.dark .text-slate-600 {
+  color: #cbd5e1 !important;
+}
+
+html.dark .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+html.dark .text-slate-400 {
+  color: #94a3b8 !important;
+}
+
+/* Accent badges in dark mode */
+html.dark .bg-navy-50 {
+  background-color: rgba(30, 41, 59, 0.8) !important;
+}
+
+html.dark .bg-navy-100 {
+  background-color: rgba(30, 41, 59, 0.95) !important;
+}
+
+html.dark .text-navy-700,
+html.dark .text-navy-800 {
+  color: #93c5fd !important;
+}
+
+html.dark .border-navy-100 {
+  border-color: #334155 !important;
+}
+
+/* Hover States in Dark Mode */
+html.dark .hover\:bg-slate-50:hover,
+html.dark .hover\:bg-slate-100:hover {
+  background-color: #1e293b !important;
+}
+
+html.dark .hover\:bg-slate-200:hover {
+  background-color: #334155 !important;
+}
+
+/* Navigation Links in Dark Mode */
+html.dark .nav-link {
+  color: #cbd5e1 !important;
+}
+
+html.dark .nav-link:hover {
+  color: #38bdf8 !important;
+}
+
+html.dark .nav-link-active {
+  color: #f8fafc !important;
+}
+
+/* Forms: Strict Dark Mode Specifications */
+html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+html.dark select,
+html.dark textarea {
+  background-color: #111827 !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748b !important;
+}
+
+html.dark input:focus,
+html.dark select:focus,
+html.dark textarea:focus {
+  border-color: #3b82f6 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 1px #3b82f6 !important;
+}
+
+html.dark input[type="radio"],
+html.dark input[type="checkbox"] {
+  accent-color: #3b82f6;
+}
+
+/* Scrollbar Theme in Dark Mode */
+html.dark ::-webkit-scrollbar-track {
+  background: #111827;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
 }

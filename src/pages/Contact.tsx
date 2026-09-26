@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Phone, Mail, MapPin, Clock, Droplets } from 'lucide-react';
+import { Phone, Mail, MapPin, Clock } from 'lucide-react';
 import { contactConfig } from '@/data/siteConfig';
 import { useLang } from '@/lib/i18n';
 import Breadcrumb from '@/components/Breadcrumb';
@@ -14,12 +14,8 @@ export default function Contact() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Breadcrumb items={[{ label: t('nav.contact') }]} />
 
-        <div className="mt-6 mb-14">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-navy-100 text-navy-700 text-sm font-medium mb-4">
-            <Droplets className="w-4 h-4" />
-            {t('contact.title')}
-          </div>
-          <h1 className="section-title mb-3">{t('contact.title')}</h1>
+        <div className="mt-4 mb-10 max-w-2xl">
+          <h1 className="section-title mb-2">{t('contact.title')}</h1>
           <p className="section-subtitle max-w-2xl">{t('contact.desc')}</p>
         </div>
 
@@ -33,23 +29,23 @@ export default function Contact() {
             ].map((item, i) => {
               const Icon = item.icon;
               return (
-                <div key={i} className="flex items-start gap-4 p-6 rounded-xl bg-white border border-slate-100 hover:shadow-md transition-all">
-                  <div className="w-12 h-12 rounded-xl bg-navy-100 flex items-center justify-center shrink-0">
-                    <Icon className="w-6 h-6 text-navy-600" />
+                <div key={i} className="flex items-start gap-4 p-5 sm:p-6 rounded-xl bg-white border border-slate-200 shadow-sm hover:border-slate-300 transition-all">
+                  <div className="w-10 h-10 rounded-lg bg-navy-50 flex items-center justify-center shrink-0">
+                    <Icon className="w-5 h-5 text-navy-700" />
                   </div>
                   <div>
-                    <p className="text-xs text-slate-400 mb-1">{item.label}</p>
-                    <p className="text-base font-bold text-slate-700" dir={item.dir as 'ltr' | undefined}>{item.value}</p>
+                    <p className="text-xs text-slate-400 mb-0.5">{item.label}</p>
+                    <p className="text-sm sm:text-base font-semibold text-slate-800" dir={item.dir as 'ltr' | undefined}>{item.value}</p>
                   </div>
                 </div>
               );
             })}
           </div>
 
-          <div className="p-8 rounded-xl bg-white border border-slate-100">
-            <h2 className="text-xl font-bold text-slate-800 mb-6">{t('contact.sendMsg')}</h2>
-            <p className="text-sm text-slate-500 mb-6">{t('contact.toEnquiry')}</p>
-            <Link to="/enquiry" className="flex items-center justify-center gap-2 w-full py-3.5 rounded-lg bg-navy-800 text-white font-bold text-sm hover:bg-navy-700 transition-colors shadow-sm">
+          <div className="p-6 sm:p-7 rounded-xl bg-white border border-slate-200 shadow-sm flex flex-col justify-center">
+            <h2 className="text-lg font-semibold text-slate-800 mb-3">{t('contact.sendMsg')}</h2>
+            <p className="text-sm text-slate-600 mb-6 leading-relaxed">{t('contact.toEnquiry')}</p>
+            <Link to="/enquiry" className="flex items-center justify-center gap-2 w-full py-3 rounded-lg bg-navy-800 text-white font-semibold text-sm hover:bg-navy-700 transition-colors shadow-sm">
               {t('contact.gotoEnquiry')}
             </Link>
           </div>

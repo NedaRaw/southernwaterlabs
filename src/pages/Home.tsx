@@ -38,8 +38,8 @@ export default function Home() {
                   <div className="w-12 h-12 rounded-xl bg-navy-100 flex items-center justify-center mb-4 group-hover:bg-navy-800 transition-colors">
                     <Icon className="w-6 h-6 text-navy-700 group-hover:text-white transition-colors" />
                   </div>
-                  <h3 className="font-bold text-slate-800 mb-1 group-hover:text-navy-700 transition-colors">{item.title}</h3>
-                  <p className="text-sm text-slate-400">{item.desc}</p>
+                  <h3 className="font-semibold text-slate-800 mb-1 group-hover:text-navy-700 transition-colors text-sm sm:text-base">{item.title}</h3>
+                  <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">{item.desc}</p>
                 </Link>
               );
             })}
@@ -114,7 +114,7 @@ export default function Home() {
                         <Building2 className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <h3 className={`text-lg font-extrabold ${center.type === 'regional_center' ? 'text-slate-800' : 'text-white'}`}>{center.name}</h3>
+                        <h3 className={`text-base sm:text-lg font-semibold ${center.type === 'regional_center' ? 'text-slate-800' : 'text-white'}`}>{center.name}</h3>
                         <div className={`flex items-center gap-1 mt-0.5 ${center.type === 'regional_center' ? 'text-slate-500' : 'text-navy-200'}`}>
                           <MapPin className="w-3.5 h-3.5" />
                           <span className="text-sm">{center.region}</span>
@@ -211,8 +211,8 @@ export default function Home() {
               <Eye className="w-4 h-4" />
               {t('cta.badge')}
             </div>
-            <h2 className="text-3xl font-extrabold text-white mb-3">{t('cta.title')}</h2>
-            <p className="text-navy-200 max-w-2xl mx-auto">{t('cta.desc')}</p>
+            <h2 className="text-2xl sm:text-3xl font-semibold text-white mb-2">{t('cta.title')}</h2>
+            <p className="text-navy-200 text-sm sm:text-base max-w-2xl mx-auto">{t('cta.desc')}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
@@ -222,15 +222,15 @@ export default function Home() {
             ].map((item, i) => {
               const Icon = item.icon;
               return (
-                <Link key={i} to={item.to} className="group p-8 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300 animate-fade-in-up" style={{ animationDelay: `${i * 0.1}s` }}>
-                  <div className="w-14 h-14 rounded-xl bg-white/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                    <Icon className="w-7 h-7 text-white" />
+                <Link key={i} to={item.to} className="group p-6 sm:p-7 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-200 animate-fade-in-up" style={{ animationDelay: `${i * 0.1}s` }}>
+                  <div className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center mb-4">
+                    <Icon className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-lg font-bold text-white mb-3">{item.title}</h3>
-                  <p className="text-sm text-navy-200 leading-relaxed mb-4">{item.desc}</p>
-                  <span className="inline-flex items-center gap-1 text-white text-sm font-bold group-hover:gap-2 transition-all">
+                  <h3 className="text-base font-semibold text-white mb-2">{item.title}</h3>
+                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4">{item.desc}</p>
+                  <span className="inline-flex items-center gap-1 text-white text-xs font-semibold group-hover:gap-1.5 transition-all">
                     {t('cta.start')}
-                    <Arrow className="w-4 h-4" />
+                    <Arrow className="w-3.5 h-3.5" />
                   </span>
                 </Link>
               );

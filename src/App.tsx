@@ -25,7 +25,7 @@ function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
-      <div className="min-h-screen flex flex-col bg-slate-50">
+      <div className="min-h-screen flex flex-col bg-[#F8FAFC] dark:bg-[#0B1220] text-[#0F172A] dark:text-[#F8FAFC] transition-colors duration-200">
         <Header />
         <main id="main-content" role="main" tabIndex={-1} className="flex-1 focus:outline-none">
           <Suspense fallback={<PageLoading />}>

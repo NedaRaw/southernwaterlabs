@@ -127,28 +127,28 @@ export default function Success() {
 
         <div className="mt-6">
           <div className="text-center mb-8">
-            <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4 animate-fade-in shadow-inner">
-              <CheckCircle2 className="w-12 h-12 text-green-600" />
+            <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center mx-auto mb-4 animate-fade-in">
+              <CheckCircle2 className="w-9 h-9 text-emerald-600" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-800 mb-2">{t('success.title')}</h1>
-            <p className="text-slate-500 max-w-lg mx-auto">{t('success.desc')}</p>
+            <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900 tracking-tight mb-2">{t('success.title')}</h1>
+            <p className="text-slate-600 text-sm sm:text-base max-w-lg mx-auto">{t('success.desc')}</p>
           </div>
 
           {/* Reference badge highlight */}
-          <div className="mb-6 p-4 rounded-xl bg-navy-50 border border-navy-100 flex items-center justify-between">
+          <div className="mb-6 p-4 rounded-xl bg-navy-50/70 border border-navy-100 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <ShieldCheck className="w-6 h-6 text-navy-700" />
+              <ShieldCheck className="w-5 h-5 text-navy-700" />
               <div>
-                <p className="text-xs font-semibold text-navy-600">{t('success.ref')}</p>
-                <p className="text-base font-extrabold text-navy-900 tracking-wider font-mono">{displayRefId}</p>
+                <p className="text-xs font-semibold text-navy-700">{t('success.ref')}</p>
+                <p className="text-base font-bold text-navy-900 tracking-wider font-mono">{displayRefId}</p>
               </div>
             </div>
-            <span className="px-3 py-1 rounded-full bg-green-100 text-green-800 text-xs font-bold">
+            <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold">
               {visitor.status || 'Pending'}
             </span>
           </div>
 
-          <div className="p-6 sm:p-8 rounded-xl bg-white border border-slate-200 shadow-sm">
+          <div className="p-6 sm:p-7 rounded-xl bg-white border border-slate-200 shadow-sm">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div className="flex items-center gap-3 p-4 rounded-lg bg-slate-50">
                 <User className="w-5 h-5 text-navy-600 shrink-0" />

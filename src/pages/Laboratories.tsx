@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Building2, MapPin, ChevronLeft, ChevronRight, Network, Droplets } from 'lucide-react';
+import { Building2, MapPin, ChevronLeft, ChevronRight, Network } from 'lucide-react';
 import { getLocalizedCenters } from '@/data/laboratories';
 import { useLang } from '@/lib/i18n';
 import Breadcrumb from '@/components/Breadcrumb';
@@ -14,18 +14,14 @@ export default function Laboratories() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Breadcrumb items={[{ label: t('nav.labs') }]} />
 
-        <div className="mt-6 mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-navy-100 text-navy-700 text-sm font-medium mb-4">
-            <Droplets className="w-4 h-4" />
-            {t('labs.badge')}
-          </div>
-          <h1 className="section-title mb-3">{t('labs.title')}</h1>
+        <div className="mt-4 mb-10">
+          <h1 className="section-title mb-2">{t('labs.title')}</h1>
           <p className="section-subtitle max-w-2xl">{t('labs.desc')}</p>
         </div>
 
         <div className="space-y-6">
           {centers.map((center, index) => (
-            <div key={center.id} className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-lg hover:border-navy-300 transition-all duration-300 animate-fade-in-up" style={{ animationDelay: `${index * 0.08}s` }}>
+            <div key={center.id} className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-md hover:border-slate-300 transition-all duration-300 animate-fade-in-up" style={{ animationDelay: `${index * 0.08}s` }}>
               <div className="grid grid-cols-1 lg:grid-cols-3">
                 <Link to={`/laboratories/${center.id}`} className={`relative p-8 ${center.type === 'regional_center' ? 'bg-slate-100' : 'bg-navy-800'}`}>
                   <div className="absolute top-4 end-4">
@@ -37,13 +33,13 @@ export default function Laboratories() {
                     <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-4 ${center.type === 'regional_center' ? 'bg-slate-600' : 'bg-white/15'}`}>
                       <Building2 className="w-7 h-7 text-white" />
                     </div>
-                    <h2 className={`text-2xl font-extrabold mb-2 ${center.type === 'regional_center' ? 'text-slate-800' : 'text-white'}`}>{center.name}</h2>
+                    <h2 className={`text-xl font-semibold mb-2 ${center.type === 'regional_center' ? 'text-slate-800' : 'text-white'}`}>{center.name}</h2>
                     <div className={`flex items-center gap-1.5 ${center.type === 'regional_center' ? 'text-slate-500' : 'text-navy-200'}`}>
                       <MapPin className="w-4 h-4" />
                       <span className="text-sm">{center.region}</span>
                     </div>
                   </div>
-                  <div className={`mt-6 flex items-center gap-2 text-sm font-bold ${center.type === 'regional_center' ? 'text-slate-600' : 'text-white'}`}>
+                  <div className={`mt-6 flex items-center gap-2 text-sm font-semibold ${center.type === 'regional_center' ? 'text-slate-600' : 'text-white'}`}>
                     {t('labs.viewCenter')}
                     <Chevron className="w-4 h-4" />
                   </div>

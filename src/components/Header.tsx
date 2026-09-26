@@ -6,6 +6,7 @@ import {
   ShieldAlert, Activity, CheckCircle2, Waves, LogIn, Users
 } from 'lucide-react';
 import { useLang, type Lang } from '@/lib/i18n';
+import { useTheme } from '@/lib/theme';
 import LabLogo from '@/components/LabLogo';
 
 const languages: { code: Lang; label: string; native: string }[] = [
@@ -17,6 +18,7 @@ const languages: { code: Lang; label: string; native: string }[] = [
 export default function Header() {
   const location = useLocation();
   const { lang, setLang, t, dir } = useLang();
+  const { theme, toggleTheme } = useTheme();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<'labs' | 'services' | 'cs' | 'lang' | null>(null);
@@ -206,10 +208,10 @@ export default function Header() {
         role="banner"
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 ${
           menuOpen
-            ? 'bg-white shadow-xl h-auto border-b border-slate-200'
+            ? 'bg-white dark:bg-[#172033] shadow-xl h-auto border-b border-slate-200 dark:border-slate-800'
             : scrolled
-              ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-200/80 h-[70px] sm:h-[72px] md:h-[74px] lg:h-[76px]'
-              : 'bg-white border-b border-slate-100 h-[72px] sm:h-[76px] md:h-[78px] lg:h-[80px]'
+              ? 'bg-white/95 dark:bg-[#172033]/95 backdrop-blur-md shadow-sm border-b border-slate-200/80 dark:border-slate-800 h-[70px] sm:h-[72px] md:h-[74px] lg:h-[76px]'
+              : 'bg-white dark:bg-[#172033] border-b border-slate-100 dark:border-slate-800 h-[72px] sm:h-[76px] md:h-[78px] lg:h-[80px]'
         }`}
       >
         <div className="max-w-[1440px] mx-auto px-2 sm:px-4 lg:px-6 h-full">
@@ -580,14 +582,14 @@ export default function Header() {
                   aria-label={`Language: ${currentLangObj.label}`}
                   onClick={(e) => handleButtonClick(e, 'lang')}
                   onKeyDown={(e) => handleDropdownKeyDown(e, 'lang')}
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-cyan-800 hover:bg-slate-100 border border-slate-200 bg-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 whitespace-nowrap shadow-xs cursor-pointer"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-navy-800 dark:hover:text-blue-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#172033] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap shadow-xs cursor-pointer"
                 >
-                  <Globe aria-hidden="true" className="w-3.5 h-3.5 text-cyan-600 shrink-0" />
+                  <Globe aria-hidden="true" className="w-3.5 h-3.5 text-navy-700 dark:text-blue-400 shrink-0" />
                   <span>{currentLangObj.label}</span>
                   <ChevronDown
                     aria-hidden="true"
                     className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                      openDropdown === 'lang' ? 'rotate-180 text-cyan-600' : 'text-slate-400'
+                      openDropdown === 'lang' ? 'rotate-180 text-navy-600 dark:text-blue-400' : 'text-slate-400'
                     }`}
                   />
                 </button>
@@ -597,7 +599,7 @@ export default function Header() {
                     id="lang-selector-listbox"
                     role="listbox"
                     aria-labelledby="lang-selector-button"
-                    className="absolute end-0 mt-1.5 w-36 bg-white rounded-xl shadow-xl border border-slate-100 py-1 z-50 animate-fade-in focus:outline-none pointer-events-auto"
+                    className="absolute end-0 mt-1.5 w-36 bg-white dark:bg-[#172033] rounded-xl shadow-xl border border-slate-100 dark:border-slate-700 py-1 z-50 animate-fade-in focus:outline-none pointer-events-auto"
                   >
                     {languages.map((l) => (
                       <button
@@ -609,26 +611,62 @@ export default function Header() {
                           setLang(l.code);
                           setOpenDropdown(null);
                         }}
-                        className={`w-full flex items-center justify-between px-3 py-1.5 text-xs text-start transition-colors focus:outline-none focus:bg-cyan-100/70 cursor-pointer ${
+                        className={`w-full flex items-center justify-between px-3 py-1.5 text-xs text-start transition-colors focus:outline-none focus:bg-slate-100 dark:focus:bg-slate-800 cursor-pointer ${
                           lang === l.code
-                            ? 'bg-cyan-50 text-cyan-800 font-semibold'
-                            : 'text-slate-600 hover:bg-slate-50'
+                            ? 'bg-navy-50 dark:bg-slate-800 text-navy-800 dark:text-blue-400 font-semibold'
+                            : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60'
                         }`}
                       >
                         <span className="flex items-center gap-2">
-                          <Globe aria-hidden="true" className="w-3 h-3 text-cyan-600 opacity-60" />
+                          <Globe aria-hidden="true" className="w-3 h-3 text-navy-600 dark:text-blue-400 opacity-70" />
                           <span>{l.label}</span>
                         </span>
-                        {lang === l.code && <Check aria-hidden="true" className="w-3.5 h-3.5 text-cyan-700" />}
+                        {lang === l.code && <Check aria-hidden="true" className="w-3.5 h-3.5 text-navy-700 dark:text-blue-400" />}
                       </button>
                     ))}
                   </div>
                 )}
               </div>
+
+              {/* 10. Theme Switcher: Light / Dark Toggle (Desktop) */}
+              <button
+                type="button"
+                onClick={toggleTheme}
+                aria-label={theme === 'dark' ? (lang === 'ar' ? 'التبديل إلى الوضع النهاري' : lang === 'fr' ? 'Passer au mode clair' : 'Switch to light mode') : (lang === 'ar' ? 'التبديل إلى الوضع الليلي' : lang === 'fr' ? 'Passer au mode sombre' : 'Switch to dark mode')}
+                title={theme === 'dark' ? (lang === 'ar' ? 'الوضع النهاري' : 'Light Mode') : (lang === 'ar' ? 'الوضع الليلي' : 'Dark Mode')}
+                className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-700 dark:text-slate-200 hover:text-navy-800 dark:hover:text-blue-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#172033] transition-all duration-300 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 shadow-xs cursor-pointer ms-1.5 group overflow-hidden"
+              >
+                <span
+                  key={theme}
+                  className="text-sm leading-none inline-block transition-transform duration-300 group-hover:rotate-12 group-active:scale-90 animate-fade-in"
+                  role="img"
+                  aria-label={theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
+                >
+                  {theme === 'dark' ? '🌙' : '☀️'}
+                </span>
+              </button>
             </div>
 
-            {/* Mobile Controls: Compact Language Selector + Hamburger */}
+            {/* Mobile Controls: Compact Language Selector + Theme Toggle + Hamburger */}
             <div className="flex xl:hidden items-center gap-1.5">
+              {/* Theme Switcher Toggle (Mobile) */}
+              <button
+                type="button"
+                onClick={toggleTheme}
+                aria-label={theme === 'dark' ? (lang === 'ar' ? 'التبديل إلى الوضع النهاري' : lang === 'fr' ? 'Passer au mode clair' : 'Switch to light mode') : (lang === 'ar' ? 'التبديل إلى الوضع الليلي' : lang === 'fr' ? 'Passer au mode sombre' : 'Switch to dark mode')}
+                title={theme === 'dark' ? (lang === 'ar' ? 'الوضع النهاري' : 'Light Mode') : (lang === 'ar' ? 'الوضع الليلي' : 'Dark Mode')}
+                className="flex items-center justify-center w-7 h-7 rounded-md text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-[#172033] border border-slate-200 dark:border-slate-700 transition-all duration-300 active:scale-95 cursor-pointer"
+              >
+                <span
+                  key={theme}
+                  className="text-xs leading-none inline-block transition-transform duration-300 animate-fade-in"
+                  role="img"
+                  aria-label={theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
+                >
+                  {theme === 'dark' ? '🌙' : '☀️'}
+                </span>
+              </button>
+
               {/* Compact Mobile Language Switcher (🌐 العربية ▾) */}
               <div ref={mobileLangRef} className="relative">
                 <button
@@ -640,15 +678,15 @@ export default function Header() {
                     e.stopPropagation();
                     setOpenDropdown(openDropdown === 'lang' ? null : 'lang');
                   }}
-                  className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold text-slate-700 bg-slate-50 border border-slate-200 cursor-pointer"
+                  className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-[#172033] border border-slate-200 dark:border-slate-700 cursor-pointer"
                 >
-                  <Globe aria-hidden="true" className="w-3 h-3 text-cyan-600" />
+                  <Globe aria-hidden="true" className="w-3 h-3 text-navy-700 dark:text-blue-400" />
                   <span>{currentLangObj.label}</span>
                   <ChevronDown aria-hidden="true" className="w-2.5 h-2.5 text-slate-400" />
                 </button>
 
                 {openDropdown === 'lang' && (
-                  <div className="absolute end-0 mt-2 w-32 bg-white rounded-lg shadow-xl border border-slate-100 py-1 z-50 animate-fade-in">
+                  <div className="absolute end-0 mt-2 w-32 bg-white dark:bg-[#172033] rounded-lg shadow-xl border border-slate-100 dark:border-slate-700 py-1 z-50 animate-fade-in">
                     {languages.map((l) => (
                       <button
                         key={l.code}
@@ -699,10 +737,23 @@ export default function Header() {
               aria-label={lang === 'ar' ? 'قائمة التنقل للأجهزة الذكية' : 'Mobile Navigation Menu'}
               className="xl:hidden mt-2 pb-6 border-t border-slate-100 pt-3 flex flex-col gap-1.5 animate-fade-in max-h-[82vh] overflow-y-auto"
             >
-              {/* Compact Language Selection in Drawer */}
-              <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-100 mb-1">
-                <p className="text-[11px] font-semibold text-slate-500 mb-1.5 flex items-center gap-1.5">
-                  <Globe aria-hidden="true" className="w-3 h-3 text-cyan-600" /> Language / اللغة
+              {/* Compact Language & Theme Selection in Drawer */}
+              <div className="p-2.5 bg-slate-50 dark:bg-slate-800/80 rounded-lg border border-slate-100 dark:border-slate-700 mb-1">
+                <div className="flex items-center justify-between mb-2 pb-2 border-b border-slate-200/80 dark:border-slate-700">
+                  <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                    {lang === 'ar' ? 'المظهر / Theme' : 'Theme / المظهر'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={toggleTheme}
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 shadow-xs cursor-pointer"
+                  >
+                    <span>{theme === 'dark' ? '🌙' : '☀️'}</span>
+                    <span>{theme === 'dark' ? (lang === 'ar' ? 'داكن' : 'Dark') : (lang === 'ar' ? 'نهاري' : 'Light')}</span>
+                  </button>
+                </div>
+                <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1.5 flex items-center gap-1.5">
+                  <Globe aria-hidden="true" className="w-3 h-3 text-navy-700 dark:text-blue-400" /> Language / اللغة
                 </p>
                 <div role="group" className="grid grid-cols-3 gap-1.5">
                   {languages.map((l) => (
@@ -711,10 +762,10 @@ export default function Header() {
                       type="button"
                       aria-pressed={lang === l.code}
                       onClick={() => setLang(l.code)}
-                      className={`py-1.5 px-1 text-xs font-semibold rounded-md text-center transition-colors flex items-center justify-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 cursor-pointer ${
+                      className={`py-1.5 px-1 text-xs font-semibold rounded-md text-center transition-colors flex items-center justify-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 cursor-pointer ${
                         lang === l.code
-                          ? 'bg-cyan-700 text-white shadow-sm'
-                          : 'bg-white text-slate-700 border border-slate-200'
+                          ? 'bg-navy-800 text-white shadow-sm'
+                          : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600'
                       }`}
                     >
                       <Globe aria-hidden="true" className="w-3 h-3 opacity-60" />

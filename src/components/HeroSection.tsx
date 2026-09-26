@@ -52,19 +52,6 @@ export default function HeroSection() {
     },
   };
 
-  // Subtle Ambient Water Glow
-  const pulseGlow = {
-    animate: {
-      scale: [1, 1.06, 1],
-      opacity: [0.35, 0.55, 0.35],
-      transition: {
-        duration: 6.5,
-        repeat: Infinity,
-        ease: 'easeInOut',
-      },
-    },
-  };
-
   return (
     <section className="relative min-h-[660px] lg:min-h-[740px] bg-navy-950 overflow-hidden flex items-center pt-24 pb-16 lg:py-28 select-none">
       {/* Background Water/Laboratory Photography with Deep Gradient Overlays */}
@@ -82,21 +69,6 @@ export default function HeroSection() {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-navy-950 via-transparent to-navy-950/70" />
       </div>
-
-      {/* Ambient Scientific Light Glows */}
-      <motion.div
-        variants={pulseGlow}
-        animate="animate"
-        className="absolute top-1/4 start-1/4 w-[460px] h-[460px] rounded-full bg-water-500/15 blur-[130px] pointer-events-none"
-      />
-      <motion.div
-        variants={pulseGlow}
-        animate="animate"
-        className="absolute bottom-10 end-10 w-[520px] h-[520px] rounded-full bg-aqua-500/15 blur-[150px] pointer-events-none"
-      />
-
-      {/* Decorative Grid Pattern Overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_40%,#000_70%,transparent_100%)] pointer-events-none" />
 
       {/* Main Content Container */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
@@ -121,17 +93,17 @@ export default function HeroSection() {
               </div>
             </motion.div>
 
-            {/* Main Title - Enhanced Typography */}
+            {/* Main Title - Refined, Elegant Typography */}
             <motion.h1
-  variants={slideUpFadeVariants}
-  className="text-xl sm:text-2xl lg:text-3xl font-black text-white leading-[1.2] tracking-tight mb-4 drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]"
->
-  {t('hero.title')}
-</motion.h1>
+              variants={slideUpFadeVariants}
+              className="text-2xl sm:text-3xl lg:text-[34px] font-semibold text-white leading-[1.25] tracking-tight mb-3 drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]"
+            >
+              {t('hero.title')}
+            </motion.h1>
 
-            {/* Subtitle / Core Message - Enhanced Gradient Typography */}
-            <motion.div variants={slideUpFadeVariants} className="mb-6">
-              <p className="text-xl sm:text-2xl md:text-[26px] font-extrabold bg-gradient-to-r from-water-300 via-aqua-200 to-white bg-clip-text text-transparent leading-snug">
+            {/* Subtitle / Core Message - Clear, Controlled Hierarchy */}
+            <motion.div variants={slideUpFadeVariants} className="mb-4">
+              <p className="text-base sm:text-lg md:text-xl font-medium text-water-100 leading-snug">
                 {t('hero.subtitle')}
               </p>
             </motion.div>
@@ -139,43 +111,42 @@ export default function HeroSection() {
             {/* Institutional Description - Enhanced Legibility */}
             <motion.p
               variants={slideUpFadeVariants}
-              className="text-base sm:text-lg text-slate-200/90 leading-relaxed max-w-2xl mb-8 font-normal"
+              className="text-sm sm:text-base text-slate-200/90 leading-relaxed max-w-2xl mb-7 font-normal"
             >
               {t('hero.desc')}
             </motion.p>
 
-            {/* Action Buttons with Framer Motion hover & tap states */}
+            {/* Action Buttons */}
             <motion.div
               variants={slideUpFadeVariants}
-              className="flex flex-wrap items-center gap-4 mb-10"
+              className="flex flex-wrap items-center gap-3.5 mb-10"
             >
               <motion.div
-                whileHover={{ scale: 1.03, y: -2 }}
+                whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 20 }}
               >
                 <Link
                   to="/register"
-                  className="relative group inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-xl bg-gradient-to-r from-water-500 via-water-600 to-navy-800 text-white font-bold text-sm sm:text-base shadow-xl shadow-water-600/30 hover:shadow-water-500/50 transition-all border border-water-300/40 overflow-hidden"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-water-600 hover:bg-water-500 text-white font-semibold text-sm sm:text-base shadow-md transition-colors"
                 >
-                  <span className="absolute inset-0 w-1/2 h-full bg-white/20 skew-x-12 -translate-x-full group-hover:translate-x-[300%] transition-transform duration-1000 ease-out" />
-                  <UserPlus className="w-5 h-5 text-aqua-200" />
+                  <UserPlus className="w-4 h-4 text-white" />
                   <span>{t('hero.register')}</span>
                 </Link>
               </motion.div>
 
               <motion.div
-                whileHover={{ scale: 1.03, y: -2 }}
+                whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 20 }}
               >
                 <Link
                   to="/laboratories"
-                  className="group inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-sm sm:text-base backdrop-blur-md border border-white/25 transition-all hover:border-water-400/50"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-white/10 hover:bg-white/15 text-white font-semibold text-sm sm:text-base backdrop-blur-sm border border-white/20 transition-colors"
                 >
                   <span>{t('hero.explore')}</span>
                   <Arrow
-                    className={`w-4 h-4 text-water-300 transition-transform ${
+                    className={`w-4 h-4 text-water-200 transition-transform ${
                       dir === 'rtl' ? 'group-hover:-translate-x-1' : 'group-hover:translate-x-1'
                     }`}
                   />

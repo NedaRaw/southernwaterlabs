@@ -1,12 +1,14 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"Noto Sans Arabic"', '"Noto Sans"', 'system-ui', '-apple-system', 'sans-serif'],
-        arabic: ['"Noto Sans Arabic"', 'system-ui', 'sans-serif'],
-        latin: ['"Noto Sans"', 'system-ui', 'sans-serif'],
+        sans: ['"IBM Plex Sans Arabic"', '"IBM Plex Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+        arabic: ['"IBM Plex Sans Arabic"', 'system-ui', 'sans-serif'],
+        latin: ['"IBM Plex Sans"', 'system-ui', 'sans-serif'],
+        accent: ['"Noto Sans Arabic"', 'system-ui', 'sans-serif'],
       },
       colors: {
         navy: {

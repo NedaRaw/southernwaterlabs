@@ -197,11 +197,8 @@ export default function HeroFacilityCarousel() {
       onMouseLeave={() => setIsHovered(false)}
       aria-label="Southern Region Water Laboratories Showcase Carousel"
     >
-      {/* Outer Atmospheric Aura Glow */}
-      <div className="absolute -inset-3 rounded-3xl bg-gradient-to-tr from-cyan-500/25 via-teal-400/20 to-sky-600/30 blur-2xl opacity-70 pointer-events-none" />
-
-      {/* Main Glassmorphic Showcase Container */}
-      <div className="relative rounded-2xl overflow-hidden border border-white/20 bg-navy-900/90 backdrop-blur-xl shadow-2xl transition-all duration-300">
+      {/* Main Showcase Container */}
+      <div className="relative rounded-2xl overflow-hidden border border-white/20 bg-navy-900/90 backdrop-blur-xl shadow-xl transition-all duration-300">
         
         {/* Top Header Bar inside the frame */}
         <div className="px-4 sm:px-5 py-3 bg-navy-950/80 border-b border-white/10 flex items-center justify-between text-xs text-slate-300">

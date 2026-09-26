@@ -1,4 +1,5 @@
 import { useLang } from '@/lib/i18n';
+import { useTheme } from '@/lib/theme';
 import logoEmblemLight from '@/assets/images/southern_water_labs_emblem.png';
 import logoEmblemWhite from '@/assets/images/southern_water_labs_emblem_white.png';
 
@@ -16,6 +17,14 @@ export default function LabLogo({
   showSubtitle = false,
 }: LabLogoProps) {
   const { lang, dir } = useLang();
+  let isDarkMode = false;
+  try {
+    const themeCtx = useTheme();
+    isDarkMode = themeCtx.theme === 'dark';
+  } catch {
+    // Safe fallback if used outside context
+  }
+
   const isWhite = variant === 'white';
   const isMarkOnly = variant === 'mark';
 
@@ -36,9 +45,9 @@ export default function LabLogo({
   }[lang];
 
   // Pick the tailored emblem asset:
-  // For dark blue/navy backgrounds (variant='white'), use the luminous white & bright cyan emblem
+  // For dark blue/navy backgrounds or dark mode, use the luminous white emblem
   // For light backgrounds (header, etc.), use the clean water emblem
-  const logoSrc = isWhite ? logoEmblemWhite : logoEmblemLight;
+  const logoSrc = isWhite || isDarkMode ? logoEmblemWhite : logoEmblemLight;
 
   // Proportional height classes
   const imageSizeClasses = {
@@ -83,7 +92,7 @@ export default function LabLogo({
               ? 'text-[15px] sm:text-[17px] md:text-[18px] lg:text-[19px]'
               : 'text-[14px] sm:text-[16px] md:text-[17px]'
           } ${
-            isWhite ? '!text-white' : 'text-slate-900'
+            isWhite ? '!text-white' : 'text-slate-900 dark:text-[#F8FAFC]'
           }`}
         >
           {officialTitle}
