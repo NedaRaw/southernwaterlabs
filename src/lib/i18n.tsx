@@ -14,7 +14,7 @@ const LangContext = createContext<LangContextType | undefined>(undefined);
 export const translations: Record<string, { ar: string; en: string; fr: string }> = {
   // Brand
   'brand.name': {
-    ar: 'المختبرات المركزية للمياه والخدمات البيئية بالقطاع الجنوبي',
+    ar: 'المختبرات المركزية لمياه الشرب والخدمات البيئية بالقطاع الجنوبي',
     en: 'Southern Sector Central Water and Environmental Laboratories',
     fr: 'Laboratoire Central des Eaux et des Services Environnementaux',
   },
@@ -64,8 +64,8 @@ export const translations: Record<string, { ar: string; en: string; fr: string }
     fr: 'Réseau Agréé de Contrôle de la Qualité de l\'Eau',
   },
   'hero.title': {
-    ar: 'المختبرات المركزية للمياه والخدمات البيئية بالقطاع الجنوبي',
-    en: 'Southern Sector Central Water Laboratories',
+    ar: 'المختبرات المركزية لمياه الشرب والخدمات البيئية بالقطاع الجنوبي',
+    en: 'Southern Sector Laboratory for Drinking Water and Environmental Services',
     fr: 'Laboratoires Centraux des Eaux du Secteur Sud',
   },
   'hero.subtitle': {
@@ -469,7 +469,7 @@ export const translations: Record<string, { ar: string; en: string; fr: string }
   'contact.gotoEnquiry': { ar: 'الانتقال إلى نموذج الاستفسار', en: 'Go to Enquiry Portal', fr: 'Accéder au Formulaire de Demande' },
 
   // About page
-  'aboutPage.title': { ar: 'عن منظومة مختبرات المياه بالقطاع الجنوبي', en: 'About Southern Sector Water Laboratories', fr: 'À Propos des Laboratoires de l\'Eau du Secteur Sud' },
+  'aboutPage.title': { ar: 'عن منظومة المختبرات المركزية لمياه الشرب والخدمات البيئية بالقطاع الجنوبي', en: 'About Southern Sector Water Laboratories', fr: 'À Propos des Laboratoires de l\'Eau du Secteur Sud' },
   'aboutPage.desc': {
     ar: 'شبكة متطورة تضم 4 مختبرات مركزية كبرى و18 فرعاً ومحطة مراقبة منتشرة في مناطق عسير ونجران والباحة وجازان، تعمل على فحص وضمان سلامة وجودة مياه الشرب والمياه الموزعة وفق أحدث المعايير الدولية والوطنية.',
     en: 'An advanced network comprising 4 central laboratory hubs and 18 branches and monitoring stations across Asir, Najran, Al-Baha, and Jazan, ensuring drinking water safety and compliance with top international and national standards.',

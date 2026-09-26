@@ -29,14 +29,14 @@ export default function LabLogo({
   const isMarkOnly = variant === 'mark';
 
   // Exact official institutional names requested:
-  // Arabic: "المختبرات المركزية للمياه بالقطاع الجنوبي"
-  // English: "Southern Sector Central Water Laboratories"
+  // Arabic: "المختبرات المركزية لمياه الشرب بالقطاع الجنوبي"
+  // English: "Southern Sector Laboratory for Drinking Water and Environmental Services"
   // French: "Laboratoires Centraux des Eaux du Secteur Sud"
-  const officialTitle = {
-    ar: 'المختبرات المركزية للمياه بالقطاع الجنوبي',
-    en: 'Southern Sector Central Water Laboratories',
-    fr: 'Laboratoires Centraux des Eaux du Secteur Sud',
-  }[lang] || 'المختبرات المركزية للمياه بالقطاع الجنوبي';
+const officialTitle = {
+  ar: 'المختبرات المركزية لمياه الشرب والخدمات البيئية بالقطاع الجنوبي',
+  en: 'Southern Sector Central Laboratories for Drinking Water and Environmental Services',
+  fr: 'Laboratoires Centraux du Secteur Sud pour les Eaux Potables et les Services Environnementaux',
+}[lang] || 'المختبرات المركزية لمياه الشرب والخدمات البيئية بالقطاع الجنوبي';
 
   const officialSubtitle = {
     ar: 'منظومة مراقبة جودة المياه ومختبرات الفحص والتحليل',
