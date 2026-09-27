@@ -244,13 +244,13 @@ export default function Register() {
   const req = <span className="text-red-500">*</span>;
 
   return (
-    <div className="pt-28 pb-20">
+    <div className="pt-16 sm:pt-20 pb-20 bg-[#F8FAFC] dark:bg-[#0B1220] transition-colors duration-200">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <Breadcrumb items={[{ label: t('register.title') }]} />
 
         <div className="mt-4 mb-8 text-start max-w-2xl">
-          <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900 tracking-tight mb-2">{t('register.title')}</h1>
-          <p className="text-slate-600 text-sm sm:text-base leading-relaxed">{t('register.desc')}</p>
+          <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 dark:text-white tracking-tight mb-1.5">{t('register.title')}</h1>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{t('register.desc')}</p>
         </div>
 
         {submitError && (

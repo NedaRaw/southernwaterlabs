@@ -208,49 +208,49 @@ export default function Header() {
         role="banner"
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 ${
           menuOpen
-            ? 'bg-white dark:bg-[#172033] shadow-xl h-auto border-b border-slate-200 dark:border-slate-800'
+            ? 'bg-white dark:bg-[#172033] shadow-md h-auto border-b border-slate-200 dark:border-slate-800'
             : scrolled
-              ? 'bg-white/95 dark:bg-[#172033]/95 backdrop-blur-md shadow-sm border-b border-slate-200/80 dark:border-slate-800 h-[70px] sm:h-[72px] md:h-[74px] lg:h-[76px]'
-              : 'bg-white dark:bg-[#172033] border-b border-slate-100 dark:border-slate-800 h-[72px] sm:h-[76px] md:h-[78px] lg:h-[80px]'
+              ? 'bg-white/95 dark:bg-[#172033]/95 backdrop-blur-md shadow-xs border-b border-slate-200/80 dark:border-slate-800 h-12 sm:h-13'
+              : 'bg-white/98 dark:bg-[#172033]/98 backdrop-blur-xs border-b border-slate-100 dark:border-slate-800 h-12 sm:h-13'
         }`}
       >
-        <div className="max-w-[1440px] mx-auto px-2 sm:px-4 lg:px-6 h-full">
-          <div className="flex items-center justify-between h-full gap-2 sm:gap-3">
+        <div className="max-w-[1440px] mx-auto px-3 sm:px-4 lg:px-6 h-full">
+          <div className="flex items-center justify-between h-full gap-2 sm:gap-4">
 
             {/* RTL: Right / LTR: Left -> [Official Logo + Official Website Name] */}
             <Link
               to="/"
-              className="flex items-center shrink-0 rounded-lg py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 max-w-[280px] sm:max-w-xs md:max-w-md 2xl:max-w-none"
+              className="flex items-center shrink-0 rounded-lg py-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 max-w-[240px] sm:max-w-xs md:max-w-sm 2xl:max-w-none"
               aria-label={`${t('brand.name')} - ${t('nav.home')}`}
               onClick={() => {
                 setOpenDropdown(null);
                 setMenuOpen(false);
               }}
             >
-              <LabLogo size="md" showSubtitle={false} />
+              <LabLogo size="sm" showSubtitle={false} />
             </Link>
 
             {/* Desktop Navigation & Actions Container */}
-            <div className="hidden xl:flex items-center gap-1 2xl:gap-2 min-w-0 shrink">
+            <div className="hidden xl:flex items-center gap-1 2xl:gap-1.5 min-w-0 shrink">
               {/* Desktop Navigation Links — NOTE: No overflow-x-auto to prevent clipping absolute dropdowns */}
               <nav
                 aria-label={lang === 'ar' ? 'التنقل الرئيسي' : 'Main Navigation'}
-                className="flex items-center gap-0.5 2xl:gap-1 text-[13px] 2xl:text-[14px] py-1"
+                className="flex items-center gap-0.5 2xl:gap-1 text-[12px] 2xl:text-[13px] py-0.5"
               >
                 {/* 1. الرئيسية */}
                 <Link
                   to="/"
                   aria-current={isActive('/') && location.pathname === '/' ? 'page' : undefined}
                   onClick={() => setOpenDropdown(null)}
-                  className={`relative px-2 2xl:px-2.5 py-1.5 font-semibold transition-colors rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 whitespace-nowrap shrink-0 ${
+                  className={`relative px-2 py-1 font-medium transition-colors rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap shrink-0 ${
                     isActive('/') && location.pathname === '/'
-                      ? 'text-cyan-700 bg-cyan-50/50'
-                      : 'text-slate-700 hover:text-cyan-700 hover:bg-slate-50'
+                      ? 'text-blue-700 dark:text-blue-400 bg-blue-50/60 dark:bg-blue-950/40'
+                      : 'text-slate-600 dark:text-slate-300 hover:text-blue-700 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/60'
                   }`}
                 >
                   {t('nav.home')}
                   {isActive('/') && location.pathname === '/' && (
-                    <span aria-hidden="true" className="absolute bottom-0 left-2 right-2 h-[2px] bg-cyan-600 rounded-full animate-fade-in" />
+                    <span aria-hidden="true" className="absolute bottom-0 left-2 right-2 h-[2px] bg-blue-600 rounded-full animate-fade-in" />
                   )}
                 </Link>
 
@@ -259,15 +259,15 @@ export default function Header() {
                   to="/about"
                   aria-current={isActive('/about') ? 'page' : undefined}
                   onClick={() => setOpenDropdown(null)}
-                  className={`relative px-2 2xl:px-2.5 py-1.5 font-semibold transition-colors rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 whitespace-nowrap shrink-0 ${
+                  className={`relative px-2 py-1 font-medium transition-colors rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap shrink-0 ${
                     isActive('/about')
-                      ? 'text-cyan-700 bg-cyan-50/50'
-                      : 'text-slate-700 hover:text-cyan-700 hover:bg-slate-50'
+                      ? 'text-blue-700 dark:text-blue-400 bg-blue-50/60 dark:bg-blue-950/40'
+                      : 'text-slate-600 dark:text-slate-300 hover:text-blue-700 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/60'
                   }`}
                 >
                   {t('nav.about')}
                   {isActive('/about') && (
-                    <span aria-hidden="true" className="absolute bottom-0 left-2 right-2 h-[2px] bg-cyan-600 rounded-full animate-fade-in" />
+                    <span aria-hidden="true" className="absolute bottom-0 left-2 right-2 h-[2px] bg-blue-600 rounded-full animate-fade-in" />
                   )}
                 </Link>
 
@@ -286,22 +286,22 @@ export default function Header() {
                     aria-controls="nav-labs-menu"
                     onClick={(e) => handleButtonClick(e, 'labs')}
                     onKeyDown={(e) => handleDropdownKeyDown(e, 'labs')}
-                    className={`relative flex items-center gap-1 px-2 2xl:px-2.5 py-1.5 font-semibold transition-colors rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 whitespace-nowrap cursor-pointer ${
+                    className={`relative flex items-center gap-1 px-2 py-1 font-medium transition-colors rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap cursor-pointer ${
                       isActive('/laboratories') || openDropdown === 'labs'
-                        ? 'text-cyan-700 bg-cyan-50/60'
-                        : 'text-slate-700 hover:text-cyan-700 hover:bg-slate-50'
+                        ? 'text-blue-700 dark:text-blue-400 bg-blue-50/60 dark:bg-blue-950/40'
+                        : 'text-slate-600 dark:text-slate-300 hover:text-blue-700 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/60'
                     }`}
                   >
                     <Building2 aria-hidden="true" className="w-3.5 h-3.5 opacity-70 shrink-0" />
                     <span>{t('nav.labs')}</span>
                     <ChevronDown
                       aria-hidden="true"
-                      className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                        openDropdown === 'labs' ? 'rotate-180 text-cyan-600' : 'text-slate-400'
+                      className={`w-3 h-3 transition-transform duration-200 ${
+                        openDropdown === 'labs' ? 'rotate-180 text-blue-600' : 'text-slate-400'
                       }`}
                     />
                     {isActive('/laboratories') && (
-                      <span aria-hidden="true" className="absolute bottom-0 left-2 right-2 h-[2px] bg-cyan-600 rounded-full animate-fade-in" />
+                      <span aria-hidden="true" className="absolute bottom-0 left-2 right-2 h-[2px] bg-blue-600 rounded-full animate-fade-in" />
                     )}
                   </button>
 
@@ -373,22 +373,22 @@ export default function Header() {
                     aria-controls="nav-services-menu"
                     onClick={(e) => handleButtonClick(e, 'services')}
                     onKeyDown={(e) => handleDropdownKeyDown(e, 'services')}
-                    className={`relative flex items-center gap-1 px-2 2xl:px-2.5 py-1.5 font-semibold transition-colors rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 whitespace-nowrap cursor-pointer ${
+                    className={`relative flex items-center gap-1 px-2 py-1 font-medium transition-colors rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap cursor-pointer ${
                       isActive('/services') || openDropdown === 'services'
-                        ? 'text-cyan-700 bg-cyan-50/60'
-                        : 'text-slate-700 hover:text-cyan-700 hover:bg-slate-50'
+                        ? 'text-blue-700 dark:text-blue-400 bg-blue-50/60 dark:bg-blue-950/40'
+                        : 'text-slate-600 dark:text-slate-300 hover:text-blue-700 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/60'
                     }`}
                   >
                     <FlaskConical aria-hidden="true" className="w-3.5 h-3.5 opacity-70 shrink-0" />
                     <span>{t('nav.services')}</span>
                     <ChevronDown
                       aria-hidden="true"
-                      className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                        openDropdown === 'services' ? 'rotate-180 text-cyan-600' : 'text-slate-400'
+                      className={`w-3 h-3 transition-transform duration-200 ${
+                        openDropdown === 'services' ? 'rotate-180 text-blue-600' : 'text-slate-400'
                       }`}
                     />
                     {isActive('/services') && (
-                      <span aria-hidden="true" className="absolute bottom-0 left-2 right-2 h-[2px] bg-cyan-600 rounded-full animate-fade-in" />
+                      <span aria-hidden="true" className="absolute bottom-0 left-2 right-2 h-[2px] bg-blue-600 rounded-full animate-fade-in" />
                     )}
                   </button>
 
@@ -399,8 +399,8 @@ export default function Header() {
                       aria-labelledby="nav-services-button"
                       className="absolute start-0 top-full mt-1.5 w-80 z-50 animate-fade-in focus:outline-none pointer-events-auto"
                     >
-                      <div className="bg-white rounded-xl shadow-xl border border-slate-100 p-2">
-                        <div className="p-2 border-b border-slate-100 mb-1" role="presentation">
+                      <div className="bg-white dark:bg-[#172033] rounded-xl shadow-xl border border-slate-100 dark:border-slate-800 p-2">
+                        <div className="p-2 border-b border-slate-100 dark:border-slate-800 mb-1" role="presentation">
                           <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                             {t('services.title')}
                           </p>
@@ -414,24 +414,24 @@ export default function Header() {
                                 to={svc.path}
                                 role="menuitem"
                                 onClick={() => setOpenDropdown(null)}
-                                className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-cyan-50/70 transition-colors group focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600"
+                                className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-blue-50/70 dark:hover:bg-blue-950/50 transition-colors group focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
                               >
-                                <div className="w-7 h-7 rounded-md bg-cyan-50 flex items-center justify-center text-cyan-700 group-hover:bg-cyan-600 group-hover:text-white transition-colors" aria-hidden="true">
+                                <div className="w-7 h-7 rounded-md bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-colors" aria-hidden="true">
                                   <Icon className="w-3.5 h-3.5" />
                                 </div>
-                                <span className="text-xs font-semibold text-slate-700 group-hover:text-cyan-800">
+                                <span className="text-xs font-medium text-slate-700 dark:text-slate-200 group-hover:text-blue-700 dark:group-hover:text-white">
                                   {t(svc.key)}
                                 </span>
                               </Link>
                             );
                           })}
                         </div>
-                        <div className="mt-2 pt-2 border-t border-slate-100" role="none">
+                        <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800" role="none">
                           <Link
                             to="/services"
                             role="menuitem"
                             onClick={() => setOpenDropdown(null)}
-                            className="flex items-center justify-center gap-1.5 w-full py-1.5 rounded-lg bg-slate-50 hover:bg-cyan-50 text-xs font-semibold text-cyan-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600"
+                            className="flex items-center justify-center gap-1.5 w-full py-1.5 rounded-lg bg-slate-50 dark:bg-slate-800/80 hover:bg-blue-50 text-xs font-medium text-blue-800 dark:text-blue-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
                           >
                             <span>{t('nav.allServices')}</span>
                             <Arrow aria-hidden="true" className="w-3.5 h-3.5" />
@@ -457,22 +457,22 @@ export default function Header() {
                     aria-controls="nav-cs-menu"
                     onClick={(e) => handleButtonClick(e, 'cs')}
                     onKeyDown={(e) => handleDropdownKeyDown(e, 'cs')}
-                    className={`relative flex items-center gap-1 px-2 2xl:px-2.5 py-1.5 font-semibold transition-colors rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 whitespace-nowrap cursor-pointer ${
+                    className={`relative flex items-center gap-1 px-2 py-1 font-medium transition-colors rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap cursor-pointer ${
                       isActive('/register') || isActive('/survey') || isActive('/enquiry') || openDropdown === 'cs'
-                        ? 'text-cyan-700 bg-cyan-50/60'
-                        : 'text-slate-700 hover:text-cyan-700 hover:bg-slate-50'
+                        ? 'text-blue-700 dark:text-blue-400 bg-blue-50/60 dark:bg-blue-950/40'
+                        : 'text-slate-600 dark:text-slate-300 hover:text-blue-700 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/60'
                     }`}
                   >
                     <Users aria-hidden="true" className="w-3.5 h-3.5 opacity-70 shrink-0" />
                     <span>{t('cs.title')}</span>
                     <ChevronDown
                       aria-hidden="true"
-                      className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                        openDropdown === 'cs' ? 'rotate-180 text-cyan-600' : 'text-slate-400'
+                      className={`w-3 h-3 transition-transform duration-200 ${
+                        openDropdown === 'cs' ? 'rotate-180 text-blue-600' : 'text-slate-400'
                       }`}
                     />
                     {(isActive('/register') || isActive('/survey') || isActive('/enquiry')) && (
-                      <span aria-hidden="true" className="absolute bottom-0 left-2 right-2 h-[2px] bg-cyan-600 rounded-full animate-fade-in" />
+                      <span aria-hidden="true" className="absolute bottom-0 left-2 right-2 h-[2px] bg-blue-600 rounded-full animate-fade-in" />
                     )}
                   </button>
 
@@ -483,7 +483,7 @@ export default function Header() {
                       aria-labelledby="nav-cs-button"
                       className="absolute start-0 top-full mt-1.5 w-72 z-50 animate-fade-in focus:outline-none pointer-events-auto"
                     >
-                      <div className="bg-white rounded-xl shadow-xl border border-slate-100 p-2">
+                      <div className="bg-white dark:bg-[#172033] rounded-xl shadow-xl border border-slate-100 dark:border-slate-800 p-2">
                         <div className="space-y-1" role="none">
                           {customerServices.map((svc) => {
                             const Icon = svc.icon;
@@ -493,13 +493,13 @@ export default function Header() {
                                 to={svc.to}
                                 role="menuitem"
                                 onClick={() => setOpenDropdown(null)}
-                                className="flex items-start gap-2.5 p-2 rounded-lg hover:bg-cyan-50/70 transition-colors group focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600"
+                                className="flex items-start gap-2.5 p-2 rounded-lg hover:bg-blue-50/70 dark:hover:bg-blue-950/50 transition-colors group focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
                               >
-                                <div className="w-8 h-8 rounded-lg bg-cyan-100/70 flex items-center justify-center text-cyan-700 group-hover:bg-cyan-600 group-hover:text-white transition-colors shrink-0 mt-0.5" aria-hidden="true">
+                                <div className="w-8 h-8 rounded-lg bg-blue-100/70 dark:bg-blue-900/40 flex items-center justify-center text-blue-700 dark:text-blue-300 group-hover:bg-blue-600 group-hover:text-white transition-colors shrink-0 mt-0.5" aria-hidden="true">
                                   <Icon className="w-4 h-4" />
                                 </div>
                                 <div>
-                                  <p className="text-xs font-semibold text-slate-800 group-hover:text-cyan-800">
+                                  <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 group-hover:text-blue-800 dark:group-hover:text-white">
                                     {svc.label}
                                   </p>
                                   <p className="text-[11px] text-slate-400 line-clamp-1">{svc.desc}</p>
@@ -518,15 +518,15 @@ export default function Header() {
                   to="/news"
                   aria-current={isActive('/news') ? 'page' : undefined}
                   onClick={() => setOpenDropdown(null)}
-                  className={`relative px-2 2xl:px-2.5 py-1.5 font-semibold transition-colors rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 whitespace-nowrap shrink-0 ${
+                  className={`relative px-2 py-1 font-medium transition-colors rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap shrink-0 ${
                     isActive('/news')
-                      ? 'text-cyan-700 bg-cyan-50/50'
-                      : 'text-slate-700 hover:text-cyan-700 hover:bg-slate-50'
+                      ? 'text-blue-700 dark:text-blue-400 bg-blue-50/60 dark:bg-blue-950/40'
+                      : 'text-slate-600 dark:text-slate-300 hover:text-blue-700 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/60'
                   }`}
                 >
                   {t('nav.news')}
                   {isActive('/news') && (
-                    <span aria-hidden="true" className="absolute bottom-0 left-2 right-2 h-[2px] bg-cyan-600 rounded-full animate-fade-in" />
+                    <span aria-hidden="true" className="absolute bottom-0 left-2 right-2 h-[2px] bg-blue-600 rounded-full animate-fade-in" />
                   )}
                 </Link>
 
@@ -535,15 +535,15 @@ export default function Header() {
                   to="/contact"
                   aria-current={isActive('/contact') ? 'page' : undefined}
                   onClick={() => setOpenDropdown(null)}
-                  className={`relative px-2 2xl:px-2.5 py-1.5 font-semibold transition-colors rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 whitespace-nowrap shrink-0 ${
+                  className={`relative px-2 py-1 font-medium transition-colors rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap shrink-0 ${
                     isActive('/contact')
-                      ? 'text-cyan-700 bg-cyan-50/50'
-                      : 'text-slate-700 hover:text-cyan-700 hover:bg-slate-50'
+                      ? 'text-blue-700 dark:text-blue-400 bg-blue-50/60 dark:bg-blue-950/40'
+                      : 'text-slate-600 dark:text-slate-300 hover:text-blue-700 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/60'
                   }`}
                 >
                   {t('nav.contact')}
                   {isActive('/contact') && (
-                    <span aria-hidden="true" className="absolute bottom-0 left-2 right-2 h-[2px] bg-cyan-600 rounded-full animate-fade-in" />
+                    <span aria-hidden="true" className="absolute bottom-0 left-2 right-2 h-[2px] bg-blue-600 rounded-full animate-fade-in" />
                   )}
                 </Link>
 
@@ -552,16 +552,16 @@ export default function Header() {
                   to="/admin"
                   aria-current={isActive('/admin') ? 'page' : undefined}
                   onClick={() => setOpenDropdown(null)}
-                  className={`relative px-2 2xl:px-2.5 py-1.5 font-semibold transition-colors flex items-center gap-1.5 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 whitespace-nowrap shrink-0 ${
+                  className={`relative px-2 py-1 font-medium transition-colors flex items-center gap-1.5 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap shrink-0 ${
                     isActive('/admin')
-                      ? 'text-cyan-700 bg-cyan-50/50'
-                      : 'text-slate-700 hover:text-cyan-700 hover:bg-slate-50'
+                      ? 'text-blue-700 dark:text-blue-400 bg-blue-50/60 dark:bg-blue-950/40'
+                      : 'text-slate-600 dark:text-slate-300 hover:text-blue-700 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/60'
                   }`}
                 >
                   <LogIn aria-hidden="true" className="w-3.5 h-3.5 opacity-70 shrink-0" />
                   <span>{t('nav.admin')}</span>
                   {isActive('/admin') && (
-                    <span aria-hidden="true" className="absolute bottom-0 left-2 right-2 h-[2px] bg-cyan-600 rounded-full animate-fade-in" />
+                    <span aria-hidden="true" className="absolute bottom-0 left-2 right-2 h-[2px] bg-blue-600 rounded-full animate-fade-in" />
                   )}
                 </Link>
               </nav>

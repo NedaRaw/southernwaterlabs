@@ -51,9 +51,16 @@ const officialTitle = {
 
   // Proportional height classes
   const imageSizeClasses = {
-    sm: 'h-8 sm:h-9 w-auto',
-    md: 'h-9 sm:h-10 md:h-11 w-auto',
-    lg: 'h-11 sm:h-12 md:h-14 w-auto',
+    sm: 'h-7 sm:h-8 w-auto',
+    md: 'h-8 sm:h-9 md:h-10 w-auto',
+    lg: 'h-10 sm:h-11 md:h-12 w-auto',
+  }[size];
+
+  // Proportional font sizes based on size prop - refined & balanced
+  const titleSizeClasses = {
+    sm: 'text-[11.5px] sm:text-xs md:text-[12.5px] font-semibold leading-tight line-clamp-1 sm:line-clamp-2 max-w-[240px] sm:max-w-xs md:max-w-md',
+    md: 'text-xs sm:text-sm font-semibold leading-snug',
+    lg: 'text-sm sm:text-base font-semibold leading-snug',
   }[size];
 
   if (isMarkOnly) {
@@ -71,10 +78,10 @@ const officialTitle = {
 
   return (
     <div
-      className={`inline-flex items-center gap-2.5 sm:gap-3 select-none transition-all duration-200 group ${className}`}
+      className={`inline-flex items-center gap-2 sm:gap-2.5 select-none transition-all duration-200 group ${className}`}
       dir={dir}
     >
-      {/* Official Laboratory Logo Emblem (Sharp, clear, suited for background color) */}
+      {/* Official Laboratory Logo Emblem */}
       <div className="shrink-0 flex items-center justify-center">
         <img
           src={logoSrc}
@@ -84,14 +91,10 @@ const officialTitle = {
         />
       </div>
 
-      {/* Official Laboratory Typography with clean, non-colliding layout */}
+      {/* Official Laboratory Typography */}
       <div className="flex flex-col text-start justify-center min-w-0">
         <span
-          className={`font-semibold tracking-tight leading-snug whitespace-normal ${
-            lang === 'ar'
-              ? 'text-[15px] sm:text-[17px] md:text-[18px] lg:text-[19px]'
-              : 'text-[14px] sm:text-[16px] md:text-[17px]'
-          } ${
+          className={`tracking-tight whitespace-normal ${titleSizeClasses} ${
             isWhite ? '!text-white' : 'text-slate-900 dark:text-[#F8FAFC]'
           }`}
         >

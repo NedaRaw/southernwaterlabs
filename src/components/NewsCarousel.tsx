@@ -117,20 +117,20 @@ export default function NewsCarousel() {
   const currentNews = getLocalizedNews(newsItems[currentIndex], lang);
 
   return (
-    <section className="py-20 bg-[#F1F5F9] dark:bg-[#111827] border-y border-slate-200 dark:border-slate-800 overflow-hidden select-none">
+    <section className="py-14 sm:py-18 bg-[#F1F5F9] dark:bg-[#111827] border-y border-slate-200/80 dark:border-slate-800 overflow-hidden select-none">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
           <div>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs sm:text-sm font-semibold mb-3 border border-slate-200 dark:border-slate-700">
-              <Newspaper className="w-4 h-4 text-navy-700 dark:text-blue-400" />
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-medium mb-2 border border-slate-200 dark:border-slate-700">
+              <Newspaper className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
               <span>{t('news.badge')}</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-slate-100 tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 dark:text-slate-100 tracking-tight">
               {t('news.title')}
             </h2>
-            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mt-2 max-w-2xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-2xl leading-relaxed">
               {t('news.desc')}
             </p>
           </div>

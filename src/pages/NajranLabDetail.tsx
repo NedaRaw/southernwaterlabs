@@ -26,6 +26,9 @@ import {
   Sparkles,
   Search,
   Users,
+  Navigation,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { useLang } from '@/lib/i18n';
 import Breadcrumb from '@/components/Breadcrumb';
@@ -51,6 +54,24 @@ export default function NajranLabDetail() {
   const { lang, dir } = useLang();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedImageTitle, setSelectedImageTitle] = useState<string>('');
+  const [copiedCoords, setCopiedCoords] = useState(false);
+
+  // Verified coordinates for Najran Central Laboratory
+  // Located at King Abdulaziz Road, Al-Manjam, behind Al-Dhafir Hospital, Najran
+  const labCoordinates = {
+    lat: 17.5255,
+    lng: 44.1865,
+    dms: '17°31\'31.8"N 44°11\'11.4"E',
+    decimal: '17.525500, 44.186500',
+    mapsUrl: 'https://www.google.com/maps/search/?api=1&query=17.5255,44.1865',
+    directionsUrl: 'https://www.google.com/maps/dir/?api=1&destination=17.5255,44.1865',
+  };
+
+  const handleCopyCoords = () => {
+    navigator.clipboard.writeText(labCoordinates.decimal);
+    setCopiedCoords(true);
+    setTimeout(() => setCopiedCoords(false), 2500);
+  };
 
   const isRtl = dir === 'rtl';
   const Arrow = isRtl ? ChevronLeft : ChevronRight;
@@ -193,6 +214,41 @@ export default function NajranLabDetail() {
       fr: 'Quartier Al-Manjam, Route Roi Abdulaziz, derrière l\'Hôpital Al-Dhafir, Najran',
     }[lang],
     openMapBtn: { ar: 'فتح الموقع في Google Maps', en: 'Open in Google Maps', fr: 'Ouvrir dans Google Maps' }[lang],
+    interactiveMapHeading: {
+      ar: 'خريطة تفاعلية وموقع المختبر عبر Google Maps',
+      en: 'Interactive Map & Laboratory Location on Google Maps',
+      fr: 'Carte Interactive & Emplacement du Laboratoire sur Google Maps',
+    }[lang],
+    interactiveMapSub: {
+      ar: 'موقع دقيق ومثبت بالإحداثيات الجغرافية المعتمدة لتسهيل وصول المراجعين واستلام العينات المخبرية',
+      en: 'Precise geo-verified coordinates to facilitate visitor access and specimen deliveries',
+      fr: 'Coordonnées géo-vérifiées pour faciliter l\'accès des visiteurs et des échantillons',
+    }[lang],
+    verifiedCoordsLabel: {
+      ar: 'الإحداثيات الجغرافية المعتمدة (GPS)',
+      en: 'Verified GPS Coordinates',
+      fr: 'Coordonnées GPS Vérifiées',
+    }[lang],
+    copyCoordsBtn: {
+      ar: 'نسخ الإحداثيات',
+      en: 'Copy Coordinates',
+      fr: 'Copier les Coordonnées',
+    }[lang],
+    copiedSuccess: {
+      ar: 'تم النسخ بنجاح!',
+      en: 'Copied Successfully!',
+      fr: 'Copié avec Succès !',
+    }[lang],
+    getDirectionsBtn: {
+      ar: 'الاتجاهات الملاحية عبر Google Maps',
+      en: 'Get Directions (Google Maps)',
+      fr: 'Itinéraire (Google Maps)',
+    }[lang],
+    mapInteractiveNotice: {
+      ar: 'خريطة تفاعلية مباشرة: يمكنك التحريك، التكبير، والتصغير أو التبديل إلى العرض عبر الأقمار الصناعية',
+      en: 'Live interactive map: pan, zoom, or switch to satellite imagery',
+      fr: 'Carte interactive en direct : déplacez, zoomez ou basculez en vue satellite',
+    }[lang],
     contactHeading: { ar: 'معلومات التواصل وساعات العمل', en: 'Official Contact & Working Hours', fr: 'Contact Officiel & Horaires de Travail' }[lang],
     hoursVal: { ar: 'الأحد – الخميس: 8:00 ص – 4:00 م', en: 'Sun – Thu: 8:00 AM – 4:00 PM', fr: 'Dim – Jeu : 8h00 – 16h00' }[lang],
     closedVal: { ar: 'الجمعة والسبت: عطلة أسبوعية', en: 'Fri & Sat: Weekend Closed', fr: 'Ven & Sam : Fermé' }[lang],
@@ -294,7 +350,7 @@ export default function NajranLabDetail() {
   ];
 
   return (
-    <div className="pt-28 pb-20 bg-[#F8FAFC] dark:bg-[#0B1220] transition-colors duration-200">
+    <div className="pt-16 sm:pt-20 pb-20 bg-[#F8FAFC] dark:bg-[#0B1220] transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb Navigation */}
         <Breadcrumb
@@ -305,21 +361,21 @@ export default function NajranLabDetail() {
         />
 
         {/* 01: Institutional Hero Section */}
-        <section className="mt-6 relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1E3A5F] via-[#152B47] to-[#0B1220] p-8 sm:p-12 lg:p-14 text-white shadow-xl ring-1 ring-white/10">
+        <section className="mt-4 relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1E3A5F] via-[#152B47] to-[#0A1324] p-6 sm:p-10 lg:p-12 text-white shadow-lg ring-1 ring-white/10">
           <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
           <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-96 h-96 rounded-full bg-teal-500/10 blur-3xl pointer-events-none" />
 
-          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
             {/* Left/Right Text Content */}
-            <div className="lg:col-span-8 space-y-5">
+            <div className="lg:col-span-8 space-y-4">
               {/* Badges strip */}
               <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-semibold ring-1 ring-emerald-500/30">
-                  <ShieldCheck className="w-4 h-4 shrink-0" />
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-medium border border-emerald-400/25">
+                  <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
                   {tText.accreditationBadge}
                 </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-500/20 text-blue-200 text-xs font-semibold ring-1 ring-blue-500/30">
-                  <Building2 className="w-4 h-4 shrink-0" />
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-200 text-xs font-medium border border-blue-400/25">
+                  <Building2 className="w-3.5 h-3.5 shrink-0" />
                   {tText.nwcBadge}
                 </span>
               </div>
@@ -329,17 +385,17 @@ export default function NajranLabDetail() {
                 <p className="text-xs sm:text-sm font-semibold text-blue-300 uppercase tracking-wider mb-1">
                   {tText.sectorTitle}
                 </p>
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white leading-tight">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-white leading-tight">
                   {tText.officialTitle}
                 </h1>
-                <p className="text-sm sm:text-base font-medium text-emerald-300 mt-2 flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
+                <p className="text-xs sm:text-sm font-normal text-emerald-300 mt-2 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                   {tText.tagline}
                 </p>
               </div>
 
               {/* Institutional description */}
-              <p className="text-slate-200 text-sm sm:text-base leading-relaxed max-w-2xl">
+              <p className="text-slate-200/90 text-xs sm:text-sm leading-relaxed max-w-2xl font-normal">
                 {tText.heroDesc}
               </p>
 
@@ -444,20 +500,20 @@ export default function NajranLabDetail() {
         </section>
 
         {/* 03: About Najran Central Laboratory */}
-        <section className="mt-12 bg-white dark:bg-[#172033] rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-10 shadow-sm">
+        <section className="mt-10 bg-white dark:bg-[#172033] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-8 lg:p-10 shadow-2xs">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-7 space-y-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-bold">
+            <div className="lg:col-span-7 space-y-3.5">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 text-xs font-medium">
                 <Building2 className="w-3.5 h-3.5" />
                 <span>{tText.aboutHeading}</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-slate-900 dark:text-white">
                 {tText.aboutSub}
               </h2>
-              <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed">
+              <p className="text-slate-600 dark:text-slate-300 text-xs sm:text-sm leading-relaxed">
                 {tText.aboutP1}
               </p>
-              <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed">
+              <p className="text-slate-600 dark:text-slate-300 text-xs sm:text-sm leading-relaxed">
                 {tText.aboutP2}
               </p>
 
@@ -508,13 +564,13 @@ export default function NajranLabDetail() {
         </section>
 
         {/* 04: Facilities & Laboratory Environment Gallery */}
-        <section className="mt-12">
-          <div className="text-center max-w-3xl mx-auto mb-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-bold mb-2">
+        <section className="mt-10">
+          <div className="text-center max-w-3xl mx-auto mb-6">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 text-xs font-medium mb-1.5">
               <Microscope className="w-3.5 h-3.5" />
               <span>{tText.facilitiesHeading}</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-slate-900 dark:text-white">
               {tText.facilitiesSub}
             </h2>
           </div>
@@ -627,13 +683,13 @@ export default function NajranLabDetail() {
         </section>
 
         {/* 05: Accredited Testing Scopes (8 Scopes from Flyer) */}
-        <section className="mt-14">
-          <div className="text-center max-w-3xl mx-auto mb-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold mb-2">
+        <section className="mt-12">
+          <div className="text-center max-w-3xl mx-auto mb-8">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-xs font-medium mb-1.5">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>{tText.servicesHeading}</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-slate-900 dark:text-white">
               {tText.servicesSub}
             </h2>
           </div>
@@ -673,14 +729,14 @@ export default function NajranLabDetail() {
         </section>
 
         {/* 06: Mobile Laboratory & Field Operations */}
-        <section className="mt-14 bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 rounded-3xl p-6 sm:p-10 lg:p-12 text-white shadow-xl ring-1 ring-white/10">
+        <section className="mt-12 bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 rounded-2xl p-6 sm:p-8 lg:p-10 text-white shadow-lg ring-1 ring-white/10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-7 space-y-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-bold ring-1 ring-blue-500/30">
+            <div className="lg:col-span-7 space-y-3.5">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 text-xs font-medium border border-blue-400/25">
                 <Truck className="w-3.5 h-3.5" />
                 <span>{tText.mobileHeading}</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-white">
                 {tText.mobileSub}
               </h2>
               <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
@@ -758,14 +814,14 @@ export default function NajranLabDetail() {
         </section>
 
         {/* 07: Organizational Structure */}
-        <section className="mt-14 bg-white dark:bg-[#172033] rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-10 shadow-sm">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+        <section className="mt-12 bg-white dark:bg-[#172033] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-8 lg:p-10 shadow-2xs">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-bold mb-2">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 text-xs font-medium mb-1.5">
                 <Users className="w-3.5 h-3.5" />
                 <span>{tText.orgHeading}</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-slate-900 dark:text-white">
                 {tText.orgSub}
               </h2>
             </div>
@@ -775,29 +831,31 @@ export default function NajranLabDetail() {
                 setSelectedImage(orgStructureImg);
                 setSelectedImageTitle(tText.orgHeading);
               }}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-semibold text-xs transition-colors shrink-0"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-medium text-xs transition-colors shrink-0"
             >
-              <Search className="w-4 h-4" />
+              <Search className="w-3.5 h-3.5" />
               <span>{tText.viewChartBtn}</span>
             </button>
           </div>
 
           <div
-            className="group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-4 cursor-pointer"
+            className="group relative rounded-xl overflow-x-auto scrollbar-thin border border-slate-200/80 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-4 cursor-pointer"
             onClick={() => {
               setSelectedImage(orgStructureImg);
               setSelectedImageTitle(tText.orgHeading);
             }}
           >
-            <img
-              src={orgStructureImg}
-              alt="Organizational Structure"
-              className="w-full max-h-96 object-contain mx-auto group-hover:scale-[1.01] transition-transform duration-200"
-            />
+            <div className="min-w-[600px] flex justify-center">
+              <img
+                src={orgStructureImg}
+                alt="Organizational Structure"
+                className="w-full max-h-96 object-contain mx-auto group-hover:scale-[1.01] transition-transform duration-200"
+              />
+            </div>
             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              <span className="px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold shadow-lg flex items-center gap-2">
-                <Eye className="w-4 h-4" />
-                {tText.viewChartBtn}
+              <span className="px-3.5 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-medium shadow-md flex items-center gap-1.5">
+                <Eye className="w-3.5 h-3.5" />
+                <span>{tText.viewChartBtn}</span>
               </span>
             </div>
           </div>
@@ -834,127 +892,215 @@ export default function NajranLabDetail() {
           </Link>
         </section>
 
-        {/* 09: Location & Official Contact */}
-        <section className="mt-12 grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Location Card */}
-          <div className="lg:col-span-6 p-6 sm:p-8 rounded-3xl bg-white dark:bg-[#172033] border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+        {/* 09: Location, Interactive Map & Official Contact */}
+        <section className="mt-12 bg-white dark:bg-[#172033] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-8 lg:p-10 shadow-2xs">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4">
             <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-11 h-11 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
-                  <MapPin className="w-6 h-6" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                    {tText.locationHeading}
-                  </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    {lang === 'ar' ? 'المقر الإداري والمختبري بنجران' : 'Najran Administrative & Lab Hub'}
-                  </p>
-                </div>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 text-xs font-medium mb-1.5">
+                <MapPin className="w-3.5 h-3.5" />
+                <span>{tText.locationHeading}</span>
               </div>
-              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/80 mb-6">
-                <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 leading-relaxed">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-slate-900 dark:text-white">
+                {tText.interactiveMapHeading}
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1.5 max-w-2xl">
+                {tText.interactiveMapSub}
+              </p>
+            </div>
+
+            {/* GPS Coordinates Badge & One-click Copy */}
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <div className="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-mono font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span dir="ltr">{labCoordinates.dms}</span>
+              </div>
+              <button
+                type="button"
+                onClick={handleCopyCoords}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-xs font-bold transition-colors"
+                title={tText.copyCoordsBtn}
+              >
+                {copiedCoords ? (
+                  <>
+                    <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    <span className="text-emerald-600 dark:text-emerald-400">{tText.copiedSuccess}</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4" />
+                    <span>{tText.copyCoordsBtn}</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Interactive Google Map Frame */}
+          <div className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-md bg-slate-100 dark:bg-slate-900">
+            <iframe
+              title="Najran Central Laboratory Interactive Google Map"
+              src={`https://maps.google.com/maps?q=${labCoordinates.lat},${labCoordinates.lng}&hl=${lang === 'ar' ? 'ar' : lang === 'fr' ? 'fr' : 'en'}&z=16&output=embed`}
+              className="w-full h-80 sm:h-96 md:h-[420px] border-0"
+              loading="lazy"
+              allowFullScreen
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+            {/* Top map info overlay */}
+            <div className="absolute top-3 start-3 max-w-sm pointer-events-auto">
+              <div className="p-3 rounded-xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-lg border border-slate-200 dark:border-slate-700 text-xs">
+                <div className="flex items-center gap-2 font-bold text-slate-900 dark:text-white">
+                  <MapPin className="w-4 h-4 text-red-500 shrink-0" />
+                  <span>{tText.shortTitle}</span>
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-snug">
                   {tText.officialAddress}
                 </p>
               </div>
             </div>
-
-            <a
-              href="https://maps.google.com/?q=Najran"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs sm:text-sm transition-colors shadow-sm"
-            >
-              <ExternalLink className="w-4 h-4" />
-              <span>{tText.openMapBtn}</span>
-            </a>
           </div>
 
-          {/* Contact Card */}
-          <div className="lg:col-span-6 p-6 sm:p-8 rounded-3xl bg-white dark:bg-[#172033] border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-11 h-11 rounded-xl bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0">
-                  <Phone className="w-6 h-6" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                    {tText.contactHeading}
-                  </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    {lang === 'ar' ? 'قنوات الاتصال المعتمدة' : 'Official Communication Channels'}
-                  </p>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2 italic">
+            * {tText.mapInteractiveNotice}
+          </p>
+
+          {/* Action Cards Grid below map */}
+          <div className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Coordinates & Actions Card */}
+            <div className="lg:col-span-6 p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex flex-col justify-between">
+              <div>
+                <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+                  <Navigation className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                  <span>{tText.verifiedCoordsLabel}</span>
+                </h3>
+                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
+                  {tText.officialAddress}
+                </p>
+
+                <div className="space-y-2 mb-6">
+                  <div className="flex items-center justify-between p-2.5 rounded-lg bg-white dark:bg-slate-900/70 text-xs border border-slate-200 dark:border-slate-700/80">
+                    <span className="text-slate-500 dark:text-slate-400 font-medium">
+                      {lang === 'ar' ? 'خط العرض (Latitude):' : 'Latitude:'}
+                    </span>
+                    <span dir="ltr" className="font-mono font-bold text-slate-800 dark:text-slate-200">
+                      17.525500° N
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between p-2.5 rounded-lg bg-white dark:bg-slate-900/70 text-xs border border-slate-200 dark:border-slate-700/80">
+                    <span className="text-slate-500 dark:text-slate-400 font-medium">
+                      {lang === 'ar' ? 'خط الطول (Longitude):' : 'Longitude:'}
+                    </span>
+                    <span dir="ltr" className="font-mono font-bold text-slate-800 dark:text-slate-200">
+                      44.186500° E
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-3 mb-6">
-                <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 text-xs">
-                  <span className="text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                    <Phone className="w-4 h-4 text-blue-500" />
-                    {lang === 'ar' ? 'الهاتف المباشر:' : 'Direct Phone:'}
-                  </span>
-                  <a
-                    href={`tel:${tText.directPhone}`}
-                    dir="ltr"
-                    className="font-bold text-blue-600 dark:text-blue-400 hover:underline"
-                  >
-                    {tText.directPhone}
-                  </a>
-                </div>
-
-                <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 text-xs">
-                  <span className="text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-emerald-500" />
-                    {lang === 'ar' ? 'خدمة العملاء (شركة المياه):' : 'NWC Customer Care:'}
-                  </span>
-                  <a
-                    href={`tel:${tText.nwcPhone}`}
-                    dir="ltr"
-                    className="font-bold text-emerald-600 dark:text-emerald-400 hover:underline"
-                  >
-                    {tText.nwcPhone}
-                  </a>
-                </div>
-
-                <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 text-xs">
-                  <span className="text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                    <Mail className="w-4 h-4 text-indigo-500" />
-                    {lang === 'ar' ? 'البريد الإلكتروني الرسمي:' : 'Official Email:'}
-                  </span>
-                  <a
-                    href={`mailto:${tText.labEmail}`}
-                    dir="ltr"
-                    className="font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
-                  >
-                    {tText.labEmail}
-                  </a>
-                </div>
-
-                <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 text-xs">
-                  <span className="text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-slate-500" />
-                    {lang === 'ar' ? 'ساعات العمل الرسمية:' : 'Working Hours:'}
-                  </span>
-                  <span className="font-semibold text-slate-800 dark:text-slate-200">
-                    {tText.hoursVal}
-                  </span>
-                </div>
+              {/* Direct navigation buttons */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <a
+                  href={labCoordinates.mapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-colors shadow-xs"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  <span>{tText.openMapBtn}</span>
+                </a>
+                <a
+                  href={labCoordinates.directionsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-colors shadow-xs"
+                >
+                  <Navigation className="w-4 h-4" />
+                  <span>{tText.getDirectionsBtn}</span>
+                </a>
               </div>
             </div>
 
-            <div className="pt-2 text-center text-xs text-slate-400">
-              {tText.closedVal}
+            {/* Official Contact & Hours Card */}
+            <div className="lg:col-span-6 p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex flex-col justify-between">
+              <div>
+                <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                  <span>{tText.contactHeading}</span>
+                </h3>
+                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
+                  {lang === 'ar'
+                    ? 'يمكنكم التواصل المباشر مع إدارة المختبر أو خدمة عملاء شركة المياه الوطنية'
+                    : 'Direct contact with laboratory management and NWC customer service'}
+                </p>
+
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center justify-between p-2.5 rounded-lg bg-white dark:bg-slate-900/70 text-xs border border-slate-200 dark:border-slate-700/80">
+                    <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                      <Phone className="w-3.5 h-3.5 text-blue-500" />
+                      {lang === 'ar' ? 'الهاتف المباشر:' : 'Direct Phone:'}
+                    </span>
+                    <a
+                      href={`tel:${tText.directPhone}`}
+                      dir="ltr"
+                      className="font-bold text-blue-600 dark:text-blue-400 hover:underline"
+                    >
+                      {tText.directPhone}
+                    </a>
+                  </div>
+
+                  <div className="flex items-center justify-between p-2.5 rounded-lg bg-white dark:bg-slate-900/70 text-xs border border-slate-200 dark:border-slate-700/80">
+                    <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                      <Building2 className="w-3.5 h-3.5 text-emerald-500" />
+                      {lang === 'ar' ? 'خدمة العملاء (شركة المياه):' : 'NWC Care:'}
+                    </span>
+                    <a
+                      href={`tel:${tText.nwcPhone}`}
+                      dir="ltr"
+                      className="font-bold text-emerald-600 dark:text-emerald-400 hover:underline"
+                    >
+                      {tText.nwcPhone}
+                    </a>
+                  </div>
+
+                  <div className="flex items-center justify-between p-2.5 rounded-lg bg-white dark:bg-slate-900/70 text-xs border border-slate-200 dark:border-slate-700/80">
+                    <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                      <Mail className="w-3.5 h-3.5 text-indigo-500" />
+                      {lang === 'ar' ? 'البريد الإلكتروني:' : 'Email:'}
+                    </span>
+                    <a
+                      href={`mailto:${tText.labEmail}`}
+                      dir="ltr"
+                      className="font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
+                    >
+                      {tText.labEmail}
+                    </a>
+                  </div>
+
+                  <div className="flex items-center justify-between p-2.5 rounded-lg bg-white dark:bg-slate-900/70 text-xs border border-slate-200 dark:border-slate-700/80">
+                    <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-slate-500" />
+                      {lang === 'ar' ? 'أوقات العمل:' : 'Hours:'}
+                    </span>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">
+                      {tText.hoursVal}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-[11px] text-slate-400 text-center pt-1 border-t border-slate-200/60 dark:border-slate-700/60">
+                {tText.closedVal}
+              </div>
             </div>
           </div>
         </section>
 
         {/* 10: Visitor Services Hub */}
-        <section className="mt-12 bg-white dark:bg-[#172033] rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-10 shadow-sm">
-          <div className="text-center max-w-2xl mx-auto mb-8">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
+        <section className="mt-12 bg-white dark:bg-[#172033] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-8 lg:p-10 shadow-2xs">
+          <div className="text-center max-w-2xl mx-auto mb-6">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-slate-900 dark:text-white">
               {tText.visitorHeading}
             </h2>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-2">
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1.5">
               {tText.visitorSub}
             </p>
           </div>

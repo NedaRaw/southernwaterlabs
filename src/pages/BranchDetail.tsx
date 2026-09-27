@@ -17,7 +17,7 @@ export default function BranchDetail() {
   if (!center || !branch) return <Navigate to="/laboratories" replace />;
 
   return (
-    <div className="pt-28 pb-20">
+    <div className="pt-16 sm:pt-20 pb-20 bg-[#F8FAFC] dark:bg-[#0B1220] transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Breadcrumb
           items={[
@@ -27,34 +27,34 @@ export default function BranchDetail() {
           ]}
         />
 
-        <div className="mt-6 relative overflow-hidden rounded-xl bg-navy-700 p-8 sm:p-12">
+        <div className="mt-4 relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1E3A5F] to-[#0A1324] p-6 sm:p-10 text-white shadow-lg border border-slate-800">
           <div className="relative">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="px-3 py-1 rounded bg-white/15 text-white text-xs font-bold flex items-center gap-1">
-                <Network className="w-3 h-3" />
+            <div className="flex items-center gap-2 mb-3">
+              <span className="px-2.5 py-0.5 rounded-full bg-white/15 text-white text-xs font-medium flex items-center gap-1 border border-white/20">
+                <Network className="w-3 h-3 text-blue-300" />
                 {t('branch.subBranch')}
               </span>
               <Link
                 to={`/laboratories/${center.id}`}
-                className="px-3 py-1 rounded bg-white/15 text-white text-xs font-bold flex items-center gap-1 hover:bg-white/25 transition-colors"
+                className="px-2.5 py-0.5 rounded-full bg-white/15 text-white text-xs font-medium flex items-center gap-1 hover:bg-white/25 transition-colors border border-white/20"
               >
-                <Building2 className="w-3 h-3" />
+                <Building2 className="w-3 h-3 text-blue-300" />
                 {center.name}
               </Link>
             </div>
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-16 h-16 rounded-xl bg-white/15 flex items-center justify-center">
-                <Network className="w-8 h-8 text-white" />
+            <div className="flex items-center gap-3.5 mb-3">
+              <div className="w-10 h-10 rounded-xl bg-blue-600/90 text-white flex items-center justify-center shrink-0 shadow-2xs">
+                <Network className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl sm:text-4xl font-extrabold text-white">{branch.name}</h1>
-                <p className="text-white/70 text-sm mt-1 flex items-center gap-1.5">
-                  <MapPin className="w-4 h-4" />
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-white">{branch.name}</h1>
+                <p className="text-slate-300 text-xs mt-0.5 flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5 text-blue-400" />
                   {branch.location}
                 </p>
               </div>
             </div>
-            <p className="text-white/80 text-lg leading-relaxed max-w-2xl">{branch.about}</p>
+            <p className="text-slate-200/90 text-xs sm:text-sm leading-relaxed max-w-2xl font-normal">{branch.about}</p>
           </div>
         </div>
 
