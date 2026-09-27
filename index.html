@@ -10,6 +10,15 @@
     <script>
       (function() {
         try {
+          var originalFetch = window.fetch;
+          Object.defineProperty(window, 'fetch', {
+            get: function() { return originalFetch; },
+            set: function(val) { originalFetch = val; },
+            configurable: true,
+            enumerable: true
+          });
+        } catch (e) {}
+        try {
           var t = localStorage.getItem('app_theme');
           if (t === 'dark') {
             document.documentElement.classList.add('dark');

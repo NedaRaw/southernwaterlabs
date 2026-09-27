@@ -5,12 +5,17 @@ import { useLang } from '@/lib/i18n';
 import Breadcrumb from '@/components/Breadcrumb';
 import InfoSection from '@/components/InfoSection';
 import ContactCard from '@/components/ContactCard';
+import NajranLabDetail from '@/pages/NajranLabDetail';
 
 export default function CenterDetail() {
   const { centerId } = useParams<{ centerId: string }>();
   const { lang, t, dir } = useLang();
   const Arrow = dir === 'rtl' ? ArrowLeft : ArrowRight;
   const Chevron = dir === 'rtl' ? ChevronLeft : ChevronRight;
+
+  if (centerId === 'najran') {
+    return <NajranLabDetail />;
+  }
 
   const center = centerId ? getCenterById(centerId, lang) : undefined;
   if (!center) return <Navigate to="/laboratories" replace />;
