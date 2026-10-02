@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ScrollToTop from '@/components/ScrollToTop';
@@ -19,6 +19,7 @@ import VisitorDetail from '@/pages/VisitorDetail';
 import Survey from '@/pages/Survey';
 import Enquiry from '@/pages/Enquiry';
 import Admin from '@/pages/Admin';
+import MobileLaboratories from '@/pages/MobileLaboratories';
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -83,9 +84,12 @@ function App() {
               <Route path="/laboratories" element={<Laboratories />} />
               <Route path="/laboratories/:centerId" element={<CenterDetail />} />
               <Route path="/laboratories/:centerId/:branchId" element={<BranchDetail />} />
+              <Route path="/laboratories/:centerId/branches/:branchId" element={<BranchDetail />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/services" element={<Services />} />
+              <Route path="/services/:serviceId" element={<Services />} />
+              <Route path="/mobile-laboratories" element={<MobileLaboratories />} />
               <Route path="/news" element={<News />} />
               <Route path="/register" element={<Register />} />
               <Route path="/success" element={<Success />} />
@@ -93,6 +97,7 @@ function App() {
               <Route path="/survey" element={<Survey />} />
               <Route path="/enquiry" element={<Enquiry />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="*" element={<Navigate to="/laboratories" replace />} />
             </Routes>
           </main>
           <Footer />

@@ -126,9 +126,9 @@ export default function Enquiry() {
           <div className="flex justify-center gap-3">
             <Link
               to="/"
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-navy-800 text-white font-bold text-sm hover:bg-navy-700 transition-colors shadow-sm"
+              className="inline-flex items-center gap-2.5 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-semibold text-sm transition-all shadow-xs hover:shadow-md whitespace-nowrap"
             >
-              {t('success.home')}
+              <span>{t('success.home')}</span>
             </Link>
             <button
               onClick={() => {
@@ -146,9 +146,9 @@ export default function Enquiry() {
                   message: '',
                 });
               }}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-white border border-slate-200 text-slate-700 font-bold text-sm hover:bg-slate-50 transition-colors shadow-sm"
+              className="inline-flex items-center gap-2.5 px-6 py-3 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 font-semibold text-sm transition-all shadow-xs hover:shadow-md whitespace-nowrap cursor-pointer"
             >
-              {t('enquiry.submit')}
+              <span>{t('enquiry.submit')}</span>
             </button>
           </div>
         </div>
@@ -353,17 +353,17 @@ export default function Enquiry() {
           <button
             type="submit"
             disabled={submitting}
-            className="flex items-center justify-center gap-2 w-full py-3.5 rounded-lg bg-navy-800 text-white font-semibold text-sm hover:bg-navy-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed shadow-sm"
+            className="flex items-center justify-center gap-2.5 w-full py-3.5 px-6 rounded-xl bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-semibold text-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-md hover:shadow-lg whitespace-nowrap cursor-pointer"
           >
             {submitting ? (
               <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                {t('enquiry.submitting')}
+                <Loader2 className="w-5 h-5 animate-spin shrink-0" />
+                <span>{t('enquiry.submitting')}</span>
               </>
             ) : (
               <>
-                <Send className="w-4 h-4" />
-                {t('enquiry.submit')}
+                <Send className="w-4 h-4 shrink-0" />
+                <span>{t('enquiry.submit')}</span>
               </>
             )}
           </button>

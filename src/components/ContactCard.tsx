@@ -19,14 +19,14 @@ export default function ContactCard({ contact }: { contact: ContactInfo }) {
         return (
           <div
             key={index}
-            className="flex items-start gap-3 p-4 rounded-2xl bg-gradient-to-br from-gray-50 to-cyan-50/30 border border-gray-100 transition-all duration-300 hover:shadow-md hover:border-cyan-200"
+            className="flex items-start gap-3 p-4 rounded-2xl bg-gradient-to-br from-gray-50 to-cyan-50/30 dark:from-[#172033] dark:to-slate-800/80 border border-gray-100 dark:border-slate-800 transition-all duration-300 hover:shadow-md hover:border-cyan-200 dark:hover:border-cyan-500/40"
           >
-            <div className="shrink-0 w-10 h-10 rounded-xl bg-cyan-100 flex items-center justify-center">
-              <Icon className="w-5 h-5 text-cyan-600" />
+            <div className="shrink-0 w-10 h-10 rounded-xl bg-cyan-100 dark:bg-cyan-950/60 flex items-center justify-center">
+              <Icon className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
             </div>
             <div>
-              <p className="text-xs text-gray-400 font-medium mb-1">{item.label}</p>
-              <p className="text-sm text-gray-700 font-medium" dir={item.dir as 'ltr' | 'rtl' | undefined}>
+              <p className="text-xs text-gray-400 dark:text-slate-400 font-medium mb-1">{item.label}</p>
+              <p className="text-sm text-gray-700 dark:text-slate-200 font-medium" dir={item.dir as 'ltr' | 'rtl' | undefined}>
                 {item.value}
               </p>
             </div>

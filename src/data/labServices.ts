@@ -196,11 +196,11 @@ export interface LabHierarchyItem {
 export const LAB_HIERARCHY: LabHierarchyItem[] = [
   {
     id: 'asir',
-    name: {
-      en: 'Asir Central Laboratory',
-      ar: 'مختبر عسير المركزي',
-      fr: "Laboratoire Central d'Asir",
-    },
+name: {
+  ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة عسير',
+  en: 'Asir Central Laboratory for Drinking Water and Environmental Services',
+  fr: 'Laboratoire Central d’Asir pour les Eaux Potables et les Services Environnementaux',
+},
     branches: [
       {
         id: 'bisha',
@@ -222,11 +222,11 @@ export const LAB_HIERARCHY: LabHierarchyItem[] = [
   },
   {
     id: 'najran',
-    name: {
-      en: 'Najran Central Laboratory',
-      ar: 'مختبر نجران المركزي',
-      fr: 'Laboratoire Central de Najran',
-    },
+name: {
+  ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة نجران',
+  en: 'Najran Central Laboratory for Drinking Water and Environmental Services',
+  fr: 'Laboratoire Central de Najran pour les Eaux Potables et les Services Environnementaux',
+},
     branches: [
       {
         id: 'sharurah',
@@ -240,11 +240,11 @@ export const LAB_HIERARCHY: LabHierarchyItem[] = [
   },
   {
     id: 'al-baha',
-    name: {
-      en: 'Al-Baha Central Laboratory',
-      ar: 'مختبر الباحة المركزي',
-      fr: "Laboratoire Central d'Al-Baha",
-    },
+name: {
+  ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة الباحة',
+  en: 'Al-Baha Central Laboratory for Drinking Water and Environmental Services',
+  fr: 'Laboratoire Central d’Al-Baha pour les Eaux Potables et les Services Environnementaux',
+},
     branches: [
       {
         id: 'qalwah',
@@ -258,11 +258,11 @@ export const LAB_HIERARCHY: LabHierarchyItem[] = [
   },
   {
     id: 'jazan',
-    name: {
-      en: 'Jazan Central Laboratory',
-      ar: 'مختبر جازان المركزي',
-      fr: 'Laboratoire Central de Jazan',
-    },
+name: {
+  ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة جازان',
+  en: 'Jazan Central Laboratory for Drinking Water and Environmental Services',
+  fr: 'Laboratoire Central de Jazan pour les Eaux Potables et les Services Environnementaux',
+},
     branches: [
       {
         id: 'al-darb',

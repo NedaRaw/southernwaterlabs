@@ -1,6 +1,6 @@
 import type { Lang } from '@/lib/i18n';
 
-export type CenterType = 'central' | 'regional_center';
+export type CenterType = 'central' | 'Central_center';
 
 export interface LabAnalysis {
   name: string;
@@ -57,74 +57,70 @@ export interface LaboratoryCenter {
 export const laboratoryCenters: LaboratoryCenter[] = [
   {
     id: 'asir',
-    name: 'مختبر عسير المركزي',
+    name: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة عسير',
     type: 'central',
     region: 'منطقة عسير',
     about:
-      'المختبر المركزي لمياه الشرب و الخدمات البيئية في منطقة عسير، يقدم خدمات تحليل واختبار جودة المياه لكامل المنطقة الجنوبية الغربية.',
+      'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة عسير تابع للإدارة العامة لخدمات المياه بعسير بوزارة البيئة والمياه والزراعة، ويختص بفحص وتحليل جودة مياه الشرب والمصادر المائية، وإجراء الفحوصات المخبرية اللازمة للتحقق من مطابقة المياه للمواصفات والمعايير المعتمدة.',
     capabilities: [
       {
-        name: 'تحليل كيميائي',
-        description: 'فحص العناصر الكيميائية في المياه',
+        name: 'تحليل كيميائي وفيزيائي',
+        description: 'تحليل الأملاح المعدنية الذائبة ومكونات المياه',
       },
       {
-        name: 'تحليل ميكروبيولوجي',
-        description: 'كشف البكتيريا والكائنات الدقيقة',
+        name: 'فحص ميكروبيولوجي',
+        description: 'الفحص الدوري للشبكات والمصادر المائية لضمان السلامة الصحية',
       },
       {
-        name: 'تحليل فيزيائي',
-        description: 'قياس خصائص المياه الفيزيائية',
+        name: 'مطابقة المواصفات القياسية',
+        description: 'التحقق من مطابقة المياه للمواصفات والمعايير المعتمدة',
       },
     ],
     services: [
       {
-        name: 'اختبار مياه الشرب',
-        description: 'تحليل مياه الشرب للتأكد من مطابقتها للمعايير',
+        name: 'فحص وتحليل جودة مياه الشرب',
+        description: 'فحص وتحليل جودة مياه الشرب والمياه المطابقة للمواصفات القياسية.',
       },
       {
-        name: 'اختبار مياه الصرف',
-        description: 'تحليل مياه الصرف الصحي والصناعي',
+        name: 'تحليل الأملاح المعدنية ومكونات المياه',
+        description: 'تحليل الأملاح المعدنية الذائبة وقياس مكونات المياه والعناصر المختلفة.',
       },
       {
-        name: 'اختبار مياه الآبار',
-        description: 'فحص مياه الآبار الجوفية',
+        name: 'الفحوصات الدورية للشبكات والمصادر',
+        description: 'إجراء الفحوصات المخبرية الدورية للشبكات والمصادر المائية لضمان السلامة البيئية والصحية.',
       },
     ],
     analyses: [
       {
-        name: 'تحليل الأس الهيدروجيني (pH)',
-        description: 'قياس درجة حموضة المياه',
+        name: 'فحص جودة مياه الشرب والمطابقة',
+        description: 'التحقق من مطابقة عينات المياه للمعايير والاشتراطات المعتمدة',
       },
       {
-        name: 'تحليل الأملاح الذائبة (TDS)',
-        description: 'قياس إجمالي الأملاح الذائبة',
+        name: 'قياس الأملاح المعدنية الذائبة',
+        description: 'قياس تراكيز الأملاح الذائبة والعناصر المكونة للمياه',
       },
       {
-        name: 'تحليل المعادن الثقيلة',
-        description: 'كشف الرصاص والزئبق والكادميوم',
-      },
-      {
-        name: 'تحليل النترات',
-        description: 'قياس تركيز النترات في المياه',
+        name: 'الفحوصات المخبرية الدورية',
+        description: 'المتابعة الميدانية والمخبرية الدورية لشبكات التوزيع ومصادر المياه',
       },
     ],
     contact: {
-      phone: '+966 17 234 5678',
-      email: 'asir-lab@waterlab.gov.sa',
-      address: 'حي المروج، أبها، منطقة عسير، المملكة العربية السعودية',
-      workingHours: 'الأحد - الخميس: 8:00 ص - 4:00 م',
-      mapUrl: 'https://maps.google.com/?q=Abha+Asir',
+      phone: '+966 17 224 1018',
+      email: 'cen_lab@mewa.gov.sa',
+      address: '7H2X+3V6, طريق, Almahalah, Abha 62562, Saudi Arabia',
+      workingHours: 'الأحد - الخميس: 8:30 صباحًا - 3:15 مساءً | الجمعة والسبت: مغلق',
+      mapUrl: 'https://maps.app.goo.gl/s4pP9yp98rcRT3Xv9',
     },
-    location: 'أبها، منطقة عسير، المملكة العربية السعودية',
-    workingHours: 'الأحد - الخميس: 8:00 ص - 4:00 م',
+    location: 'المحالة، أبها، منطقة عسير، المملكة العربية السعودية',
+    workingHours: 'الأحد - الخميس: 8:30 صباحًا - 3:15 مساءً',
     branches: [
       {
         id: 'bisha',
-        name: 'بيشة',
+        name: 'مختبر فرع بيشة',
         type: 'branch',
         region: 'منطقة عسير',
         about:
-          'فرع بيشة التابع للمركز المركزي لعسير، يخدم محافظة بيشة والمناطق المحيطة بها.',
+          'فرع بيشة التابع للمختبر المركزي لعسير، يخدم محافظة بيشة والمناطق المحيطة بها.',
         location: 'بيشة، منطقة عسير، المملكة العربية السعودية',
         address: 'حي الوسيطاء، بيشة، منطقة عسير، المملكة العربية السعودية',
         contact: {
@@ -172,11 +168,11 @@ export const laboratoryCenters: LaboratoryCenter[] = [
       },
       {
         id: 'mahayel',
-        name: 'محايل',
+        name: 'مختبر فرع محايل',
         type: 'branch',
         region: 'منطقة عسير',
         about:
-          'فرع محايل التابع للمركز المركزي لعسير، يخدم محافظة محايل والمناطق المحيطة بها.',
+          'فرع محايل التابع للمختبر المركزي لعسير، يخدم محافظة محايل والمناطق المحيطة بها.',
         location: 'محايل، منطقة عسير، المملكة العربية السعودية',
         address: 'محايل، منطقة عسير، المملكة العربية السعودية',
         contact: {
@@ -226,11 +222,11 @@ export const laboratoryCenters: LaboratoryCenter[] = [
 
   {
     id: 'najran',
-    name: 'مختبر نجران المركزي',
+    name: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة نجران',
     type: 'central',
     region: 'منطقة نجران',
     about:
-      'المختبر المركزي للمياه و الخدمات البيئية في منطقة نجران، يوفر خدمات التحليل الشامل لجودة المياه في المنطقة الجنوبية.',
+      'المختبر المركزي للمياه والخدمات البيئية في منطقة نجران التابع لشركة المياه الوطنية، يوفر خدمات التحليل الشامل لجودة المياه والبيئة في المنطقة الجنوبية.',
     capabilities: [
       {
         name: 'تحليل كيميائي شامل',
@@ -281,20 +277,21 @@ export const laboratoryCenters: LaboratoryCenter[] = [
       phone: '+966 56 898 2662',
       email: 'moalsaed.c@new.com.sa',
       address:
-        'حي المنجم، طريق الملك عبدالعزيز، خلف مستشفى الظافر، منطقة نجران، المملكة العربية السعودية',
+        'NJPC9103، 9103 ال منجم 30، 3972، حي الخالدية، نجران 66261، المملكة العربية السعودية (G6WX+7R)',
       workingHours: 'الأحد - الخميس: 8:00 ص - 4:00 م',
-      mapUrl: 'https://maps.google.com/?q=Najran',
+      mapUrl:
+        'https://www.google.com/maps/place/%D8%A7%D9%84%D9%85%D8%AE%D8%AA%D8%A8%D8%B1+%D8%A7%D9%84%D8%A7%D9%82%D9%84%D9%8A%D9%85%D9%8A+%D9%84%D9%84%D9%85%D9%8A%D8%A7%D9%87+%D9%88%D8%AE%D8%AF%D9%85%D8%A7%D8%AA+%D8%A7%D9%84%D8%A8%D9%8A%D8%A6%D9%8A%D8%A9+%D9%84%D8%B4%D8%B1%D9%83%D8%A9+%D8%A7%D9%84%D9%85%D9%8A%D8%A7%D9%87+%D8%A7%D9%84%D9%88%D8%B7%D9%86%D9%8A%D8%A9%E2%80%AD/@17.5444497,44.1577507,12.75z/data=!4m10!1m2!2m1!1z2KfZhNmF2K7Yqtio2LEg2KfZhNin2YLZhNmK2YXZiiDZhNmE2K7Yr9mF2KfYqiDYp9mE2KjZitim2YrYqSDYqNmF2YbYt9mC2Kkg2YbYrNix2KfZhuKArQ!3m6!1s0x15fedda2e057c387:0xeebd4b566fedbd0e!8m2!3d17.545673!4d44.2495585!15sCljYp9mE2YXYrtiq2KjYsSDYp9mE2KfZgtmE2YrZhdmKINmE2YTYrtiv2YXYp9iqINin2YTYqNmK2KbZitipINio2YXZhti32YLYqSDZhtis2LHYp9mG4oCtkgERZ292ZXJubWVudF9vZmZpY2XgAQA!16s%2Fg%2F11tcbwcrkr?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D',
     },
     location: 'نجران، منطقة نجران، المملكة العربية السعودية',
     workingHours: 'الأحد - الخميس: 8:00 ص - 4:00 م',
     branches: [
       {
         id: 'sharurah',
-        name: 'شرورة',
+        name: 'مختبر فرع شرورة',
         type: 'branch',
         region: 'منطقة نجران',
         about:
-          'فرع شرورة التابع للمركز المركزي لنجران، يخدم محافظة شرورة والمناطق الشرقية من المنطقة.',
+          'فرع شرورة التابع للمختبر المركزي لنجران، يخدم محافظة شرورة والمناطق الشرقية من المنطقة.',
         location: 'شرورة، منطقة نجران، المملكة العربية السعودية',
         address: 'حي الشرف، شرورة، منطقة نجران، المملكة العربية السعودية',
         contact: {
@@ -345,7 +342,7 @@ export const laboratoryCenters: LaboratoryCenter[] = [
 
   {
     id: 'al-baha',
-    name: 'مختبر الباحة المركزي',
+    name: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة الباحة',
     type: 'central',
     region: 'منطقة الباحة',
     about:
@@ -408,11 +405,11 @@ export const laboratoryCenters: LaboratoryCenter[] = [
     branches: [
       {
         id: 'qalwah',
-        name: 'قلوة',
+        name: 'مختبر فرع قلوة',
         type: 'branch',
         region: 'منطقة الباحة',
         about:
-          'فرع قلوة التابع للمركز المركزي للباحة، يخدم محافظة قلوة والمناطق الساحلية التابعة لها.',
+          'فرع قلوة التابع للمختبر المركزي للباحة، يخدم محافظة قلوة والمناطق الساحلية التابعة لها.',
         location: 'قلوة، منطقة الباحة، المملكة العربية السعودية',
         address: 'حي البلد، قلوة، منطقة الباحة، المملكة العربية السعودية',
         contact: {
@@ -463,7 +460,7 @@ export const laboratoryCenters: LaboratoryCenter[] = [
 
   {
     id: 'jazan',
-    name: 'مختبر جازان المركزي',
+    name: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة جازان',
     type: 'central',
     region: 'منطقة جازان',
     about:
@@ -538,11 +535,11 @@ export const laboratoryCenters: LaboratoryCenter[] = [
     branches: [
       {
         id: 'al-darb',
-        name: 'الدرب',
+        name: 'مختبر فرع الدرب',
         type: 'branch',
         region: 'منطقة جازان',
         about:
-          'فرع الدرب التابع للمركز المركزي لجازان، يخدم محافظة الدرب والمناطق الشمالية من منطقة جازان.',
+          'فرع الدرب التابع للمختبر المركزي لجازان، يخدم محافظة الدرب والمناطق الشمالية من منطقة جازان.',
         location: 'الدرب، منطقة جازان، المملكة العربية السعودية',
         address: 'حي المحطة، الدرب، منطقة جازان، المملكة العربية السعودية',
         contact: {
@@ -598,11 +595,11 @@ export const laboratoryCenters: LaboratoryCenter[] = [
       },
       {
         id: 'farasan',
-        name: 'فرسان',
+        name: 'مختبر فرع فرسان',
         type: 'branch',
         region: 'منطقة جازان',
         about:
-          'فرع فرسان التابع للمركز المركزي لجازان، يخدم أرخبيل فرسان والمناطق الجزرية في البحر الأحمر.',
+          'فرع فرسان التابع للمختبر المركزي لجازان، يخدم أرخبيل فرسان والمناطق الجزرية في البحر الأحمر.',
         location: 'فرسان، منطقة جازان، المملكة العربية السعودية',
         address:
           'حي الميناء، جزيرة فرسان، منطقة جازان، المملكة العربية السعودية',
@@ -678,28 +675,28 @@ interface EntityTranslations {
 const labI18n: Record<string, EntityTranslations> = {
   asir: {
     name: {
-      en: 'Asir Central Laboratory',
-      fr: "Laboratoire Central d'Asir",
+      en: 'Asir Central Laboratory for Drinking Water and Environmental Services',
+      fr: "Laboratoire central des eaux potables et des services environnementaux de la région d'Asir",
     },
     region: {
       en: 'Asir Region',
       fr: "Région d'Asir",
     },
     about: {
-      en: 'The Central Laboratory for Water and Environmental Services in Asir Region provides comprehensive water testing and quality surveillance for the entire southwestern region.',
-      fr: "Le Laboratoire Central de l'Eau et de l'Environnement de la région d'Asir fournit des services complets d'analyse et de surveillance de la qualité de l'eau pour toute la zone sud-ouest.",
+      en: 'The Asir Central Laboratory for Drinking Water and Environmental Services operates under the General Administration of Water Services in Asir at the Ministry of Environment, Water and Agriculture. The laboratory performs testing and analysis of drinking water and water sources and conducts laboratory examinations to verify compliance with applicable standards and requirements.',
+      fr: "Le Laboratoire central des eaux potables et des services environnementaux de la région d'Asir relève de l'Administration générale des services de l'eau d'Asir au sein du ministère de l'Environnement, de l'Eau et de l'Agriculture. Il réalise des analyses des eaux potables et des sources d'eau ainsi que les contrôles nécessaires pour vérifier leur conformité aux normes et exigences applicables.",
     },
     location: {
-      en: 'Abha, Asir Region, Kingdom of Saudi Arabia',
-      fr: "Abha, Région d'Asir, Royaume d'Arabie Saoudite",
+      en: 'Al-Mahalah, Abha, Asir Region, Saudi Arabia',
+      fr: "Al-Mahalah, Abha, région d'Asir, Arabie saoudite",
     },
     address: {
-      en: 'Al-Murooj District, Abha, Asir Region, Kingdom of Saudi Arabia',
-      fr: "Quartier Al-Murooj, Abha, Région d'Asir, Royaume d'Arabie Saoudite",
+      en: '7H2X+3V6, طريق, Almahalah, Abha 62562, Saudi Arabia',
+      fr: "7H2X+3V6, طريق, Almahalah, Abha 62562, Arabie saoudite",
     },
     workingHours: {
-      en: 'Sunday - Thursday: 8:00 AM - 4:00 PM',
-      fr: 'Dimanche - Jeudi : 8h00 - 16h00',
+      en: 'Sunday - Thursday: 8:30 AM - 3:15 PM | Friday - Saturday: Closed',
+      fr: 'Dimanche - jeudi : 08h30 - 15h15 | Vendredi - samedi : Fermé',
     },
   },
 
@@ -714,7 +711,7 @@ const labI18n: Record<string, EntityTranslations> = {
     },
     about: {
       en: 'Bisha branch operating under Asir Central Laboratory, serving Bisha governorate and neighboring municipal districts.',
-      fr: "Agence de Bisha rattachée au Laboratoire Central d'Asir, desservant le gouvernorat de Bisha et les communes limitrophes.",
+      fr: "Agence de Bisha rattachée au  Laboratoire Central d'Asir, desservant le gouvernorat de Bisha et les communes limitrophes.",
     },
     location: {
       en: 'Bisha, Asir Region, Kingdom of Saudi Arabia',
@@ -741,7 +738,7 @@ const labI18n: Record<string, EntityTranslations> = {
     },
     about: {
       en: 'Mahayel branch operating under Asir Central Laboratory, providing dedicated water analyses for Mahayel and surrounding valleys.',
-      fr: "Agence de Mahayel rattachée au Laboratoire Central d'Asir, fournissant des analyses d'eau pour Mahayel et ses environs.",
+      fr: "Agence de Mahayel rattachée au  Laboratoire Central d'Asir, fournissant des analyses d'eau pour Mahayel et ses environs.",
     },
     location: {
       en: 'Mahayel, Asir Region, Kingdom of Saudi Arabia',
@@ -759,24 +756,24 @@ const labI18n: Record<string, EntityTranslations> = {
 
   najran: {
     name: {
-      en: 'Najran Central Laboratory',
-      fr: 'Laboratoire Central de Najran',
+      en: 'Central Laboratory for Drinking Water and Environmental Services - Najran Region',
+      fr: "Laboratoire Central de l'Eau Potable et des Services Environnementaux de la Région de Najran",
     },
     region: {
       en: 'Najran Region',
       fr: 'Région de Najran',
     },
     about: {
-      en: 'The Central Laboratory for Water and Environmental Services in Najran Region offers advanced chemical, physical, and pesticide residue testing.',
-      fr: "Le Laboratoire Central de l'Eau et de l'Environnement de Najran assure des analyses complètes de potabilité, microbiologie et résidus.",
+      en: 'The Central Laboratory for Water and Environmental Services in Najran Region operates under the National Water Company, offering advanced chemical, physical, and pesticide residue testing.',
+      fr: "Le Laboratoire Central de l'Eau et des Services Environnementaux de Najran relève de la Compagnie Nationale des Eaux et assure des analyses certifiées de pointe.",
     },
     location: {
       en: 'Najran, Najran Region, Kingdom of Saudi Arabia',
       fr: "Najran, Région de Najran, Royaume d'Arabie Saoudite",
     },
     address: {
-      en: 'Al Munjim District, King Abdulaziz Rd, behind Al Dhafir Hospital, Najran, Najran Region, Kingdom of Saudi Arabia',
-      fr: "Quartier Al Munjim, route du Roi Abdulaziz, derrière l'hôpital Al Dhafir, Najran, Région de Najran, Royaume d'Arabie Saoudite",
+      en: 'NJPC9103, 9103 Al-Manjam 30, 3972, Al-Khalidiyah, Najran 66261, Saudi Arabia (Plus Code: G6WX+7R)',
+      fr: "NJPC9103, 9103 Al-Manjam 30, 3972, Al-Khalidiyah, Najran 66261, Arabie Saoudite (Plus Code : G6WX+7R)",
     },
     workingHours: {
       en: 'Sunday - Thursday: 8:00 AM - 4:00 PM',
@@ -795,7 +792,7 @@ const labI18n: Record<string, EntityTranslations> = {
     },
     about: {
       en: 'Sharurah branch under Najran Central Lab, serving Sharurah governorate and eastern desert water supply zones.',
-      fr: "Agence de Sharurah rattachée au Laboratoire Central de Najran, couvrant le gouvernorat de Sharurah et les réseaux orientaux.",
+      fr: "Agence de Sharurah rattachée au  Laboratoire Central de Najran, couvrant le gouvernorat de Sharurah et les réseaux orientaux.",
     },
     location: {
       en: 'Sharurah, Najran Region, Kingdom of Saudi Arabia',
@@ -813,8 +810,8 @@ const labI18n: Record<string, EntityTranslations> = {
 
   'al-baha': {
     name: {
-      en: 'Al-Baha Central Laboratory',
-      fr: "Laboratoire Central d'Al-Baha",
+      en: 'Central Laboratory for Drinking Water and Environmental Services - Al-Baha Region',
+      fr: "Laboratoire Central de l'Eau Potable et des Services Environnementaux de la Région d'Al-Baha",
     },
     region: {
       en: 'Al-Baha Region',
@@ -849,7 +846,7 @@ const labI18n: Record<string, EntityTranslations> = {
     },
     about: {
       en: 'Qalwah branch operating under Al-Baha Central Laboratory, serving the Tihama lowlands and coastal border regions.',
-      fr: "Agence de Qalwah rattachée au Laboratoire Central d'Al-Baha, desservant la plaine de Tihama et les zones côtières.",
+      fr: "Agence de Qalwah rattachée au  Laboratoire Central d'Al-Baha, desservant la plaine de Tihama et les zones côtières.",
     },
     location: {
       en: 'Qalwah, Al-Baha Region, Kingdom of Saudi Arabia',
@@ -867,8 +864,8 @@ const labI18n: Record<string, EntityTranslations> = {
 
   jazan: {
     name: {
-      en: 'Jazan Central Laboratory',
-      fr: 'Laboratoire Central de Jazan',
+      en: 'Central Laboratory for Drinking Water and Environmental Services - Jazan Region',
+      fr: "Laboratoire Central de l'Eau Potable et des Services Environnementaux de la Région de Jazan",
     },
     region: {
       en: 'Jazan Region',
@@ -903,7 +900,7 @@ const labI18n: Record<string, EntityTranslations> = {
     },
     about: {
       en: 'Al-Darb branch under Jazan Central Laboratory, serving northern Jazan governorate and coastal desalination corridors.',
-      fr: "Agence d'Al-Darb rattachée au Laboratoire Central de Jazan, desservant le nord de Jazan et les axes de dessalement.",
+      fr: "Agence d'Al-Darb rattachée au  Laboratoire Central de Jazan, desservant le nord de Jazan et les axes de dessalement.",
     },
     location: {
       en: 'Al-Darb, Jazan Region, Kingdom of Saudi Arabia',
@@ -930,7 +927,7 @@ const labI18n: Record<string, EntityTranslations> = {
     },
     about: {
       en: 'Farasan branch under Jazan Central Lab, monitoring water quality across the Farasan Archipelago and maritime protected reserves.',
-      fr: "Agence de Farasan rattachée au Laboratoire Central de Jazan, surveillant l'archipel de Farasan et les réserves maritimes.",
+      fr: "Agence de Farasan rattachée au  Laboratoire Central de Jazan, surveillant l'archipel de Farasan et les réserves maritimes.",
     },
     location: {
       en: 'Farasan, Jazan Region, Kingdom of Saudi Arabia',

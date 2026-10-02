@@ -111,9 +111,9 @@ export default function Success() {
           <p className="text-slate-600 mb-6">{error || t('success.notFound')}</p>
           <Link
             to="/register"
-            className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-navy-800 text-white font-bold text-sm hover:bg-navy-700 transition-colors shadow-sm"
+            className="inline-flex items-center gap-2.5 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-semibold text-sm transition-all shadow-md hover:shadow-lg whitespace-nowrap"
           >
-            {t('success.back')}
+            <span>{t('success.back')}</span>
           </Link>
         </div>
       </div>
@@ -254,24 +254,24 @@ export default function Success() {
           <div className="mt-6 flex flex-col sm:flex-row gap-3">
             <button
               onClick={() => setShowBadge(!showBadge)}
-              className="flex items-center justify-center gap-2 px-5 py-3 rounded-lg bg-navy-800 text-white font-bold text-sm hover:bg-navy-700 transition-colors flex-1 shadow-sm"
+              className="flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-semibold text-sm transition-all flex-1 shadow-xs hover:shadow-md whitespace-nowrap cursor-pointer"
             >
-              <Download className="w-4 h-4" />
-              {t('success.badge')}
+              <Download className="w-4 h-4 shrink-0" />
+              <span>{t('success.badge')}</span>
             </button>
             <Link
               to="/"
-              className="flex items-center justify-center gap-2 px-5 py-3 rounded-lg bg-white text-slate-600 font-bold text-sm border border-slate-200 hover:border-navy-300 hover:text-navy-600 transition-colors flex-1"
+              className="flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-semibold text-sm border border-slate-300 transition-all flex-1 shadow-xs hover:shadow-md whitespace-nowrap"
             >
-              <Home className="w-4 h-4" />
-              {t('success.home')}
+              <Home className="w-4 h-4 shrink-0" />
+              <span>{t('success.home')}</span>
             </Link>
             <Link
               to="/survey"
-              className="flex items-center justify-center gap-2 px-5 py-3 rounded-lg bg-white text-slate-600 font-bold text-sm border border-slate-200 hover:border-navy-300 hover:text-navy-600 transition-colors flex-1"
+              className="flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-semibold text-sm border border-slate-300 transition-all flex-1 shadow-xs hover:shadow-md whitespace-nowrap"
             >
-              <Star className="w-4 h-4" />
-              {t('success.rate')}
+              <Star className="w-4 h-4 shrink-0 text-amber-500" />
+              <span>{t('success.rate')}</span>
             </Link>
           </div>
         </div>

@@ -59,98 +59,98 @@ export default function BranchDetail() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
-          <div className="flex items-center gap-3 p-5 rounded-xl bg-white border border-slate-100">
-            <div className="w-11 h-11 rounded-xl bg-navy-100 flex items-center justify-center shrink-0">
-              <MapPin className="w-5 h-5 text-navy-600" />
+          <div className="flex items-center gap-3 p-5 rounded-xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800 shadow-2xs">
+            <div className="w-11 h-11 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+              <MapPin className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs text-slate-400">{t('detail.location')}</p>
-              <p className="text-sm font-bold text-slate-700">{branch.location}</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">{t('detail.location')}</p>
+              <p className="text-sm font-bold text-slate-800 dark:text-white mt-0.5">{branch.location}</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 p-5 rounded-xl bg-white border border-slate-100">
-            <div className="w-11 h-11 rounded-xl bg-navy-100 flex items-center justify-center shrink-0">
-              <Clock className="w-5 h-5 text-navy-600" />
+          <div className="flex items-center gap-3 p-5 rounded-xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800 shadow-2xs">
+            <div className="w-11 h-11 rounded-xl bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0">
+              <Clock className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs text-slate-400">{t('detail.hours')}</p>
-              <p className="text-sm font-bold text-slate-700">{branch.contact.workingHours}</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">{t('detail.hours')}</p>
+              <p className="text-sm font-bold text-slate-800 dark:text-white mt-0.5">{branch.contact.workingHours}</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 p-5 rounded-xl bg-white border border-slate-100">
-            <div className="w-11 h-11 rounded-xl bg-navy-100 flex items-center justify-center shrink-0">
-              <Phone className="w-5 h-5 text-navy-600" />
+          <div className="flex items-center gap-3 p-5 rounded-xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800 shadow-2xs">
+            <div className="w-11 h-11 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+              <Phone className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs text-slate-400">{t('detail.phone')}</p>
-              <p className="text-sm font-bold text-slate-700" dir="ltr">{branch.contact.phone}</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">{t('detail.phone')}</p>
+              <p className="text-sm font-bold text-slate-800 dark:text-white mt-0.5" dir="ltr">{branch.contact.phone}</p>
             </div>
           </div>
         </div>
 
         <Link
           to={`/laboratories/${center.id}`}
-          className="mt-6 flex items-center gap-4 p-5 rounded-xl bg-navy-50 border border-navy-100 hover:border-navy-300 transition-all group"
+          className="mt-6 flex items-center gap-4 p-5 rounded-xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800 hover:border-blue-500/50 dark:hover:border-blue-500/50 transition-all shadow-2xs group"
         >
-          <div className="w-12 h-12 rounded-xl bg-navy-800 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-xl bg-blue-600 dark:bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
             <Building2 className="w-6 h-6 text-white" />
           </div>
           <div className="flex-1">
-            <p className="text-xs text-slate-400">{t('branch.parentCenter')}</p>
-            <p className="text-base font-bold text-slate-700 group-hover:text-navy-600">{center.name}</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">{t('branch.parentCenter')}</p>
+            <p className="text-base font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 mt-0.5 transition-colors">{center.name}</p>
           </div>
-          <Chevron className="w-5 h-5 text-slate-300 group-hover:text-navy-500" />
+          <Chevron className="w-5 h-5 text-slate-400 dark:text-slate-500 group-hover:text-blue-500 transition-colors" />
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
           <div className="lg:col-span-2 space-y-8">
-            <div className="p-6 rounded-xl bg-white border border-slate-100">
+            <div className="p-6 rounded-xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800 shadow-2xs">
               <InfoSection title={t('detail.capabilities')} items={branch.capabilities} variant="capability" />
             </div>
-            <div className="p-6 rounded-xl bg-white border border-slate-100">
+            <div className="p-6 rounded-xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800 shadow-2xs">
               <InfoSection title={t('detail.services')} items={branch.services} variant="service" />
             </div>
-            <div className="p-6 rounded-xl bg-white border border-slate-100">
+            <div className="p-6 rounded-xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800 shadow-2xs">
               <InfoSection title={t('detail.analyses')} items={branch.analyses} variant="analysis" />
             </div>
           </div>
 
           <div className="space-y-6">
-            <div className="p-6 rounded-xl bg-white border border-slate-100">
+            <div className="p-6 rounded-xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800 shadow-2xs">
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-10 h-10 rounded-xl bg-navy-100 flex items-center justify-center">
-                  <Phone className="w-5 h-5 text-navy-600" />
+                <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                  <Phone className="w-5 h-5" />
                 </div>
-                <h2 className="text-xl font-bold text-slate-800">{t('detail.contact')}</h2>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t('detail.contact')}</h2>
               </div>
               <ContactCard contact={branch.contact} />
             </div>
 
-            <div className="p-6 rounded-xl bg-white border border-slate-100">
-              <h3 className="text-base font-bold text-slate-700 mb-4">{t('branch.quickActions')}</h3>
+            <div className="p-6 rounded-xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800 shadow-2xs">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white mb-4">{t('branch.quickActions')}</h3>
               <div className="space-y-3">
                 <a
                   href={branch.contact.mapUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 w-full py-3 rounded-lg bg-navy-800 text-white font-bold text-sm hover:bg-navy-700 transition-colors shadow-sm"
+                  className="flex items-center justify-center gap-2.5 w-full py-3 px-5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-all shadow-xs hover:shadow-md whitespace-nowrap cursor-pointer"
                 >
-                  <Navigation className="w-4 h-4" />
-                  {t('detail.map')}
+                  <Navigation className="w-4 h-4 shrink-0" />
+                  <span>{t('detail.map')}</span>
                 </a>
                 <Link
                   to="/register"
-                  className="flex items-center justify-center gap-2 w-full py-3 rounded-lg bg-white text-navy-700 font-bold text-sm border-2 border-navy-200 hover:bg-navy-50 transition-colors"
+                  className="flex items-center justify-center gap-2.5 w-full py-3 px-5 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-white font-semibold text-sm border border-slate-200 dark:border-slate-700 transition-all shadow-xs hover:shadow-md whitespace-nowrap cursor-pointer"
                 >
-                  <UserPlus className="w-4 h-4" />
-                  {t('detail.registerVisit')}
+                  <UserPlus className="w-4 h-4 shrink-0" />
+                  <span>{t('detail.registerVisit')}</span>
                 </Link>
               </div>
             </div>
 
             {center.branches.length > 1 && (
-              <div className="p-6 rounded-xl bg-white border border-slate-100">
-                <h3 className="text-base font-bold text-slate-700 mb-4">{t('branch.otherBranches')}</h3>
+              <div className="p-6 rounded-xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800 shadow-2xs">
+                <h3 className="text-base font-bold text-slate-900 dark:text-white mb-4">{t('branch.otherBranches')}</h3>
                 <div className="space-y-2">
                   {center.branches
                     .filter((b) => b.id !== branch.id)
@@ -158,15 +158,15 @@ export default function BranchDetail() {
                       <Link
                         key={sibling.id}
                         to={`/laboratories/${center.id}/${sibling.id}`}
-                        className="group/sibling flex items-center gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100 hover:border-navy-300 hover:bg-navy-50 transition-all"
+                        className="group/sibling flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-850 border border-slate-200/80 dark:border-slate-800 hover:border-blue-500/50 hover:bg-blue-50/50 dark:hover:bg-blue-950/20 transition-all"
                       >
-                        <div className="w-9 h-9 rounded-lg bg-navy-100 flex items-center justify-center">
-                          <Network className="w-4 h-4 text-navy-600" />
+                        <div className="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                          <Network className="w-4 h-4" />
                         </div>
-                        <span className="text-sm font-bold text-slate-700 group-hover/sibling:text-navy-700 flex-1">
+                        <span className="text-sm font-bold text-slate-800 dark:text-slate-200 group-hover/sibling:text-blue-600 dark:group-hover/sibling:text-blue-400 flex-1 transition-colors">
                           {sibling.name}
                         </span>
-                        <Chevron className="w-4 h-4 text-slate-300 group-hover/sibling:text-navy-500" />
+                        <Chevron className="w-4 h-4 text-slate-400 group-hover/sibling:text-blue-500 transition-colors" />
                       </Link>
                     ))}
                 </div>
@@ -178,17 +178,17 @@ export default function BranchDetail() {
         <div className="mt-10 flex flex-wrap gap-3">
           <Link
             to={`/laboratories/${center.id}`}
-            className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-white border border-slate-200 text-slate-600 font-bold text-sm hover:border-navy-300 hover:text-navy-600 transition-all"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800 text-slate-700 dark:text-slate-200 font-semibold text-xs sm:text-sm hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all shadow-2xs whitespace-nowrap"
           >
-            <Arrow className="w-4 h-4" />
-            {t('branch.backToCenter')} {center.name}
+            <Arrow className="w-4 h-4 shrink-0" />
+            <span>{t('branch.backToCenter')} {center.name}</span>
           </Link>
           <Link
             to="/laboratories"
-            className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-white border border-slate-200 text-slate-600 font-bold text-sm hover:border-navy-300 hover:text-navy-600 transition-all"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800 text-slate-700 dark:text-slate-200 font-semibold text-xs sm:text-sm hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all shadow-2xs whitespace-nowrap"
           >
-            <Arrow className="w-4 h-4" />
-            {t('detail.backToLabs')}
+            <Arrow className="w-4 h-4 shrink-0" />
+            <span>{t('detail.backToLabs')}</span>
           </Link>
         </div>
       </div>

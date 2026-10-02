@@ -22,20 +22,20 @@ export interface FacilitySlide {
 export const facilitySlides: FacilitySlide[] = [
   {
     id: 'asir-central',
-    name: {
-      ar: 'مختبر عسير المركزي',
-      en: 'Asir Central Laboratory',
-      fr: 'Laboratoire Central d\'Asir',
-    },
+name: {
+  ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة عسير',
+  en: 'Asir Central Laboratory for Drinking Water and Environmental Services',
+  fr: 'Laboratoire Central d’Asir pour les Eaux Potables et les Services Environnementaux',
+},
     region: {
       ar: 'أبها - منطقة عسير • المملكة العربية السعودية',
       en: 'Abha - Asir Region • KSA',
       fr: 'Abha - Région d\'Asir • Arabie Saoudite',
     },
     badge: {
-      ar: 'المختبر المرجعي الإقليمي',
-      en: 'Regional Reference Laboratory',
-      fr: 'Laboratoire Régional de Référence',
+      ar: 'المختبر المرجعي المركزي',
+      en: 'Central Reference Laboratory',
+      fr: 'Laboratoire Central de Référence',
     },
     description: {
       ar: 'أحدث التجهيزات الطيفية والكروماتوغرافية لفحص مياه الشرب ومحطات التنقية والسدود.',
@@ -51,11 +51,11 @@ export const facilitySlides: FacilitySlide[] = [
   },
   {
     id: 'najran-central',
-    name: {
-      ar: 'مختبر نجران المركزي',
-      en: 'Najran Central Laboratory',
-      fr: 'Laboratoire Central de Najran',
-    },
+  name: {
+  ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة نجران',
+  en: 'Najran Central Laboratory for Drinking Water and Environmental Services',
+  fr: 'Laboratoire Central de Najran pour les Eaux Potables et les Services Environnementaux',
+},
     region: {
       ar: 'نجران • المملكة العربية السعودية',
       en: 'Najran • KSA',
@@ -80,11 +80,11 @@ export const facilitySlides: FacilitySlide[] = [
   },
   {
     id: 'jazan-central',
-    name: {
-      ar: 'مختبر جازان المركزي',
-      en: 'Jazan Central Laboratory',
-      fr: 'Laboratoire Central de Jazan',
-    },
+ name: {
+  ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة جازان',
+  en: 'Jazan Central Laboratory for Drinking Water and Environmental Services',
+  fr: 'Laboratoire Central de Jazan pour les Eaux Potables et les Services Environnementaux',
+},
     region: {
       ar: 'جازان • المملكة العربية السعودية',
       en: 'Jazan • KSA',
@@ -97,7 +97,7 @@ export const facilitySlides: FacilitySlide[] = [
     },
     description: {
       ar: 'رقابة فورية ومستمرة على جودة مياه محطات التحلية الساحلية ومشاريع الإمداد الكبرى.',
-      en: 'Real-time surveillance of coastal desalination plants and strategic regional transmission lines.',
+      en: 'Real-time surveillance of coastal desalination plants and strategic Central transmission lines.',
       fr: 'Surveillance en temps réel des usines de dessalement et des adductions majeures.',
     },
     stats: {
@@ -109,11 +109,11 @@ export const facilitySlides: FacilitySlide[] = [
   },
   {
     id: 'baha-central',
-    name: {
-      ar: 'مختبر الباحة المركزي',
-      en: 'Al-Baha Central Laboratory',
-      fr: 'Laboratoire Central d\'Al-Baha',
-    },
+  name: {
+  ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة الباحة',
+  en: 'Al-Baha Central Laboratory for Drinking Water and Environmental Services',
+  fr: 'Laboratoire Central d’Al-Baha pour les Eaux Potables et les Services Environnementaux',
+},
     region: {
       ar: 'الباحة • المملكة العربية السعودية',
       en: 'Al-Baha • KSA',
@@ -134,7 +134,7 @@ export const facilitySlides: FacilitySlide[] = [
       val: '5 فروع',
     },
     image: siteMedia.facilities.baha,
-    link: '/laboratories/baha',
+    link: '/laboratories/al-baha',
   },
 ];
 

@@ -53,9 +53,9 @@ export default function Contact() {
             </div>
             <h2 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white mb-2">{t('contact.sendMsg')}</h2>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mb-6 leading-relaxed">{t('contact.toEnquiry')}</p>
-            <Link to="/enquiry" className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-blue-600 text-white font-medium text-xs sm:text-sm hover:bg-blue-500 transition-colors shadow-2xs">
+            <Link to="/enquiry" className="flex items-center justify-center gap-2.5 w-full py-3 px-6 rounded-xl bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-semibold text-xs sm:text-sm transition-all shadow-xs hover:shadow-md whitespace-nowrap">
               <span>{t('contact.gotoEnquiry')}</span>
-              <Arrow className="w-4 h-4" />
+              <Arrow className="w-4 h-4 shrink-0" />
             </Link>
           </div>
         </div>

@@ -73,6 +73,7 @@ export default function Footer() {
             </ul>
             <div className="mt-4 pt-3 border-t border-white/10 space-y-2">
               <Link to="/services" className="text-xs text-slate-400 hover:text-white transition-colors block">{t('nav.services')}</Link>
+              <Link to="/mobile-laboratories" className="text-xs text-slate-400 hover:text-white transition-colors block">{t('nav.mobileLabs')}</Link>
               <Link to="/about" className="text-xs text-slate-400 hover:text-white transition-colors block">{t('nav.about')}</Link>
               <Link to="/contact" className="text-xs text-slate-400 hover:text-white transition-colors block">{t('nav.contact')}</Link>
             </div>

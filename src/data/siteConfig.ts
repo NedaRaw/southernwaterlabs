@@ -28,6 +28,7 @@ export const contactConfig = {
 export const siteStats = {
   centralCenters: '4',
   branches: '18',
+  regions: '4',
   labTests: '+50,000',
   samples: '+25,000',
 };
@@ -105,7 +106,7 @@ export const newsItems: NewsItem[] = [
     },
     descriptionI18n: {
       ar: 'تزويد مختبرات عسير وجازان والباحة ونجران بأحدث أنظمة قياس المعادن الثقيلة والأيونات الذائبة بدقة أجزاء في المليار (ppb).',
-      en: 'Equipping regional laboratories in Asir, Jazan, Al-Baha, and Najran with trace mineral analytical spectrometry down to parts-per-billion.',
+      en: 'Equipping Central laboratories in Asir, Jazan, Al-Baha, and Najran with trace mineral analytical spectrometry down to parts-per-billion.',
       fr: 'Équipement des laboratoires d\'Asir, Jazan, Al-Baha et Najran en spectrométrie de pointe pour détecter les métaux jusqu\'au ppb.',
     },
     categoryI18n: {
@@ -123,12 +124,12 @@ export const newsItems: NewsItem[] = [
     image: siteMedia.news.fieldSurvey,
     titleI18n: {
       ar: 'إطلاق برنامج المسح الميداني الموسع لمراقبة جودة مياه الآبار والخزانات الاستراتيجية',
-      en: 'Launch of Regional Field Surveillance for Well Water & Strategic Reservoirs',
-      fr: 'Lancement d\'une Campagne Régionale de Contrôle des Puits et Réservoirs Stratégiques',
+      en: 'Launch of Central Field Surveillance for Well Water & Strategic Reservoirs',
+      fr: 'Lancement d\'une Campagne Centrale de Contrôle des Puits et Réservoirs Stratégiques',
     },
     descriptionI18n: {
       ar: 'تسيير فرق مسح ميداني متنقلة مزودة بأجهزة قياس فورية لفحص ومراقبة شبكات الإمداد والخزانات العامة في القطاع الجنوبي.',
-      en: 'Deploying mobile field teams equipped with instant monitoring instruments to inspect water distribution networks and regional reservoirs.',
+      en: 'Deploying mobile field teams equipped with instant monitoring instruments to inspect water distribution networks and central reservoirs.',
       fr: 'Déploiement d\'unités mobiles dotées d\'instruments de mesure instantanée pour inspecter les réseaux et réservoirs d\'eau.',
     },
     categoryI18n: {

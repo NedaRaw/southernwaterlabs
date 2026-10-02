@@ -56,15 +56,16 @@ export default function NajranLabDetail() {
   const [selectedImageTitle, setSelectedImageTitle] = useState<string>('');
   const [copiedCoords, setCopiedCoords] = useState(false);
 
-  // Verified coordinates for Najran Central Laboratory
+  // Verified official coordinates for Najran Central Laboratory
   // Located at King Abdulaziz Road, Al-Manjam, behind Al-Dhafir Hospital, Najran
   const labCoordinates = {
-    lat: 17.5255,
-    lng: 44.1865,
-    dms: '17°31\'31.8"N 44°11\'11.4"E',
-    decimal: '17.525500, 44.186500',
-    mapsUrl: 'https://www.google.com/maps/search/?api=1&query=17.5255,44.1865',
-    directionsUrl: 'https://www.google.com/maps/dir/?api=1&destination=17.5255,44.1865',
+    lat: 17.545673,
+    lng: 44.2495585,
+    dms: '17°32\'44.4"N 44°14\'58.4"E',
+    decimal: '17.545673, 44.2495585',
+    mapsUrl:
+      'https://www.google.com/maps/place/%D8%A7%D9%84%D9%85%D8%AE%D8%AA%D8%A8%D8%B1+%D8%A7%D9%84%D8%A7%D9%82%D9%84%D9%8A%D9%85%D9%8A+%D9%84%D9%84%D9%85%D9%8A%D8%A7%D9%87+%D9%88%D8%AE%D8%AF%D9%85%D8%A7%D8%AA+%D8%A7%D9%84%D8%A8%D9%8A%D8%A6%D9%8A%D8%A9+%D9%84%D8%B4%D8%B1%D9%83%D8%A9+%D8%A7%D9%84%D9%85%D9%8A%D8%A7%D9%87+%D8%A7%D9%84%D9%88%D8%B7%D9%86%D9%8A%D8%A9%E2%80%AD/@17.5444497,44.1577507,12.75z/data=!4m10!1m2!2m1!1z2KfZhNmF2K7Yqtio2LEg2KfZhNin2YLZhNmK2YXZiiDZhNmE2K7Yr9mF2KfYqiDYp9mE2KjZitim2YrYqSDYqNmF2YbYt9mC2Kkg2YbYrNix2KfZhuKArQ!3m6!1s0x15fedda2e057c387:0xeebd4b566fedbd0e!8m2!3d17.545673!4d44.2495585!15sCljYp9mE2YXYrtiq2KjYsSDYp9mE2KfZgtmE2YrZhdmKINmE2YTYrtiv2YXYp9iqINin2YTYqNmK2KbZitipINio2YXZhti32YLYqSDZhtis2LHYp9mG4oCtkgERZ292ZXJubWVudF9vZmZpY2XgAQA!16s%2Fg%2F11tcbwcrkr?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D',
+    directionsUrl: 'https://www.google.com/maps/dir/?api=1&destination=17.545673,44.2495585',
   };
 
   const handleCopyCoords = () => {
@@ -80,23 +81,23 @@ export default function NajranLabDetail() {
     // Official Names
     officialTitle: {
       ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة نجران',
-      en: 'Najran Central Laboratory for Drinking Water and Environmental Services',
-      fr: 'Laboratoire Central pour les Eaux Potables et les Services Environnementaux de la Région de Najran',
+      en: 'Central Laboratory for Drinking Water and Environmental Services - Najran Region',
+      fr: 'Laboratoire Central de l\'Eau Potable et des Services Environnementaux de la Région de Najran',
     }[lang],
     shortTitle: {
-      ar: 'مختبر نجران المركزي',
-      en: 'Najran Central Laboratory',
-      fr: 'Laboratoire Central de Najran',
+      ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بنجران',
+      en: 'Najran Central Drinking Water & Environmental Laboratory',
+      fr: 'Laboratoire Central de l\'Eau Potable et de l\'Environnement de Najran',
     }[lang],
     sectorTitle: {
-      ar: 'المختبرات المركزية لمياه الشرب والخدمات البيئية بالقطاع الجنوبي',
-      en: 'Southern Sector Central Laboratories for Drinking Water and Environmental Services',
-      fr: 'Laboratoires Centraux du Secteur Sud pour les Eaux Potables et les Services Environnementaux',
+      ar: 'شركة المياه الوطنية — الإدارة العامة للمختبرات والخدمات البيئية بالقطاع الجنوبي',
+      en: 'National Water Company — Southern Sector Environmental & Water Laboratories',
+      fr: 'Compagnie Nationale des Eaux — Laboratoires Environnementaux du Secteur Sud',
     }[lang],
     tagline: {
-      ar: 'خبراء مختصون في أحدث التقنيات والمعايير الدولية في مجال تحليل المياه',
-      en: 'Specialized experts in the latest technologies and international standards in water analysis',
-      fr: 'Experts spécialisés dans les technologies de pointe et les normes internationales d\'analyse de l\'eau',
+      ar: 'خبراء مختصون في أحدث التقنيات والمعايير الدولية في مجال تحليل مياه الشرب والخدمات البيئية',
+      en: 'Specialized experts in the latest technologies and international standards in drinking water and environmental analysis',
+      fr: 'Experts spécialisés dans les technologies de pointe et les normes internationales d\'analyse de l\'eau potable et de l\'environnement',
     }[lang],
     accreditationBadge: {
       ar: 'معتمد وفق المواصفة القياسية ISO/IEC 17025:2017',
@@ -109,9 +110,9 @@ export default function NajranLabDetail() {
       fr: 'Compagnie Nationale des Eaux — Administration des Laboratoires du Secteur Sud',
     }[lang],
     heroDesc: {
-      ar: 'مختبر إقليمي معتمد يقدم خدمات التحليل المخبري الدقيق، جمع العينات الميدانية، وضمان الجودة الصارمة لمصادر ومحطات مياه الشرب، لخدمة منطقة نجران والمحافظات التابعة وفق أعلى المعايير القياسية.',
-      en: 'A regional accredited laboratory providing high-precision testing, certified field sampling, and rigorous quality assurance for drinking water and environmental sources serving Najran and surrounding provinces.',
-      fr: 'Un laboratoire régional accrédité offrant des analyses de haute précision, des prélèvements conformes et une assurance qualité certifiée pour les eaux potables et l\'environnement dans la région de Najran.',
+      ar: 'مختبر إقليمي معتمد يقدم خدمات الفحص والتحليل المخبري الدقيق، الرقابة البيئية، وجمع العينات الميدانية لمصادر وشبكات مياه الشرب والخدمات البيئية بمنطقة نجران والمحافظات التابعة وفق أعلى المعايير القياسية.',
+      en: 'A Central accredited laboratory providing high-precision testing, certified field sampling, and rigorous quality assurance for drinking water and environmental sources serving Najran and surrounding provinces.',
+      fr: 'Un laboratoire Central accrédité offrant des analyses de haute précision, des prélèvements conformes et une assurance qualité certifiée pour les eaux potables et l\'environnement dans la région de Najran.',
     }[lang],
 
     // Quick Stats
@@ -122,7 +123,7 @@ export default function NajranLabDetail() {
     statMonSub: { ar: 'مراقبة مستمرة', en: 'Continuous Monitoring', fr: 'Surveillance Continue' }[lang],
     statMonDesc: { ar: 'فحص دوري وشبكات مياه الشرب', en: 'Drinking Water Networks', fr: 'Réseaux d\'Eau Potable' }[lang],
     statHubVal: { ar: 'منطقة نجران', en: 'Najran Hub', fr: 'Pôle Najran' }[lang],
-    statHubSub: { ar: 'المركز الإقليمي', en: 'Regional Hub', fr: 'Centre Régional' }[lang],
+    statHubSub: { ar: 'المختبر المركزي', en: 'Central Laboratory', fr: 'Laboratoire Central' }[lang],
     statHubDesc: { ar: 'يغطي مدينة نجران والمحافظات', en: 'Serving Najran & Provinces', fr: 'Couvre la ville et provinces' }[lang],
     statSacVal: 'SAC',
     statSacSub: { ar: 'المركز السعودي للاعتماد', en: 'Saudi Accreditation Center', fr: 'Centre Saoudien d\'Accréditation' }[lang],
@@ -134,16 +135,16 @@ export default function NajranLabDetail() {
     sendEnquiry: { ar: 'إرسال استفسار', en: 'Send Enquiry', fr: 'Envoyer une Demande' }[lang],
 
     // About Section
-    aboutHeading: { ar: 'عن مختبر نجران المركزي', en: 'About Najran Central Laboratory', fr: 'À Propos du Laboratoire Central de Najran' }[lang],
+    aboutHeading: { ar: 'عن المختبر المركزي لمياه الشرب والخدمات البيئية بنجران', en: 'About Najran Central Drinking Water & Environmental Laboratory', fr: 'À Propos du Laboratoire Central de l\'Eau Potable et de l\'Environnement de Najran' }[lang],
     aboutSub: {
-      ar: 'منظومة رائدة في الفحص المخبري والرقابة البيئية وحماية الصحة العامة',
-      en: 'A leading system in laboratory testing, environmental oversight, and public health protection',
-      fr: 'Un système de référence en analyse laboratoire, contrôle environnemental et protection de la santé publique',
+      ar: 'منظومة رائدة في فحص مياه الشرب والرقابة البيئية وحماية الصحة العامة',
+      en: 'A leading system in drinking water testing, environmental oversight, and public health protection',
+      fr: 'Un système de référence en analyse de l\'eau potable, contrôle environnemental et protection de la santé publique',
     }[lang],
     aboutP1: {
-      ar: 'يُعد المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة نجران أحد الركائز الاستراتيجية لمنظومة مختبرات القطاع الجنوبي بشركة المياه الوطنية. يتميز المختبر بحصوله على الاعتماد الدولي ISO/IEC 17025:2017، مما يضمن دقة وموثوقية النتائج الصادرة عنه في كافة مراحل الفحص والتحليل.',
-      en: 'The Najran Central Laboratory for Drinking Water and Environmental Services is a cornerstone of the Southern Sector Laboratory System under the National Water Company (NWC). Accredited under ISO/IEC 17025:2017, it guarantees world-class accuracy and reliability across all testing and analytical stages.',
-      fr: 'Le Laboratoire Central pour les Eaux Potables et les Services Environnementaux de la Région de Najran constitue un pilier stratégique du réseau des laboratoires du Secteur Sud de la National Water Company (NWC). Certifié ISO/IEC 17025:2017, il assure une précision d\'analyse et une conformité rigoureuse aux standards mondiaux.',
+      ar: 'يُعد المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة نجران التابع لشركة المياه الوطنية أحد الركائز الاستراتيجية لمنظومة مختبرات القطاع الجنوبي. يتميز المختبر بحصوله على الاعتماد الدولي ISO/IEC 17025:2017، مما يضمن دقة وموثوقية النتائج الصادرة عنه في كافة مراحل الفحص والتحليل.',
+      en: 'The Central Laboratory for Drinking Water and Environmental Services in Najran Region operates under the National Water Company (NWC) as a cornerstone of the Southern Sector Laboratory System. Accredited under ISO/IEC 17025:2017, it guarantees world-class accuracy and reliability across all testing and analytical stages.',
+      fr: 'Le Laboratoire Central de l\'Eau Potable et des Services Environnementaux de la Région de Najran constitue un pilier stratégique du réseau des laboratoires du Secteur Sud de la National Water Company (NWC). Certifié ISO/IEC 17025:2017, il assure une précision d\'analyse et une conformité rigoureuse aux standards mondiaux.',
     }[lang],
     aboutP2: {
       ar: 'يقوم المختبر بإجراء الفحوصات الفيزيائية والكيميائية والميكروبيولوجية والإشعاعية لعينات مياه الشرب، ومحطات التنقية، والآبار الجوفية، وشبكات التوزيع العامة، بالإضافة إلى الدعم الميداني السريع عبر وحدة المختبر المتنقل المجهزة بأحدث الأجهزة والتقنيات القياسية.',
@@ -158,7 +159,7 @@ export default function NajranLabDetail() {
       en: 'Comprehensive laboratory environments equipped with high-precision spectroscopy, chromatography, and microbiological incubators',
       fr: 'Environnements de laboratoire complets équipés d\'instruments de haute précision, spectrophotomètres et incubateurs microbiologiques',
     }[lang],
-    buildingBadge: { ar: 'مبنى المختبر المركزي بنجران', en: 'Najran Central Laboratory Facility', fr: 'Bâtiment du Laboratoire Central' }[lang],
+    buildingBadge: { ar: 'مبنى المختبر المركزي بنجران', en: 'Najran Central Laboratory Facility', fr: 'Bâtiment du Laboratoire Central de Najran' }[lang],
     chemistBadge: { ar: 'كوادر وطنية متخصصة في الكيمياء والبيولوجيا', en: 'Specialized Analytical Chemists & Technicians', fr: 'Chimistes et Spécialistes Analytiques' }[lang],
 
     // Accredited Services Section
@@ -191,27 +192,27 @@ export default function NajranLabDetail() {
     // Organizational Structure Section
     orgHeading: { ar: 'الهيكل التنظيمي للمختبر', en: 'Organizational Structure', fr: 'Structure Organisationnelle' }[lang],
     orgSub: {
-      ar: 'المخطط الإداري والتسلسل التنظيمي المعتمد لإدارة مختبر نجران المركزي وأقسامه التخصصية',
+      ar: 'المخطط الإداري والتسلسل التنظيمي المعتمد لإدارة المختبر المركزي بنجران وأقسامه التخصصية',
       en: 'The official administrative organizational chart of Najran Central Laboratory and specialized departments',
       fr: 'L\'organigramme officiel et la hiérarchie organisationnelle du Laboratoire Central de Najran',
     }[lang],
     viewChartBtn: { ar: 'تكبير المخطط التنظيمي', en: 'Enlarge Organization Chart', fr: 'Agrandir l\'Organigramme' }[lang],
 
     // Sharurah Branch Link
-    sharurahTitle: { ar: 'مختبر فرع شرورة التابع', en: 'Affiliated Sharurah Branch', fr: 'Branche Affiliée de Sharurah' }[lang],
+    sharurahTitle: { ar: 'مختبر فرع شرورة ', en: 'Sharurah Branch', fr: 'Branche de Sharurah' }[lang],
     sharurahDesc: {
-      ar: 'يقدم فرع شرورة خدمات فحص ومراقبة جودة مياه الشرب في محافظة شرورة والمناطق المجاورة بالتنسيق الكامل مع مختبر نجران المركزي.',
+      ar: 'يقدم فرع شرورة خدمات فحص ومراقبة جودة مياه الشرب في محافظة شرورة والمناطق المجاورة بالتنسيق الكامل مع المختبر المركزي بنجران.',
       en: 'The Sharurah Branch provides water quality testing and monitoring for Sharurah governorate in coordination with Najran Central Lab.',
-      fr: 'La branche de Sharurah assure le contrôle et l\'analyse de la qualité de l\'eau pour la province de Sharurah en coordination étroite avec le laboratoire central.',
+      fr: 'La branche de Sharurah assure le contrôle et l\'analyse de la qualité de l\'eau pour la province de Sharurah en coordination étroite avec le laboratoire Central.',
     }[lang],
     goToSharurah: { ar: 'الانتقال إلى صفحة فرع شرورة', en: 'Go to Sharurah Branch Page', fr: 'Accéder à la page de Sharurah' }[lang],
 
     // Location & Contact
     locationHeading: { ar: 'الموقع والعنوان المعتمد', en: 'Location & Official Address', fr: 'Localisation & Adresse Officielle' }[lang],
     officialAddress: {
-      ar: 'حي المنجم - طريق الملك عبد العزيز - خلف مستشفى الظافر - نجران',
-      en: 'Al-Manjam District, King Abdulaziz Road, behind Al-Dhafir Hospital, Najran',
-      fr: 'Quartier Al-Manjam, Route Roi Abdulaziz, derrière l\'Hôpital Al-Dhafir, Najran',
+      ar: 'NJPC9103، 9103 ال منجم 30، 3972، حي الخالدية، نجران 66261، المملكة العربية السعودية (رمز بلس: G6WX+7R)',
+      en: 'NJPC9103, 9103 Al-Manjam 30, 3972, Al-Khalidiyah, Najran 66261, Saudi Arabia (Plus Code: G6WX+7R)',
+      fr: 'NJPC9103, 9103 Al-Manjam 30, 3972, Al-Khalidiyah, Najran 66261, Arabie Saoudite (Plus Code : G6WX+7R)',
     }[lang],
     openMapBtn: { ar: 'فتح الموقع في Google Maps', en: 'Open in Google Maps', fr: 'Ouvrir dans Google Maps' }[lang],
     interactiveMapHeading: {
@@ -619,8 +620,8 @@ export default function NajranLabDetail() {
                 </span>
                 <h3 className="text-lg font-bold text-white leading-snug">
                   {lang === 'ar'
-                    ? 'مطوية الخدمات والتحاليل المعتمدة لمختبر نجران المركزي'
-                    : 'Najran Central Laboratory Official Services & Accreditations Flyer'}
+                    ? 'مطوية الخدمات والتحاليل المعتمدة للمختبر المركزي للخدمات البيئية بنجران'
+                    : 'Najran Central Environmental Laboratory Official Services & Accreditations Flyer'}
                 </h3>
                 <p className="text-xs text-slate-300 leading-relaxed">
                   {lang === 'ar'
@@ -982,7 +983,7 @@ export default function NajranLabDetail() {
                       {lang === 'ar' ? 'خط العرض (Latitude):' : 'Latitude:'}
                     </span>
                     <span dir="ltr" className="font-mono font-bold text-slate-800 dark:text-slate-200">
-                      17.525500° N
+                      17.545673° N
                     </span>
                   </div>
                   <div className="flex items-center justify-between p-2.5 rounded-lg bg-white dark:bg-slate-900/70 text-xs border border-slate-200 dark:border-slate-700/80">
@@ -990,7 +991,7 @@ export default function NajranLabDetail() {
                       {lang === 'ar' ? 'خط الطول (Longitude):' : 'Longitude:'}
                     </span>
                     <span dir="ltr" className="font-mono font-bold text-slate-800 dark:text-slate-200">
-                      44.186500° E
+                      44.2495585° E
                     </span>
                   </div>
                 </div>
@@ -1002,18 +1003,18 @@ export default function NajranLabDetail() {
                   href={labCoordinates.mapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-colors shadow-xs"
+                  className="inline-flex items-center justify-center gap-2.5 px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-semibold text-xs sm:text-sm transition-all shadow-xs hover:shadow-md whitespace-nowrap"
                 >
-                  <ExternalLink className="w-4 h-4" />
+                  <ExternalLink className="w-4 h-4 shrink-0" />
                   <span>{tText.openMapBtn}</span>
                 </a>
                 <a
                   href={labCoordinates.directionsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-colors shadow-xs"
+                  className="inline-flex items-center justify-center gap-2.5 px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-semibold text-xs sm:text-sm transition-all shadow-xs hover:shadow-md whitespace-nowrap"
                 >
-                  <Navigation className="w-4 h-4" />
+                  <Navigation className="w-4 h-4 shrink-0" />
                   <span>{tText.getDirectionsBtn}</span>
                 </a>
               </div>

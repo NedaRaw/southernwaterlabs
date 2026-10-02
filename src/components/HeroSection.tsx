@@ -128,10 +128,10 @@ export default function HeroSection() {
               >
                 <Link
                   to="/register"
-                  className="inline-flex items-center justify-center gap-2 px-4.5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs sm:text-sm shadow-xs transition-colors"
+                  className="inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-semibold text-sm shadow-md hover:shadow-lg transition-all whitespace-nowrap"
                 >
-                  <UserPlus className="w-4 h-4 text-white" />
-                  <span>{t('hero.register')}</span>
+                  <UserPlus className="w-4 h-4 text-white shrink-0" />
+                  <span className="leading-snug">{t('hero.register')}</span>
                 </Link>
               </motion.div>
 
@@ -142,11 +142,11 @@ export default function HeroSection() {
               >
                 <Link
                   to="/laboratories"
-                  className="inline-flex items-center justify-center gap-2 px-4.5 py-2.5 rounded-lg bg-white/10 hover:bg-white/15 text-white font-medium text-xs sm:text-sm backdrop-blur-xs border border-white/20 transition-colors"
+                  className="inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 active:bg-white/25 text-white font-semibold text-sm backdrop-blur-md border border-white/25 transition-all shadow-xs hover:shadow-md whitespace-nowrap"
                 >
-                  <span>{t('hero.explore')}</span>
+                  <span className="leading-snug">{t('hero.explore')}</span>
                   <Arrow
-                    className={`w-3.5 h-3.5 text-blue-200 transition-transform ${
+                    className={`w-4 h-4 text-blue-200 transition-transform shrink-0 ${
                       dir === 'rtl' ? 'group-hover:-translate-x-1' : 'group-hover:translate-x-1'
                     }`}
                   />

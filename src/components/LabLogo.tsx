@@ -24,6 +24,9 @@ export default function LabLogo({
   } catch {
     // Safe fallback if used outside context
   }
+  if (!isDarkMode && typeof document !== 'undefined') {
+    isDarkMode = document.documentElement.classList.contains('dark');
+  }
 
   const isWhite = variant === 'white';
   const isMarkOnly = variant === 'mark';
@@ -32,11 +35,11 @@ export default function LabLogo({
   // Arabic: "المختبرات المركزية لمياه الشرب بالقطاع الجنوبي"
   // English: "Southern Sector Laboratory for Drinking Water and Environmental Services"
   // French: "Laboratoires Centraux des Eaux du Secteur Sud"
-const officialTitle = {
-  ar: 'المختبرات المركزية لمياه الشرب والخدمات البيئية بالقطاع الجنوبي',
-  en: 'Southern Sector Central Laboratories for Drinking Water and Environmental Services',
-  fr: 'Laboratoires Centraux du Secteur Sud pour les Eaux Potables et les Services Environnementaux',
-}[lang] || 'المختبرات المركزية لمياه الشرب والخدمات البيئية بالقطاع الجنوبي';
+  const officialTitle = {
+    ar: 'المختبرات المركزية لمياه الشرب والخدمات البيئية بالقطاع الجنوبي',
+    en: 'Southern Sector Central Laboratories for Drinking Water and Environmental Services',
+    fr: 'Laboratoires Centraux du Secteur Sud pour les Eaux Potables et les Services Environnementaux',
+  }[lang] || 'المختبرات المركزية لمياه الشرب والخدمات البيئية بالقطاع الجنوبي';
 
   const officialSubtitle = {
     ar: 'منظومة مراقبة جودة المياه ومختبرات الفحص والتحليل',
@@ -51,14 +54,14 @@ const officialTitle = {
 
   // Proportional height classes
   const imageSizeClasses = {
-    sm: 'h-7 sm:h-8 w-auto',
-    md: 'h-8 sm:h-9 md:h-10 w-auto',
-    lg: 'h-10 sm:h-11 md:h-12 w-auto',
+    sm: 'h-8 sm:h-9 md:h-10 w-auto',
+    md: 'h-9 sm:h-10 md:h-11 w-auto',
+    lg: 'h-11 sm:h-12 md:h-14 w-auto',
   }[size];
 
   // Proportional font sizes based on size prop - refined & balanced
   const titleSizeClasses = {
-    sm: 'text-[11.5px] sm:text-xs md:text-[12.5px] font-semibold leading-tight line-clamp-1 sm:line-clamp-2 max-w-[240px] sm:max-w-xs md:max-w-md',
+    sm: 'text-xs sm:text-[12.5px] md:text-[13px] font-semibold leading-snug line-clamp-1 sm:line-clamp-2 max-w-[220px] sm:max-w-xs md:max-w-[280px]',
     md: 'text-xs sm:text-sm font-semibold leading-snug',
     lg: 'text-sm sm:text-base font-semibold leading-snug',
   }[size];
@@ -95,7 +98,7 @@ const officialTitle = {
       <div className="flex flex-col text-start justify-center min-w-0">
         <span
           className={`tracking-tight whitespace-normal ${titleSizeClasses} ${
-            isWhite ? '!text-white' : 'text-slate-900 dark:text-[#F8FAFC]'
+            isWhite ? '!text-white' : 'text-[#0F172A] dark:text-[#F8FAFC]'
           }`}
         >
           {officialTitle}
@@ -106,7 +109,7 @@ const officialTitle = {
             className={`font-medium ${
               size === 'sm' ? 'text-[10px]' : 'text-[11px]'
             } ${
-              isWhite ? '!text-sky-200' : 'text-slate-500'
+              isWhite ? '!text-sky-200' : 'text-slate-500 dark:text-slate-400'
             } leading-tight hidden lg:block truncate mt-0.5`}
           >
             {officialSubtitle}

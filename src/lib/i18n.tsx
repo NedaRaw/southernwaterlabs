@@ -10,39 +10,43 @@ interface LangContextType {
 }
 
 const LangContext = createContext<LangContextType | undefined>(undefined);
-
 export const translations: Record<string, { ar: string; en: string; fr: string }> = {
+
   // Brand
+
   'brand.name': {
     ar: 'المختبرات المركزية لمياه الشرب والخدمات البيئية بالقطاع الجنوبي',
     en: 'Southern Sector Central Water and Environmental Laboratories',
-    fr: 'Laboratoire Central des Eaux et des Services Environnementaux',
+    fr: 'Laboratoires Centraux du Secteur Sud pour les Eaux Potables et les Services Environnementaux',
   },
+
   'brand.tagline': {
     ar: 'دقة التحليل... جودة المياه... سلامة المجتمع',
     en: 'Analytical Precision... Water Quality... Community Safety',
     fr: 'Précision d\'Analyse... Qualité de l\'Eau... Sécurité de la Communauté',
   },
+
   'brand.subtitle': {
     ar: 'المختبرات المركزية والفروع',
     en: 'Central Laboratories & Branches',
     fr: 'Laboratoires Centraux et Agences',
   },
-
   // Nav
   'nav.home': { ar: 'الرئيسية', en: 'Home', fr: 'Accueil' },
   'nav.about': { ar: 'عن المختبرات', en: 'About Us', fr: 'À Propos' },
   'nav.labs': { ar: 'المختبرات', en: 'Laboratories', fr: 'Laboratoires' },
   'nav.services': { ar: 'الخدمات', en: 'Services', fr: 'Services' },
+  'nav.mobileLabs': { ar: 'الوحدات المتنقلة', en: 'Mobile Laboratory Units', fr: 'Unités Mobiles' },
+  'nav.mobileLaboratories': { ar: 'الوحدات المتنقلة', en: 'Mobile Laboratory Units', fr: 'Unités Mobiles' },
   'nav.news': { ar: 'الأخبار', en: 'News', fr: 'Actualités' },
   'nav.contact': { ar: 'تواصل معنا', en: 'Contact', fr: 'Contact' },
   'nav.admin': { ar: 'بوابة الموظفين', en: 'Employee Portal', fr: 'Portail Employés' },
   'nav.allLabs': { ar: 'كافة المختبرات والفروع', en: 'All Laboratories & Branches', fr: 'Tous les Laboratoires et Agences' },
   'nav.allServices': { ar: 'استعراض كافة الخدمات', en: 'View All Services', fr: 'Voir Tous les Services' },
-  'nav.asir': { ar: 'مختبر عسير المركزي', en: 'Asir Central Laboratory', fr: 'Laboratoire Central d\'Asir' },
+  'nav.asir': { ar: 'مختبر عسير المركزي', en: 'Asir Central Laboratory', fr: ' Laboratoire Central d\'Asir' },
   'nav.najran': { ar: 'مختبر نجران المركزي', en: 'Najran Central Laboratory', fr: 'Laboratoire Central de Najran' },
-  'nav.baha': { ar: 'مختبر الباحة المركزي', en: 'Al-Baha Central Laboratory', fr: 'Laboratoire Central d\'Al-Baha' },
-  'nav.jazan': { ar: 'مختبر جازان المركزي', en: 'Jazan Central Laboratory', fr: 'Laboratoire Central de Jazan' },
+  'nav.baha': { ar: 'مختبر الباحة المركزي', en: 'Al-Baha Central Laboratory', fr: ' Laboratoire Central d\'Al-Baha' },
+  'nav.jazan': { ar: 'مختبر جازان المركزي', en: 'Jazan Central Laboratory', fr: ' Laboratoire Central de Jazan' },
   'svc.drinking': { ar: 'تحليل مياه الشرب', en: 'Drinking Water Testing', fr: 'Analyse de l\'Eau Potable' },
   'svc.chemical': { ar: 'التحاليل الكيميائية', en: 'Chemical Analysis', fr: 'Analyses Chimiques' },
   'svc.physical': { ar: 'التحاليل الفيزيائية', en: 'Physical Analysis', fr: 'Analyses Physiques' },
@@ -74,7 +78,7 @@ export const translations: Record<string, { ar: string; en: string; fr: string }
     fr: 'Précision d\'Analyse... Qualité de l\'Eau... Sécurité de la Communauté',
   },
   'hero.desc': {
-    ar: 'نظام مخبري مؤسسي متكامل يضم المختبرات المركزية وفروعها الميدانية في عسير، نجران، الباحة، وجازان، لإجراء أدق الفحوصات الكيميائية والفيزيائية والميكروبيولوجية وضمان أعلى معايير السلامة البيئية.',
+    ar: 'نظام مخبري مؤسسي متكامل يضم المختبراتالمركزية وفروعها الميدانية في عسير، نجران، الباحة، وجازان، لإجراء أدق الفحوصات الكيميائية والفيزيائية والميكروبيولوجية وضمان أعلى معايير السلامة البيئية.',
     en: 'An integrated institutional laboratory network comprising central laboratories and field branches across Asir, Najran, Al-Baha, and Jazan, conducting precision chemical, physical, and microbiological water testing under international standards.',
     fr: 'Un réseau institutionnel intégré comprenant les laboratoires centraux et leurs agences en Asir, Najran, Al-Baha et Jazan, réalisant des analyses chimiques, physiques et microbiologiques de pointe.',
   },
@@ -111,7 +115,7 @@ export const translations: Record<string, { ar: string; en: string; fr: string }
 
   // Network section
   'network.badge': { ar: 'الهيكل والانتشار الجغرافي', en: 'Network & Coverage', fr: 'Réseau et Couverture' },
-  'network.title': { ar: 'المختبرات المركزية والفروع التابعة', en: 'Central Centers & Affiliated Branches', fr: 'Centres Centraux et Agences Régionales' },
+  'network.title': { ar: 'المختبرات المركزية والفروع التابعة', en: 'Central Centers & Affiliated Branches', fr: 'Centres Centraux et Agences Centrales' },
   'network.desc': {
     ar: 'شبكة مترابطة تغطي كافة محافظات ومناطق القطاع الجنوبي (عسير، نجران، الباحة، جازان) لضمان الفحص السريع والدقيق.',
     en: 'An interconnected network covering all southern governorates and regions (Asir, Najran, Al-Baha, Jazan) ensuring rapid and reliable testing.',
@@ -119,8 +123,8 @@ export const translations: Record<string, { ar: string; en: string; fr: string }
   },
   'network.branches': { ar: 'الفروع التابعة', en: 'Affiliated Branches', fr: 'Filiales Rattachées' },
   'network.noBranches': { ar: 'لا توجد فروع تابعة حالياً', en: 'No affiliated branches currently', fr: 'Aucune agence rattachée actuellement' },
-  'network.independent': { ar: 'مركز إقليمي مستقل', en: 'Independent Regional Center', fr: 'Centre Régional Autonome' },
-  'network.central': { ar: 'مختبر مركزي', en: 'Central Laboratory', fr: 'Laboratoire Central' },
+  'network.independent': { ar: 'مركز إقليمي مستقل', en: 'Independent Central Center', fr: 'Centre Central Autonome' },
+  'network.central': { ar: 'مختبر مركزي', en: 'Central Laboratory', fr: ' Laboratoire Central' },
   'network.details': { ar: 'عرض تفاصيل المختبر', en: 'View Center Details', fr: 'Voir les Détails du Centre' },
   'network.branch': { ar: 'فرع تابع', en: 'Branch', fr: 'Filiale' },
 
@@ -158,7 +162,7 @@ export const translations: Record<string, { ar: string; en: string; fr: string }
     en: 'Conveniently schedule visits, submit enquiries, and share valuable feedback through our unified portal.',
     fr: 'Planifiez vos visites, soumettez vos demandes et partagez vos avis via notre plateforme unique.',
   },
-  'cta.register.desc': { ar: 'احجز موعد زيارة للمختبر المركزي أو أي فرع ترغب به', en: 'Schedule a visit to any central lab or regional branch easily', fr: 'Réservez un créneau de visite dans nos laboratoires' },
+  'cta.register.desc': { ar: 'احجز موعد زيارة للمختبرالمركزي أو أي فرع ترغب به', en: 'Schedule a visit to any central lab or Central branch easily', fr: 'Réservez un créneau de visite dans nos laboratoires' },
   'cta.survey.desc': { ar: 'تقييمك لجودة الخدمة وسرعة الاستجابة يساهم في التحسين المستمر', en: 'Your evaluation helps us continually elevate service quality and response speed', fr: 'Vos retours nous aident à améliorer constamment nos prestations' },
   'cta.enquiry.desc': { ar: 'استفسر عن الفحوصات الفنية والمتطلبات وإصدار النتائج', en: 'Ask questions regarding testing protocols, sample submission, or reports', fr: 'Posez vos questions sur les analyses, échantillons ou résultats' },
   'cta.start': { ar: 'البدء الآن', en: 'Get Started', fr: 'Commencer' },
@@ -209,7 +213,7 @@ export const translations: Record<string, { ar: string; en: string; fr: string }
   'register.emailPlaceholder': { ar: 'name@example.com', en: 'name@example.com', fr: 'nom@exemple.com' },
   'register.date': { ar: 'تاريخ الزيارة المقترح', en: 'Proposed Visit Date', fr: 'Date Prévue de Visite' },
   'register.lab': { ar: 'المختبر المستهدف', en: 'Target Laboratory', fr: 'Laboratoire Choisi' },
-  'register.selectBranch': { ar: '-- المختبر الرئيسي (بدون فرع) --', en: '-- Central Laboratory (Main) --', fr: '-- Laboratoire Central (Sans agence) --' },
+  'register.selectBranch': { ar: '-- المختبر الرئيسي (بدون فرع) --', en: '-- Central Laboratory (Main) --', fr: '--  Laboratoire Central (Sans agence) --' },
   'register.purpose': { ar: 'الغرض من الزيارة', en: 'Purpose of Visit', fr: 'Motif de la Visite' },
   'register.purposePlaceholder': { ar: 'مثال: تسليم عينات مياه، فحص مشترك، تدريب، جولة تفقدية...', en: 'e.g. Sample delivery, joint inspection, training, inspection tour...', fr: 'ex: Dépôt d\'échantillons, contrôle conjoint, formation, audit...' },
   'register.notes': { ar: 'ملاحظات أو متطلبات إضافية (اختياري)', en: 'Additional Notes or Requirements (optional)', fr: 'Remarques ou Besoins Particuliers (facultatif)' },
@@ -365,8 +369,6 @@ export const translations: Record<string, { ar: string; en: string; fr: string }
   },
   'enquiry.name': { ar: 'الاسم الكامل', en: 'Full Name', fr: 'Nom Complet' },
   'enquiry.contact': { ar: 'معلومات التواصل (رقم الهاتف أو البريد)', en: 'Contact Details (phone or email)', fr: 'Coordonnées (téléphone ou email)' },
-  'enquiry.subject': { ar: 'موضوع الاستفسار', en: 'Subject', fr: 'Objet de la Demande' },
-  'enquiry.message': { ar: 'تفاصيل الاستفسار أو الرسالة', en: 'Enquiry Message / Description', fr: 'Message / Précisions' },
   'enquiry.submit': { ar: 'إرسال الاستفسار', en: 'Send Enquiry', fr: 'Envoyer la Demande' },
   'enquiry.submitting': { ar: 'جاري الإرسال...', en: 'Sending...', fr: 'Envoi en cours...' },
   'enquiry.success': { ar: 'تم إرسال استفسارك بنجاح!', en: 'Your Enquiry Was Sent Successfully!', fr: 'Votre Demande a été Envoyée avec Succès !' },
@@ -378,7 +380,7 @@ export const translations: Record<string, { ar: string; en: string; fr: string }
   'enquiry.error': { ar: 'حدث خطأ أثناء إرسال الاستفسار. يرجى المحاولة لاحقاً.', en: 'An error occurred while sending your enquiry. Please try again later.', fr: 'Une erreur s\'est produite. Veuillez réessayer ultérieurement.' },
 
   // Admin
-  'admin.title': { ar: 'لوحة التحكم المركزية', en: 'Central Management Dashboard', fr: 'Tableau de Bord Central' },
+  'admin.title': { ar: 'لوحة التحكمالمركزية', en: 'Central Management Dashboard', fr: 'Tableau de Bord Central' },
   'admin.login': { ar: 'تسجيل دخول المسؤولين', en: 'Admin Portal Login', fr: 'Connexion Espace Administrateur' },
   'admin.username': { ar: 'اسم المستخدم', en: 'Username', fr: 'Nom d\'Utilisateur' },
   'admin.password': { ar: 'كلمة المرور', en: 'Password', fr: 'Mot de Passe' },
@@ -471,7 +473,7 @@ export const translations: Record<string, { ar: string; en: string; fr: string }
   // About page
   'aboutPage.title': { ar: 'عن منظومة المختبرات المركزية لمياه الشرب والخدمات البيئية بالقطاع الجنوبي', en: 'About Southern Sector Water Laboratories', fr: 'À Propos des Laboratoires de l\'Eau du Secteur Sud' },
   'aboutPage.desc': {
-    ar: 'شبكة متطورة تضم 4 مختبرات مركزية كبرى و18 فرعاً ومحطة مراقبة منتشرة في مناطق عسير ونجران والباحة وجازان، تعمل على فحص وضمان سلامة وجودة مياه الشرب والمياه الموزعة وفق أحدث المعايير الدولية والوطنية.',
+    ar: 'شبكة متطورة تضم 4 مختبرات مركزية كبرى و 18 فرعاً ومحطة مراقبة منتشرة في مناطق عسير ونجران والباحة وجازان، تعمل على فحص وضمان سلامة وجودة مياه الشرب والمياه الموزعة وفق أحدث المعايير الدولية والوطنية.',
     en: 'An advanced network comprising 4 central laboratory hubs and 18 branches and monitoring stations across Asir, Najran, Al-Baha, and Jazan, ensuring drinking water safety and compliance with top international and national standards.',
     fr: 'Un réseau moderne comprenant 4 grands pôles de laboratoires centraux et 18 agences et stations de surveillance en Asir, Najran, Al-Baha et Jazan, garantissant la salubrité de l\'eau potable selon les normes internationales.',
   },
@@ -484,8 +486,8 @@ export const translations: Record<string, { ar: string; en: string; fr: string }
   'aboutPage.vision': { ar: 'رؤيتنا', en: 'Our Vision', fr: 'Notre Vision' },
   'aboutPage.visionDesc': {
     ar: 'أن نكون المرجع الرائد والموثوق إقليمياً في مجال تحاليل المياه وتقييم الجودة وتطبيق أعلى معايير الاعتماد المخبري العالمي.',
-    en: 'To stand as the leading and most trusted regional authority in water analysis, quality assessment, and internationally recognized accreditation.',
-    fr: 'Être l\'autorité de référence régionale la plus fiable en matière d\'analyses de l\'eau, de contrôle qualité et de conformité aux standards internationaux.',
+    en: 'To stand as the leading and most trusted Central authority in water analysis, quality assessment, and internationally recognized accreditation.',
+    fr: 'Être l\'autorité de référence Centrale la plus fiable en matière d\'analyses de l\'eau, de contrôle qualité et de conformité aux standards internationaux.',
   },
   'aboutPage.values': { ar: 'قيمنا ومبادئنا الأساسية', en: 'Our Core Values', fr: 'Nos Valeurs Fondamentales' },
   'aboutPage.quality': { ar: 'الدقة والجودة', en: 'Accuracy & Quality', fr: 'Précision & Qualité' },
@@ -503,7 +505,8 @@ export const translations: Record<string, { ar: string; en: string; fr: string }
 
   // Labs page
   'labs.badge': { ar: 'شبكة المختبرات', en: 'Laboratory Network', fr: 'Réseau de Laboratoires' },
-  'labs.title': { ar: 'المختبرات المركزية والفروع', en: 'Central Centers & Branches', fr: 'Centres Centraux et Agences' },
+  'labs.title': { ar: 'المختبرات المركزية والفروع',   en: 'Central Laboratories & Affiliated Branches',
+  fr: 'Laboratoires Centraux et Agences Affiliées' },
   'labs.desc': {
     ar: 'استعرض كافة المختبرات المركزية والفروع التابعة لها في مناطق عسير، نجران، الباحة، وجازان مع تفاصيل القدرات وأرقام الاتصال.',
     en: 'Browse all central laboratories and affiliated branches across Asir, Najran, Al-Baha, and Jazan with capabilities and contact details.',
@@ -524,7 +527,7 @@ export const translations: Record<string, { ar: string; en: string; fr: string }
   'detail.map': { ar: 'عرض الموقع على الخريطة', en: 'View Location on Map', fr: 'Voir sur Google Maps' },
   'detail.registerVisit': { ar: 'حجز زيارة للمختبر', en: 'Book a Lab Visit', fr: 'Réserver une Visite' },
   'detail.backToLabs': { ar: 'العودة إلى قائمة المختبرات', en: 'Back to All Laboratories', fr: 'Retour à la Liste des Laboratoires' },
-  'detail.parentCenter': { ar: 'المختبر المركزي التابع له', en: 'Parent Central Laboratory', fr: 'Laboratoire Central de Rattachement' },
+  'detail.parentCenter': { ar: 'المختبر المركزي التابع له', en: 'Parent Central Laboratory', fr: ' Laboratoire Central de Rattachement' },
   'detail.backToCenter': { ar: 'العودة إلى المركز الرئيسي', en: 'Back to Central Center', fr: 'Retour au Centre Principal' },
   'detail.allLabs': { ar: 'كافة المختبرات', en: 'All Laboratories', fr: 'Tous les Laboratoires' },
   'detail.quickActions': { ar: 'روابط وإجراءات سريعة', en: 'Quick Actions', fr: 'Actions Rapides' },
