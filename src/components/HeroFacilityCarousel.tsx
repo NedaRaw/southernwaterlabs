@@ -276,20 +276,20 @@ export default function HeroFacilityCarousel() {
                 {/* Micro Action Link to Laboratory Profile */}
                 <div className="flex items-center justify-between pt-2 border-t border-white/10">
                   <div className="flex items-center gap-2">
-                    <span className="text-[11px] text-slate-400">
+                    <span className="text-[11px] text-slate-300 font-semibold">
                       {currentSlide.stats.label[lang] || currentSlide.stats.label.ar}:
                     </span>
-                    <span className="text-xs font-black text-cyan-300">
+                    <span className="text-xs font-black text-white px-2 py-0.5 rounded bg-blue-600/60 border border-blue-400/40">
                       {currentSlide.stats.val}
                     </span>
                   </div>
 
                   <Link
                     to={currentSlide.link}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/15 hover:bg-cyan-600/80 text-white text-xs font-bold transition-all border border-white/20 hover:border-cyan-400/40"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/15 hover:bg-blue-600 text-white text-xs font-bold transition-all border border-white/20 hover:border-blue-400/60"
                   >
                     <span>{lang === 'ar' ? 'استعراض المركز' : 'View Center'}</span>
-                    <Arrow className="w-3 h-3 text-cyan-200" />
+                    <Arrow className="w-3 h-3 text-white" />
                   </Link>
                 </div>
               </div>

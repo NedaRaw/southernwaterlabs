@@ -207,11 +207,11 @@ const SAMPLE_ACTIVITY_LAST_MONTH: ActivityDataPoint[] = [
   { period: 'Week 4', arPeriod: 'الأسبوع الرابع', frPeriod: 'Semaine 4', chemical: 360, microbiological: 480, physical: 226, total: 1066 },
 ];
 
-const LAB_REGIONAL_ACTIVITY = [
-  { name: 'Asir Regional Lab', arName: 'مختبر عسير الإقليمي', frName: 'Lab Régional Asir', samples: 1420, completed: 1395, compliance: '99.6%' },
-  { name: 'Najran Regional Lab', arName: 'مختبر نجران الإقليمي', frName: 'Lab Régional Najran', samples: 1180, completed: 1162, compliance: '99.3%' },
-  { name: 'Al-Baha Regional Lab', arName: 'مختبر الباحة الإقليمي', frName: 'Lab Régional Al-Baha', samples: 890, completed: 875, compliance: '99.5%' },
-  { name: 'Jazan Regional Lab', arName: 'مختبر جازان الإقليمي', frName: 'Lab Régional Jazan', samples: 966, completed: 948, compliance: '99.1%' },
+const LAB_Central_ACTIVITY = [
+  { name: 'Asir Central Laboratorie', arName: 'مختبر عسير المركزي', frName: 'Laboratoire Central Asir', samples: 1420, completed: 1395, compliance: '99.6%' },
+  { name: 'Najran Central Laboratorie', arName: 'مختبر نجران المركزي', frName: 'Laboratoire Central Najran', samples: 1180, completed: 1162, compliance: '99.3%' },
+  { name: 'Al-Baha Central Laboratorie', arName: 'مختبر الباحة المركزي', frName: 'Laboratoire Central Al-Baha', samples: 890, completed: 875, compliance: '99.5%' },
+  { name: 'Jazan Central Laboratorie', arName: 'مختبر جازان المركزي', frName: 'Laboratoire Central Jazan', samples: 966, completed: 948, compliance: '99.1%' },
 ];
 
 
@@ -1609,14 +1609,12 @@ export default function Admin() {
                         ? 'Tableau de bord'
                         : 'Admin Portal'}
                   </h1>
-
                   <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-blue-500/15 text-blue-300 border border-blue-400/25">
-                    {lang === 'ar' ? 'المختبرات المركزية' : 'Central Labs'}
+                    {lang === 'ar' ? 'المختبرات المركزية' : 'Central Laboratories'}
                   </span>
                 </div>
               </div>
             </div>
-
             {/* CENTER: Segmented Navigation Control (Desktop) */}
             {loggedIn && (
               <nav
@@ -1755,7 +1753,7 @@ export default function Admin() {
                     ? 'لوحة إدارة المختبرات المركزية'
                     : lang === 'fr'
                       ? 'Administration des laboratoires centraux'
-                      : 'Central Laboratories Administration'}
+                      : 'Central Laboratorieoratories Administration'}
                 </p>
               </div>
 
@@ -2191,10 +2189,10 @@ export default function Admin() {
                     </div>
                     <p className="text-xs text-slate-500 mt-1">
                       {lang === 'ar'
-                        ? 'معدل العينات التي تمت معالجتها وفحصها أسبوعياً وتوزيعها حسب التخصص والمختبر الإقليمي'
+                        ? 'معدل العينات التي تمت معالجتها وفحصها أسبوعياً وتوزيعها حسب التخصص والمختبر المركزي'
                         : lang === 'fr'
                           ? 'Volume hebdomadaire des échantillons traités par type d’analyse et par centre régional'
-                          : 'Weekly sample processing volume categorized by analysis type and regional laboratory'}
+                          : 'Weekly sample processing volume categorized by analysis type and Central Laboratorieoratory'}
                     </p>
                   </div>
 
@@ -2278,17 +2276,17 @@ export default function Admin() {
                     </div>
                   </div>
 
-                  {/* Regional Laboratory Breakdown */}
+                  {/* Central Laboratorieoratory Breakdown */}
                   <div className="lg:col-span-4 bg-slate-50 rounded-xl p-4 border border-slate-100">
                     <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">
                       {lang === 'ar'
-                        ? 'توزيع العينات حسب المختبر الإقليمي'
+                        ? 'توزيع العينات حسب المختبر المركزي'
                         : lang === 'fr'
                           ? 'Échantillons par Laboratoire Régional'
-                          : 'Throughput by Regional Laboratory'}
+                          : 'Throughput by Central Laboratorieoratory'}
                     </h4>
                     <div className="space-y-3">
-                      {LAB_REGIONAL_ACTIVITY.map((lab) => (
+                      {LAB_Central_ACTIVITY.map((lab) => (
                         <div key={lab.name} className="bg-white p-3 rounded-lg border border-slate-200/70 shadow-2xs">
                           <div className="flex items-center justify-between text-xs mb-1.5">
                             <span className="font-semibold text-slate-800">

@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
+
 import { Link } from 'react-router-dom';
+
 import {
   Truck,
   ShieldCheck,
@@ -9,545 +11,24 @@ import {
   FlaskConical,
   Award,
   ChevronRight,
-  ChevronLeft,
   UserPlus,
   MessageSquare,
   Building2,
   Sparkles,
   Info,
-  Maximize2,
-  ZoomIn,
-  ZoomOut,
-  RotateCcw,
-  X,
-  ExternalLink,
-  Layers,
-  MapPin,
   Compass,
   FileCheck,
+  ArrowDown,
+  ArrowUp,
 } from 'lucide-react';
+
 import { useLang } from '@/lib/i18n';
+
 import Breadcrumb from '@/components/Breadcrumb';
-import { siteMedia } from '@/data/siteMedia';
 
-/* -------------------------------------------------------------------------- */
-/* Types & Interfaces                                                         */
-/* -------------------------------------------------------------------------- */
-
-type VisualCategory = 'all' | 'exterior' | 'rear' | 'interior' | 'sampling' | 'equipment';
-
-interface GalleryItem {
-  id: string;
-  category: 'exterior' | 'rear' | 'interior' | 'sampling' | 'equipment';
-  labId: 'asir' | 'baha' | 'jazan' | 'najran';
-  title: { ar: string; en: string; fr: string };
-  desc: { ar: string; en: string; fr: string };
-  image: string;
-  isReal: boolean;
-}
-
-interface MobileLabData {
-  id: 'asir' | 'baha' | 'jazan' | 'najran';
-  name: { ar: string; en: string; fr: string };
-  region: { ar: string; en: string; fr: string };
-  environment: { ar: string; en: string; fr: string };
-  heroImage: string;
-  isRealPhoto: boolean;
-  vehicleLabel: {
-    clusterAr: string;
-    clusterEn: string;
-    labAr: string;
-    labEn: string;
-    badgeAr: string;
-    badgeEn: string;
-  };
-  coverage: { ar: string; en: string; fr: string };
-  keyMission: { ar: string; en: string; fr: string };
-  specs: { ar: string; en: string; fr: string }[];
-  equipment: { ar: string; en: string; fr: string }[];
-  labPath: string;
-}
-
-/* -------------------------------------------------------------------------- */
-/* Regional Mobile Laboratories Data                                          */
-/* -------------------------------------------------------------------------- */
-
-const MOBILE_LABS: MobileLabData[] = [
-  {
-    id: 'asir',
-    name: {
-      ar: 'المختبر المتنقل لمختبر عسير المركزي',
-      en: 'Asir Central Laboratory Mobile Unit',
-      fr: 'Unité Mobile du Laboratoire Central d\'Asir',
-    },
-    region: { ar: 'منطقة عسير', en: 'Asir Region', fr: 'Région d\'Asir' },
-    vehicleLabel: {
-      clusterAr: 'إدارة مختبرات القطاع الجنوبي',
-      clusterEn: 'Southern Cluster Laboratories Management',
-      labAr: 'مختبر عسير المركزي',
-      labEn: 'Asir Central Laboratory',
-      badgeAr: 'المختبر المتنقل',
-      badgeEn: 'Mobile Laboratory',
-    },
-    environment: {
-      ar: 'المرتفعات الصخرية الجبلية الداكنة، الجروف الوعرة، السدود المائية وممرات الأودية الجبلية شديدة الانحدار في جنوب غرب المملكة.',
-      en: 'Rugged dark rocky mountain ridges, steep granite cliffs, dam reservoirs, and winding mountain valley passes of southwestern Saudi Arabia.',
-      fr: 'Massifs rocheux sombres, falaises escarpées, barrages hydrographiques et défilés montagneux du sud-ouest saoudien.',
-    },
-    heroImage: siteMedia.mobileLaboratories.asir,
-    isRealPhoto: false,
-    coverage: {
-      ar: 'أبها، خميس مشيط، أحد رفيدة، محايل عسير، النماص، تنومة، رجال ألمع، بلقرن، تثليث، بيشة، سراة عبيدة، ظهران الجنوب',
-      en: 'Abha, Khamis Mushait, Ahad Rafidah, Muhayil, Al-Namas, Tanomah, Rijal Almaa, Balqarn, Tathlith, Bisha, Sarat Abidah, Dhahran Al-Janub',
-      fr: 'Abha, Khamis Mushait, Ahad Rafidah, Muhayil, Al-Namas, Tanomah, Rijal Almaa, Balqarn, Tathlith, Bicha, Sarat Abidah',
-    },
-    keyMission: {
-      ar: 'الفحص الميداني الفوري لمصادر السدود، محطات الضخ الجبلية، مراقبة شبكات القرى النائية والتدخل السريع خلال فترات الطوارئ والمواسم السياحية.',
-      en: 'Immediate potability audits at dam reservoirs, mountain pumping stations, rural networks, and swift response during seasonal surges.',
-      fr: 'Contrôle immédiat des barrages, stations de pompage en altitude, réseaux isolés et surveillance renforcée durant les saisons d\'affluence.',
-    },
-    specs: [
-      { ar: 'هيكل فان بيجو بوكسر / فيات مخصص للتضاريس الجبلية الصخرية الوعرة', en: 'Heavy-duty laboratory chassis engineered for rugged mountain gradients', fr: 'Châssis renforcé pour routes et pistes de montagne' },
-      { ar: 'محطة طاقة هجينة مستقلة مع بطاريات ليثيوم 24 ساعة ومولد صامت', en: 'Hybrid silent power station with 24h continuous lithium-ion storage', fr: 'Station d\'énergie hybride insonorisée avec autonomie lithium 24h' },
-      { ar: 'نظام تكييف حراري دقيق لحماية كواشف الفحص والأجهزة الحساسة', en: 'Precision dual climate control safeguarding analytical sensors', fr: 'Double climatisation régulée protégeant les instruments analytiques' },
-      { ar: 'منظومة اتصال مشفرة بالأقمار الصناعية لنقل تقارير الفحص فورياً', en: 'Encrypted satellite telemetry uploading real-time certified reports', fr: 'Télétransmission satellite sécurisée des résultats d\'analyses' },
-    ],
-    equipment: [
-      { ar: 'مقياس الطيف الضوئي المحمول متعدد المؤشرات (Spectrophotometer)', en: 'Multi-parameter portable field spectrophotometer', fr: 'Spectrophotomètre de terrain multi-paramètres' },
-      { ar: 'جهاز رقمي معتمد لقياس العكارة (Turbidimeter NTU)', en: 'High-precision certified nephelometric turbidimeter', fr: 'Turbidimètre néphélométrique certifié de haute précision' },
-      { ar: 'حقيبة قياس الرقم الهيدروجيني (pH)، التوصيلية، والكلور المتبقي', en: 'Integrated pH, conductivity (EC), and free chlorine electrochemical kit', fr: 'Kit combiné pH, conductivité (EC) et chlore résiduel libre' },
-      { ar: 'حاضنة ميكروبيولوجية معقمة مدمجة للفحص الجرثومي السريع', en: 'Compact sterile onboard incubator for fast bacteriological screening', fr: 'Incubateur microbiologique stérile pour dépistage bactérien rapide' },
-    ],
-    labPath: '/laboratories/asir',
-  },
-  {
-    id: 'baha',
-    name: {
-      ar: 'المختبر المتنقل لمختبر الباحة المركزي',
-      en: 'Al-Baha Central Laboratory Mobile Unit',
-      fr: 'Unité Mobile du Laboratoire Central d\'Al-Baha',
-    },
-    region: { ar: 'منطقة الباحة', en: 'Al-Baha Region', fr: 'Région d\'Al-Baha' },
-    vehicleLabel: {
-      clusterAr: 'إدارة مختبرات القطاع الجنوبي',
-      clusterEn: 'Southern Cluster Laboratories Management',
-      labAr: 'مختبر الباحة المركزي',
-      labEn: 'Al-Baha Central Laboratory',
-      badgeAr: 'المختبر المتنقل',
-      badgeEn: 'Mobile Laboratory',
-    },
-    environment: {
-      ar: 'جبال السراة الصخرية، جروف تهامة الوعرة، الوديان والمنحدرات التضاريسية الطبيعية وحقول الآبار الجوفية للقطاع الجنوبي الغربي.',
-      en: 'Rocky Sarat mountain escarpments, Tihama descent corridors, arid rocky valleys, and deep rural wellfields.',
-      fr: 'Escarpements rocheux de la Sarate, descentes vers la Tihama, vallées pierreuses et forages hydrogéologiques.',
-    },
-    heroImage: siteMedia.mobileLaboratories.baha,
-    isRealPhoto: false,
-    coverage: {
-      ar: 'مدينة الباحة، بلجرشي، المندق، المخواة، قلوة، العقيق، الحجرة، غامد الزناد، بني حسن',
-      en: 'Al-Baha City, Baljurashi, Al-Mandaq, Al-Mikhwah, Qilwah, Al-Aqiq, Al-Hajrah, Ghamid Al-Zinad, Bani Hassan',
-      fr: 'Ville d\'Al-Baha, Baljurachi, Al-Mandaq, Al-Mikhwah, Qilwah, Al-Aqiq, Al-Hajrah, Ghamid Al-Zinad, Bani Hassan',
-    },
-    keyMission: {
-      ar: 'مراقبة جودة مياه الآبار الجوفية والسدود بمحافظات السراة وتهامة، والتحقق الدوري من كفاءة محطات التنقية والخزانات التجميعية.',
-      en: 'Groundwater wellhead potability audits, surface dam surveillance, and treatment plant verification across Sarat and Tihama.',
-      fr: 'Contrôle de la potabilité des puits, barrages et suivi régulier des stations d\'épuration entre la Sarate et la Tihama.',
-    },
-    specs: [
-      { ar: 'تجهيزات داخلية مقاومة للمواد الكيميائية من الفولاذ المقاوم للصدأ 316L', en: 'Full chemical-resistant 316L stainless steel counters and casework', fr: 'Plans de travail et mobilier en inox 316L résistant aux acides' },
-      { ar: 'وحدة غسيل وتعقيم ميدانية متكاملة مع خزان مياه مقطرة فائق النقاوة', en: 'Integrated sterile wash station with high-purity deionized water tank', fr: 'Poste de lavage stérile et réserve d\'eau déminéralisée haute pureté' },
-      { ar: 'ثلاجة عينات مدمجة مع نظام توثيق رقمي لدرجات الحرارة (+4°C)', en: 'Digital temperature-logged sample preservation cooler (+4°C standard)', fr: 'Réfrigérateur d\'échantillons avec traçabilité thermique en continu (+4°C)' },
-      { ar: 'منصة استقرار هيدروليكية لضمان اتزان الأجهزة الدقيقة أثناء الفحص الميداني', en: 'Hydraulic leveling pads ensuring benchtop measurement stability', fr: 'Vérins de stabilisation hydraulique assurant la planéité des mesures' },
-    ],
-    equipment: [
-      { ar: 'جهاز التحليل الضوئي الميداني المباشر للأيونات والعناصر', en: 'Field-rugged direct-reading photometer for chemical ions', fr: 'Photomètre de terrain à lecture directe pour ions chimiques' },
-      { ar: 'أقطاب قياس الأكسجين الذائب وجهد الأكسدة والاختزال (DO & ORP)', en: 'Dissolved oxygen (DO) and oxidation-reduction potential probes', fr: 'Sondes d\'oxygène dissous (OD) et de potentiel redox' },
-      { ar: 'نظام الترشيح الغشائي المعقم المحمول للكشف عن البكتيريا القولونية', en: 'Sterile portable vacuum filtration manifold for fecal coliform testing', fr: 'Rampe de filtration sous vide stérile pour coliformes fécaux' },
-      { ar: 'محلل سريع للمواد العضوية والمؤشرات الفيزيوكيميائية', en: 'Rapid organic index and water quality physicochemical meter', fr: 'Analyseur rapide d\'indicateurs organiques et physico-chimiques' },
-    ],
-    labPath: '/laboratories/al-baha',
-  },
-  {
-    id: 'jazan',
-    name: {
-      ar: 'المختبر المتنقل لمختبر جازان المركزي',
-      en: 'Jazan Central Laboratory Mobile Unit',
-      fr: 'Unité Mobile du Laboratoire Central de Jazan',
-    },
-    region: { ar: 'منطقة جازان', en: 'Jazan Region', fr: 'Région de Jazan' },
-    vehicleLabel: {
-      clusterAr: 'إدارة مختبرات القطاع الجنوبي',
-      clusterEn: 'Southern Cluster Laboratories Management',
-      labAr: 'مختبر جازان المركزي',
-      labEn: 'Jazan Central Laboratory',
-      badgeAr: 'المختبر المتنقل',
-      badgeEn: 'Mobile Laboratory',
-    },
-    environment: {
-      ar: 'السهول الساحلية الجنوبية، الأراضي شبه القاحلة، التضاريس البركانية الصخرية الداكنة، وممرات خطوط نقل مياه التحلية والشبكات.',
-      en: 'Southern coastal plains, semi-arid mineral terrain, distant volcanic rocky ridges, and coastal desalination pipeline corridors.',
-      fr: 'Plaines côtières méridionales, terrains semi-arides, reliefs volcaniques sombres et conduites d\'eau dessalée.',
-    },
-    heroImage: siteMedia.mobileLaboratories.jazan,
-    isRealPhoto: false,
-    coverage: {
-      ar: 'مدينة جازان، صبيا، أبو عريش، صامطة، بيش، الدرب، ضمد، الريث، فرسان، فيفاء، العارضة، الدائر',
-      en: 'Jazan City, Sabya, Abu Arish, Samtah, Baish, Al-Darb, Damad, Al-Reeth, Farasan Islands, Fayfa, Al-Aridah, Al-Dair',
-      fr: 'Ville de Jazan, Sabya, Abou Arich, Samtah, Baish, Al-Darb, Damad, Al-Reeth, Îles Farasan, Fayfa, Al-Aridah',
-    },
-    keyMission: {
-      ar: 'مراقبة خطوط النقل الساحلية، جودة مياه محطات التحلية، فحص التوصيلية والملوحة بمصادر المياه، والاستجابة الميدانية السريعة لجزر فرسان والمحافظات الجبلية.',
-      en: 'Continuous audit of coastal transmission lines, desalination potability, salinity (TDS), and field support for Farasan and inland areas.',
-      fr: 'Surveillance des conduites côtières, dessalement, salinité/conductivité et intervention rapide vers les îles Farasan et les zones amont.',
-    },
-    specs: [
-      { ar: 'طلاء خارجي مقاوم للتآكل المالح والرطوبة الساحلية العالية (Marine Grade)', en: 'Marine-grade anti-corrosive exterior coating and thermal insulation', fr: 'Revêtement extérieur anti-corrosion marine et isolation étanche' },
-      { ar: 'نظام تكييف هواء فائق القوة للعمل بكفاءة حتى 52 درجة مئوية', en: 'Heavy-duty ambient cooling operating reliably up to 52°C heat', fr: 'Climatisation renforcée opérant sans interruption jusqu\'à 52°C' },
-      { ar: 'تغذية كهربائية مزدوجة مع مقبس مباشر بالمحطات ومحول طاقة نقي', en: 'Dual shore-power hookup and pure sine inverter backup system', fr: 'Alimentation double : raccordement direct sur site et onduleur' },
-      { ar: 'مستودع آمن ومحكم للمحاليل الحساسة لدرجات الحرارة المرتفعة', en: 'Thermally insulated lockable storage for temperature-sensitive reagents', fr: 'Compartiments sécurisés et isolés pour réactifs thermo-sensibles' },
-    ],
-    equipment: [
-      { ar: 'جهاز قياس الملوحة والتوصيلية فائق الدقة لمياه التحلية والآبار', en: 'High-precision salinity, TDS, and electrical conductivity analyzer', fr: 'Analyseur haute précision de salinité, TDS et conductivité' },
-      { ar: 'محلل الكلور الكهروكيميائي الفوري (Free & Total Chlorine)', en: 'Real-time electrochemical free and total residual chlorine meter', fr: 'Analyseur électrochimique instantané du chlore résiduel total et libre' },
-      { ar: 'أقطاب قياس الأيونات الانتقائية (فلوريد، نترات، وكلوريد)', en: 'Ion-selective electrode (ISE) probe kit for fluoride, nitrate, chloride', fr: 'Électrodes spécifiques pour fluorures, nitrates et chlorures' },
-      { ar: 'غرفة قراءة ميكروبيولوجية مزودة بالأشعة فوق البنفسجية (UV Cabinet)', en: 'Rapid UV fluorometric cabinet for confirmed E. coli verification', fr: 'Chambre de lecture fluorométrique UV pour confirmation rapide d\'E. coli' },
-    ],
-    labPath: '/laboratories/jazan',
-  },
-  {
-    id: 'najran',
-    name: {
-      ar: 'المختبر المتنقل لمختبر نجران المركزي',
-      en: 'Najran Central Laboratory Mobile Unit',
-      fr: 'Unité Mobile du Laboratoire Central de Najran',
-    },
-    region: { ar: 'منطقة نجران', en: 'Najran Region', fr: 'Région de Najran' },
-    vehicleLabel: {
-      clusterAr: 'إدارة مختبرات القطاع الجنوبي',
-      clusterEn: 'Southern Cluster Laboratories Management',
-      labAr: 'مختبر نجران المركزي',
-      labEn: 'Najran Central Laboratory',
-      badgeAr: 'المختبر المتنقل',
-      badgeEn: 'Mobile Laboratory',
-    },
-    environment: {
-      ar: 'سهول ووديان نجران، البيئات الصحراوية المفتوحة، وحقول آبار المياه الجوفية العميقة على امتداد القطاع الجنوبي.',
-      en: 'Najran valleys, expansive arid plains, and deep sandstone aquifer wellfield corridors across the southern frontier.',
-      fr: 'Oasis et vallées de Najran, plaines désertiques et forages hydrogéologiques profonds du sud saoudien.',
-    },
-    heroImage: siteMedia.mobileLaboratories.najran,
-    isRealPhoto: true,
-    coverage: {
-      ar: 'مدينة نجران، حبونا، شرورة، بدر الجنوب، يدمة، خباش، ثار',
-      en: 'Najran City, Habouna, Sharurah, Badr Al-Janub, Yadmah, Khubash, Thar',
-      fr: 'Ville de Najran, Habouna, Charurah, Badr Al-Janoub, Yadmah, Khubash, Thar',
-    },
-    keyMission: {
-      ar: 'الفحص الميداني لحقول آبار المياه العميقة، محطات المعالجة والتنقية، مراقبة خزانات التوزيع الاستراتيجية، ومسح جودة المياه بالشبكات الحدودية والصحراوية.',
-      en: 'On-site verification of deep aquifer wellheads, treatment facilities, strategic storage reservoirs, and expansive desert transmission corridors.',
-      fr: 'Vérification sur site des forages profonds, réservoirs stratégiques, usines de potabilisation et réseaux d\'alimentation désertiques.',
-    },
-    specs: [
-      { ar: 'أسطول معتمد رسمياً تابع لإدارة مختبرات القطاع الجنوبي (شركة المياه الوطنية)', en: 'Official accredited operational fleet unit under Southern Sector Laboratories', fr: 'Véhicules officiels opérationnels de la direction des laboratoires du Secteur Sud' },
-      { ar: 'مركبات بيجو بوكسر / فيات مجهزة بأعلى المواصفات القياسية للمختبرات الميدانية', en: 'Custom-engineered mobile analytical platform with ISO 17025 configuration', fr: 'Véhicules aménagés selon les normes rigoureuses de laboratoire de terrain' },
-      { ar: 'نظام حفظ وتبريد متكامل للعينات مع كواشف التحاليل السريعة', en: 'Dual cold-chain sample preservation and rapid reagents storage chamber', fr: 'Système complet de chaîne du froid et conservation des réactifs d\'urgence' },
-      { ar: 'طاقم فني متخصص معتمد من أخصائيي الكيمياء والأحياء الدقيقة', en: 'Staffed by certified senior chemists and microbiologists for field audits', fr: 'Équipage de chimistes et microbiologistes certifiés pour audits de terrain' },
-    ],
-    equipment: [
-      { ar: 'أجهزة القياس الطيفي المحمولة لمعايرة العناصر الكيميائية', en: 'Field-rugged spectrophotometers for chemical trace calibration', fr: 'Spectrophotomètres portables pour analyse chimique des traces' },
-      { ar: 'أجهزة قياس العكارة والرقم الهيدروجيني والأملاح الذائبة الكلية', en: 'Certified digital turbidimeters, precision pH, and TDS meters', fr: 'Turbidimètres certifiés, pH-mètres et conductimètres TDS numériques' },
-      { ar: 'معدات أخذ العينات الميدانية المعقمة وسلسلة الحيازة الرقمية', en: 'Sterile sampling apparatus with digital chain of custody logging', fr: 'Matériel de prélèvement stérile avec traçabilité de chaîne de garde' },
-      { ar: 'حقائب التحليل الميكروبيولوجي الفوري للطوارئ والمواسم', en: 'Emergency field microbiological kits with rapid enzymatic confirmation', fr: 'Valises d\'analyses microbiologiques d\'urgence à lecture enzymatique rapide' },
-    ],
-    labPath: '/laboratories/najran',
-  },
-];
-
-/* -------------------------------------------------------------------------- */
-/* Gallery Dataset (5 Visual Categories per Lab)                              */
-/* -------------------------------------------------------------------------- */
-
-const GALLERY_ITEMS: GalleryItem[] = [
-  /* NAJRAN - 100% REAL PHOTOGRAPHS */
-  {
-    id: 'najran-exterior-1',
-    category: 'exterior',
-    labId: 'najran',
-    title: {
-      ar: 'المركبة التشغيلية لمختبر نجران المركزي (منظر خارجي كامل)',
-      en: 'Najran Central Laboratory Mobile Unit (Exterior View)',
-      fr: 'Unité Mobile du Laboratoire Central de Najran (Vue Extérieure)',
-    },
-    desc: {
-      ar: 'صورة حقيقية لمركبة فيات دوكاتو المجهزة رسمياً والمزودة بالهوية المؤسسية لمختبرات مياه الشرب بالقطاع الجنوبي.',
-      en: 'Real photograph of the official Fiat Ducato mobile unit with Southern Sector water laboratories livery.',
-      fr: 'Photographie réelle du véhicule officiel Fiat Ducato arborant la livrée des laboratoires du Secteur Sud.',
-    },
-    image: siteMedia.mobileLaboratories.najran,
-    isReal: true,
-  },
-  {
-    id: 'najran-rear-official',
-    category: 'rear',
-    labId: 'najran',
-    title: {
-      ar: 'الهيكل الخلفي والأبواب لمركبة نجران الرسمية',
-      en: 'Official Rear View & Livery of Najran Mobile Unit',
-      fr: 'Vue Arrière Officielle & Livrée de l\'Unité Mobile de Najran',
-    },
-    desc: {
-      ar: 'صورة مطابقة للواجهة الخلفية للمركبة توضح شعار شركة المياه الوطنية وبيانات إدارة مختبرات القطاع الجنوبي ومختبر نجران المركزي.',
-      en: 'Official rear view showing National Water Company emblem, Southern Cluster Laboratories Management, and Najran Central Lab livery.',
-      fr: 'Vue arrière officielle montrant l\'emblème NWC, la direction des laboratoires du Secteur Sud et le marquage de Najran.',
-    },
-    image: siteMedia.mobileLaboratories.najranRear,
-    isReal: true,
-  },
-  {
-    id: 'najran-rear-1',
-    category: 'rear',
-    labId: 'najran',
-    title: {
-      ar: 'الأبواب الخلفية المفتوحة ومنصة العمل الميداني (مختبر نجران)',
-      en: 'Rear Double Doors Open & Field Working Bay (Najran)',
-      fr: 'Portes Arrière Ouvertes & Baie de Travail de Terrain (Najran)',
-    },
-    desc: {
-      ar: 'صورة حقيقية للأبواب الخلفية المزدوجة تظهر منظومة التثبيت وخزانات العينات والمساحة الداخلية المخصصة للتحاليل.',
-      en: 'Real photograph showing the rear dual-entry doors, sample retention bays, and analytical workspace.',
-      fr: 'Photographie réelle montrant les doubles portes arrière et l\'agencement intérieur du laboratoire.',
-    },
-    image: siteMedia.mobileLaboratories.najranRealPhotos.doors,
-    isReal: true,
-  },
-  {
-    id: 'najran-interior-1',
-    category: 'interior',
-    labId: 'najran',
-    title: {
-      ar: 'المختبر الداخلي ومقاعد العمل من الفولاذ المقاوم للصدأ (نجران)',
-      en: 'Interior Laboratory Bench & Stainless Steel Workstations (Najran)',
-      fr: 'Laboratoire Intérieur & Paillasses en Acier Inoxydable (Najran)',
-    },
-    desc: {
-      ar: 'صورة حقيقية لداخل الوحدة المتنقلة توضح أسطح الفولاذ المقاوم للصدأ، أحواض الغسيل المعقمة، ومواقع الأجهزة التحليلية.',
-      en: 'Real photograph of the mobile lab interior showing stainless steel countertops, washbasin, and test stations.',
-      fr: 'Photographie réelle de l\'intérieur du laboratoire mobile : paillasses inox, évier stérile et postes d\'analyse.',
-    },
-    image: siteMedia.mobileLaboratories.najranRealPhotos.bench,
-    isReal: true,
-  },
-  {
-    id: 'najran-sampling-1',
-    category: 'sampling',
-    labId: 'najran',
-    title: {
-      ar: 'أخصائي المختبر أثناء فحص العينات الميدانية (نجران)',
-      en: 'Certified Chemist Conducting On-Site Field Testing (Najran)',
-      fr: 'Chimiste Certifié Réalisant les Analyses In Situ (Najran)',
-    },
-    desc: {
-      ar: 'صورة حقيقية للكوادر الوطنية المتخصصة أثناء إجراء قياسات الجودة المباشرة بجوار الوحدة المتنقلة.',
-      en: 'Real photograph of certified national laboratory personnel executing immediate water quality tests.',
-      fr: 'Photographie réelle des spécialistes nationaux réalisant les mesures directes de qualité d\'eau.',
-    },
-    image: siteMedia.mobileLaboratories.najranRealPhotos.tech,
-    isReal: true,
-  },
-  {
-    id: 'najran-sampling-2',
-    category: 'exterior',
-    labId: 'najran',
-    title: {
-      ar: 'الهيكل الجانبي والهوية المؤسسية المعتمدة للمركبة (مختبر نجران)',
-      en: 'Official Side Livery & Vehicle Markings (Najran)',
-      fr: 'Marquage Latéral Officiel & Identité Institutionnelle (Najran)',
-    },
-    desc: {
-      ar: 'صورة حقيقية لمركبة نجران توضح كتابات الهوية الرسمية: إدارة مختبرات القطاع الجنوبي (Southern Cluster laboratories management) ومختبر نجران المركزي (Najran Central Laboratory).',
-      en: 'Real photograph showing official inscriptions: Southern Cluster laboratories management and Najran Central Laboratory.',
-      fr: 'Photographie réelle montrant les inscriptions officielles : Southern Cluster laboratories management et Najran Central Laboratory.',
-    },
-    image: siteMedia.mobileLaboratories.najranRealPhotos.side,
-    isReal: true,
-  },
-  {
-    id: 'najran-equipment-1',
-    category: 'equipment',
-    labId: 'najran',
-    title: {
-      ar: 'حقائب وأجهزة الفحص الميداني المحمولة (مختبر نجران)',
-      en: 'Portable Field Inspection Kits & Electrochemistry Sensors (Najran)',
-      fr: 'Mallettes de Contrôle Portable & Capteurs Électrochimiques (Najran)',
-    },
-    desc: {
-      ar: 'صورة حقيقية لمعدات الفحص الميداني السريع وكواشف القياس المحمولة المعتمدة داخل مركبة نجران.',
-      en: 'Real photograph of calibrated field inspection kits, turbidimeters, and electrochemical meters onboard.',
-      fr: 'Photographie réelle des kits d\'inspection portables étalonnés et appareils électrochimiques embarqués.',
-    },
-    image: siteMedia.mobileLaboratories.najranRealPhotos.kits,
-    isReal: true,
-  },
-
-  /* ASIR - ILLUSTRATIVE VISUALIZATIONS */
-  {
-    id: 'asir-exterior-1',
-    category: 'exterior',
-    labId: 'asir',
-    title: {
-      ar: 'الوحدة المتنقلة لمختبر عسير في المرتفعات الجبلية الصخرية',
-      en: 'Asir Mobile Laboratory Unit in Rugged Mountain Pass',
-      fr: 'Unité Mobile d\'Asir en Reliefs Montagneux Rocheux',
-    },
-    desc: {
-      ar: 'تصور توضيحي للمركبة في بيئة جبال عسير الصخرية الداكنة والجروف الوعرة بجوار السدود ومحطات الضخ.',
-      en: 'Illustrative visualization of the Asir unit in southwest Saudi rocky mountain terrain near reservoir dams.',
-      fr: 'Visualisation illustrative de l\'unité d\'Asir dans les massifs rocheux et abords de retenues collinaires.',
-    },
-    image: siteMedia.mobileLaboratories.asir,
-    isReal: false,
-  },
-  {
-    id: 'asir-interior-1',
-    category: 'interior',
-    labId: 'asir',
-    title: {
-      ar: 'تجهيزات المختبر الداخلي للوحدة الجبلية (عسير)',
-      en: 'Interior Analytical Station for Asir Mobile Unit',
-      fr: 'Poste Analytique Intérieur de l\'Unité d\'Asir',
-    },
-    desc: {
-      ar: 'تصور توضيحي لمنطقة الفحص المخبري الداخلي المجهزة بأسطح الفولاذ 316L ومحطات التحليل الطيفي.',
-      en: 'Illustrative visualization of internal stainless steel workstations and spectrophotometric instruments.',
-      fr: 'Visualisation illustrative des paillasses inox et appareils de spectrophotométrie embarqués.',
-    },
-    image: siteMedia.facilities.asir,
-    isReal: false,
-  },
-  {
-    id: 'asir-sampling-1',
-    category: 'sampling',
-    labId: 'asir',
-    title: {
-      ar: 'سحب العينات الميدانية من السدود والشبكات (عسير)',
-      en: 'Field Sampling from Mountain Dams & Networks (Asir)',
-      fr: 'Échantillonnage de Terrain sur Barrages & Réseaux (Asir)',
-    },
-    desc: {
-      ar: 'سحب عينات المياه الجبلية وفق معيار ISO 5667 بحاويات معقمة وتوثيق رقمي لسلسلة الحيازة.',
-      en: 'Standardized field sampling under ISO 5667 with sterile collection and tamper-proof chain of custody.',
-      fr: 'Prélèvement d\'eau conforme à l\'ISO 5667 avec flaconnage stérile et chaîne de garde numérique.',
-    },
-    image: siteMedia.fieldAction,
-    isReal: false,
-  },
-  {
-    id: 'asir-equipment-1',
-    category: 'equipment',
-    labId: 'asir',
-    title: {
-      ar: 'أجهزة قياس الطيف الضوئي والعكارة المعتمدة (عسير)',
-      en: 'Calibrated Spectrophotometers & Turbidimeters (Asir)',
-      fr: 'Spectrophotomètres & Turbidimètres Calibrés (Asir)',
-    },
-    desc: {
-      ar: 'أجهزة مخبرية رقمية لمعايرة العناصر الكيميائية والمؤشرات الفيزيائية لمياه الشرب.',
-      en: 'Digital analytical meters calibrating chemical traces and physical indicators for potability.',
-      fr: 'Appareils numériques mesurant les traces chimiques et indicateurs physiques de potabilité.',
-    },
-    image: siteMedia.waterTestingPan,
-    isReal: false,
-  },
-
-  /* AL-BAHA - ILLUSTRATIVE VISUALIZATIONS */
-  {
-    id: 'baha-exterior-1',
-    category: 'exterior',
-    labId: 'baha',
-    title: {
-      ar: 'الوحدة المتنقلة لمختبر الباحة في مرتفعات السراة وتهامة',
-      en: 'Al-Baha Mobile Unit along Sarat & Tihama Escarpments',
-      fr: 'Unité Mobile d\'Al-Baha sur les Escarpements de la Sarate',
-    },
-    desc: {
-      ar: 'تصور توضيحي للمركبة في جبال الباحة الصخرية الوعرة على مسار مراقبة حقول الآبار والخزانات.',
-      en: 'Illustrative visualization of the Al-Baha unit along rugged Sarat passes auditing rural wellfields.',
-      fr: 'Visualisation illustrative du véhicule d\'Al-Baha sur les routes rocheuses de la Sarate et Tihama.',
-    },
-    image: siteMedia.mobileLaboratories.baha,
-    isReal: false,
-  },
-  {
-    id: 'baha-interior-1',
-    category: 'interior',
-    labId: 'baha',
-    title: {
-      ar: 'البيئة المخبرية الداخلية المعقمة (الباحة)',
-      en: 'Sterile Interior Working Environment (Al-Baha)',
-      fr: 'Environnement de Travail Intérieur Stérile (Al-Baha)',
-    },
-    desc: {
-      ar: 'تصور توضيحي للبيئة الداخلية المزودة بنظام تنقية الهواء والتكييف المعياري لحماية العينات.',
-      en: 'Illustrative visualization of internal climate-controlled air purification and sample preservation.',
-      fr: 'Visualisation illustrative de l\'espace intérieur régulé protégeant les échantillons d\'eau.',
-    },
-    image: siteMedia.facilities.baha,
-    isReal: false,
-  },
-
-  /* JAZAN - ILLUSTRATIVE VISUALIZATIONS */
-  {
-    id: 'jazan-exterior-1',
-    category: 'exterior',
-    labId: 'jazan',
-    title: {
-      ar: 'الوحدة المتنقلة لمختبر جازان بالسهول الساحلية والشبكات',
-      en: 'Jazan Mobile Laboratory Unit in Coastal Transmission Plain',
-      fr: 'Unité Mobile de Jazan en Plaine Côtière et Réseaux',
-    },
-    desc: {
-      ar: 'تصور توضيحي لمركبة جازان في الأراضي الساحلية شبه القاحلة بجوار مسارات خطوط مياه التحلية.',
-      en: 'Illustrative visualization of the Jazan unit in southern coastal plain auditing desalinated lines.',
-      fr: 'Visualisation illustrative de l\'unité de Jazan dans les plaines côtières et conduites d\'eau dessalée.',
-    },
-    image: siteMedia.mobileLaboratories.jazan,
-    isReal: false,
-  },
-  {
-    id: 'jazan-interior-1',
-    category: 'interior',
-    labId: 'jazan',
-    title: {
-      ar: 'محطة قياس التوصيلية والملوحة بمختبر جازان المتنقل',
-      en: 'Conductivity & Salinity Bench Station (Jazan)',
-      fr: 'Poste de Conductivité & Salinité Mobile (Jazan)',
-    },
-    desc: {
-      ar: 'أجهزة قياس الأيونات والتوصيلية الكهربائية فائقة الحساسية للتحقق من جودة مياه التحلية والآبار.',
-      en: 'Ultra-sensitive wide-range bench conductivity and ion meters monitoring desalination potability.',
-      fr: 'Appareils de conductivité et sondes spécifiques pour le contrôle de l\'eau dessalée.',
-    },
-    image: siteMedia.facilities.jazan,
-    isReal: false,
-  },
-  {
-    id: 'jazan-sampling-1',
-    category: 'sampling',
-    labId: 'jazan',
-    title: {
-      ar: 'المسح الميداني لشبكات التوزيع والخطوط الساحلية (جازان)',
-      en: 'Field Survey of Coastal Distribution Networks (Jazan)',
-      fr: 'Contrôle In Situ des Réseaux Côtiers de Distribution (Jazan)',
-    },
-    desc: {
-      ar: 'فرق الفحص الميداني أثناء سحب العينات الدورية من شبكات جازان ومحافظات الساحل والجزر.',
-      en: 'Field survey team collecting scheduled audit samples across Jazan coastal and island grids.',
-      fr: 'Équipe de terrain réalisant les prélèvements programmés sur les réseaux de Jazan.',
-    },
-    image: siteMedia.news.fieldSurvey,
-    isReal: false,
-  },
-];
+import { ALL_MOBILE_UNITS } from '@/data/mobileUnits';
+import { mobileLaboratoriesData } from '@/data/mobileLaboratoriesGallery';
+import { MobileLabAlbum } from '@/components/MobileLabAlbum';
 
 /* -------------------------------------------------------------------------- */
 /* Operational Workflow Steps                                                 */
@@ -674,53 +155,243 @@ const SERVICES_CATALOG = [
 ];
 
 /* -------------------------------------------------------------------------- */
-/* Component Implementation                                                   */
+/* Regional Filter Definitions                                                */
 /* -------------------------------------------------------------------------- */
 
-const [activeLightboxIndex, setActiveLightboxIndex] = useState<number | null>(null);
+const REGION_FILTER_TABS = [
+  { key: 'all' as const, count: 4, label: { ar: 'كافة المختبرات المركزية (4)', en: 'All Central Labs (4)', fr: 'Tous les Labos Centraux (4)' } },
+  { key: 'asir' as const, count: 1, label: { ar: 'المختبر المركزي بعسير', en: 'Asir Central', fr: 'Asir Central' } },
+  { key: 'jazan' as const, count: 1, label: { ar: 'المختبر المركزي بجازان', en: 'Jazan Central', fr: 'Jazan Central' } },
+  { key: 'baha' as const, count: 1, label: { ar: 'المختبر المركزي بالباحة', en: 'Al-Baha Central', fr: 'Al-Baha Central' } },
+  { key: 'najran' as const, count: 1, label: { ar: 'المختبر المركزي بنجران', en: 'Najran Central', fr: 'Najran Central' } },
+];
+
+const LAB_SECTIONS_KEYS: ('asir' | 'jazan' | 'alBaha' | 'najran')[] = ['asir', 'jazan', 'alBaha', 'najran'];
+
+/* -------------------------------------------------------------------------- */
+/* Component Implementation                                                   */
+/* -------------------------------------------------------------------------- */
+export default function MobileLaboratories() {
+  const { lang, dir, t } = useLang();
+  const [fleetRegionFilter, setFleetRegionFilter] = useState<'all' | 'asir' | 'baha' | 'jazan' | 'najran'>('all');
+  const [detailRegionFilter, setDetailRegionFilter] = useState<'all' | 'asir' | 'baha' | 'jazan' | 'najran'>('all');
+
+  const scrollToSection = useCallback((targetId: string) => {
+    // Resolve branch anchor aliases to their owning Central Laboratory:
+    let resolvedId = targetId;
+    if (targetId === 'mobile-sharurah') resolvedId = 'mobile-najran';
+    else if (targetId === 'mobile-bisha' || targetId === 'mobile-muhayil') resolvedId = 'mobile-asir';
+    else if (targetId === 'mobile-qalwa') resolvedId = 'mobile-baha';
+    else if (targetId === 'mobile-al-darb' || targetId === 'mobile-farasan') resolvedId = 'mobile-jazan';
+
+    // If the target is a unit in ALL_MOBILE_UNITS, ensure it is visible if a filter is active
+    const unit = ALL_MOBILE_UNITS.find(
+      (u) =>
+        u.anchorId === resolvedId ||
+        u.anchorId === targetId ||
+        u.id === targetId ||
+        u.aliasAnchorIds?.includes(targetId) ||
+        `mobile-${u.parentRegionId}` === resolvedId
+    );
+    if (unit && detailRegionFilter !== 'all' && detailRegionFilter !== unit.parentRegionId) {
+      setDetailRegionFilter('all');
+    }
+
+    setTimeout(() => {
+      const el = document.getElementById(resolvedId) || document.getElementById(targetId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        el.classList.add('ring-4', 'ring-blue-500/70', 'ring-offset-4', 'dark:ring-offset-slate-900', 'transition-all', 'duration-500');
+        setTimeout(() => {
+          el.classList.remove('ring-4', 'ring-blue-500/70', 'ring-offset-4', 'dark:ring-offset-slate-900');
+        }, 2500);
+        try {
+          window.history.replaceState(null, '', `#${resolvedId}`);
+        } catch {
+          // Safe fallback in sandboxed frame
+        }
+      }
+    }, 60);
+  }, [detailRegionFilter]);
+
+  useEffect(() => {
+    if (window.location.hash) {
+      const rawTarget = window.location.hash.replace('#', '');
+      let resolvedId = rawTarget;
+      if (rawTarget === 'mobile-sharurah') resolvedId = 'mobile-najran';
+      else if (rawTarget === 'mobile-bisha' || rawTarget === 'mobile-muhayil') resolvedId = 'mobile-asir';
+      else if (rawTarget === 'mobile-qalwa') resolvedId = 'mobile-baha';
+      else if (rawTarget === 'mobile-al-darb' || rawTarget === 'mobile-farasan') resolvedId = 'mobile-jazan';
+
+      const timer = setTimeout(() => {
+        const el = document.getElementById(resolvedId) || document.getElementById(rawTarget);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          el.classList.add('ring-4', 'ring-blue-500/70', 'ring-offset-4', 'dark:ring-offset-slate-900', 'transition-all', 'duration-500');
+          setTimeout(() => {
+            el.classList.remove('ring-4', 'ring-blue-500/70', 'ring-offset-4', 'dark:ring-offset-slate-900');
+          }, 2500);
+        }
+      }, 350);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] text-slate-900 dark:text-slate-100 transition-colors">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <Breadcrumb
+          items={[
+            {
+              label:
+                lang === 'ar'
+                  ? 'المختبرات المتنقلة'
+                  : lang === 'fr'
+                    ? 'Laboratoires Mobiles'
+                    : 'Mobile Laboratories',
+            },
+          ]}
+        />
 
         {/* ============================================================
-            3. GALERIE MULTI-CATÉGORIES & LIGHTBOX
+            1. HERO BANNER
         ============================================================= */}
-        <section id="mobile-gallery" className="mb-16 scroll-mt-24">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+        <section className="mt-6 mb-16 relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 border border-slate-800 text-white shadow-xl p-8 sm:p-12">
+          <div className="absolute top-0 end-0 -mt-16 -me-16 w-80 h-80 rounded-full bg-blue-600/15 blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 start-0 -mb-16 -ms-16 w-80 h-80 rounded-full bg-cyan-600/10 blur-3xl pointer-events-none" />
+
+          <div className="relative z-10 max-w-4xl">
+            {/* Live Status Pill */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-600/30 border border-blue-400/50 text-white text-xs font-bold mb-4 backdrop-blur-md shadow-md">
+              <Truck className="w-4 h-4 text-blue-300" />
+              <span>
+                {lang === 'ar'
+                  ? 'الوحدات المتنقلة للمختبرات المركزية لمياه الشرب والخدمات البيئية بالقطاع الجنوبي'
+                  : lang === 'fr'
+                    ? 'Unités Mobiles des Laboratoires Centraux d’Eau Potable et de Services Environnementaux'
+                    : 'Mobile Laboratory Units of the Central Laboratories for Drinking Water and Environmental Services'}
+              </span>
+            </div>
+
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight text-white mb-4">
+              {lang === 'ar'
+                ? 'الوحدات المتنقلة للمختبرات المركزية لمياه الشرب والخدمات البيئية بالقطاع الجنوبي'
+                : lang === 'fr'
+                  ? 'Unités Mobiles des Laboratoires Centraux d’Eau Potable et de Services Environnementaux'
+                  : 'Mobile Laboratory Units of Central Laboratories for Drinking Water & Environmental Services'}
+            </h1>
+
+            <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-normal mb-8 max-w-3xl">
+              {lang === 'ar'
+                ? 'منظومة متكاملة من وحدات الفحص الميداني المتنقلة التابعة للمختبرات المركزية المجهزة بأحدث تقنيات التحليل الفوري لمياه الشرب ومصادر الإمداد، للاستجابة السريعة وتغطية مختلف التضاريس الجبلية والساحلية والصحراوية بمناطق عسير، جازان، الباحة، ونجران.'
+                : lang === 'fr'
+                  ? 'Une flotte spécialisée d’unités mobiles rattachées aux laboratoires centraux, équipées des technologies de pointe pour le contrôle direct de l’eau potable et des services environnementaux en Asir, Jazan, Al-Baha et Najran.'
+                  : 'An integrated fleet of high-readiness mobile water testing units engineered for rapid field deployment and real-time potability assurance across diverse highland, coastal, and desert terrains of Asir, Jazan, Al-Baha, and Najran.'}
+            </p>
+
+            {/* Quick Metrics Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-slate-800/80">
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                <div className="text-2xl sm:text-3xl font-black text-white">04</div>
+                <div className="text-xs text-slate-300 font-bold mt-1">
+                  {lang === 'ar' ? 'مختبرات مركزية مجهزة' : lang === 'fr' ? 'Labos Centraux Équipés' : 'Central Mobile Units'}
+                </div>
+              </div>
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                <div className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">100%</div>
+                <div className="text-xs text-slate-300 font-bold mt-1">
+                  {lang === 'ar' ? 'جاهزية وتدخل سريع' : lang === 'fr' ? 'Disponibilité Rapide' : 'Field Readiness'}
+                </div>
+              </div>
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                <div className="text-2xl sm:text-3xl font-black text-blue-400 font-mono">SASO</div>
+                <div className="text-xs text-slate-300 font-bold mt-1">
+                  {lang === 'ar' ? 'معايير جودة معتمدة' : lang === 'fr' ? 'Normes Certifiées' : 'Certified Standards'}
+                </div>
+              </div>
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                <div className="text-2xl sm:text-3xl font-black text-amber-400 font-mono">24/7</div>
+                <div className="text-xs text-slate-300 font-bold mt-1">
+                  {lang === 'ar' ? 'دعم الطوارئ والمواسم' : lang === 'fr' ? 'Intervention Continue' : 'Emergency & Seasonal'}
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Interactive Jump Navigation */}
+            <div className="mt-8 pt-6 border-t border-slate-800/80">
+              <div className="flex items-center gap-2 text-xs text-white font-extrabold mb-3">
+                <ArrowDown className="w-3.5 h-3.5 text-blue-400 animate-bounce" />
+                <span>
+                  {lang === 'ar'
+                    ? 'الانتقال المباشر للمختبرات المركزية وألبومات الصور (Smooth Scroll):'
+                    : lang === 'fr'
+                      ? 'Accès direct aux laboratoires et albums photos (Défilement fluide) :'
+                      : 'Direct Smooth Scroll to Central Laboratory Albums:'}
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { id: 'mobile-asir', label: { ar: 'المختبر المركزي بعسير (وفروع بيشة ومحايل)', en: 'Asir Central (Bisha & Muhayil)', fr: 'Asir Central (Bisha & Muhayil)' } },
+                  { id: 'mobile-jazan', label: { ar: 'المختبر المركزي بجازان (والدرب وفرسان)', en: 'Jazan Central (Al-Darb & Farasan)', fr: 'Jazan Central (Al-Darb & Farasan)' } },
+                  { id: 'mobile-baha', label: { ar: 'المختبر المركزي بالباحة (وقلوة وتهامة)', en: 'Al-Baha Central (Qalwah)', fr: 'Al-Baha Central (Qalwah)' } },
+                  { id: 'mobile-najran', label: { ar: 'المختبر المركزي بنجران (وشرورة والوديعة)', en: 'Najran Central (Sharurah & Wadiah)', fr: 'Najran Central (Sharurah & Wadiah)' } },
+                ].map((unit) => (
+                  <button
+                    key={unit.id}
+                    type="button"
+                    onClick={() => scrollToSection(unit.id)}
+                    className="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-blue-600 text-white text-xs font-bold transition-all border border-white/15 hover:border-blue-400 active:scale-95 cursor-pointer flex items-center gap-1.5 shadow-xs"
+                  >
+                    <span>{unit.label[lang] || unit.label.en}</span>
+                    <ArrowDown className="w-3 h-3 text-blue-300" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ============================================================
+            2. REGIONAL MOBILE LABORATORIES (EXECUTIVE FLEET DIRECTORY)
+        ============================================================= */}
+        <section id="fleet-overview" className="mb-16 scroll-mt-28">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
             <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-300 text-xs font-semibold mb-2">
-                <Layers className="w-3.5 h-3.5" />
-                <span>{lang === 'ar' ? 'معرض التوثيق الميداني والمخبري' : lang === 'fr' ? 'Galerie de Documentation' : 'Field Documentation Gallery'}</span>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 text-xs font-semibold mb-2">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>
+                  {lang === 'ar'
+                    ? 'وحدات المختبرات المركزية المتنقلة'
+                    : lang === 'fr'
+                      ? 'Unités Mobiles des Labos Centraux'
+                      : 'Central Labs Mobile Fleet'}
+                </span>
               </div>
               <h2 className="text-xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
                 {lang === 'ar'
-                  ? 'معرض صور الوحدات المتنقلة والبيئة التشغيلية'
+                  ? 'أسطول المختبرات المتنقلة التابعة للمختبرات المركزية'
                   : lang === 'fr'
-                    ? 'Galerie des Unités Mobiles et de l\'Environnement de Terrain'
-                    : 'Mobile Units & Field Environment Gallery'}
+                    ? 'Flotte des Unités Mobiles des Laboratoires Centraux'
+                    : 'Central Laboratories Mobile Fleet'}
               </h2>
-              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl">
                 {lang === 'ar'
-                  ? 'استعرض تفاصيل الهيكل الخارجي، الأبواب المفتوحة، التجهيزات الداخلية ومعدات الفحص الميداني مع تمييز دقيق بين الصور الحقيقية والتصورات التوضيحية.'
+                  ? 'تتبع الوحدات المتنقلة للمختبرات المركزية الأربعة وتنتقل لتغطية كافة المحافظات والفروع التابعة بكل منطقة.'
                   : lang === 'fr'
-                    ? 'Explorez l\'extérieur, les portes ouvertes, l\'intérieur du laboratoire et les équipements avec distinction claire des photos réelles.'
-                    : 'Browse exterior views, open-bay access, interior laboratory, and analytical kits with clear real vs illustrative labeling.'}
+                    ? 'Les unités mobiles appartiennent aux 4 laboratoires centraux et se déploient pour couvrir toutes les branches et gouvernorats.'
+                    : 'The mobile testing units belong to the 4 Central Laboratories, deploying across all surrounding branches and sectors.'}
               </p>
             </div>
 
-            {/* Category Filter Tabs */}
-            <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800">
-              {[
-                { key: 'all', label: { ar: 'الكل', en: 'All', fr: 'Tous' } },
-                { key: 'exterior', label: { ar: 'الهيكل الخارجي', en: 'Exterior', fr: 'Extérieur' } },
-                { key: 'rear', label: { ar: 'الأبواب الخلفية', en: 'Rear Doors', fr: 'Portes Arrière' } },
-                { key: 'interior', label: { ar: 'المختبر الداخلي', en: 'Interior Lab', fr: 'Intérieur' } },
-                { key: 'sampling', label: { ar: 'سحب العينات', en: 'Sampling', fr: 'Prélèvement' } },
-                { key: 'equipment', label: { ar: 'الأجهزة المخبرية', en: 'Equipment', fr: 'Équipements' } },
-              ].map((tab) => (
+            {/* Region Filter Switcher */}
+            <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shrink-0">
+              {REGION_FILTER_TABS.map((tab) => (
                 <button
                   key={tab.key}
                   type="button"
-                  onClick={() => setGalleryFilter(tab.key as VisualCategory)}
+                  onClick={() => setFleetRegionFilter(tab.key)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
-                    galleryFilter === tab.key
+                    fleetRegionFilter === tab.key
                       ? 'bg-blue-600 text-white shadow-xs'
                       : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-800'
                   }`}
@@ -731,129 +402,365 @@ const [activeLightboxIndex, setActiveLightboxIndex] = useState<number | null>(nu
             </div>
           </div>
 
-          {/* Authenticity Key / Distinction Bar */}
-          <div className="mb-6 p-3.5 rounded-2xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800 shadow-2xs flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-xs font-bold text-slate-800 dark:text-slate-200">
-              <ShieldCheck className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
-              <span>{lang === 'ar' ? 'تصنيف موثوقية الصور والمعروضات:' : lang === 'fr' ? 'Distinction d\'authenticité des visuels :' : 'Visual Authenticity Distinction:'}</span>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/60 shadow-2xs">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                <span>
-                  {lang === 'ar'
-                    ? 'صور حقيقية للوحدة المتنقلة لمختبر نجران المركزي'
-                    : lang === 'fr'
-                      ? 'Photographies réelles de l’unité mobile du laboratoire central de Najran'
-                      : 'Real photographs of the Najran Mobile Laboratory Unit'}
-                </span>
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700/60 shadow-2xs">
-                <Info className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-                <span>
-                  {lang === 'ar'
-                    ? 'تصور توضيحي'
-                    : lang === 'fr'
-                      ? 'Visualisation illustrative'
-                      : 'Illustrative visualization'}
-                </span>
-              </span>
-            </div>
-          </div>
-
-          {/* Gallery Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filteredGallery.map((item, index) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {ALL_MOBILE_UNITS.filter(
+              (lab) => fleetRegionFilter === 'all' || lab.parentRegionId === fleetRegionFilter
+            ).map((lab) => (
               <div
-                key={item.id}
-                onClick={() => openLightbox(index)}
-                className="group relative rounded-2xl overflow-hidden bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800 shadow-2xs hover:shadow-md transition-all duration-300 flex flex-col justify-between cursor-pointer"
+                key={lab.anchorId}
+                onClick={() => scrollToSection(lab.anchorId)}
+                className="group rounded-2xl bg-white dark:bg-[#161f31] border border-slate-200/80 dark:border-slate-800 shadow-2xs hover:shadow-md hover:border-blue-500/40 transition-all duration-300 overflow-hidden flex flex-col justify-between cursor-pointer"
               >
-                <div className="relative h-60 overflow-hidden bg-slate-900">
-                  <img
-                    src={item.image}
-                    alt={item.title[lang] || item.title.en}
-                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+                <div>
+                  {/* Compact Clickable Image with Smooth Scroll Hover Cues */}
+                  <div
+                    className="relative h-44 overflow-hidden bg-slate-900"
+                    title={
+                      lang === 'ar'
+                        ? `انقر للتمرير إلى تفاصيل ${lab.name.ar}`
+                        : lang === 'fr'
+                          ? `Cliquer pour défiler vers les détails de ${lab.name.fr}`
+                          : `Click to smooth scroll to ${lab.name.en} details`
+                    }
+                  >
+                    <img
+                      src={lab.image}
+                      alt={lab.name[lang] || lab.name.en}
+                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
 
-                  {/* Authenticity Badge - Real Najran vs Illustrative */}
-                  <div className="absolute top-3 start-3 end-3 flex items-center justify-between gap-2">
-                    {item.isReal ? (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-600/95 text-white shadow-md border border-emerald-400/40 backdrop-blur-md">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-200 shrink-0" />
-                        <span className="truncate max-w-[210px]">
-                          {lang === 'ar'
-                            ? 'صور حقيقية للوحدة المتنقلة لمختبر نجران المركزي'
-                            : lang === 'fr'
-                              ? 'Photographies réelles de l’unité mobile du laboratoire central de Najran'
-                              : 'Real photographs of the Najran Mobile Laboratory Unit'}
-                        </span>
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-slate-900/90 text-amber-300 border border-amber-400/40 backdrop-blur-md shadow-md">
-                        <Info className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                    {/* Smooth scroll indicator on hover */}
+                    <div className="absolute inset-0 bg-blue-950/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
+                      <span className="px-3 py-1.5 rounded-full bg-blue-600/95 text-white text-xs font-bold shadow-xl backdrop-blur-md flex items-center gap-1.5 transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                        <ArrowDown className="w-3.5 h-3.5 text-blue-200" />
                         <span>
                           {lang === 'ar'
-                            ? 'تصور توضيحي'
+                            ? 'انقر للتفاصيل الميدانية ↓'
                             : lang === 'fr'
-                              ? 'Visualisation illustrative'
-                              : 'Illustrative visualization'}
+                              ? 'Cliquer pour voir la fiche ↓'
+                              : 'Click for detailed specs ↓'}
                         </span>
                       </span>
-                    )}
+                    </div>
 
-                    <span
-                      className="w-7 h-7 rounded-lg bg-black/60 group-hover:bg-blue-600 text-white flex items-center justify-center transition-colors shadow-xs"
-                      title={lang === 'ar' ? 'انقر لتكبير الصورة وفحص التفاصيل' : lang === 'fr' ? 'Cliquer pour zoomer et examiner les détails' : 'Click to zoom and inspect details'}
-                    >
-                      <ZoomIn className="w-3.5 h-3.5" />
-                    </span>
+                    {/* Authenticity & Region Badge */}
+                    <div className="absolute top-2.5 start-2.5 end-2.5 flex items-center justify-between gap-1.5">
+                      {lab.isRealPhoto ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-600/95 text-white shadow-xs border border-emerald-400/40 backdrop-blur-md">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-200 shrink-0" />
+                          <span className="truncate max-w-[130px]">
+                            {lab.realPhotoLabel?.[lang] || lab.realPhotoLabel?.en || 'Photo réelle'}
+                          </span>
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-900/90 text-amber-300 border border-amber-400/40 backdrop-blur-md shadow-xs">
+                          <Info className="w-3 h-3 text-amber-400 shrink-0" />
+                          <span>
+                            {lang === 'ar'
+                              ? 'تصور توضيحي'
+                              : lang === 'fr'
+                                ? 'Illustratif'
+                                : 'Illustrative'}
+                          </span>
+                        </span>
+                      )}
+
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-600/90 text-white backdrop-blur-md shadow-xs shrink-0">
+                        {lab.region[lang] || lab.region.en}
+                      </span>
+                    </div>
+
+                    {/* Livery Badge Inscribed On Image */}
+                    <div className="absolute bottom-2 start-2 end-2 text-white">
+                      <div className="p-2 rounded-xl bg-slate-950/90 backdrop-blur-md border border-white/20 shadow-md flex flex-col gap-0.5">
+                        <div className="text-[10px] font-extrabold text-white truncate flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0 shadow-xs" />
+                          <span className="truncate">{lab.vehicleLabel.clusterAr}</span>
+                        </div>
+                        <div className="text-[9px] font-bold text-slate-300 truncate">
+                          {lab.vehicleLabel.clusterEn}
+                        </div>
+                        <div className="text-[11px] font-black text-amber-300 truncate pt-0.5 border-t border-white/10 flex items-center justify-between">
+                          <span>{lab.vehicleLabel.labAr}</span>
+                          <span className="px-1.5 py-0.5 rounded bg-blue-600/90 text-white text-[9px] font-extrabold font-mono">
+                            #{lab.anchorId}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Title overlay */}
-                  <div className="absolute bottom-3 start-3 end-3 text-white">
-                    <p className="text-[10px] font-medium text-cyan-300 uppercase tracking-wider mb-0.5">
-                      {item.category.toUpperCase()}
-                    </p>
-                    <h3 className="font-bold text-sm leading-snug line-clamp-2">
-                      {item.title[lang] || item.title.en}
-                    </h3>
+                  {/* Body Details (Concise, High Density) */}
+                  <div className="p-3.5 space-y-2.5">
+                    <div>
+                      <span className="inline-block px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 text-[10px] font-semibold mb-1 border border-emerald-200 dark:border-emerald-800/40">
+                        {lab.centralLabBadge[lang] || lab.centralLabBadge.en}
+                      </span>
+                      <h3 className="text-sm font-bold text-slate-900 dark:text-white line-clamp-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                        {lab.name[lang] || lab.name.en}
+                      </h3>
+                    </div>
+
+                    {/* Covered Branches Snippet */}
+                    <div className="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-300 space-y-0.5">
+                      <div className="flex items-center gap-1 font-semibold text-blue-700 dark:text-blue-300 text-[10px]">
+                        <Building2 className="w-3 h-3 shrink-0" />
+                        <span>{lang === 'ar' ? 'الفروع والمحافظات المخدومة:' : 'Serviced Branches:'}</span>
+                      </div>
+                      <p className="line-clamp-2 leading-relaxed text-[10px] text-slate-500 dark:text-slate-400">
+                        {lab.coveredBranches[lang] || lab.coveredBranches.en}
+                      </p>
+                    </div>
+
+                    {/* Specs Preview Micro-Chips */}
+                    <div className="space-y-1 pt-0.5">
+                      {lab.specs.slice(0, 2).map((spec, sIdx) => (
+                        <div
+                          key={sIdx}
+                          className="flex items-center gap-1.5 p-1 rounded-lg bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/60 text-[10px] text-slate-600 dark:text-slate-300 truncate"
+                        >
+                          <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" />
+                          <span className="truncate">{spec[lang] || spec.en}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
-                <div className="p-3.5 bg-slate-50/70 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 space-y-1.5">
-                  <div className="flex items-center justify-between text-[11px] gap-2">
-                    <span className="font-semibold text-slate-800 dark:text-slate-200 truncate">
-                      {item.labId === 'najran'
-                        ? (lang === 'ar' ? 'مختبر نجران المركزي' : lang === 'fr' ? 'Laboratoire Central de Najran' : 'Najran Central Laboratory')
-                        : item.labId === 'asir'
-                          ? (lang === 'ar' ? 'مختبر عسير المركزي' : lang === 'fr' ? 'Laboratoire Central d\'Asir' : 'Asir Central Laboratory')
-                          : item.labId === 'baha'
-                            ? (lang === 'ar' ? 'مختبر الباحة المركزي' : lang === 'fr' ? 'Laboratoire Central d\'Al-Baha' : 'Al-Baha Central Laboratory')
-                            : (lang === 'ar' ? 'مختبر جازان المركزي' : lang === 'fr' ? 'Laboratoire Central de Jazan' : 'Jazan Central Laboratory')}
-                    </span>
-                    {item.isReal ? (
-                      <span className="shrink-0 text-emerald-600 dark:text-emerald-400 font-bold text-[10px] flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3" />
-                        <span>{lang === 'ar' ? 'صورة حقيقية' : lang === 'fr' ? 'Photo réelle' : 'Real Photo'}</span>
-                      </span>
-                    ) : (
-                      <span className="shrink-0 text-amber-600 dark:text-amber-400 font-medium text-[10px] flex items-center gap-1">
-                        <Info className="w-3 h-3" />
-                        <span>{lang === 'ar' ? 'تصور توضيحي' : lang === 'fr' ? 'Illustratif' : 'Illustrative'}</span>
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">
-                    {item.desc[lang] || item.desc.en}
-                  </p>
+                {/* Footer Action (Smooth Scroll Trigger) */}
+                <div className="px-3.5 py-2.5 bg-slate-50/70 dark:bg-slate-900/40 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+                  <span className="inline-flex items-center gap-1 font-bold text-blue-600 dark:text-blue-400 group-hover:underline text-[11px]">
+                    <span>{lang === 'ar' ? 'عرض المواصفات الكاملة' : lang === 'fr' ? 'Fiche complète' : 'View specs'}</span>
+                    <ArrowDown className="w-3 h-3 transform group-hover:translate-y-0.5 transition-transform" />
+                  </span>
+                  <span className="font-mono text-[10px] text-slate-400">
+                    #{lab.anchorId}
+                  </span>
                 </div>
               </div>
             ))}
           </div>
         </section>
+        {/* ============================================================
+            DEDICATED CENTRAL LABORATORY SECTIONS & IMAGE ALBUMS
+            (ASIR -> JAZAN -> AL-BAHA -> NAJRAN)
+        ============================================================= */}
+        <div className="space-y-20 mb-20">
+          {LAB_SECTIONS_KEYS.filter((key) => {
+            if (detailRegionFilter === 'all') return true;
+            if (detailRegionFilter === 'asir') return key === 'asir';
+            if (detailRegionFilter === 'jazan') return key === 'jazan';
+            if (detailRegionFilter === 'baha') return key === 'alBaha';
+            if (detailRegionFilter === 'najran') return key === 'najran';
+            return true;
+          }).map((labKey) => {
+            const lab = mobileLaboratoriesData[labKey];
+            return (
+              <section
+                key={lab.id}
+                id={lab.anchorId}
+                className="scroll-mt-28 sm:scroll-mt-32 p-6 sm:p-8 rounded-3xl bg-white dark:bg-[#161f31] border border-slate-200/90 dark:border-slate-800 shadow-md transition-all duration-300 space-y-8"
+              >
+                {/* 1. Header Bar: Regional Badge + Anchor ID + Action Return */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100 dark:border-slate-800/80">
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <span className="px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-blue-600 text-white shadow-xs">
+                      {lab.region[lang] || lab.region.en}
+                    </span>
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-200 border border-blue-200 dark:border-blue-800">
+                      {lang === 'ar' ? 'وحدة ميدانية معتمدة' : lang === 'fr' ? 'Unité Mobile Certifiée' : 'Certified Mobile Unit'}
+                    </span>
+                    <span className="text-xs font-mono font-bold text-slate-400 dark:text-slate-500">
+                      #{lab.anchorId}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => scrollToSection('fleet-overview')}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-colors cursor-pointer"
+                      title={lang === 'ar' ? 'العودة لقائمة الأسطول' : 'Back to fleet overview'}
+                    >
+                      <ArrowUp className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                      <span>{lang === 'ar' ? 'قائمة الأسطول ↑' : lang === 'fr' ? 'Retour flotte ↑' : 'Fleet overview ↑'}</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 2. Official Titles & Introductory Role Text */}
+                <div className="space-y-3">
+                  <h3 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white leading-tight">
+                    {lab.titleArabic}
+                  </h3>
+                  <h4 className="text-base sm:text-lg font-bold text-blue-600 dark:text-blue-400">
+                    {lang === 'fr' ? lab.titleFrench : lab.titleEnglish}
+                  </h4>
+                  <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed font-normal pt-1">
+                    {lab.introText[lang] || lab.introText.en}
+                  </p>
+                </div>
+
+                {/* 3. Five Core Operational Role Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 pt-1">
+                  {/* Field Sampling */}
+                  <div className="p-3.5 rounded-2xl bg-blue-50/70 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/40 space-y-1.5">
+                    <div className="flex items-center gap-2 text-xs font-extrabold text-blue-900 dark:text-blue-200">
+                      <Droplets className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                      <span>{lang === 'ar' ? 'سحب العينات الميدانية' : lang === 'fr' ? 'Prélèvements de terrain' : 'Field Sampling'}</span>
+                    </div>
+                    <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                      {lab.roles.sampling[lang] || lab.roles.sampling.en}
+                    </p>
+                  </div>
+
+                  {/* Water Quality Monitoring */}
+                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800 space-y-1.5">
+                    <div className="flex items-center gap-2 text-xs font-extrabold text-slate-900 dark:text-white">
+                      <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      <span>{lang === 'ar' ? 'مراقبة جودة المياه' : lang === 'fr' ? 'Contrôle qualité' : 'Quality Monitoring'}</span>
+                    </div>
+                    <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                      {lab.roles.monitoring[lang] || lab.roles.monitoring.en}
+                    </p>
+                  </div>
+
+                  {/* Environmental Analysis */}
+                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800 space-y-1.5">
+                    <div className="flex items-center gap-2 text-xs font-extrabold text-slate-900 dark:text-white">
+                      <Compass className="w-4 h-4 text-cyan-600 dark:text-cyan-400 shrink-0" />
+                      <span>{lang === 'ar' ? 'التحاليل والخدمات البيئية' : lang === 'fr' ? 'Analyses environnementales' : 'Environmental Analysis'}</span>
+                    </div>
+                    <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                      {lab.roles.environmental[lang] || lab.roles.environmental.en}
+                    </p>
+                  </div>
+
+                  {/* On-Site Measurements */}
+                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800 space-y-1.5">
+                    <div className="flex items-center gap-2 text-xs font-extrabold text-slate-900 dark:text-white">
+                      <Activity className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
+                      <span>{lang === 'ar' ? 'القياسات والتحاليل الفورية' : lang === 'fr' ? 'Mesures instantanées' : 'On-Site Measurements'}</span>
+                    </div>
+                    <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                      {lab.roles.measurements[lang] || lab.roles.measurements.en}
+                    </p>
+                  </div>
+
+                  {/* Supporting Regional Branches */}
+                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800 space-y-1.5">
+                    <div className="flex items-center gap-2 text-xs font-extrabold text-slate-900 dark:text-white">
+                      <Building2 className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                      <span>{lang === 'ar' ? 'إسناد فروع المنطقة' : lang === 'fr' ? 'Appui aux branches' : 'Branch Lab Support'}</span>
+                    </div>
+                    <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                      {lab.roles.support[lang] || lab.roles.support.en}
+                    </p>
+                  </div>
+                </div>
+
+                {/* 4. THE DEDICATED COMPLETE IMAGE ALBUM */}
+                <div>
+                  <MobileLabAlbum
+                    images={lab.images}
+                    labTitle={{ ar: lab.titleArabic, en: lab.titleEnglish, fr: lab.titleFrench }}
+                    regionName={lab.region}
+                    albumId={lab.id}
+                  />
+                </div>
+
+                {/* 5. Serviced Branches Banner */}
+                <div className="p-3 rounded-2xl bg-slate-100 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 flex items-start gap-3 text-xs">
+                  <Building2 className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                  <div className="leading-relaxed">
+                    <span className="font-extrabold text-slate-900 dark:text-white me-2">
+                      {lang === 'ar'
+                        ? 'الفروع والمحافظات المخدومة التابعة للمختبر المركزي:'
+                        : lang === 'fr'
+                          ? 'Branches et gouvernorats couverts par le laboratoire central :'
+                          : 'Branches & administrative sectors serviced by the central lab:'}
+                    </span>
+                    <span className="text-slate-700 dark:text-slate-300 font-medium">
+                      {lab.coveredBranches[lang] || lab.coveredBranches.en}
+                    </span>
+                  </div>
+                </div>
+
+                {/* 6. Technical Specifications & Calibrated Equipment Micro-Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                  {/* Vehicle Specs */}
+                  <div className="space-y-2">
+                    <h5 className="text-xs font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                      <Truck className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                      <span>{lang === 'ar' ? 'المواصفات الفنية وتجهيزات المركبة:' : 'Vehicle Specifications:'}</span>
+                    </h5>
+                    <div className="space-y-2">
+                      {lab.technicalSpecs.map((spec, sIdx) => (
+                        <div
+                          key={sIdx}
+                          className="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/80 text-xs text-slate-700 dark:text-slate-300"
+                        >
+                          <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                          <span className="leading-relaxed">{spec[lang] || spec.en}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Calibrated Equipment */}
+                  <div className="space-y-2">
+                    <h5 className="text-xs font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                      <FlaskConical className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                      <span>{lang === 'ar' ? 'الأجهزة والتقنيات التحليلية المعتمدة:' : 'Analytical Instruments:'}</span>
+                    </h5>
+                    <div className="space-y-2">
+                      {lab.equipment.map((eq, eIdx) => (
+                        <div
+                          key={eIdx}
+                          className="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/80 text-xs text-slate-700 dark:text-slate-300"
+                        >
+                          <Activity className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+                          <span className="leading-relaxed">{eq[lang] || eq.en}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 7. Action Bar */}
+                <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <Link
+                      to="/register"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs transition-colors shadow-xs"
+                    >
+                      <UserPlus className="w-4 h-4" />
+                      <span>{lang === 'ar' ? 'طلب فحص ميداني / حجز زيارة' : 'Book Field Audit'}</span>
+                    </Link>
+                    <Link
+                      to="/enquiry"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs transition-colors"
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      <span>{lang === 'ar' ? 'استفسار فني مباشر' : 'Technical Enquiry'}</span>
+                    </Link>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => scrollToSection('fleet-overview')}
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 transition-colors cursor-pointer"
+                  >
+                    <ArrowUp className="w-3.5 h-3.5" />
+                    <span>{lang === 'ar' ? 'أعلى الصفحة ↑' : 'Scroll to top ↑'}</span>
+                  </button>
+                </div>
+              </section>
+            );
+          })}
+        </div>
 
         {/* ============================================================
             4. WORKFLOW DE TERRAIN EN 4 ÉTAPES DU SITE DE RÉFÉRENCE
@@ -909,7 +816,7 @@ const [activeLightboxIndex, setActiveLightboxIndex] = useState<number | null>(nu
 
                   <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-[11px] font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-1">
                     <span>{lang === 'ar' ? `المرحلة ${step.step}` : `Stage ${step.step}`}</span>
-                    <Arrow className="w-3 h-3" />
+                    <ChevronRight className="w-3 h-3" />
                   </div>
                 </div>
               );
@@ -1014,239 +921,7 @@ const [activeLightboxIndex, setActiveLightboxIndex] = useState<number | null>(nu
           </div>
         </section>
 
-        {/* ============================================================
-            7. LIGHTBOX MODAL WITH FULL NAVIGATION & AUTHENTICITY PILL
-        ============================================================= */}
-        {activeLightboxIndex !== null && filteredGallery[activeLightboxIndex] && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/90 backdrop-blur-md animate-fade-in"
-            onClick={closeLightbox}
-          >
-            <div
-              className="relative max-w-5xl w-full bg-slate-900 rounded-3xl overflow-hidden border border-slate-700 shadow-2xl flex flex-col max-h-[92vh]"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Header */}
-              <div className="p-4 sm:p-5 flex items-center justify-between border-b border-slate-800 text-white">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="min-w-0">
-                    <h3 className="font-bold text-sm sm:text-base truncate">
-                      {filteredGallery[activeLightboxIndex].title[lang] || filteredGallery[activeLightboxIndex].title.en}
-                    </h3>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-[11px] text-cyan-400 font-mono">
-                        {activeLightboxIndex + 1} / {filteredGallery.length}
-                      </span>
-                      <span className="text-slate-600">•</span>
-                      {filteredGallery[activeLightboxIndex].isReal ? (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                          <span>
-                            {lang === 'ar'
-                              ? 'صور حقيقية للوحدة المتنقلة لمختبر نجران المركزي'
-                              : lang === 'fr'
-                                ? 'Photographies réelles de l’unité mobile du laboratoire central de Najran'
-                                : 'Real photographs of the Najran Mobile Laboratory Unit'}
-                          </span>
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-500/20 text-amber-200 border border-amber-400/40">
-                          <Info className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                          <span>
-                            {lang === 'ar'
-                              ? 'تصور توضيحي'
-                              : lang === 'fr'
-                                ? 'Visualisation illustrative'
-                                : 'Illustrative visualization'}
-                          </span>
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                  {/* Interactive Zoom Controls */}
-                  <div className="flex items-center gap-1 bg-white/10 p-1 rounded-xl border border-white/10 backdrop-blur-sm">
-                    <button
-  type="button"
-  onClick={zoomOut}
-  disabled={zoomLevel <= 1}
-  className={`p-1.5 rounded-lg transition-colors ${
-    zoomLevel <= 1
-      ? 'text-white/30 cursor-not-allowed'
-      : 'text-white hover:bg-white/15 cursor-pointer'
-  }`}
-  title={lang === 'ar' ? 'تصغير (-)' : 'Zoom out (-)'}
-  aria-label="Zoom out"
->
-  <ZoomOut className="w-4 h-4" />
-</button>
-                    
-                    <button
-                      type="button"
-                      onClick={() => (zoomLevel === 1 ? setZoomLevel(2.25) : resetZoom())}
-                      className="px-2 py-1 text-xs font-mono font-bold text-cyan-300 hover:text-white transition-colors cursor-pointer rounded-md hover:bg-white/10"
-                      title={lang === 'ar' ? 'إعادة ضبط التكبير (0)' : 'Reset zoom (0)'}
-                    >
-                      {Math.round(zoomLevel * 100)}%
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={zoomIn}
-                      disabled={zoomLevel >= 3.5}
-                      className={`p-1.5 rounded-lg transition-colors ${
-                        zoomLevel >= 3.5
-                          ? 'text-white/30 cursor-not-allowed'
-                          : 'text-white hover:bg-white/15 cursor-pointer'
-                      }`}
-                      title={lang === 'ar' ? 'تكبير (+)' : 'Zoom in (+)'}
-                      aria-label="Zoom in"
-                    >
-                      <ZoomIn className="w-4 h-4" />
-                    </button>
-
-                    {zoomLevel > 1 && (
-                      <button
-                        type="button"
-                        onClick={resetZoom}
-                        className="p-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/15 transition-colors cursor-pointer"
-                        title={lang === 'ar' ? 'إعادة التعيين' : 'Reset view'}
-                        aria-label="Reset view"
-                      >
-                        <RotateCcw className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={closeLightbox}
-                    className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer ml-1"
-                    title={lang === 'ar' ? 'إغلاق (Esc)' : 'Close (Esc)'}
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
               </div>
-
-              {/* Main Image Viewport with Click-to-Zoom & Pan Support */}
-              <div
-                className="relative flex-1 bg-black flex items-center justify-center min-h-[340px] max-h-[68vh] p-2 overflow-hidden select-none"
-                onWheel={handleWheel}
-                onMouseDown={handleMouseDown}
-                onMouseMove={handleMouseMove}
-                onMouseUp={handleMouseUp}
-                onMouseLeave={handleMouseUp}
-              >
-                {/* Click-to-zoom interactive wrapper */}
-                <div
-                  onClick={toggleClickZoom}
-                  className={`relative max-h-full max-w-full flex items-center justify-center transition-transform ${
-                    zoomLevel > 1
-                      ? isDragging
-                        ? 'cursor-grabbing'
-                        : 'cursor-grab'
-                      : 'cursor-zoom-in'
-                  }`}
-                  style={{
-                    transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoomLevel})`,
-                    transition: isDragging ? 'none' : 'transform 200ms ease-out',
-                  }}
-                  title={
-                    zoomLevel > 1
-                      ? lang === 'ar'
-                        ? 'انقر للتصغير، أو اسحب للتنقل'
-                        : 'Click to zoom out, or drag to pan'
-                      : lang === 'ar'
-                        ? 'انقر على الصورة للتكبير وفحص التفاصيل'
-                        : 'Click on image to zoom in and inspect details'
-                  }
-                >
-                  <img
-                    src={filteredGallery[activeLightboxIndex].image}
-                    alt={filteredGallery[activeLightboxIndex].title[lang] || filteredGallery[activeLightboxIndex].title.en}
-                    className="max-h-[64vh] max-w-full object-contain mx-auto rounded-lg shadow-2xl pointer-events-none"
-                    referrerPolicy="no-referrer"
-                    draggable={false}
-                  />
-                </div>
-
-                {/* Left Button */}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (dir === 'rtl') nextLightboxImage();
-                    else prevLightboxImage();
-                  }}
-                  className="absolute start-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 hover:bg-blue-600 text-white flex items-center justify-center transition-colors cursor-pointer backdrop-blur-sm z-20 shadow-md"
-                  aria-label="Previous image"
-                >
-                  <ChevronLeft className="w-6 h-6 rtl:rotate-180" />
-                </button>
-
-                {/* Right Button */}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (dir === 'rtl') prevLightboxImage();
-                    else nextLightboxImage();
-                  }}
-                  className="absolute end-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 hover:bg-blue-600 text-white flex items-center justify-center transition-colors cursor-pointer backdrop-blur-sm z-20 shadow-md"
-                  aria-label="Next image"
-                >
-                  <ChevronRight className="w-6 h-6 rtl:rotate-180" />
-                </button>
-
-                {/* Floating Click-to-Zoom Instruction Indicator */}
-                <div className="absolute bottom-3 start-1/2 -translate-x-1/2 pointer-events-none z-10">
-                  <div className="px-3.5 py-1 rounded-full bg-black/75 border border-white/20 text-[11px] text-white/95 backdrop-blur-md shadow-xl flex items-center gap-1.5 font-medium">
-                    {zoomLevel === 1 ? (
-                      <>
-                        <ZoomIn className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                        <span>
-                          {lang === 'ar'
-                            ? 'انقر للتكبير والتنقل في تفاصيل الوحدة'
-                            : lang === 'fr'
-                              ? 'Cliquez pour zoomer et examiner les détails'
-                              : 'Click image to zoom in and examine details'}
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <ZoomOut className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                        <span>
-                          {lang === 'ar'
-                            ? 'انقر لإعادة الضبط أو اسحب للاستكشاف'
-                            : lang === 'fr'
-                              ? 'Cliquez pour réinitialiser ou glissez pour explorer'
-                              : 'Click to reset zoom or drag to explore'}
-                        </span>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Footer description & caption */}
-              <div className="p-4 bg-slate-900 border-t border-slate-800 text-slate-300 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <p className="leading-relaxed">
-                  {filteredGallery[activeLightboxIndex].desc[lang] || filteredGallery[activeLightboxIndex].desc.en}
-                </p>
-                <div className="flex items-center gap-2 shrink-0 text-[11px] text-slate-400 font-mono">
-                  <span>{filteredGallery[activeLightboxIndex].category.toUpperCase()}</span>
-                  <span>•</span>
-                  <span>{filteredGallery[activeLightboxIndex].labId.toUpperCase()}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-      </div>
     </div>
   );
 }

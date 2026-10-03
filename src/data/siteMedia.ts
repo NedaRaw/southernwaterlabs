@@ -7,7 +7,7 @@ import aboutWaterLabImg from '@/assets/images/about_water_lab_1790236994851.jpg'
 import waterTestingPanImg from '@/assets/images/a1-WATER-TESTING-2-2799x1866.jpg';
 import scientistChemistImg from '@/assets/images/scientist-chemist-researcher-doctor-1024x683.jpg';
 import orgStructureImg from '@/assets/images/Position-structure.png';
-import mobileLabCarImg from '@/assets/images/waterlab-car.jpeg';
+import mobileLabCarImg from '@/assets/images/lab-car-najran.jpg';
 import labAsirImg from '@/assets/images/lab_asir_central_1790236943444.jpg';
 import labNajranImg from '@/assets/images/lab_najran_central_1790236956545.jpg';
 import labJazanImg from '@/assets/images/lab_jazan_central_1790236972538.jpg';
@@ -17,7 +17,7 @@ import labBahaImg from '@/assets/images/lab_baha_water_lab_1790238427592.jpg';
 import asirMobileLabImg from '@/assets/images/asir_mobile_van_1790850130004.jpg';
 import albahaMobileLabImg from '@/assets/images/albaha_mobile_van_1790850142367.jpg';
 import jazanMobileLabImg from '@/assets/images/jazan_mobile_van_1790850154570.jpg';
-import najranMobileLabImg from '@/assets/images/najran_mobile_lab_enhanced.jpg';
+import najranMobileLabImg from '@/assets/images/lab-car-najran.jpg';
 import najranRealPhotoOriginal from '@/assets/images/lab-car-najran.jpg';
 import najranMobileLabAltImg from '@/assets/images/lab-car-najran.png';
 import najranRealDoorsImg from '@/assets/images/IMG-20250723-WA0001.jpg';
