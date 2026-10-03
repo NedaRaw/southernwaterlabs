@@ -760,57 +760,194 @@ export default function NajranLabDetail() {
               </div>
             </div>
 
-            {/* Vehicle & Fieldwork Images */}
-            <div className="lg:col-span-5 space-y-4">
-              {/* Mobile Lab Car */}
-              <div
-                className="group relative rounded-2xl overflow-hidden shadow-2xl border border-white/20 bg-black/40 cursor-pointer"
-                onClick={() => {
-                  setSelectedImage(mobileLabCar);
-                  setSelectedImageTitle(lang === 'ar' ? 'المختبر المتنقل - نجران' : 'Mobile Laboratory Vehicle - Najran');
-                }}
-              >
-                <img
-                  src={mobileLabCar}
-                  alt="Mobile Laboratory Car"
-                  className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-4">
-                  <div className="text-white">
-                    <span className="text-xs font-bold bg-blue-600 px-2 py-0.5 rounded-full inline-flex items-center gap-1 mb-1">
-                      <Truck className="w-3 h-3" />
-                      {lang === 'ar' ? 'مركبة المختبر المتنقل الرسمية' : 'Official Mobile Lab Vehicle'}
-                    </span>
-                    <p className="text-xs text-slate-300">
-                      {lang === 'ar' ? 'الإدارة العامة للمختبرات - القطاع الجنوبي' : 'Southern Sector Laboratories Administration'}
-                    </p>
-                  </div>
-                </div>
-              </div>
+            {/* Mobile Laboratory Authentic Photo Album */}
+<div className="lg:col-span-5">
 
-              {/* Inside Field Operations */}
-              <div
-                className="group relative rounded-2xl overflow-hidden shadow-lg border border-white/20 bg-black/40 cursor-pointer"
-                onClick={() => {
-                  setSelectedImage(mobileFieldWork);
-                  setSelectedImageTitle(lang === 'ar' ? 'التحليل الميداني داخل وحدة المختبر المتنقل' : 'Field Operations Inside Mobile Unit');
-                }}
-              >
-                <img
-                  src={mobileFieldWork}
-                  alt="Field Operations"
-                  className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-3.5">
-                  <div className="text-white flex items-center justify-between w-full">
-                    <span className="text-xs font-medium text-slate-200">
-                      {lang === 'ar' ? 'فحوصات مياه الشرب الميدانية العاجلة' : 'On-site Rapid Water Testing'}
-                    </span>
-                    <Eye className="w-4 h-4 text-blue-400" />
-                  </div>
-                </div>
+  <div className="rounded-2xl overflow-hidden border border-white/20 bg-black/20 shadow-2xl">
+
+    {/* Main Mobile Laboratory Image */}
+    <div
+      className="group relative h-56 overflow-hidden cursor-pointer"
+      onClick={() => {
+        setSelectedImage(mobileLabCar);
+        setSelectedImageTitle(
+          lang === 'ar'
+            ? 'المختبر المتنقل الرسمي - نجران'
+            : lang === 'fr'
+            ? 'Laboratoire mobile officiel - Najran'
+            : 'Official Mobile Laboratory - Najran'
+        );
+      }}
+    >
+      <img
+        src={mobileLabCar}
+        alt={
+          lang === 'ar'
+            ? 'المختبر المتنقل الرسمي - نجران'
+            : lang === 'fr'
+            ? 'Laboratoire mobile officiel - Najran'
+            : 'Official Mobile Laboratory - Najran'
+        }
+        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+      />
+
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent flex items-end p-4">
+        <div className="text-white">
+          <span className="text-xs font-bold bg-blue-600 px-2.5 py-1 rounded-full inline-flex items-center gap-1.5 mb-1.5">
+            <Truck className="w-3.5 h-3.5" />
+
+            {lang === 'ar'
+              ? 'المركبة الرسمية للمختبر المتنقل'
+              : lang === 'fr'
+              ? 'Véhicule officiel du laboratoire mobile'
+              : 'Official Mobile Laboratory Vehicle'}
+          </span>
+
+          <p className="text-xs text-slate-300">
+            {lang === 'ar'
+              ? 'مختبر نجران المركزي'
+              : lang === 'fr'
+              ? 'Laboratoire central de Najran'
+              : 'Najran Central Laboratory'}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {/* Unified Mobile Laboratory Album */}
+    <div className="p-3 sm:p-4 bg-slate-950/60">
+
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <h3 className="text-sm font-semibold text-white">
+            {lang === 'ar'
+              ? 'ألبوم المختبر المتنقل'
+              : lang === 'fr'
+              ? 'Album du laboratoire mobile'
+              : 'Mobile Laboratory Album'}
+          </h3>
+
+          <p className="text-[11px] text-slate-400 mt-0.5">
+            {lang === 'ar'
+              ? 'صور حقيقية للمركبة والتجهيزات والعمليات الميدانية'
+              : lang === 'fr'
+              ? 'Photos réelles du véhicule, des équipements et des opérations de terrain'
+              : 'Authentic photos of the vehicle, equipment and field operations'}
+          </p>
+        </div>
+
+        <span className="text-[10px] px-2 py-1 rounded-full bg-white/10 text-slate-300">
+          8 {lang === 'ar' ? 'صور' : lang === 'fr' ? 'photos' : 'photos'}
+        </span>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+
+        {[
+          {
+            img: mobileLabCar,
+            label:
+              lang === 'ar'
+                ? 'المركبة المتنقلة'
+                : lang === 'fr'
+                ? 'Véhicule mobile'
+                : 'Mobile Vehicle',
+          },
+          {
+            img: mobileFieldWork,
+            label:
+              lang === 'ar'
+                ? 'العمليات الميدانية'
+                : lang === 'fr'
+                ? 'Opérations de terrain'
+                : 'Field Operations',
+          },
+          {
+            img: labGallery1,
+            label:
+              lang === 'ar'
+                ? 'تجهيزات التحليل الطيفي'
+                : lang === 'fr'
+                ? 'Équipements de spectrophotométrie'
+                : 'Spectrophotometry Equipment',
+          },
+          {
+            img: labGallery2,
+            label:
+              lang === 'ar'
+                ? 'محطة العكارة والأس الهيدروجيني'
+                : lang === 'fr'
+                ? 'Station de turbidité et pH'
+                : 'Turbidity & pH Station',
+          },
+          {
+            img: labGallery3,
+            label:
+              lang === 'ar'
+                ? 'الفحص الميكروبيولوجي'
+                : lang === 'fr'
+                ? 'Analyse microbiologique'
+                : 'Microbiology Analysis',
+          },
+          {
+            img: labGallery4,
+            label:
+              lang === 'ar'
+                ? 'الحواضن ومستلزمات الزراعة'
+                : lang === 'fr'
+                ? 'Incubateurs et matériel de culture'
+                : 'Incubators & Culture Equipment',
+          },
+          {
+            img: labGallery5,
+            label:
+              lang === 'ar'
+                ? 'الكواشف والأوساط المعقمة'
+                : lang === 'fr'
+                ? 'Réactifs et milieux stériles'
+                : 'Reagents & Sterile Media',
+          },
+          {
+            img: labGallery6,
+            label:
+              lang === 'ar'
+                ? 'استلام العينات وسلسلة الحيازة'
+                : lang === 'fr'
+                ? 'Réception des échantillons et chaîne de traçabilité'
+                : 'Sample Reception & Chain of Custody',
+          },
+        ].map((item, idx) => (
+          <button
+            key={idx}
+            type="button"
+            className="group relative aspect-square overflow-hidden rounded-lg border border-white/10 bg-slate-800 cursor-pointer"
+            onClick={() => {
+              setSelectedImage(item.img);
+              setSelectedImageTitle(item.label);
+            }}
+            aria-label={item.label}
+          >
+            <img
+              src={item.img}
+              alt={item.label}
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+            />
+
+            <div className="absolute inset-0 bg-black/55 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2">
+              <div className="text-white text-[10px] sm:text-[11px] font-semibold text-center flex flex-col items-center gap-1">
+                <Eye className="w-4 h-4" />
+                <span>{item.label}</span>
               </div>
             </div>
+          </button>
+        ))}
+
+      </div>
+    </div>
+
+  </div>
+
+</div>
           </div>
         </section>
 
