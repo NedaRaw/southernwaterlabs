@@ -1,19 +1,26 @@
-import asirVanImg from '@/assets/images/asir_mobile_van_1790850130004.jpg';
-import asirSideImg from '@/assets/images/asir_mobile_unit_official_1790849786620.jpg';
-import asirRearImg from '@/assets/images/asir_mobile_unit_1790848590272.jpg';
-import asirDeployImg from '@/assets/images/asir_mobile_lab_1790847647124.jpg';
-import asirActionImg from '@/assets/images/asir_mobile_laboratory_1790763703344.jpg';
+import asirVanImg from '@/assets/images/asir-lab-van5.jpg';
+import asirSideImg from '@/assets/images/asir-lab-van2.jpg';
+import asirRearImg from '@/assets/images/asir-lab-van8.jpg';
+import asirDeployImg from '@/assets/images/asir-lab-van3.jpg';
+import asirActionImg from '@/assets/images/asir-lab-van7.jpg';
 import asirLabRealImg from '@/assets/images/asir-waterlab1.jpg';
+import asirVan1Img from '@/assets/images/asir-lab-van1.jpg';
+import asirVan4Img from '@/assets/images/asir-lab-van4.jpg';
+import asirVan6Img from '@/assets/images/asir-lab-van6.jpg';
+import asirVan9Img from '@/assets/images/asir-lab-van9.jpg';
 
-import jazanVanImg from '@/assets/images/jazan_mobile_van_1790850154570.jpg';
-import jazanSideImg from '@/assets/images/jazan_mobile_unit_official_1790849811094.jpg';
-import jazanRearImg from '@/assets/images/jazan_mobile_unit_1790848610686.jpg';
-import jazanDeployImg from '@/assets/images/jazan_mobile_lab_1790847679789.jpg';
+import jazanVanImg from '@/assets/images/jazan-lab-van4.jpg';
+import jazanSideImg from '@/assets/images/jazan-lab-van2.jpg';
+import jazanRearImg from '@/assets/images/jazan-lab-van5.jpg';
+import jazanDeployImg from '@/assets/images/jazan-lab-van1.jpg';
+import jazanVan3Img from '@/assets/images/jazan-lab-van3.jpg';
+import jazanVan6Img from '@/assets/images/jazan-lab-van6.jpg';
 
-import bahaVanImg from '@/assets/images/albaha_mobile_van_1790850142367.jpg';
-import bahaSideImg from '@/assets/images/albaha_mobile_unit_official_1790849798023.jpg';
-import bahaRearImg from '@/assets/images/albaha_mobile_unit_1790848600584.jpg';
-import bahaDeployImg from '@/assets/images/albaha_mobile_lab_1790847663168.jpg';
+import bahaVanImg from '@/assets/images/albaha-lab-van1.jpg';
+import bahaSideImg from '@/assets/images/albaha-lab-van5.jpg';
+import bahaRearImg from '@/assets/images/albaha-lab-van3.jpg';
+import bahaDeployImg from '@/assets/images/albaha-lab-van2.jpg';
+import albahaVan4Img from '@/assets/images/albaha-lab-van4.jpg';
 
 import najranVanImg from '@/assets/images/lab-car-najran.jpg';
 import najranRealDoorsImg from '@/assets/images/IMG-20250723-WA0001.jpg';
@@ -163,7 +170,7 @@ export const mobileLaboratoriesData: Record<'asir' | 'jazan' | 'alBaha' | 'najra
         id: 'asir-img-4',
         role: 'interior',
         roleTitle: { ar: 'المختبر الداخلي المتنقل وكيميائي الفحص', en: 'Interior laboratory', fr: 'Laboratoire intérieur' },
-        image: najranRealTechImg,
+        image: asirVan4Img,
         caption: {
           ar: 'صورة حقيقية للمختبر الداخلي المتنقل وكيميائي فحص معتمد أثناء فحص العينات (المرجع الفني المعتمد لأسطول القطاع الجنوبي).',
           en: 'Real photograph inside the mobile laboratory: certified chemist performing analytical procedures (Certified Technical Reference - Southern Fleet).',
@@ -177,7 +184,7 @@ export const mobileLaboratoriesData: Record<'asir' | 'jazan' | 'alBaha' | 'najra
         id: 'asir-img-5',
         role: 'workbench',
         roleTitle: { ar: 'منضدة العمل والتحاليل المخبرية', en: 'Laboratory workbench', fr: 'Paillasse de laboratoire' },
-        image: najranRealBenchImg,
+        image: asirVan6Img,
         caption: {
           ar: 'منضدة التحليل الميدانية المعتمدة لأسطول القطاع الجنوبي: أجهزة القياس الرقمية والمحاليل القياسية وحوافظ العينات المعقمة.',
           en: 'Certified field analytical workbench layout of the Southern Cluster fleet: digital meters, calibrated reagents, and sterile sample coolers.',
@@ -191,7 +198,7 @@ export const mobileLaboratoriesData: Record<'asir' | 'jazan' | 'alBaha' | 'najra
         id: 'asir-img-6',
         role: 'equipment',
         roleTitle: { ar: 'الأجهزة والحقائب التحليلية المعتمدة', en: 'Equipment', fr: 'Équipements et instrumentation' },
-        image: najranRealKitsImg,
+        image: asirVan9Img,
         caption: {
           ar: 'حقائب الفحص الميداني المحمولة: مقاييس الطيف الضوئي المحمولة، مقاييس العكارة الرقمية، وأنابيب المعايرة الميدانية.',
           en: 'Portable field testing kits: handheld spectrophotometers, digital turbidimeters, and ISO-calibrated reagents.',
@@ -233,7 +240,7 @@ export const mobileLaboratoriesData: Record<'asir' | 'jazan' | 'alBaha' | 'najra
         id: 'asir-img-9',
         role: 'interior',
         roleTitle: { ar: 'المقر المركزي لمختبر عسير (المنشأة المشغلة)', en: 'Asir Central Laboratory Operating Facility', fr: 'Siège opérationnel du Laboratoire Central d\'Asir' },
-        image: asirLabRealImg,
+        image: asirVan1Img,
         caption: {
           ar: 'المقر المركزي للمختبر المرجعي لمياه الشرب والخدمات البيئية بمنطقة عسير (الجهة المشغلة للوحدة المتنقلة).',
           en: 'Central headquarters of Asir Central Laboratory for Drinking Water and Environmental Services (Operating Facility).',
@@ -363,7 +370,7 @@ export const mobileLaboratoriesData: Record<'asir' | 'jazan' | 'alBaha' | 'najra
         id: 'jazan-img-5',
         role: 'interior',
         roleTitle: { ar: 'الفحص الميكروبيولوجي بالمختبر المتنقل', en: 'Onboard Microbiological Testing', fr: 'Analyse microbiologique embarquée' },
-        image: najranRealTechImg,
+        image: jazanVan6Img,
         caption: {
           ar: 'كيميائي معتمد يجري الفحص الميكروبيولوجي الميداني بالمختبر المتنقل لأسطول القطاع الجنوبي.',
           en: 'Certified chemist performing on-site microbiological verification inside the Southern fleet mobile unit.',
@@ -377,7 +384,7 @@ export const mobileLaboratoriesData: Record<'asir' | 'jazan' | 'alBaha' | 'najra
         id: 'jazan-img-6',
         role: 'sampling',
         roleTitle: { ar: 'منطقة سحب العينات وقياس النقاوة', en: 'Water Purity & Sampling Inspection', fr: 'Contrôle de pureté et flacons de mesure' },
-        image: najranRealPurityImg,
+        image: jazanVan3Img,
         caption: {
           ar: 'فحص فوري لنقاء عينات المياه والتأكد من خلوها من أي شوائب أو ملوثات كيميائية.',
           en: 'Direct field purity verification ensuring water samples meet pristine institutional benchmarks.',
@@ -507,7 +514,7 @@ export const mobileLaboratoriesData: Record<'asir' | 'jazan' | 'alBaha' | 'najra
         id: 'baha-img-5',
         role: 'workbench',
         roleTitle: { ar: 'منضدة التحاليل الميدانية المعتمدة', en: 'Certified Analytical Workbench', fr: 'Plan de travail analytique certifié' },
-        image: najranRealBenchImg,
+        image: albahaVan4Img,
         caption: {
           ar: 'منضدة الفحص الميداني المعتمدة بأسطول القطاع الجنوبي مجهزة بمقاييس العكارة ومحطات المعايرة السريعة.',
           en: 'Standardized field analytical workbench of the Southern fleet featuring turbidimeters and calibration stations.',
@@ -517,20 +524,7 @@ export const mobileLaboratoriesData: Record<'asir' | 'jazan' | 'alBaha' | 'najra
         isTechnicalReference: true,
         statusBadge: { ar: 'مرجع فني معتمد (أسطول القطاع الجنوبي)', en: 'Certified Technical Reference (Southern Fleet)', fr: 'Référence technique certifiée (Flotte Sud)' },
       },
-      {
-        id: 'baha-img-6',
-        role: 'equipment',
-        roleTitle: { ar: 'حقائب وأجهزة الفحص الميداني المحمولة', en: 'Portable Analytical Instrumentation', fr: 'Kits d\'analyse mobiles et instrumentation' },
-        image: najranRealKitsImg,
-        caption: {
-          ar: 'الحقائب الميدانية المحمولة المزودة بمقاييس الطيف والكواشف الفورية لفحص مياه الشرب بالسدود.',
-          en: 'Portable field testing kits equipped with spectrophotometers and reagents for reservoir potability verification.',
-          fr: 'Mallettes de terrain équipées de spectrophotomètres et réactifs pour le contrôle de potabilité.',
-        },
-        isRealPhoto: true,
-        isTechnicalReference: true,
-        statusBadge: { ar: 'مرجع فني معتمد (أسطول القطاع الجنوبي)', en: 'Certified Technical Reference (Southern Fleet)', fr: 'Référence technique certifiée (Flotte Sud)' },
-      },
+      
     ],
   },
 

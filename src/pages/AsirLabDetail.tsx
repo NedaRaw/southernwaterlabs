@@ -38,7 +38,7 @@ import AsirLabLogo from '@/components/AsirLabLogo';
 
 import labAsirBuilding from '@/assets/images/lab_asir_central_1790236943444.jpg';
 import asirWaterLabFacility from '@/assets/images/asir_water_lab_facility_1790161189942.jpg';
-import asirMobileVan from '@/assets/images/asir_mobile_van_1790850130004.jpg';
+import asirMobileVan from '@/assets/images/asir-lab-van5.jpg';
 
 import asirWaterLab1 from '@/assets/images/asir-waterlab1.jpg';
 import asirWaterLab2 from '@/assets/images/asir-waterlab2.jpg';

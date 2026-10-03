@@ -14,14 +14,14 @@ import labJazanImg from '@/assets/images/lab_jazan_central_1790236972538.jpg';
 import labBahaImg from '@/assets/images/lab_baha_water_lab_1790238427592.jpg';
 
 // Regional Mobile Laboratories Fleet Images (Official Southern Cluster Vehicles matching real Najran vehicle livery)
-import asirMobileLabImg from '@/assets/images/asir_mobile_van_1790850130004.jpg';
-import albahaMobileLabImg from '@/assets/images/albaha_mobile_van_1790850142367.jpg';
-import jazanMobileLabImg from '@/assets/images/jazan_mobile_van_1790850154570.jpg';
+import asirMobileLabImg from '@/assets/images/asir-lab-van5.jpg';
+import albahaMobileLabImg from '@/assets/images/albaha-lab-van1.jpg';
+import jazanMobileLabImg from '@/assets/images/jazan-lab-van4.jpg';
 import najranMobileLabImg from '@/assets/images/lab-car-najran.jpg';
 import najranRealPhotoOriginal from '@/assets/images/lab-car-najran.jpg';
 import najranMobileLabAltImg from '@/assets/images/lab-car-najran.png';
 import najranRealDoorsImg from '@/assets/images/IMG-20250723-WA0001.jpg';
-import najranRealBenchImg from '@/assets/images/IMG-20250723-WA0002.jpg';
+import najranRealBenchImg from '@/assets/images/asir-lab-van6.jpg';
 import najranRealTechImg from '@/assets/images/IMG-20250723-WA0003.jpg';
 import najranRealSideImg from '@/assets/images/IMG-20250723-WA0004.jpg';
 import najranRealKitsImg from '@/assets/images/IMG-20250723-WA0005.jpg';
