@@ -244,7 +244,7 @@ export default function Header() {
           : lang === 'fr'
             ? 'Asir'
             : 'Asir',
-      path: '/mobile-laboratories/asir',
+      path: '/mobile-laboratories#mobile-asir',
     },
     {
       id: 'najran',
@@ -260,7 +260,7 @@ export default function Header() {
           : lang === 'fr'
             ? 'Najran'
             : 'Najran',
-      path: '/mobile-laboratories/najran',
+      path: '/mobile-laboratories#mobile-najran',
     },
     {
       id: 'al-baha',
@@ -276,7 +276,7 @@ export default function Header() {
           : lang === 'fr'
             ? 'Al-Baha'
             : 'Al-Baha',
-      path: '/mobile-laboratories/al-baha',
+      path: '/mobile-laboratories#mobile-al-baha',
     },
     {
       id: 'jazan',
@@ -292,7 +292,7 @@ export default function Header() {
           : lang === 'fr'
             ? 'Jazan'
             : 'Jazan',
-      path: '/mobile-laboratories/jazan',
+      path: '/mobile-laboratories#mobile-jazan',
     },
   ];
 

@@ -560,7 +560,15 @@ export default function MobileLaboratories() {
             return (
               <section
                 key={lab.id}
-                id={lab.anchorId}
+                id={
+                  labKey === 'asir'
+                        ? 'mobile-asir'
+                        : labKey === 'jazan'
+                            ? 'mobile-jazan'
+                            : labKey === 'alBaha'
+                               ? 'mobile-baha'
+                               : 'mobile-najran'
+                }
                 className="scroll-mt-28 sm:scroll-mt-32 p-6 sm:p-8 rounded-3xl bg-white dark:bg-[#161f31] border border-slate-200/90 dark:border-slate-800 shadow-md transition-all duration-300 space-y-8"
               >
                 {/* 1. Header Bar: Regional Badge + Anchor ID + Action Return */}
