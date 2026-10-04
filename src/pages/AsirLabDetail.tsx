@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  ShieldCheck,
   Activity,
   MapPin,
   Clock,
@@ -26,17 +25,12 @@ import {
   Camera,
   FileText,
   ArrowRight,
+  ShieldCheck,
 } from 'lucide-react';
 
 import { useLang } from '@/lib/i18n';
 import Breadcrumb from '@/components/Breadcrumb';
-import AsirLabLogo from '@/components/AsirLabLogo';
-import React from 'react';
 import nwcLogo from '@/assets/images/nwc-logo.png';
-
-// ============================================================
-// AUTHENTIC OFFICIAL ASIR CENTRAL LABORATORY ASSETS
-// ============================================================
 
 import labAsirBuilding from '@/assets/images/lab_asir_central_1790236943444.jpg';
 import asirWaterLabFacility from '@/assets/images/asir_water_lab_facility_1790161189942.jpg';
@@ -51,766 +45,669 @@ import cadeauAsir from '@/assets/images/cadeau-asir.jpg';
 import labAsirEnf from '@/assets/images/lab-asir-enf.jpg';
 import laboAsir from '@/assets/images/labo-asir.jpg';
 
-// IMPORTANT:
-// This image is NOT part of the laboratory photo album.
-// It is an institutional poster.
 import sloganAsir from '@/assets/images/slogon-assir.jpg';
 
+type Lang = 'ar' | 'en' | 'fr';
 
-// ============================================================
-// COMPONENT
-// ============================================================
+type ImageItem = {
+  src: string;
+  title: Record<Lang, string>;
+  description?: Record<Lang, string>;
+};
+
+const labCoordinates = {
+  lat: 18.2501569,
+  lng: 42.5996342,
+  dms: `18°15'00.6"N 42°35'58.7"E`,
+  decimal: '18.250157, 42.599634',
+  plusCode: '7H2X+3V6, طريق, Almahalah, Abha 62562, Saudi Arabia',
+  mapsUrl: 'https://maps.app.goo.gl/s4pP9yp98rcRT3Xv9',
+  directionsUrl:
+    'https://www.google.com/maps/dir/?api=1&destination=18.2501569,42.5996342',
+  xAccountUrl: 'https://x.com/cen_lab',
+};
+
+const translations: Record<Lang, Record<string, string>> = {
+  ar: {
+    officialTitle:
+      'المختبر المركزي للمياه بالمنطقة الجنوبية - منطقة عسير',
+    shortTitle: 'المختبر المركزي لعسير',
+    institutionalAffiliation:
+      'القطاع الجنوبي للمختبرات البيئية ومختبرات المياه',
+    tagline:
+      'التميز في الفحوصات والتحاليل المخبرية لجودة المياه والبيئة',
+    mewaBadge: 'وزارة البيئة والمياه والزراعة',
+    centralBadge: 'مختبر مركزي',
+    region: 'منطقة عسير',
+    hours: 'الأحد – الخميس | 8:30 ص – 3:15 م',
+    affiliation: 'القطاع الجنوبي',
+
+    registerVisit: 'تسجيل زيارة',
+    takeSurvey: 'المشاركة في الاستبيان',
+    sendEnquiry: 'إرسال استفسار',
+
+    aboutHeading: 'عن المختبر',
+    aboutSub: 'المختبر المركزي للمياه بالمنطقة الجنوبية - عسير',
+    aboutText:
+      'يقدم المختبر المركزي بعسير خدمات متخصصة في فحص وتحليل عينات المياه والبيئة، وفق منهجيات علمية ومعايير جودة معتمدة، لدعم موثوقية النتائج وسلامة الموارد المائية وحماية البيئة.',
+
+    buildingBadge: 'المبنى الرئيسي',
+    facilityBadge: 'منشأة مخبرية متخصصة',
+    facilityDesc:
+      'بيئة مخبرية متكاملة مجهزة بأحدث أدوات القياس والتحليل وأجهزة التحليل الطيفي والكروماتوغرافي.',
+    mobileBadge: 'الوحدة الميدانية المتنقلة',
+    mobileDesc:
+      'وحدة ميدانية متنقلة لإجراء الفحوصات العاجلة وجمع العينات وفق الاشتراطات المعتمدة وسلسلة الحيازة.',
+
+    clickToEnlarge: 'اضغط على الصورة للتكبير',
+
+    activitiesHeading: 'أهم الأنشطة والخدمات',
+    activitiesSub:
+      'قدرات مخبرية وميدانية لدعم جودة المياه والرقابة البيئية',
+
+    waterTesting: 'فحوصات جودة مياه الشرب',
+    waterTestingDesc:
+      'تحليل العينات والتحقق من مؤشرات جودة وسلامة مياه الشرب.',
+    labAnalysis: 'التحاليل المخبرية',
+    labAnalysisDesc:
+      'إجراء التحاليل الكيميائية والفيزيائية والميكروبيولوجية وفق الإجراءات المعتمدة.',
+    fieldOperations: 'العمليات والفحوصات الميدانية',
+    fieldOperationsDesc:
+      'جمع العينات وتنفيذ الفحوصات الميدانية باستخدام التجهيزات المتخصصة.',
+    quality: 'ضمان ومراقبة الجودة',
+    qualityDesc:
+      'تطبيق أنظمة الجودة والتحقق من موثوقية النتائج ودقة القياسات.',
+
+    branchesHeading: 'الفروع التابعة للمختبر',
+    branchesSub:
+      'تغطية مخبرية وميدانية لخدمة مناطق مختلفة ضمن منطقة عسير',
+
+    bishaTitle: 'فرع بيشة',
+    bishaDesc:
+      'فرع تابع للمختبر المركزي بعسير لدعم أعمال الفحص والتحليل وخدمات العينات في محافظة بيشة.',
+    goToBisha: 'زيارة صفحة فرع بيشة',
+
+    mahayelTitle: 'فرع محايل',
+    mahayelDesc:
+      'فرع تابع للمختبر المركزي بعسير لتقديم خدمات الفحص والتحليل ودعم العمليات الميدانية في محايل.',
+    goToMahayel: 'زيارة صفحة فرع محايل',
+
+    locationHeading: 'الموقع',
+    address: 'العنوان',
+    district: 'حي المحالة، أبها، منطقة عسير، المملكة العربية السعودية',
+    mapHeading: 'الموقع على الخريطة',
+    interactiveMapHeading: 'الموقع الجغرافي للمختبر المركزي بعسير',
+    coordinates: 'الإحداثيات',
+    copyCoordinates: 'نسخ الإحداثيات',
+    copied: 'تم النسخ',
+    directions: 'الحصول على الاتجاهات',
+    openMaps: 'فتح في خرائط Google',
+    locationNotice:
+      'الإحداثيات المعروضة تشير إلى الموقع الرسمي للمختبر المركزي بعسير.',
+
+    contactHeading: 'التواصل',
+    directPhone: 'الهاتف المباشر',
+    workingHours: 'أوقات العمل',
+    xAccount: 'الحساب الرسمي على X',
+
+    visitorServices: 'خدمات الزوار',
+    visitorServicesSub:
+      'يمكنكم استخدام الخدمات الإلكترونية التالية للتواصل مع المختبر',
+
+    posterHeading: 'المعلومة المؤسسية',
+    posterDescription:
+      'مواد وصور مؤسسية مرتبطة بالمختبر المركزي لمنطقة عسير.',
+
+    previous: 'الصورة السابقة',
+    next: 'الصورة التالية',
+    close: 'إغلاق',
+    image: 'صورة',
+    of: 'من',
+
+    iso: 'ISO/IEC 17025:2017',
+    sac: 'اعتماد SAC',
+  },
+
+  en: {
+    officialTitle:
+      'Central Water Laboratory - Southern Sector - Asir Region',
+    shortTitle: 'Asir Central Laboratory',
+    institutionalAffiliation:
+      'Southern Sector Environmental & Water Laboratories',
+    tagline:
+      'Excellence in laboratory testing and analysis of water and environmental quality',
+    mewaBadge: 'Ministry of Environment, Water and Agriculture',
+    centralBadge: 'Central Laboratory',
+    region: 'Asir Region',
+    hours: 'Sunday – Thursday | 8:30 AM – 3:15 PM',
+    affiliation: 'Southern Sector',
+
+    registerVisit: 'Register as a Visitor',
+    takeSurvey: 'Take Survey',
+    sendEnquiry: 'Send Enquiry',
+
+    aboutHeading: 'About the Laboratory',
+    aboutSub: 'Central Water Laboratory - Asir Region',
+    aboutText:
+      'The Asir Central Laboratory provides specialized testing and analysis services for water and environmental samples using scientific methodologies and recognized quality standards to support reliable results, water safety and environmental protection.',
+
+    buildingBadge: 'Main Building',
+    facilityBadge: 'Specialized Laboratory Facility',
+    facilityDesc:
+      'An integrated laboratory environment equipped with advanced measurement and analytical instruments, including spectroscopic and chromatographic systems.',
+    mobileBadge: 'Mobile Field Unit',
+    mobileDesc:
+      'A mobile field unit for urgent testing and sample collection in accordance with approved requirements and chain-of-custody procedures.',
+
+    clickToEnlarge: 'Click the image to enlarge',
+
+    activitiesHeading: 'Main Activities & Services',
+    activitiesSub:
+      'Laboratory and field capabilities supporting water quality and environmental monitoring',
+
+    waterTesting: 'Drinking Water Quality Testing',
+    waterTestingDesc:
+      'Sample analysis and verification of drinking-water quality and safety indicators.',
+    labAnalysis: 'Laboratory Analysis',
+    labAnalysisDesc:
+      'Chemical, physical and microbiological analyses using approved procedures.',
+    fieldOperations: 'Field Operations & Testing',
+    fieldOperationsDesc:
+      'Sample collection and field testing using specialized equipment.',
+    quality: 'Quality Assurance & Control',
+    qualityDesc:
+      'Implementation of quality systems and verification of measurement accuracy and result reliability.',
+
+    branchesHeading: 'Laboratory Branches',
+    branchesSub:
+      'Laboratory and field coverage supporting different areas of Asir Region',
+
+    bishaTitle: 'Bisha Branch',
+    bishaDesc:
+      'A branch of the Asir Central Laboratory supporting testing, analysis and sample services in Bisha Governorate.',
+    goToBisha: 'Visit Bisha Branch',
+
+    mahayelTitle: 'Mahayel Branch',
+    mahayelDesc:
+      'A branch of the Asir Central Laboratory providing testing, analysis and field-operation support in Mahayel.',
+    goToMahayel: 'Visit Mahayel Branch',
+
+    locationHeading: 'Location',
+    address: 'Address',
+    district:
+      'Al-Mahalah District, Abha, Asir Region, Saudi Arabia',
+    mapHeading: 'Location on Map',
+    interactiveMapHeading:
+      'Geographical location of Asir Central Laboratory',
+    coordinates: 'Coordinates',
+    copyCoordinates: 'Copy coordinates',
+    copied: 'Copied',
+    directions: 'Get Directions',
+    openMaps: 'Open in Google Maps',
+    locationNotice:
+      'The displayed coordinates indicate the official location of the Asir Central Laboratory.',
+
+    contactHeading: 'Contact',
+    directPhone: 'Direct Phone',
+    workingHours: 'Working Hours',
+    xAccount: 'Official X Account',
+
+    visitorServices: 'Visitor Services',
+    visitorServicesSub:
+      'Use the following electronic services to communicate with the laboratory',
+
+    posterHeading: 'Institutional Information',
+    posterDescription:
+      'Institutional material and imagery related to the Asir Central Laboratory.',
+
+    previous: 'Previous image',
+    next: 'Next image',
+    close: 'Close',
+    image: 'Image',
+    of: 'of',
+
+    iso: 'ISO/IEC 17025:2017',
+    sac: 'SAC Accreditation',
+  },
+
+  fr: {
+    officialTitle:
+      'Laboratoire central de l’eau - Secteur Sud - Région d’Asir',
+    shortTitle: 'Laboratoire central d’Asir',
+    institutionalAffiliation:
+      'Laboratoires environnementaux et de l’eau du secteur Sud',
+    tagline:
+      'Excellence dans les analyses et les essais de la qualité de l’eau et de l’environnement',
+    mewaBadge:
+      'Ministère de l’Environnement, de l’Eau et de l’Agriculture',
+    centralBadge: 'Laboratoire central',
+    region: 'Région d’Asir',
+    hours: 'Dimanche – jeudi | 08h30 – 15h15',
+    affiliation: 'Secteur Sud',
+
+    registerVisit: 'Enregistrer une visite',
+    takeSurvey: 'Répondre au sondage',
+    sendEnquiry: 'Envoyer une demande',
+
+    aboutHeading: 'À propos du laboratoire',
+    aboutSub: 'Laboratoire central de l’eau - Région d’Asir',
+    aboutText:
+      'Le Laboratoire central d’Asir fournit des services spécialisés d’essais et d’analyse des échantillons d’eau et d’environnement selon des méthodologies scientifiques et des normes de qualité reconnues.',
+
+    buildingBadge: 'Bâtiment principal',
+    facilityBadge: 'Installation de laboratoire spécialisée',
+    facilityDesc:
+      'Un environnement de laboratoire intégré équipé d’instruments modernes de mesure et d’analyse, notamment des systèmes spectroscopiques et chromatographiques.',
+    mobileBadge: 'Unité mobile de terrain',
+    mobileDesc:
+      'Une unité mobile destinée aux analyses urgentes et au prélèvement d’échantillons conformément aux exigences approuvées et à la chaîne de traçabilité.',
+
+    clickToEnlarge: 'Cliquer sur l’image pour l’agrandir',
+
+    activitiesHeading: 'Principales activités et services',
+    activitiesSub:
+      'Capacités de laboratoire et de terrain pour le contrôle de la qualité de l’eau et de l’environnement',
+
+    waterTesting: 'Analyses de la qualité de l’eau potable',
+    waterTestingDesc:
+      'Analyse des échantillons et vérification des indicateurs de qualité et de sécurité de l’eau potable.',
+    labAnalysis: 'Analyses de laboratoire',
+    labAnalysisDesc:
+      'Analyses chimiques, physiques et microbiologiques selon les procédures approuvées.',
+    fieldOperations: 'Opérations et essais sur le terrain',
+    fieldOperationsDesc:
+      'Prélèvement des échantillons et réalisation des essais sur le terrain avec des équipements spécialisés.',
+    quality: 'Assurance et contrôle qualité',
+    qualityDesc:
+      'Application des systèmes qualité et vérification de la précision des mesures et de la fiabilité des résultats.',
+
+    branchesHeading: 'Branches du laboratoire',
+    branchesSub:
+      'Couverture des services de laboratoire et de terrain dans différentes zones d’Asir',
+
+    bishaTitle: 'Branche de Bisha',
+    bishaDesc:
+      'Branche du Laboratoire central d’Asir assurant les analyses, essais et services liés aux échantillons à Bisha.',
+    goToBisha: 'Voir la branche de Bisha',
+
+    mahayelTitle: 'Branche de Mahayel',
+    mahayelDesc:
+      'Branche du Laboratoire central d’Asir assurant les analyses et le soutien aux opérations de terrain à Mahayel.',
+    goToMahayel: 'Voir la branche de Mahayel',
+
+    locationHeading: 'Localisation',
+    address: 'Adresse',
+    district:
+      'Quartier Al-Mahalah, Abha, région d’Asir, Arabie saoudite',
+    mapHeading: 'Localisation sur la carte',
+    interactiveMapHeading:
+      'Localisation géographique du Laboratoire central d’Asir',
+    coordinates: 'Coordonnées',
+    copyCoordinates: 'Copier les coordonnées',
+    copied: 'Copié',
+    directions: 'Itinéraire',
+    openMaps: 'Ouvrir dans Google Maps',
+    locationNotice:
+      'Les coordonnées affichées correspondent à l’emplacement officiel du Laboratoire central d’Asir.',
+
+    contactHeading: 'Contact',
+    directPhone: 'Téléphone direct',
+    workingHours: 'Heures de travail',
+    xAccount: 'Compte officiel sur X',
+
+    visitorServices: 'Services visiteurs',
+    visitorServicesSub:
+      'Utilisez les services électroniques suivants pour contacter le laboratoire',
+
+    posterHeading: 'Informations institutionnelles',
+    posterDescription:
+      'Supports et images institutionnels liés au Laboratoire central d’Asir.',
+
+    previous: 'Image précédente',
+    next: 'Image suivante',
+    close: 'Fermer',
+    image: 'Image',
+    of: 'sur',
+
+    iso: 'ISO/IEC 17025:2017',
+    sac: 'Accréditation SAC',
+  },
+};
+
+const album: ImageItem[] = [
+  {
+    src: labAsirBuilding,
+    title: {
+      ar: 'المبنى الرئيسي للمختبر المركزي بعسير',
+      en: 'Asir Central Laboratory Main Building',
+      fr: 'Bâtiment principal du Laboratoire central d’Asir',
+    },
+  },
+  {
+    src: asirWaterLabFacility,
+    title: {
+      ar: 'المنشأة المخبرية',
+      en: 'Laboratory Facility',
+      fr: 'Installation du laboratoire',
+    },
+  },
+  {
+    src: asirMobileVan,
+    title: {
+      ar: 'الوحدة الميدانية المتنقلة',
+      en: 'Mobile Field Unit',
+      fr: 'Unité mobile de terrain',
+    },
+  },
+  {
+    src: asirWaterLab1,
+    title: {
+      ar: 'منشآت وتجهيزات المختبر',
+      en: 'Laboratory Facilities and Equipment',
+      fr: 'Installations et équipements',
+    },
+  },
+  {
+    src: asirWaterLab2,
+    title: {
+      ar: 'بيئة العمل المخبرية',
+      en: 'Laboratory Working Environment',
+      fr: 'Environnement de travail du laboratoire',
+    },
+  },
+  {
+    src: asirWaterLab3,
+    title: {
+      ar: 'التجهيزات والتحاليل',
+      en: 'Laboratory Equipment and Analysis',
+      fr: 'Équipements et analyses',
+    },
+  },
+  {
+    src: asirWaterLab4,
+    title: {
+      ar: 'المرافق المخبرية',
+      en: 'Laboratory Facilities',
+      fr: 'Installations du laboratoire',
+    },
+  },
+  {
+    src: cadeauAsir,
+    title: {
+      ar: 'المختبر المركزي بعسير',
+      en: 'Asir Central Laboratory',
+      fr: 'Laboratoire central d’Asir',
+    },
+  },
+  {
+    src: labAsirEnf,
+    title: {
+      ar: 'المختبر والبيئة المحيطة',
+      en: 'Laboratory and Surroundings',
+      fr: 'Laboratoire et environnement',
+    },
+  },
+  {
+    src: laboAsir,
+    title: {
+      ar: 'منشأة المختبر',
+      en: 'Laboratory Facility',
+      fr: 'Installation du laboratoire',
+    },
+  },
+];
 
 export default function AsirLabDetail() {
   const { lang } = useLang();
 
-  const dir = lang === 'ar' ? 'rtl' : 'ltr';
-
-  // ============================================================
-  // TRANSLATIONS
-  // ============================================================
-
-  const tText = {
-    officialTitle: {
-      ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة عسير',
-      en: 'Asir Central Laboratory for Drinking Water and Environmental Services',
-      fr: "Laboratoire central des eaux potables et des services environnementaux de la région d'Asir",
-    }[lang],
-
-    shortTitle: {
-      ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بعسير',
-      en: 'Asir Central Drinking Water & Environmental Laboratory',
-      fr: "Laboratoire central des eaux potables et de l'environnement d'Asir",
-    }[lang],
-
-    institutionalAffiliation: {
-      ar: 'وزارة البيئة والمياه والزراعة – الإدارة العامة لخدمات المياه بعسير – المختبر المركزي',
-      en: 'Ministry of Environment, Water and Agriculture – General Directorate of Water Services in Asir – Central Laboratory',
-      fr: "Ministère de l'Environnement, de l'Eau et de l'Agriculture – Direction générale des services de l'eau d'Asir – Laboratoire central",
-    }[lang],
-
-    tagline: {
-      ar: 'فحص وتحليل جودة مياه الشرب والمصادر المائية والتحقق من مطابقتها للمواصفات والمعايير المعتمدة',
-      en: 'Testing and analysis of drinking water quality and water sources to verify compliance with applicable standards',
-      fr: "Contrôle et analyse de la qualité des eaux potables et des sources d'eau pour vérifier leur conformité aux normes",
-    }[lang],
-
-    mewaBadge: {
-      ar: 'وزارة البيئة والمياه والزراعة – خدمات المياه بعسير',
-      en: 'Ministry of Environment, Water & Agriculture – Asir Water Services',
-      fr: "Ministère de l'Environnement, de l'Eau et de l'Agriculture – Services de l'Eau d'Asir",
-    }[lang],
-
-    centralBadge: {
-      ar: 'المختبر المركزي – منطقة عسير',
-      en: 'Central Laboratory – Asir Region',
-      fr: "Laboratoire Central – Région d'Asir",
-    }[lang],
-
-    statRegionVal: {
-      ar: 'منطقة عسير',
-      en: 'Asir Region',
-      fr: "Région d'Asir",
-    }[lang],
-
-    statRegionSub: {
-      ar: 'المقر الرئيسي بأبها',
-      en: 'Headquarters in Abha',
-      fr: 'Siège à Abha',
-    }[lang],
-
-    statRegionDesc: {
-      ar: 'المحالة، أبها والمحافظات التابعة',
-      en: 'Al-Mahalah, Abha & Provinces',
-      fr: 'Al-Mahalah, Abha et provinces',
-    }[lang],
-
-    statHoursVal: '8:30 – 15:15',
-
-    statHoursSub: {
-      ar: 'أوقات العمل الرسمية',
-      en: 'Official Working Hours',
-      fr: 'Horaires Officiels',
-    }[lang],
-
-    statHoursDesc: {
-      ar: 'الأحد إلى الخميس',
-      en: 'Sunday to Thursday',
-      fr: 'Du dimanche au jeudi',
-    }[lang],
-
-    statXVal: '@cen_lab',
-
-    statXSub: {
-      ar: 'الحساب الرسمي على X',
-      en: 'Official X Account',
-      fr: 'Compte Officiel X',
-    }[lang],
-
-    statXDesc: {
-      ar: 'متابعة التحديثات الميدانية',
-      en: 'Follow Official Updates',
-      fr: 'Actualités officielles',
-    }[lang],
-
-    statAffilVal: {
-      ar: 'خدمات المياه',
-      en: 'Water Services',
-      fr: "Services de l'Eau",
-    }[lang],
-
-    statAffilSub: {
-      ar: 'الإدارة العامة بعسير',
-      en: 'General Directorate in Asir',
-      fr: "Direction Générale d'Asir",
-    }[lang],
-
-    statAffilDesc: {
-      ar: 'وزارة البيئة والمياه والزراعة',
-      en: 'Ministry of Environment, Water & Agriculture',
-      fr: "Ministère de l'Environnement",
-    }[lang],
-
-    registerVisit: {
-      ar: 'تسجيل زيارة للمختبر',
-      en: 'Register as a Visitor',
-      fr: 'Réserver une Visite',
-    }[lang],
-
-    takeSurvey: {
-      ar: 'استبيان رضا المستفيدين',
-      en: 'Beneficiary Survey',
-      fr: 'Enquête de Satisfaction',
-    }[lang],
-
-    sendEnquiry: {
-      ar: 'إرسال استفسار',
-      en: 'Send Enquiry',
-      fr: 'Envoyer une Demande',
-    }[lang],
-
-    aboutHeading: {
-      ar: 'عن المختبر المركزي بعسير',
-      en: 'About Asir Central Laboratory',
-      fr: "À Propos du Laboratoire Central d'Asir",
-    }[lang],
-
-    aboutSub: {
-      ar: 'المرجع الفني المتخصص لفحص مياه الشرب والرقابة البيئية بمنطقة عسير',
-      en: 'Specialized institutional reference for drinking water testing and environmental oversight in Asir',
-      fr: "Référence institutionnelle spécialisée pour l'analyse des eaux potables et la veille environnementale en Asir",
-    }[lang],
-
-    aboutText: {
-      ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة عسير تابع للإدارة العامة لخدمات المياه بعسير بوزارة البيئة والمياه والزراعة، ويختص بفحص وتحليل جودة مياه الشرب والمصادر المائية، وإجراء الفحوصات المخبرية اللازمة للتحقق من مطابقة المياه للمواصفات والمعايير المعتمدة.',
-      en: 'The Asir Central Laboratory for Drinking Water and Environmental Services operates under the General Administration of Water Services in Asir at the Ministry of Environment, Water and Agriculture. The laboratory performs testing and analysis of drinking water and water sources and conducts laboratory examinations to verify compliance with applicable standards and requirements.',
-      fr: "Le Laboratoire central des eaux potables et des services environnementaux de la région d'Asir relève de l'Administration générale des services de l'eau d'Asir au sein du ministère de l'Environnement, de l'Eau et de l'Agriculture. Il réalise des analyses des eaux potables et des sources d'eau ainsi que les contrôles nécessaires pour vérifier leur conformité aux normes et exigences applicables.",
-    }[lang],
-
-    buildingBadge: {
-      ar: 'المقر والمبنى الرئيسي للمختبر المركزي – المحالة، أبها',
-      en: 'Main Building & Laboratory Facility – Al-Mahalah, Abha',
-      fr: 'Bâtiment et Siège Principal du Laboratoire – Al-Mahalah, Abha',
-    }[lang],
-
-    facilityBadge: {
-      ar: 'بيئة الفحوصات والتحاليل المخبرية – عسير',
-      en: 'Laboratory Testing & Quality Analysis Environment – Asir',
-      fr: "Environnement d'Analyses et Contrôles – Asir",
-    }[lang],
-
-    facilityDesc: {
-      ar: 'تجهيزات مخبرية متقدمة لقياس جودة مياه الشرب ومطابقة المعايير والمواصفات القياسية المعتمدة.',
-      en: 'Advanced analytical equipment for testing drinking water quality and verifying official standards.',
-      fr: "Équipements analytiques de pointe pour le contrôle de la qualité de l'eau et la conformité aux normes.",
-    }[lang],
-
-    mobileBadge: {
-      ar: 'الوحدة المخبرية المتنقلة والعمليات الميدانية – عسير',
-      en: 'Mobile Laboratory Unit & Regional Field Operations – Asir',
-      fr: 'Unité Mobile et Opérations Régionales de Terrain – Asir',
-    }[lang],
-
-    mobileDesc: {
-      ar: 'وحدة مخبرية مجهزة للتحليل الميداني السريع لعينات المياه في المحافظات والمصادر المائية المختلفة بمنطقة عسير.',
-      en: 'Equipped mobile unit for rapid on-site water quality analysis across governorates and regional water sources in Asir.',
-      fr: "Unité mobile équipée pour les prélèvements et analyses rapides in situ à travers les gouvernorats d'Asir.",
-    }[lang],
-
-    clickToEnlarge: {
-      ar: 'انقر للتكبير والمعاينة',
-      en: 'Click to view full image',
-      fr: 'Cliquer pour agrandir',
-    }[lang],
-
-    activitiesHeading: {
-      ar: 'الأنشطة والمهام المخبرية الرئيسية',
-      en: 'Main Laboratory Activities',
-      fr: 'Activités et Missions Principales',
-    }[lang],
-
-    activitiesSub: {
-      ar: 'المهام الأساسية المعتمدة لفحص ومراقبة جودة مياه الشرب والمصادر المائية',
-      en: 'Verified core activities for drinking water quality testing and water source surveillance',
-      fr: 'Missions fondamentales vérifiées pour le contrôle et la surveillance des eaux potables',
-    }[lang],
-
-    branchesHeading: {
-      ar: 'الفروع والمراكز التابعة بالمنطقة',
-      en: 'Affiliated Regional Branches',
-      fr: 'Agences et Centres Affiliés',
-    }[lang],
-
-    branchesSub: {
-      ar: 'منظومة الفروع التابعة للمختبر المركزي لخدمة محافظات منطقة عسير',
-      en: 'Branch network operating under Asir Central Laboratory across regional governorates',
-      fr: "Réseau d'agences rattachées au Laboratoire Central pour desservir la région d'Asir",
-    }[lang],
-
-    bishaTitle: {
-      ar: 'مختبر فرع بيشة',
-      en: 'Bisha Branch Laboratory',
-      fr: 'Laboratoire de la branche de Bisha',
-    }[lang],
-
-    bishaDesc: {
-      ar: 'فرع بيشة التابع للمختبر المركزي لعسير، يخدم محافظة بيشة والمناطق المحيطة بها في إجراء فحوصات مياه الشرب والآبار.',
-      en: 'Bisha branch operating under Asir Central Laboratory, serving Bisha governorate and neighboring municipal districts.',
-      fr: "Agence de Bisha rattachée au Laboratoire Central d'Asir, desservant le gouvernorat de Bisha et les communes limitrophes.",
-    }[lang],
-
-    goToBisha: {
-      ar: 'صفحة فرع بيشة',
-      en: 'View Bisha Branch Page',
-      fr: 'Consulter la branche de Bisha',
-    }[lang],
-
-    mahayelTitle: {
-      ar: 'مختبر فرع محايل',
-      en: 'Mahayel Branch Laboratory',
-      fr: 'Laboratoire de la branche de Mahayel',
-    }[lang],
-
-    mahayelDesc: {
-      ar: 'فرع محايل التابع للمختبر المركزي لعسير، يخدم محافظة محايل عسير والمناطق المجاورة في متابعة جودة الإمدادات المائية.',
-      en: 'Mahayel branch operating under Asir Central Laboratory, serving Mahayel governorate in water quality monitoring.',
-      fr: 'Agence de Mahayel rattachée au Laboratoire Central d\'Asir, desservant le gouvernorat de Mahayel et ses environs.',
-    }[lang],
-
-    goToMahayel: {
-      ar: 'صفحة فرع محايل',
-      en: 'View Mahayel Branch Page',
-      fr: 'Consulter la branche de Mahayel',
-    }[lang],
-
-    locationHeading: {
-      ar: 'الموقع والعنوان المعتمد',
-      en: 'Official Location & Address',
-      fr: 'Localisation & Adresse Officielle',
-    }[lang],
-
-    officialAddress: {
-      ar: '7H2X+3V6, طريق, Almahalah, Abha 62562, Saudi Arabia',
-      en: '7H2X+3V6, طريق, Almahalah, Abha 62562, Saudi Arabia',
-      fr: '7H2X+3V6, طريق, Almahalah, Abha 62562, Saudi Arabia',
-    }[lang],
-
-    locationDistrict: {
-      ar: 'المحالة، أبها، منطقة عسير، المملكة العربية السعودية',
-      en: 'Al-Mahalah, Abha, Asir Region, Saudi Arabia',
-      fr: "Al-Mahalah, Abha, région d'Asir, Arabie saoudite",
-    }[lang],
-
-    openMapBtn: {
-      ar: 'فتح الموقع في Google Maps',
-      en: 'Open in Google Maps',
-      fr: 'Ouvrir dans Google Maps',
-    }[lang],
-
-    interactiveMapHeading: {
-      ar: 'خريطة تفاعلية وموقع المختبر عبر Google Maps',
-      en: 'Interactive Map & Laboratory Location on Google Maps',
-      fr: 'Carte Interactive & Emplacement du Laboratoire sur Google Maps',
-    }[lang],
-
-    interactiveMapSub: {
-      ar: 'موقع جغرافي موثق بإحداثيات GPS المعتمدة لتسهيل وصول المراجعين وتسليم عينات الفحص',
-      en: 'Verified GPS coordinates facilitating visitor access and water sample delivery',
-      fr: "Coordonnées GPS vérifiées facilitant l'accès des visiteurs et le dépôt des échantillons",
-    }[lang],
-
-    verifiedCoordsLabel: {
-      ar: 'الإحداثيات الجغرافية المعتمدة (GPS)',
-      en: 'Verified GPS Coordinates',
-      fr: 'Coordonnées GPS Vérifiées',
-    }[lang],
-
-    copyCoordsBtn: {
-      ar: 'نسخ الإحداثيات',
-      en: 'Copy Coordinates',
-      fr: 'Copier les Coordonnées',
-    }[lang],
-
-    copiedSuccess: {
-      ar: 'تم النسخ بنجاح!',
-      en: 'Copied Successfully!',
-      fr: 'Copié avec Succès !',
-    }[lang],
-
-    getDirectionsBtn: {
-      ar: 'الاتجاهات الملاحية عبر Google Maps',
-      en: 'Get Directions (Google Maps)',
-      fr: 'Itinéraire (Google Maps)',
-    }[lang],
-
-    mapInteractiveNotice: {
-      ar: 'خريطة تفاعلية مباشرة: يمكنك التحريك، التكبير، والتصغير أو فتح المسار في تطبيق الخرائط',
-      en: 'Live interactive map: pan, zoom, or navigate directly in Google Maps',
-      fr: "Carte interactive en direct : déplacez, zoomez ou ouvrez l'itinéraire dans Google Maps",
-    }[lang],
-
-    contactHeading: {
-      ar: 'معلومات التواصل وساعات العمل',
-      en: 'Official Contact & Working Hours',
-      fr: 'Contact Officiel & Horaires de Travail',
-    }[lang],
-
-    directPhone: '+966 17 224 1018',
-
-    hoursLine1: {
-      ar: 'الأحد - الخميس: 8:30 صباحًا - 3:15 مساءً',
-      en: 'Sunday - Thursday: 8:30 AM - 3:15 PM',
-      fr: 'Dimanche - jeudi : 08h30 - 15h15',
-    }[lang],
-
-    hoursClosed: {
-      ar: 'الجمعة والسبت: مغلق',
-      en: 'Friday - Saturday: Closed',
-      fr: 'Vendredi - samedi : Fermé',
-    }[lang],
-
-    xAccountHeading: {
-      ar: 'حساب المختبر المركزي للمياه بعسير',
-      en: 'Asir Central Water Laboratory — Official X Account',
-      fr: "Compte X officiel du laboratoire central des eaux d'Asir",
-    }[lang],
-
-    xHandle: '@cen_lab',
-
-    openXBtn: {
-      ar: 'زيارة الحساب على منصة X',
-      en: 'Open Profile on X (@cen_lab)',
-      fr: 'Consulter sur X (@cen_lab)',
-    }[lang],
-
-    visitorHeading: {
-      ar: 'بوابة خدمات الزوار والمستفيدين',
-      en: 'Visitor & Beneficiary Services Portal',
-      fr: 'Portail des Services aux Visiteurs',
-    }[lang],
-
-    visitorSub: {
-      ar: 'خدمات رقمية لتسجيل الزيارات وتقديم الاستفسارات ومشاركة التقييمات',
-      en: 'Digital services to schedule visits, submit technical enquiries, and provide feedback',
-      fr: 'Services numériques pour enregistrer des visites, poser des questions et donner votre avis',
-    }[lang],
-
-    officialPoster: {
-      ar: 'الملصق المؤسسي',
-      en: 'Institutional Poster',
-      fr: 'Affiche Institutionnelle',
-    }[lang],
-
-    posterTitle: {
-      ar: 'طموحنا عنان السماء...',
-      en: 'Our Ambition Reaches the Sky...',
-      fr: 'Notre ambition atteint les hauteurs du ciel...',
-    }[lang],
-
-    posterDescription: {
-      ar: 'ملصق مؤسسي يعكس الطموح والرؤية الوطنية، ويتضمن عناصر الهوية الوطنية السعودية والشعارات المؤسسية.',
-      en: 'An institutional poster reflecting ambition and the national vision, featuring Saudi national identity elements and institutional logos.',
-      fr: "Une affiche institutionnelle illustrant l'ambition et la vision nationale, avec des éléments de l'identité saoudienne et des logos institutionnels.",
-    }[lang],
-
-    viewPoster: {
-      ar: 'عرض الملصق المؤسسي',
-      en: 'View Institutional Poster',
-      fr: "Voir l'Affiche Institutionnelle",
-    }[lang],
-  };
-
-  // ============================================================
-  // VERIFIED ASIR LOCATION
-  // ============================================================
-
-  const labCoordinates = {
-    lat: 18.2501569,
-    lng: 42.5996342,
-    dms: '18°15\'00.6"N 42°35\'58.7"E',
-    decimal: '18.250157, 42.599634',
-    plusCode:
-      '7H2X+3V6, طريق, Almahalah, Abha 62562, Saudi Arabia',
-    mapsUrl: 'https://maps.app.goo.gl/s4pP9yp98rcRT3Xv9',
-    directionsUrl:
-      'https://www.google.com/maps/dir/?api=1&destination=18.2501569,42.5996342',
-    xAccountUrl: 'https://x.com/cen_lab',
-  };
-
-  // ============================================================
-  // ALBUM — EXACTLY 10 LABORATORY PHOTOS
-  // slogon-assir.jpg IS NOT INCLUDED HERE
-  // ============================================================
-
-  const asirAlbumImages = [
-    {
-      src: labAsirBuilding,
-      title: tText.buildingBadge,
-      description: '',
-    },
-    {
-      src: asirWaterLabFacility,
-      title: tText.facilityBadge,
-      description: tText.facilityDesc,
-    },
-    {
-      src: asirMobileVan,
-      title: tText.mobileBadge,
-      description: tText.mobileDesc,
-    },
-    {
-      src: asirWaterLab1,
-      title: {
-        ar: 'مرافق المختبر المركزي بعسير',
-        en: 'Asir Central Laboratory Facilities',
-        fr: 'Installations du Laboratoire Central d’Asir',
-      }[lang],
-      description: '',
-    },
-    {
-      src: asirWaterLab2,
-      title: {
-        ar: 'التجهيزات والمرافق المخبرية',
-        en: 'Laboratory Equipment & Facilities',
-        fr: 'Équipements et Installations du Laboratoire',
-      }[lang],
-      description: '',
-    },
-    {
-      src: asirWaterLab3,
-      title: {
-        ar: 'بيئة العمل والتحاليل المخبرية',
-        en: 'Laboratory Work & Analysis Environment',
-        fr: 'Environnement de Travail et d’Analyse',
-      }[lang],
-      description: '',
-    },
-    {
-      src: asirWaterLab4,
-      title: {
-        ar: 'المختبر المركزي – منطقة عسير',
-        en: 'Asir Central Laboratory',
-        fr: 'Laboratoire Central d’Asir',
-      }[lang],
-      description: '',
-    },
-    {
-      src: cadeauAsir,
-      title: {
-        ar: 'المختبر المركزي بعسير',
-        en: 'Asir Central Laboratory',
-        fr: 'Laboratoire Central d’Asir',
-      }[lang],
-      description: '',
-    },
-    {
-      src: labAsirEnf,
-      title: {
-        ar: 'المختبر المركزي والخدمات البيئية',
-        en: 'Central Laboratory & Environmental Services',
-        fr: 'Laboratoire Central et Services Environnementaux',
-      }[lang],
-      description: '',
-    },
-    {
-      src: laboAsir,
-      title: {
-        ar: 'مرافق المختبر المركزي',
-        en: 'Central Laboratory Facilities',
-        fr: 'Installations du Laboratoire Central',
-      }[lang],
-      description: '',
-    },
-  ];
-
-  // ============================================================
-  // STATES
-  // ============================================================
+  const currentLang: Lang =
+    lang === 'ar' || lang === 'fr' ? lang : 'en';
+
+  const dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+  const t = translations[currentLang];
 
   const [currentImage, setCurrentImage] = useState(0);
 
-  const [selectedImage, setSelectedImage] = useState<{
-    src: string;
-    title: string;
-    description?: string;
-  } | null>(null);
+  const [selectedImage, setSelectedImage] = useState<ImageItem | null>(
+    null,
+  );
 
   const [copied, setCopied] = useState(false);
 
-  // ============================================================
-  // AUTO ROTATION — EVERY 5 SECONDS
-  // ============================================================
-
   useEffect(() => {
     const interval = window.setInterval(() => {
-      setCurrentImage((prev) => (prev + 1) % asirAlbumImages.length);
+      setCurrentImage((prev) => (prev + 1) % album.length);
     }, 5000);
 
     return () => window.clearInterval(interval);
-  }, [asirAlbumImages.length]);
+  }, []);
 
-  // ============================================================
-  // CAROUSEL CONTROLS
-  // ============================================================
+  useEffect(() => {
+    if (!selectedImage) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setSelectedImage(null);
+      }
+
+      if (event.key === 'ArrowLeft') {
+        setCurrentImage((prev) =>
+          currentLang === 'ar'
+            ? (prev + 1) % album.length
+            : (prev - 1 + album.length) % album.length,
+        );
+      }
+
+      if (event.key === 'ArrowRight') {
+        setCurrentImage((prev) =>
+          currentLang === 'ar'
+            ? (prev - 1 + album.length) % album.length
+            : (prev + 1) % album.length,
+        );
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedImage, currentLang]);
 
   const previousImage = () => {
-    setCurrentImage((prev) =>
-      prev === 0 ? asirAlbumImages.length - 1 : prev - 1
-    );
+    setCurrentImage((prev) => (prev - 1 + album.length) % album.length);
   };
 
   const nextImage = () => {
-    setCurrentImage(
-      (prev) => (prev + 1) % asirAlbumImages.length
-    );
+    setCurrentImage((prev) => (prev + 1) % album.length);
   };
-
-  // ============================================================
-  // COPY COORDINATES
-  // ============================================================
 
   const copyCoordinates = async () => {
     try {
       await navigator.clipboard.writeText(labCoordinates.decimal);
-
       setCopied(true);
 
       window.setTimeout(() => {
         setCopied(false);
-      }, 2500);
+      }, 2000);
     } catch {
       setCopied(false);
     }
   };
 
-  // ============================================================
-  // CURRENT IMAGE
-  // ============================================================
-
-  const activeImage = asirAlbumImages[currentImage];
-
-  // ============================================================
-  // RENDER
-  // ============================================================
+  const currentAlbumImage = album[currentImage];
 
   return (
     <div
       dir={dir}
-      className="min-h-screen bg-slate-50 text-slate-900"
+      className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-white"
     >
-      {/* ====================================================== */}
-      {/* BREADCRUMB */}
-      {/* ====================================================== */}
-
       <Breadcrumb
         items={[
           {
             label:
-              lang === 'ar'
+              currentLang === 'ar'
                 ? 'المختبرات'
-                : lang === 'fr'
+                : currentLang === 'fr'
                   ? 'Laboratoires'
                   : 'Laboratories',
+            href: '/laboratories',
           },
           {
-            label:
-              lang === 'ar'
-                ? 'المختبر المركزي بعسير'
-                : lang === 'fr'
-                  ? "Laboratoire Central d'Asir"
-                  : 'Asir Central Laboratory',
+            label: t.shortTitle,
           },
         ]}
       />
-
       {/* ====================================================== */}
       {/* HERO */}
       {/* ====================================================== */}
 
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#063b63] via-[#0f4c81] to-[#0b6b68]">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute -top-32 -end-32 h-96 w-96 rounded-full bg-white blur-3xl" />
-          <div className="absolute -bottom-40 -start-40 h-[28rem] w-[28rem] rounded-full bg-white blur-3xl" />
+      <section className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-blue-950 to-blue-900">
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-cyan-400 blur-3xl" />
+          <div className="absolute -bottom-40 -right-32 h-[32rem] w-[32rem] rounded-full bg-blue-400 blur-3xl" />
         </div>
 
-        <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
-          <div className="grid items-center gap-10 lg:grid-cols-[1.15fr_0.85fr]">
-            {/* HERO TEXT */}
+        <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-20">
+          <div className="grid items-center gap-10 lg:grid-cols-12">
 
-            <div className="text-white">
+            {/* Hero text */}
+            <div className="text-white lg:col-span-8">
               <div className="mb-5 flex flex-wrap gap-2">
-                <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium backdrop-blur">
+                <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold backdrop-blur">
                   <ShieldCheck className="h-4 w-4" />
-                  {tText.mewaBadge}
+                  {t.iso}
                 </span>
 
-                <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium backdrop-blur">
+                <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold backdrop-blur">
+                  <ShieldCheck className="h-4 w-4" />
+                  {t.sac}
+                </span>
+
+                <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold backdrop-blur">
                   <Building2 className="h-4 w-4" />
-                  {tText.centralBadge}
+                  {t.centralBadge}
                 </span>
               </div>
 
-              <h1 className="max-w-4xl text-3xl font-black leading-tight sm:text-4xl lg:text-5xl">
-                {tText.officialTitle}
-              </h1>
-
-              <p className="mt-5 max-w-3xl text-lg leading-8 text-white/85">
-                {tText.tagline}
+              <p className="mb-3 text-sm font-semibold tracking-wide text-cyan-300">
+                {t.institutionalAffiliation}
               </p>
 
-              <div className="mt-7 flex flex-wrap gap-3">
+              {/* Smaller title */}
+              <h1 className="max-w-3xl text-xl font-black leading-[1.35] sm:text-2xl lg:text-3xl">
+                {t.officialTitle}
+              </h1>
+
+              <p className="mt-5 max-w-3xl text-base leading-8 text-blue-100 sm:text-lg">
+                {t.tagline}
+              </p>
+
+              <div className="mt-8 flex flex-wrap gap-3">
                 <Link
                   to="/register"
-                  className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 font-bold text-[#0f4c81] shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl"
+                  className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-blue-900 shadow-lg transition hover:-translate-y-0.5 hover:bg-blue-50"
                 >
-                  <UserPlus className="h-5 w-5" />
-                  {tText.registerVisit}
+                  <UserPlus className="h-4 w-4" />
+                  {t.registerVisit}
                 </Link>
 
                 <Link
                   to="/survey"
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-5 py-3 font-bold text-white backdrop-blur transition hover:bg-white/20"
+                  className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-5 py-3 text-sm font-bold text-white backdrop-blur transition hover:bg-white/20"
                 >
-                  <ClipboardList className="h-5 w-5" />
-                  {tText.takeSurvey}
+                  <ClipboardList className="h-4 w-4" />
+                  {t.takeSurvey}
                 </Link>
 
                 <Link
                   to="/enquiry"
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-5 py-3 font-bold text-white backdrop-blur transition hover:bg-white/20"
+                  className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-5 py-3 text-sm font-bold text-white backdrop-blur transition hover:bg-white/20"
                 >
-                  <Send className="h-5 w-5" />
-                  {tText.sendEnquiry}
+                  <Send className="h-4 w-4" />
+                  {t.sendEnquiry}
                 </Link>
               </div>
             </div>
 
-            {/* LOGO */}
-
-            <div className="flex justify-center lg:justify-end">
-              <div className="relative">
-                <div className="absolute inset-0 rounded-full bg-white/20 blur-3xl" />
-
-                <div className="relative rounded-3xl border border-white/20 bg-white/95 p-8 shadow-2xl">
-                  <AsirLabLogo className="mx-auto h-48 w-48 sm:h-56 sm:w-56" />
+            {/* Logo Emblem Container */}
+            <div className="flex justify-center lg:col-span-4">
+              <div className="flex w-full max-w-sm items-center justify-center rounded-3xl bg-white/95 p-5 shadow-2xl ring-1 ring-white/30 backdrop-blur-md dark:bg-slate-900/90 sm:p-6">
+                
+                <div className="flex h-60 w-60 items-center justify-center sm:h-64 sm:w-64">
+                  <img
+                    src={nwcLogo}
+                    alt={t.officialTitle}
+                    className="block h-full w-full object-contain"
+                  />
                 </div>
+
               </div>
             </div>
+
           </div>
         </div>
       </section>
-
       {/* ====================================================== */}
       {/* KEY INFORMATION STRIP */}
       {/* ====================================================== */}
 
-      <section className="border-b border-slate-200 bg-white">
-        <div className="mx-auto grid max-w-7xl grid-cols-1 divide-y divide-slate-200 px-4 sm:px-6 md:grid-cols-2 md:divide-x md:divide-y-0 lg:grid-cols-4 lg:px-8">
-          {/* REGION */}
-
-          <div className="flex gap-4 px-4 py-6 lg:px-6">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#0f4c81]">
-              <MapPin className="h-6 w-6" />
+      <section className="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+        <div className="mx-auto grid max-w-7xl divide-y divide-slate-200 px-4 sm:px-6 md:grid-cols-2 md:divide-x md:divide-y-0 lg:grid-cols-4 lg:px-8 dark:divide-slate-800">
+          <div className="flex items-center gap-4 p-5">
+            <div className="rounded-xl bg-blue-50 p-3 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
+              <MapPin className="h-5 w-5" />
             </div>
 
             <div>
-              <div className="text-xl font-black text-slate-900">
-                {tText.statRegionVal}
-              </div>
-
-              <div className="text-sm font-semibold text-slate-600">
-                {tText.statRegionSub}
-              </div>
-
-              <div className="mt-1 text-xs text-slate-400">
-                {tText.statRegionDesc}
-              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                {t.region}
+              </p>
+              <p className="font-bold">{t.shortTitle}</p>
             </div>
           </div>
 
-          {/* HOURS */}
-
-          <div className="flex gap-4 px-4 py-6 lg:px-6">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
-              <Clock className="h-6 w-6" />
+          <div className="flex items-center gap-4 p-5">
+            <div className="rounded-xl bg-blue-50 p-3 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
+              <Clock className="h-5 w-5" />
             </div>
 
             <div>
-              <div className="text-xl font-black text-slate-900">
-                {tText.statHoursVal}
-              </div>
-
-              <div className="text-sm font-semibold text-slate-600">
-                {tText.statHoursSub}
-              </div>
-
-              <div className="mt-1 text-xs text-slate-400">
-                {tText.statHoursDesc}
-              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                {t.workingHours}
+              </p>
+              <p className="text-sm font-bold">{t.hours}</p>
             </div>
           </div>
 
-          {/* X ACCOUNT */}
-
-          <div className="flex gap-4 px-4 py-6 lg:px-6">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-800">
-              <Activity className="h-6 w-6" />
+          <a
+            href={labCoordinates.xAccountUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-4 p-5 transition hover:bg-slate-50 dark:hover:bg-slate-800"
+          >
+            <div className="rounded-xl bg-blue-50 p-3 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
+              <ExternalLink className="h-5 w-5" />
             </div>
 
             <div>
-              <div className="text-xl font-black text-slate-900">
-                {tText.statXVal}
-              </div>
-
-              <div className="text-sm font-semibold text-slate-600">
-                {tText.statXSub}
-              </div>
-
-              <div className="mt-1 text-xs text-slate-400">
-                {tText.statXDesc}
-              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                {t.xAccount}
+              </p>
+              <p className="font-bold">@cen_lab</p>
             </div>
-          </div>
+          </a>
 
-          {/* AFFILIATION */}
-
-          <div className="flex gap-4 px-4 py-6 lg:px-6">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-cyan-50 text-cyan-700">
-              <Droplets className="h-6 w-6" />
+          <div className="flex items-center gap-4 p-5">
+            <div className="rounded-xl bg-blue-50 p-3 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
+              <Building2 className="h-5 w-5" />
             </div>
 
             <div>
-              <div className="text-xl font-black text-slate-900">
-                {tText.statAffilVal}
-              </div>
-
-              <div className="text-sm font-semibold text-slate-600">
-                {tText.statAffilSub}
-              </div>
-
-              <div className="mt-1 text-xs text-slate-400">
-                {tText.statAffilDesc}
-              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                {t.institutionalAffiliation}
+              </p>
+              <p className="font-bold">{t.affiliation}</p>
             </div>
           </div>
         </div>
@@ -820,310 +717,205 @@ export default function AsirLabDetail() {
       {/* ABOUT + ALBUM */}
       {/* ====================================================== */}
 
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mb-10 max-w-4xl">
-          <div className="mb-3 flex items-center gap-3">
-            <span className="h-1 w-10 rounded-full bg-[#0f4c81]" />
-            <span className="text-sm font-bold uppercase tracking-wider text-[#0f4c81]">
-              {tText.shortTitle}
+      <section className="py-16 sm:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-10 max-w-3xl">
+            <span className="mb-3 inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
+              {t.centralBadge}
             </span>
+
+            <h2 className="text-3xl font-black sm:text-4xl">
+              {t.aboutHeading}
+            </h2>
+
+            <p className="mt-3 text-sm font-semibold text-blue-700 dark:text-blue-400">
+              {t.aboutSub}
+            </p>
+
+            <p className="mt-5 leading-8 text-slate-600 dark:text-slate-300">
+              {t.aboutText}
+            </p>
           </div>
 
-          <h2 className="text-3xl font-black text-slate-900 sm:text-4xl">
-            {tText.aboutHeading}
-          </h2>
+          <div className="grid gap-8 lg:grid-cols-12">
+            {/* Album */}
+            <div className="lg:col-span-8">
+              <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900">
+                <div className="relative aspect-video overflow-hidden bg-slate-900">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedImage(currentAlbumImage)}
+                    className="group absolute inset-0 z-10 h-full w-full cursor-zoom-in"
+                    aria-label={t.clickToEnlarge}
+                  >
+                    <img
+                      src={currentAlbumImage.src}
+                      alt={currentAlbumImage.title[currentLang]}
+                      className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                    />
 
-          <p className="mt-3 text-lg font-medium text-[#0f4c81]">
-            {tText.aboutSub}
-          </p>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
 
-          <p className="mt-5 leading-8 text-slate-600">
-            {tText.aboutText}
-          </p>
-        </div>
+                    <div className="absolute bottom-0 left-0 right-0 p-5 text-start text-white">
+                      <div className="flex items-center gap-2 text-xs font-bold text-blue-200">
+                        <Camera className="h-4 w-4" />
+                        {t.clickToEnlarge}
+                      </div>
 
-        <div className="grid gap-8 lg:grid-cols-[1.45fr_0.55fr]">
-          {/* ================================================== */}
-          {/* ALBUM CAROUSEL */}
-          {/* ================================================== */}
+                      <h3 className="mt-1 text-lg font-black">
+                        {currentAlbumImage.title[currentLang]}
+                      </h3>
+                    </div>
+                  </button>
 
-          <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl">
-            <div className="relative aspect-[16/9] overflow-hidden bg-slate-100">
-              <button
-                type="button"
-                className="group absolute inset-0 z-10 block h-full w-full cursor-zoom-in"
-                onClick={() =>
-                  setSelectedImage({
-                    src: activeImage.src,
-                    title: activeImage.title,
-                    description: activeImage.description,
-                  })
-                }
-                aria-label={tText.clickToEnlarge}
-              >
-                <img
-                  src={activeImage.src}
-                  alt={activeImage.title}
-                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
+                  {/* Previous */}
+                  <button
+                    type="button"
+                    onClick={previousImage}
+                    aria-label={t.previous}
+                    className="absolute start-4 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur transition hover:bg-black/70"
+                  >
+                    {currentLang === 'ar' ? (
+                      <ChevronRight className="h-5 w-5" />
+                    ) : (
+                      <ChevronLeft className="h-5 w-5" />
+                    )}
+                  </button>
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent" />
+                  {/* Next */}
+                  <button
+                    type="button"
+                    onClick={nextImage}
+                    aria-label={t.next}
+                    className="absolute end-4 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur transition hover:bg-black/70"
+                  >
+                    {currentLang === 'ar' ? (
+                      <ChevronLeft className="h-5 w-5" />
+                    ) : (
+                      <ChevronRight className="h-5 w-5" />
+                    )}
+                  </button>
 
-                <div className="absolute bottom-5 start-5 end-5 text-start text-white">
-                  <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-white/95 px-3 py-1.5 text-xs font-bold text-slate-800 shadow">
-                    <Camera className="h-4 w-4" />
-                    {tText.clickToEnlarge}
+                  <div className="absolute end-4 top-4 z-20 rounded-full bg-black/50 px-3 py-1.5 text-xs font-bold text-white backdrop-blur">
+                    {currentImage + 1} {t.of} {album.length}
+                  </div>
+                </div>
+
+                {/* Thumbnails */}
+                <div className="flex gap-2 overflow-x-auto p-4">
+                  {album.map((item, index) => (
+                    <button
+                      key={item.src}
+                      type="button"
+                      onClick={() => setCurrentImage(index)}
+                      className={`relative h-16 w-24 shrink-0 overflow-hidden rounded-lg ${
+                        index === currentImage
+                          ? 'ring-2 ring-blue-600'
+                          : 'opacity-60 hover:opacity-100'
+                      }`}
+                    >
+                      <img
+                        src={item.src}
+                        alt={item.title[currentLang]}
+                        className="h-full w-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Poster */}
+            <div className="lg:col-span-4">
+              <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900">
+                <div className="aspect-[4/5] overflow-hidden">
+                  <img
+                    src={sloganAsir}
+                    alt={t.posterHeading}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+
+                <div className="p-6">
+                  <div className="mb-3 flex items-center gap-2 text-blue-700 dark:text-blue-400">
+                    <FileText className="h-5 w-5" />
+                    <span className="text-xs font-bold uppercase">
+                      {t.posterHeading}
+                    </span>
                   </div>
 
-                  <h3 className="text-xl font-black drop-shadow-lg sm:text-2xl">
-                    {activeImage.title}
-                  </h3>
-
-                  {activeImage.description && (
-                    <p className="mt-1 max-w-2xl text-sm leading-6 text-white/90">
-                      {activeImage.description}
-                    </p>
-                  )}
+                  <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">
+                    {t.posterDescription}
+                  </p>
                 </div>
-              </button>
-
-              {/* PREVIOUS */}
-
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  previousImage();
-                }}
-                className="absolute start-4 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-slate-800 shadow-lg backdrop-blur transition hover:bg-white"
-                aria-label="Previous image"
-              >
-                <ChevronLeft className="h-6 w-6" />
-              </button>
-
-              {/* NEXT */}
-
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  nextImage();
-                }}
-                className="absolute end-4 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-slate-800 shadow-lg backdrop-blur transition hover:bg-white"
-                aria-label="Next image"
-              >
-                <ChevronRight className="h-6 w-6" />
-              </button>
-
-              {/* COUNTER */}
-
-              <div className="absolute end-4 top-4 z-20 rounded-full bg-black/55 px-3 py-1.5 text-xs font-bold text-white backdrop-blur">
-                {currentImage + 1} / {asirAlbumImages.length}
               </div>
-            </div>
-
-            {/* DOTS */}
-
-            <div className="flex flex-wrap items-center justify-center gap-2 px-4 py-5">
-              {asirAlbumImages.map((image, index) => (
-                <button
-                  key={`${image.src}-${index}`}
-                  type="button"
-                  onClick={() => setCurrentImage(index)}
-                  aria-label={`${index + 1}`}
-                  className={`h-2.5 rounded-full transition-all ${
-                    currentImage === index
-                      ? 'w-8 bg-[#0f4c81]'
-                      : 'w-2.5 bg-slate-300 hover:bg-slate-400'
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* ================================================== */}
-          {/* INSTITUTIONAL POSTER — SEPARATE FROM ALBUM */}
-          {/* ================================================== */}
-
-          <div
-            className="group cursor-pointer overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl"
-            onClick={() =>
-              setSelectedImage({
-                src: sloganAsir,
-                title: tText.posterTitle,
-                description: tText.posterDescription,
-              })
-            }
-          >
-            <div className="relative aspect-[4/5] overflow-hidden bg-slate-100">
-              <img
-                src={sloganAsir}
-                alt={tText.posterTitle}
-                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-
-              <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/15" />
-
-              <div className="absolute start-4 top-4">
-                <span className="inline-flex items-center gap-2 rounded-full bg-white/95 px-3 py-2 text-xs font-bold text-slate-800 shadow-lg">
-                  <FileText className="h-4 w-4 text-[#0f4c81]" />
-                  {tText.officialPoster}
-                </span>
-              </div>
-
-              <div className="absolute end-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-slate-800 shadow-lg">
-                <Eye className="h-5 w-5" />
-              </div>
-            </div>
-
-            <div className="p-6">
-              <div className="mb-3 flex items-start gap-3">
-                <Layers className="mt-1 h-5 w-5 shrink-0 text-[#0f4c81]" />
-
-                <h3 className="text-xl font-black leading-tight text-slate-900">
-                  {tText.posterTitle}
-                </h3>
-              </div>
-
-              <p className="mb-5 text-sm leading-7 text-slate-600">
-                {tText.posterDescription}
-              </p>
-
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-
-                  setSelectedImage({
-                    src: sloganAsir,
-                    title: tText.posterTitle,
-                    description: tText.posterDescription,
-                  });
-                }}
-                className="inline-flex items-center gap-2 rounded-xl bg-[#0f4c81] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#0b3b64]"
-              >
-                <Eye className="h-4 w-4" />
-                {tText.viewPoster}
-              </button>
             </div>
           </div>
         </div>
       </section>
 
       {/* ====================================================== */}
-      {/* MAIN ACTIVITIES */}
+      {/* ACTIVITIES */}
       {/* ====================================================== */}
 
-      <section className="bg-white py-16">
+      <section className="bg-white py-16 dark:bg-slate-900 sm:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-10 text-center">
-            <div className="mb-3 flex justify-center">
-              <span className="h-1 w-12 rounded-full bg-[#0f4c81]" />
-            </div>
-
-            <h2 className="text-3xl font-black text-slate-900">
-              {tText.activitiesHeading}
+          <div className="mb-10">
+            <h2 className="text-3xl font-black sm:text-4xl">
+              {t.activitiesHeading}
             </h2>
 
-            <p className="mx-auto mt-3 max-w-3xl text-slate-500">
-              {tText.activitiesSub}
+            <p className="mt-3 max-w-3xl text-slate-600 dark:text-slate-300">
+              {t.activitiesSub}
             </p>
           </div>
 
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-            {/* WATER ANALYSIS */}
-
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 transition hover:-translate-y-1 hover:shadow-lg">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-[#0f4c81]">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 dark:border-slate-800 dark:bg-slate-950">
+              <div className="mb-5 inline-flex rounded-xl bg-blue-100 p-3 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
                 <Droplets className="h-6 w-6" />
               </div>
 
-              <h3 className="text-lg font-black text-slate-900">
-                {lang === 'ar'
-                  ? 'فحص جودة مياه الشرب'
-                  : lang === 'fr'
-                    ? "Contrôle de la qualité de l'eau potable"
-                    : 'Drinking Water Quality Testing'}
-              </h3>
+              <h3 className="font-black">{t.waterTesting}</h3>
 
-              <p className="mt-3 text-sm leading-7 text-slate-600">
-                {lang === 'ar'
-                  ? 'تحليل العينات والتحقق من الخصائص والمعايير المعتمدة لمياه الشرب.'
-                  : lang === 'fr'
-                    ? "Analyse des échantillons et vérification des paramètres réglementaires de l'eau potable."
-                    : 'Sample analysis and verification of applicable drinking water quality parameters.'}
+              <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">
+                {t.waterTestingDesc}
               </p>
             </div>
 
-            {/* LAB ANALYSIS */}
-
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 transition hover:-translate-y-1 hover:shadow-lg">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 dark:border-slate-800 dark:bg-slate-950">
+              <div className="mb-5 inline-flex rounded-xl bg-blue-100 p-3 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
                 <FlaskConical className="h-6 w-6" />
               </div>
 
-              <h3 className="text-lg font-black text-slate-900">
-                {lang === 'ar'
-                  ? 'التحاليل المخبرية'
-                  : lang === 'fr'
-                    ? 'Analyses de laboratoire'
-                    : 'Laboratory Analysis'}
-              </h3>
+              <h3 className="font-black">{t.labAnalysis}</h3>
 
-              <p className="mt-3 text-sm leading-7 text-slate-600">
-                {lang === 'ar'
-                  ? 'تنفيذ الفحوصات المخبرية اللازمة لتقييم جودة العينات المائية.'
-                  : lang === 'fr'
-                    ? 'Réalisation des analyses nécessaires à l’évaluation de la qualité des échantillons.'
-                    : 'Laboratory examinations required to assess the quality of water samples.'}
+              <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">
+                {t.labAnalysisDesc}
               </p>
             </div>
 
-            {/* FIELD OPERATIONS */}
-
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 transition hover:-translate-y-1 hover:shadow-lg">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 dark:border-slate-800 dark:bg-slate-950">
+              <div className="mb-5 inline-flex rounded-xl bg-blue-100 p-3 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
                 <Truck className="h-6 w-6" />
               </div>
 
-              <h3 className="text-lg font-black text-slate-900">
-                {lang === 'ar'
-                  ? 'العمليات الميدانية'
-                  : lang === 'fr'
-                    ? 'Opérations de terrain'
-                    : 'Field Operations'}
-              </h3>
+              <h3 className="font-black">{t.fieldOperations}</h3>
 
-              <p className="mt-3 text-sm leading-7 text-slate-600">
-                {lang === 'ar'
-                  ? 'دعم الفحوصات الميدانية وأخذ العينات من مصادر المياه والمحافظات التابعة.'
-                  : lang === 'fr'
-                    ? 'Appui aux prélèvements et contrôles sur le terrain dans les différentes zones.'
-                    : 'Field sampling and testing support across regional water sources and governorates.'}
+              <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">
+                {t.fieldOperationsDesc}
               </p>
             </div>
 
-            {/* QUALITY */}
-
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 transition hover:-translate-y-1 hover:shadow-lg">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-100 text-cyan-700">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 dark:border-slate-800 dark:bg-slate-950">
+              <div className="mb-5 inline-flex rounded-xl bg-blue-100 p-3 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
                 <Microscope className="h-6 w-6" />
               </div>
 
-              <h3 className="text-lg font-black text-slate-900">
-                {lang === 'ar'
-                  ? 'الرقابة وضمان الجودة'
-                  : lang === 'fr'
-                    ? 'Contrôle et assurance qualité'
-                    : 'Quality Control & Assurance'}
-              </h3>
+              <h3 className="font-black">{t.quality}</h3>
 
-              <p className="mt-3 text-sm leading-7 text-slate-600">
-                {lang === 'ar'
-                  ? 'المساهمة في التحقق من جودة المياه ومطابقتها للمواصفات والمعايير المعتمدة.'
-                  : lang === 'fr'
-                    ? 'Contribution au contrôle de la qualité et à la conformité aux normes applicables.'
-                    : 'Supporting water quality verification and compliance with applicable standards.'}
+              <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">
+                {t.qualityDesc}
               </p>
             </div>
           </div>
@@ -1134,95 +926,57 @@ export default function AsirLabDetail() {
       {/* BRANCHES */}
       {/* ====================================================== */}
 
-      <section className="bg-slate-50 py-16">
+      <section className="py-16 sm:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-10">
-            <div className="mb-3 flex items-center gap-3">
-              <span className="h-1 w-10 rounded-full bg-[#0f4c81]" />
-
-              <span className="text-sm font-bold uppercase tracking-wider text-[#0f4c81]">
-                {lang === 'ar'
-                  ? 'الهيكل الإقليمي'
-                  : lang === 'fr'
-                    ? 'Réseau régional'
-                    : 'Regional Network'}
-              </span>
-            </div>
-
-            <h2 className="text-3xl font-black text-slate-900">
-              {tText.branchesHeading}
+            <h2 className="text-3xl font-black sm:text-4xl">
+              {t.branchesHeading}
             </h2>
 
-            <p className="mt-3 max-w-3xl text-slate-500">
-              {tText.branchesSub}
+            <p className="mt-3 max-w-3xl text-slate-600 dark:text-slate-300">
+              {t.branchesSub}
             </p>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
-            {/* BISHA */}
-
-            <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
-              <div className="mb-5 flex items-start justify-between gap-4">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-[#0f4c81]">
-                  <Building2 className="h-7 w-7" />
-                </div>
-
-                <span className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-bold text-[#0f4c81]">
-                  {lang === 'ar'
-                    ? 'تابع للمختبر المركزي بعسير'
-                    : lang === 'fr'
-                      ? "Rattaché au laboratoire central d'Asir"
-                      : 'Under Asir Central Laboratory'}
-                </span>
+            {/* Bisha */}
+            <div className="group rounded-3xl border border-slate-200 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900">
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
+                <Building2 className="h-6 w-6" />
               </div>
 
-              <h3 className="text-2xl font-black text-slate-900">
-                {tText.bishaTitle}
-              </h3>
+              <h3 className="text-xl font-black">{t.bishaTitle}</h3>
 
-              <p className="mt-4 leading-7 text-slate-600">
-                {tText.bishaDesc}
+              <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
+                {t.bishaDesc}
               </p>
 
               <Link
                 to="/laboratories/asir/bisha"
-                className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#0f4c81] px-5 py-3 font-bold text-white transition hover:bg-[#0b3b64]"
+                className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-blue-700 dark:text-blue-400"
               >
-                {tText.goToBisha}
+                {t.goToBisha}
                 <ArrowRight className="h-4 w-4 rtl:rotate-180" />
               </Link>
             </div>
 
-            {/* MAHAYEL */}
-
-            <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
-              <div className="mb-5 flex items-start justify-between gap-4">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
-                  <Building2 className="h-7 w-7" />
-                </div>
-
-                <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700">
-                  {lang === 'ar'
-                    ? 'تابع للمختبر المركزي بعسير'
-                    : lang === 'fr'
-                      ? "Rattaché au laboratoire central d'Asir"
-                      : 'Under Asir Central Laboratory'}
-                </span>
+            {/* Mahayel */}
+            <div className="group rounded-3xl border border-slate-200 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900">
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
+                <Layers className="h-6 w-6" />
               </div>
 
-              <h3 className="text-2xl font-black text-slate-900">
-                {tText.mahayelTitle}
-              </h3>
+              <h3 className="text-xl font-black">{t.mahayelTitle}</h3>
 
-              <p className="mt-4 leading-7 text-slate-600">
-                {tText.mahayelDesc}
+              <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
+                {t.mahayelDesc}
               </p>
 
               <Link
                 to="/laboratories/asir/mahayel"
-                className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#0f4c81] px-5 py-3 font-bold text-white transition hover:bg-[#0b3b64]"
+                className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-blue-700 dark:text-blue-400"
               >
-                {tText.goToMahayel}
+                {t.goToMahayel}
                 <ArrowRight className="h-4 w-4 rtl:rotate-180" />
               </Link>
             </div>
@@ -1234,371 +988,260 @@ export default function AsirLabDetail() {
       {/* LOCATION */}
       {/* ====================================================== */}
 
-      <section className="bg-white py-16">
+      <section className="bg-white py-16 dark:bg-slate-900 sm:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-10">
-            <div className="mb-3 flex items-center gap-3">
-              <span className="h-1 w-10 rounded-full bg-[#0f4c81]" />
-
-              <span className="text-sm font-bold uppercase tracking-wider text-[#0f4c81]">
-                {tText.locationHeading}
-              </span>
-            </div>
-
-            <h2 className="text-3xl font-black text-slate-900">
-              {tText.interactiveMapHeading}
+            <h2 className="text-3xl font-black sm:text-4xl">
+              {t.locationHeading}
             </h2>
-
-            <p className="mt-3 max-w-3xl text-slate-500">
-              {tText.interactiveMapSub}
-            </p>
           </div>
 
-          <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr]">
-            {/* LOCATION INFO */}
+          <div className="grid gap-8 lg:grid-cols-2">
+            {/* Map */}
+            <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-950">
+              <div className="relative aspect-video">
+                <iframe
+                  title={t.interactiveMapHeading}
+                  src={`https://www.google.com/maps?q=${labCoordinates.lat},${labCoordinates.lng}&z=16&output=embed`}
+                  className="absolute inset-0 h-full w-full border-0"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+            </div>
 
-            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-7">
-              <div className="mb-6 flex items-start gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-[#0f4c81]">
+            {/* Location info */}
+            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-7 dark:border-slate-800 dark:bg-slate-950">
+              <div className="flex items-start gap-4">
+                <div className="rounded-xl bg-blue-100 p-3 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
                   <MapPin className="h-6 w-6" />
                 </div>
 
                 <div>
-                  <h3 className="text-xl font-black text-slate-900">
-                    {tText.locationHeading}
-                  </h3>
-
-                  <p className="mt-2 text-sm leading-6 text-slate-500">
-                    {tText.locationDistrict}
+                  <h3 className="font-black">{t.address}</h3>
+                  <p className="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">
+                    {t.district}
                   </p>
                 </div>
               </div>
 
-              <div className="rounded-2xl bg-white p-5 shadow-sm">
-                <div className="text-xs font-bold uppercase tracking-wide text-slate-400">
-                  {tText.verifiedCoordsLabel}
-                </div>
+              <div className="my-7 h-px bg-slate-200 dark:bg-slate-800" />
 
-                <div className="mt-2 break-all text-lg font-black text-slate-900">
+              <h3 className="font-black">{t.coordinates}</h3>
+
+              <div className="mt-4 rounded-2xl bg-white p-4 dark:bg-slate-900">
+                <p className="font-mono text-sm text-slate-700 dark:text-slate-200">
                   {labCoordinates.decimal}
-                </div>
+                </p>
 
-                <div className="mt-2 text-sm text-slate-500">
+                <p className="mt-2 font-mono text-xs text-slate-500 dark:text-slate-400">
                   {labCoordinates.dms}
-                </div>
+                </p>
 
-                <button
-                  type="button"
-                  onClick={copyCoordinates}
-                  className="mt-4 inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:border-[#0f4c81] hover:text-[#0f4c81]"
-                >
-                  {copied ? (
-                    <Check className="h-4 w-4 text-emerald-600" />
-                  ) : (
-                    <Copy className="h-4 w-4" />
-                  )}
-
-                  {copied
-                    ? tText.copiedSuccess
-                    : tText.copyCoordsBtn}
-                </button>
-              </div>
-
-              <div className="mt-5 rounded-2xl bg-white p-5 shadow-sm">
-                <div className="text-xs font-bold uppercase tracking-wide text-slate-400">
-                  {lang === 'ar'
-                    ? 'العنوان'
-                    : lang === 'fr'
-                      ? 'Adresse'
-                      : 'Address'}
-                </div>
-
-                <p className="mt-2 leading-7 text-slate-700">
-                  {tText.officialAddress}
+                <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                  {labCoordinates.plusCode}
                 </p>
               </div>
 
               <div className="mt-5 flex flex-wrap gap-3">
-                <a
-                  href={labCoordinates.mapsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-xl bg-[#0f4c81] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#0b3b64]"
+                <button
+                  type="button"
+                  onClick={copyCoordinates}
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800"
                 >
-                  <ExternalLink className="h-4 w-4" />
-                  {tText.openMapBtn}
-                </a>
+                  {copied ? (
+                    <Check className="h-4 w-4 text-green-600" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+
+                  {copied ? t.copied : t.copyCoordinates}
+                </button>
 
                 <a
                   href={labCoordinates.directionsUrl}
                   target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 transition hover:border-[#0f4c81] hover:text-[#0f4c81]"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-xl bg-blue-700 px-4 py-3 text-sm font-bold text-white transition hover:bg-blue-800"
                 >
                   <Navigation className="h-4 w-4" />
-                  {tText.getDirectionsBtn}
+                  {t.directions}
+                </a>
+
+                <a
+                  href={labCoordinates.mapsUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-bold text-blue-700 transition hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-300"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  {t.openMaps}
                 </a>
               </div>
+
+              <p className="mt-6 text-xs leading-6 text-slate-500 dark:text-slate-400">
+                {t.locationNotice}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ====================================================== */}
+      {/* CONTACT */}
+      {/* ====================================================== */}
+
+      <section className="py-16 sm:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-10">
+            <h2 className="text-3xl font-black sm:text-4xl">
+              {t.contactHeading}
+            </h2>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-3">
+            <a
+              href="tel:+966172241018"
+              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900"
+            >
+              <Phone className="h-6 w-6 text-blue-700 dark:text-blue-400" />
+
+              <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
+                {t.directPhone}
+              </p>
+
+              <p className="mt-1 font-bold" dir="ltr">
+                +966 17 224 1018
+              </p>
+            </a>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <Clock className="h-6 w-6 text-blue-700 dark:text-blue-400" />
+
+              <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
+                {t.workingHours}
+              </p>
+
+              <p className="mt-1 font-bold">{t.hours}</p>
             </div>
 
-            {/* GOOGLE MAP */}
+            <a
+              href={labCoordinates.xAccountUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900"
+            >
+              <ExternalLink className="h-6 w-6 text-blue-700 dark:text-blue-400" />
 
-            <div className="overflow-hidden rounded-3xl border border-slate-200 bg-slate-100 shadow-xl">
-              <div className="relative h-full min-h-[430px]">
-                <iframe
-                  title={tText.interactiveMapHeading}
-                  src={`https://www.google.com/maps?q=${labCoordinates.lat},${labCoordinates.lng}&z=16&output=embed`} 
-                  className="absolute inset-0 h-full w-full border-0" 
-                  loading="lazy" 
-                  referrerPolicy="no-referrer-when-downgrade" 
-                /> 
- 
-                <div className="absolute bottom-4 start-4 end-4 rounded-2xl bg-white/95 p-4 shadow-xl backdrop-blur"> 
-                  <div className="flex items-start gap-3"> 
-                    <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-[#0f4c81]" /> 
- 
-                    <p className="text-sm leading-6 text-slate-600"> 
-                      {tText.mapInteractiveNotice} 
-                    </p> 
-                  </div> 
-                </div> 
-              </div> 
-            </div> 
-          </div> 
-        </div> 
-      </section> 
- 
-      {/* ====================================================== */} 
-      {/* CONTACT */} 
-      {/* ====================================================== */} 
- 
-      <section className="bg-slate-50 py-16"> 
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"> 
-          <div className="mb-10 text-center"> 
-            <h2 className="text-3xl font-black text-slate-900"> 
-              {tText.contactHeading} 
-            </h2> 
-          </div> 
- 
-          <div className="grid gap-6 md:grid-cols-2"> 
-            {/* PHONE / HOURS */} 
- 
-            <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm"> 
-              <div className="flex items-start gap-4"> 
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#0f4c81]"> 
-                  <Phone className="h-6 w-6" /> 
-                </div> 
- 
-                <div> 
-                  <h3 className="text-xl font-black text-slate-900"> 
-                    {lang === 'ar' 
-                      ? 'الهاتف المباشر' 
-                      : lang === 'fr' 
-                        ? 'Téléphone direct' 
-                        : 'Direct Phone'} 
-                  </h3> 
- 
-                  <a 
-                    href={`tel:${tText.directPhone.replace(/\s/g, '')}`} 
-                    className="mt-2 block text-xl font-black text-[#0f4c81] hover:underline" 
-                  > 
-                    {tText.directPhone} 
-                  </a> 
- 
-                  <div className="mt-5 space-y-2 text-sm text-slate-600"> 
-                    <div className="flex gap-2"> 
-                      <Clock className="mt-0.5 h-4 w-4 shrink-0 text-[#0f4c81]" /> 
-                      <span>{tText.hoursLine1}</span> 
-                    </div> 
- 
-                    <div className="flex gap-2"> 
-                      <Clock className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" /> 
-                      <span>{tText.hoursClosed}</span> 
-                    </div> 
-                  </div> 
-                </div> 
-              </div> 
-            </div> 
- 
-            {/* X */} 
- 
-            <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm"> 
-              <div className="flex items-start gap-4"> 
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-900"> 
-                  <Activity className="h-6 w-6" /> 
-                </div> 
- 
-                <div> 
-                  <h3 className="text-xl font-black text-slate-900"> 
-                    {tText.xAccountHeading} 
-                  </h3> 
- 
-                  <p className="mt-2 text-lg font-bold text-[#0f4c81]"> 
-                    {tText.xHandle} 
-                  </p> 
- 
-                  <a 
-                    href={labCoordinates.xAccountUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="mt-5 inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-sm font-bold text-white transition hover:bg-slate-700" 
-                  > 
-                    <ExternalLink className="h-4 w-4" /> 
-                    {tText.openXBtn} 
-                  </a> 
-                </div> 
-              </div> 
-            </div> 
-          </div> 
-        </div> 
-      </section> 
- 
-      {/* ====================================================== */} 
-      {/* VISITOR SERVICES */} 
-      {/* ====================================================== */} 
- 
-      <section className="bg-[#0f4c81] py-16"> 
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"> 
-          <div className="mb-10 text-center text-white"> 
-            <h2 className="text-3xl font-black"> 
-              {tText.visitorHeading} 
-            </h2> 
- 
-            <p className="mx-auto mt-3 max-w-2xl text-white/80"> 
-              {tText.visitorSub} 
-            </p> 
-          </div> 
- 
-          <div className="grid gap-5 md:grid-cols-3"> 
-            {/* REGISTER */} 
- 
-            <Link 
-              to="/register" 
-              className="group rounded-3xl border border-white/15 bg-white/10 p-7 text-white backdrop-blur transition hover:-translate-y-1 hover:bg-white/15" 
-            > 
-              <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#0f4c81]"> 
-                <UserPlus className="h-7 w-7" /> 
-              </div> 
- 
-              <h3 className="text-xl font-black"> 
-                {tText.registerVisit} 
-              </h3> 
- 
-              <div className="mt-5 flex items-center gap-2 text-sm font-bold text-white/80 group-hover:text-white"> 
-                {lang === 'ar' 
-                  ? 'ابدأ الآن' 
-                  : lang === 'fr' 
-                    ? 'Commencer' 
-                    : 'Get Started'} 
- 
-                <ArrowRight className="h-4 w-4 rtl:rotate-180" /> 
-              </div> 
-            </Link> 
- 
-            {/* SURVEY */} 
- 
-            <Link 
-              to="/survey" 
-              className="group rounded-3xl border border-white/15 bg-white/10 p-7 text-white backdrop-blur transition hover:-translate-y-1 hover:bg-white/15" 
-            > 
-              <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#0f4c81]"> 
-                <ClipboardList className="h-7 w-7" /> 
-              </div> 
- 
-              <h3 className="text-xl font-black"> 
-                {tText.takeSurvey} 
-              </h3> 
- 
-              <div className="mt-5 flex items-center gap-2 text-sm font-bold text-white/80 group-hover:text-white"> 
-                {lang === 'ar' 
-                  ? 'مشاركة التقييم' 
-                  : lang === 'fr' 
-                    ? 'Donner votre avis' 
-                    : 'Share Feedback'} 
- 
-                <ArrowRight className="h-4 w-4 rtl:rotate-180" /> 
-              </div> 
-            </Link> 
- 
-            {/* ENQUIRY */} 
- 
-            <Link 
-              to="/enquiry" 
-              className="group rounded-3xl border border-white/15 bg-white/10 p-7 text-white backdrop-blur transition hover:-translate-y-1 hover:bg-white/15" 
-            > 
-              <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#0f4c81]"> 
-                <Send className="h-7 w-7" /> 
-              </div> 
- 
-              <h3 className="text-xl font-black"> 
-                {tText.sendEnquiry} 
-              </h3> 
- 
-              <div className="mt-5 flex items-center gap-2 text-sm font-bold text-white/80 group-hover:text-white"> 
-                {lang === 'ar' 
-                  ? 'إرسال استفسار' 
-                  : lang === 'fr' 
-                    ? 'Envoyer une demande' 
-                    : 'Send an Enquiry'} 
- 
-                <ArrowRight className="h-4 w-4 rtl:rotate-180" /> 
-              </div> 
-            </Link> 
-          </div> 
-        </div> 
-      </section> 
- 
-      {/* ====================================================== */} 
-      {/* FULL SCREEN IMAGE MODAL */} 
-      {/* ====================================================== */} 
- 
-      {selectedImage && ( 
-        <div 
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm" 
-          onClick={() => setSelectedImage(null)} 
-          role="dialog" 
-          aria-modal="true" 
-          aria-label={selectedImage.title} 
-        > 
-          {/* CLOSE */} 
- 
-          <button 
-            type="button" 
-            onClick={() => setSelectedImage(null)} 
-            className="absolute end-5 top-5 z-20 flex h-12 w-12 items-center justify-center rounded-full bg-white/95 text-slate-900 shadow-xl transition hover:bg-white" 
-            aria-label="Close" 
-          > 
-            <X className="h-6 w-6" /> 
-          </button> 
- 
-          {/* CONTENT */} 
- 
-          <div 
-            className="relative flex max-h-[94vh] max-w-7xl flex-col items-center" 
-            onClick={(e) => e.stopPropagation()} 
-          > 
-            <div className="overflow-hidden rounded-2xl bg-black shadow-2xl"> 
-              <img 
-                src={selectedImage.src} 
-                alt={selectedImage.title} 
-                className="max-h-[78vh] max-w-[94vw] object-contain" 
-              /> 
-            </div> 
- 
-            <div className="mt-4 max-w-3xl rounded-2xl bg-white/95 px-6 py-4 text-center shadow-xl"> 
-              <h3 className="text-lg font-black text-slate-900"> 
-                {selectedImage.title} 
-              </h3> 
- 
-              {selectedImage.description && ( 
-                <p className="mt-2 text-sm leading-6 text-slate-600"> 
-                  {selectedImage.description} 
-                </p> 
-              )} 
-            </div> 
-          </div> 
-        </div> 
-      )} 
-    </div> 
-  ); 
-} 
+              <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
+                {t.xAccount}
+              </p>
+
+              <p className="mt-1 font-bold">@cen_lab</p>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* ====================================================== */}
+      {/* VISITOR SERVICES */}
+      {/* ====================================================== */}
+
+      <section className="bg-gradient-to-br from-blue-950 to-slate-950 py-16 text-white sm:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-10 text-center">
+            <h2 className="text-3xl font-black sm:text-4xl">
+              {t.visitorServices}
+            </h2>
+
+            <p className="mx-auto mt-3 max-w-2xl text-blue-100">
+              {t.visitorServicesSub}
+            </p>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-3">
+            <Link
+              to="/register"
+              className="group rounded-2xl border border-white/10 bg-white/10 p-7 backdrop-blur transition hover:-translate-y-1 hover:bg-white/15"
+            >
+              <UserPlus className="h-7 w-7 text-cyan-300" />
+
+              <h3 className="mt-5 text-lg font-black">
+                {t.registerVisit}
+              </h3>
+
+              <ArrowRight className="mt-5 h-5 w-5 transition group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
+            </Link>
+
+            <Link
+              to="/survey"
+              className="group rounded-2xl border border-white/10 bg-white/10 p-7 backdrop-blur transition hover:-translate-y-1 hover:bg-white/15"
+            >
+              <ClipboardList className="h-7 w-7 text-cyan-300" />
+
+              <h3 className="mt-5 text-lg font-black">
+                {t.takeSurvey}
+              </h3>
+
+              <ArrowRight className="mt-5 h-5 w-5 transition group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
+            </Link>
+
+            <Link
+              to="/enquiry"
+              className="group rounded-2xl border border-white/10 bg-white/10 p-7 backdrop-blur transition hover:-translate-y-1 hover:bg-white/15"
+            >
+              <Send className="h-7 w-7 text-cyan-300" />
+
+              <h3 className="mt-5 text-lg font-black">
+                {t.sendEnquiry}
+              </h3>
+
+              <ArrowRight className="mt-5 h-5 w-5 transition group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ====================================================== */}
+      {/* IMAGE MODAL */}
+      {/* ====================================================== */}
+
+      {selectedImage && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-label={selectedImage.title[currentLang]}
+          onClick={() => setSelectedImage(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setSelectedImage(null)}
+            aria-label={t.close}
+            className="absolute end-4 top-4 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur transition hover:bg-white/20"
+          >
+            <X className="h-6 w-6" />
+          </button>
+
+          <div
+            className="relative max-h-[90vh] max-w-6xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <img
+              src={selectedImage.src}
+              alt={selectedImage.title[currentLang]}
+              className="max-h-[82vh] max-w-full rounded-2xl object-contain shadow-2xl"
+            />
+
+            <div className="mt-4 flex items-center justify-center gap-2 text-center text-white">
+              <Eye className="h-4 w-4" />
+              <span className="text-sm font-semibold">
+                {selectedImage.title[currentLang]}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
