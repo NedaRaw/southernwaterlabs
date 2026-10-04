@@ -34,7 +34,7 @@ import { useLang } from '@/lib/i18n';
 import Breadcrumb from '@/components/Breadcrumb';
 
 // Official Najran Images
-import najranLogo from '@/assets/images/najran_logo_lab.png';
+import najranLogo from '@/assets/images/nwc-logo.png';
 import najranBuilding from '@/assets/images/lab_najran_central_1790236956545.jpg';
 import najranChemist from '@/assets/images/najran_male_chemist_lab_1790161204485.jpg';
 import najranFlyer from '@/assets/images/najran_flyer_labo.png';

@@ -1,7 +1,7 @@
 import { useLang } from '@/lib/i18n';
 import { useTheme } from '@/lib/theme';
-import logoEmblemLight from '@/assets/images/southern_water_labs_emblem.png';
-import logoEmblemWhite from '@/assets/images/southern_water_labs_emblem_white.png';
+import logoEmblemLight from '@/assets/images/nwc-logo.png';
+import logoEmblemWhite from '@/assets/images/nwc-logo.png';
 
 interface LabLogoProps {
   className?: string;

@@ -256,7 +256,7 @@ export const mobileLaboratoriesData: Record<'asir' | 'jazan' | 'alBaha' | 'najra
   jazan: {
     id: 'jazan',
     anchorId: 'mobile-jazan',
-    titleArabic: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة جازان',
+    titleArabic: 'المختبر المركزي لمياه الشرب والخدمات البيئية بجازان',
     titleEnglish: 'Jazan Central Laboratory for Drinking Water and Environmental Services',
     titleFrench: 'Laboratoire Central d\'Eau Potable et de Services Environnementaux de la Région de Jazan',
     region: { ar: 'منطقة جازان', en: 'Jazan Region', fr: 'Région de Jazan' },
@@ -330,7 +330,7 @@ export const mobileLaboratoriesData: Record<'asir' | 'jazan' | 'alBaha' | 'najra
         roleTitle: { ar: 'المنظر الجانبي والهوية الرسمية', en: 'Side Profile & Livery', fr: 'Profil latéral et livrée officielle' },
         image: jazanSideImg,
         caption: {
-          ar: 'المنظر الجانبي لمركبة جازان يوضح كتابات الهوية: المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة جازان.',
+          ar: 'المنظر الجانبي لمركبة جازان يوضح كتابات الهوية: المختبر المركزي لمياه الشرب والخدمات البيئية بجازان.',
           en: 'Side profile showing official inscriptions: Jazan Central Laboratory for Drinking Water & Environmental Services.',
           fr: 'Profil latéral affichant l\'inscription officielle du Laboratoire Central de Jazan.',
         },
@@ -400,7 +400,7 @@ export const mobileLaboratoriesData: Record<'asir' | 'jazan' | 'alBaha' | 'najra
   alBaha: {
     id: 'alBaha',
     anchorId: 'mobile-baha',
-    titleArabic: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة الباحة',
+    titleArabic: 'المختبر المركزي لمياه الشرب والخدمات البيئية بالباحة',
     titleEnglish: 'Al-Baha Central Laboratory for Drinking Water and Environmental Services',
     titleFrench: 'Laboratoire Central d\'Eau Potable et de Services Environnementaux de la Région d\'Al-Baha',
     region: { ar: 'منطقة الباحة', en: 'Al-Baha Region', fr: 'Région d\'Al-Baha' },
@@ -474,7 +474,7 @@ export const mobileLaboratoriesData: Record<'asir' | 'jazan' | 'alBaha' | 'najra
         roleTitle: { ar: 'المنظر الجانبي والهوية الرسمية', en: 'Side Profile & Livery', fr: 'Profil latéral et livrée officielle' },
         image: bahaSideImg,
         caption: {
-          ar: 'المنظر الجانبي لمركبة الباحة يوضح كتابات الهوية: المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة الباحة.',
+          ar: 'المنظر الجانبي لمركبة الباحة يوضح كتابات الهوية: المختبر المركزي لمياه الشرب والخدمات البيئية بالباحة.',
           en: 'Side profile showing official inscriptions: Al-Baha Central Laboratory for Drinking Water & Environmental Services.',
           fr: 'Profil latéral affichant l\'inscription officielle du Laboratoire Central d\'Al-Baha.',
         },

@@ -31,6 +31,8 @@ import {
 import { useLang } from '@/lib/i18n';
 import Breadcrumb from '@/components/Breadcrumb';
 import AsirLabLogo from '@/components/AsirLabLogo';
+import React from 'react';
+import nwcLogo from '@/assets/images/nwc-logo.png';
 
 // ============================================================
 // AUTHENTIC OFFICIAL ASIR CENTRAL LABORATORY ASSETS
@@ -1345,258 +1347,258 @@ export default function AsirLabDetail() {
               <div className="relative h-full min-h-[430px]">
                 <iframe
                   title={tText.interactiveMapHeading}
-                  src={`https://www.google.com/maps?q=${labCoordinates.lat},${labCoordinates.lng}&z=16&output=embed`}
-                  className="absolute inset-0 h-full w-full border-0"
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                />
-
-                <div className="absolute bottom-4 start-4 end-4 rounded-2xl bg-white/95 p-4 shadow-xl backdrop-blur">
-                  <div className="flex items-start gap-3">
-                    <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-[#0f4c81]" />
-
-                    <p className="text-sm leading-6 text-slate-600">
-                      {tText.mapInteractiveNotice}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ====================================================== */}
-      {/* CONTACT */}
-      {/* ====================================================== */}
-
-      <section className="bg-slate-50 py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-10 text-center">
-            <h2 className="text-3xl font-black text-slate-900">
-              {tText.contactHeading}
-            </h2>
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-2">
-            {/* PHONE / HOURS */}
-
-            <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
-              <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#0f4c81]">
-                  <Phone className="h-6 w-6" />
-                </div>
-
-                <div>
-                  <h3 className="text-xl font-black text-slate-900">
-                    {lang === 'ar'
-                      ? 'الهاتف المباشر'
-                      : lang === 'fr'
-                        ? 'Téléphone direct'
-                        : 'Direct Phone'}
-                  </h3>
-
-                  <a
-                    href={`tel:${tText.directPhone.replace(/\s/g, '')}`}
-                    className="mt-2 block text-xl font-black text-[#0f4c81] hover:underline"
-                  >
-                    {tText.directPhone}
-                  </a>
-
-                  <div className="mt-5 space-y-2 text-sm text-slate-600">
-                    <div className="flex gap-2">
-                      <Clock className="mt-0.5 h-4 w-4 shrink-0 text-[#0f4c81]" />
-                      <span>{tText.hoursLine1}</span>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <Clock className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
-                      <span>{tText.hoursClosed}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* X */}
-
-            <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
-              <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-900">
-                  <Activity className="h-6 w-6" />
-                </div>
-
-                <div>
-                  <h3 className="text-xl font-black text-slate-900">
-                    {tText.xAccountHeading}
-                  </h3>
-
-                  <p className="mt-2 text-lg font-bold text-[#0f4c81]">
-                    {tText.xHandle}
-                  </p>
-
-                  <a
-                    href={labCoordinates.xAccountUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-5 inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-sm font-bold text-white transition hover:bg-slate-700"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                    {tText.openXBtn}
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ====================================================== */}
-      {/* VISITOR SERVICES */}
-      {/* ====================================================== */}
-
-      <section className="bg-[#0f4c81] py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-10 text-center text-white">
-            <h2 className="text-3xl font-black">
-              {tText.visitorHeading}
-            </h2>
-
-            <p className="mx-auto mt-3 max-w-2xl text-white/80">
-              {tText.visitorSub}
-            </p>
-          </div>
-
-          <div className="grid gap-5 md:grid-cols-3">
-            {/* REGISTER */}
-
-            <Link
-              to="/register"
-              className="group rounded-3xl border border-white/15 bg-white/10 p-7 text-white backdrop-blur transition hover:-translate-y-1 hover:bg-white/15"
-            >
-              <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#0f4c81]">
-                <UserPlus className="h-7 w-7" />
-              </div>
-
-              <h3 className="text-xl font-black">
-                {tText.registerVisit}
-              </h3>
-
-              <div className="mt-5 flex items-center gap-2 text-sm font-bold text-white/80 group-hover:text-white">
-                {lang === 'ar'
-                  ? 'ابدأ الآن'
-                  : lang === 'fr'
-                    ? 'Commencer'
-                    : 'Get Started'}
-
-                <ArrowRight className="h-4 w-4 rtl:rotate-180" />
-              </div>
-            </Link>
-
-            {/* SURVEY */}
-
-            <Link
-              to="/survey"
-              className="group rounded-3xl border border-white/15 bg-white/10 p-7 text-white backdrop-blur transition hover:-translate-y-1 hover:bg-white/15"
-            >
-              <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#0f4c81]">
-                <ClipboardList className="h-7 w-7" />
-              </div>
-
-              <h3 className="text-xl font-black">
-                {tText.takeSurvey}
-              </h3>
-
-              <div className="mt-5 flex items-center gap-2 text-sm font-bold text-white/80 group-hover:text-white">
-                {lang === 'ar'
-                  ? 'مشاركة التقييم'
-                  : lang === 'fr'
-                    ? 'Donner votre avis'
-                    : 'Share Feedback'}
-
-                <ArrowRight className="h-4 w-4 rtl:rotate-180" />
-              </div>
-            </Link>
-
-            {/* ENQUIRY */}
-
-            <Link
-              to="/enquiry"
-              className="group rounded-3xl border border-white/15 bg-white/10 p-7 text-white backdrop-blur transition hover:-translate-y-1 hover:bg-white/15"
-            >
-              <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#0f4c81]">
-                <Send className="h-7 w-7" />
-              </div>
-
-              <h3 className="text-xl font-black">
-                {tText.sendEnquiry}
-              </h3>
-
-              <div className="mt-5 flex items-center gap-2 text-sm font-bold text-white/80 group-hover:text-white">
-                {lang === 'ar'
-                  ? 'إرسال استفسار'
-                  : lang === 'fr'
-                    ? 'Envoyer une demande'
-                    : 'Send an Enquiry'}
-
-                <ArrowRight className="h-4 w-4 rtl:rotate-180" />
-              </div>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ====================================================== */}
-      {/* FULL SCREEN IMAGE MODAL */}
-      {/* ====================================================== */}
-
-      {selectedImage && (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm"
-          onClick={() => setSelectedImage(null)}
-          role="dialog"
-          aria-modal="true"
-          aria-label={selectedImage.title}
-        >
-          {/* CLOSE */}
-
-          <button
-            type="button"
-            onClick={() => setSelectedImage(null)}
-            className="absolute end-5 top-5 z-20 flex h-12 w-12 items-center justify-center rounded-full bg-white/95 text-slate-900 shadow-xl transition hover:bg-white"
-            aria-label="Close"
-          >
-            <X className="h-6 w-6" />
-          </button>
-
-          {/* CONTENT */}
-
-          <div
-            className="relative flex max-h-[94vh] max-w-7xl flex-col items-center"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="overflow-hidden rounded-2xl bg-black shadow-2xl">
-              <img
-                src={selectedImage.src}
-                alt={selectedImage.title}
-                className="max-h-[78vh] max-w-[94vw] object-contain"
-              />
-            </div>
-
-            <div className="mt-4 max-w-3xl rounded-2xl bg-white/95 px-6 py-4 text-center shadow-xl">
-              <h3 className="text-lg font-black text-slate-900">
-                {selectedImage.title}
-              </h3>
-
-              {selectedImage.description && (
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  {selectedImage.description}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
+                  src={`https://www.google.com/maps?q=${labCoordinates.lat},${labCoordinates.lng}&z=16&output=embed`} 
+                  className="absolute inset-0 h-full w-full border-0" 
+                  loading="lazy" 
+                  referrerPolicy="no-referrer-when-downgrade" 
+                /> 
+ 
+                <div className="absolute bottom-4 start-4 end-4 rounded-2xl bg-white/95 p-4 shadow-xl backdrop-blur"> 
+                  <div className="flex items-start gap-3"> 
+                    <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-[#0f4c81]" /> 
+ 
+                    <p className="text-sm leading-6 text-slate-600"> 
+                      {tText.mapInteractiveNotice} 
+                    </p> 
+                  </div> 
+                </div> 
+              </div> 
+            </div> 
+          </div> 
+        </div> 
+      </section> 
+ 
+      {/* ====================================================== */} 
+      {/* CONTACT */} 
+      {/* ====================================================== */} 
+ 
+      <section className="bg-slate-50 py-16"> 
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"> 
+          <div className="mb-10 text-center"> 
+            <h2 className="text-3xl font-black text-slate-900"> 
+              {tText.contactHeading} 
+            </h2> 
+          </div> 
+ 
+          <div className="grid gap-6 md:grid-cols-2"> 
+            {/* PHONE / HOURS */} 
+ 
+            <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm"> 
+              <div className="flex items-start gap-4"> 
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#0f4c81]"> 
+                  <Phone className="h-6 w-6" /> 
+                </div> 
+ 
+                <div> 
+                  <h3 className="text-xl font-black text-slate-900"> 
+                    {lang === 'ar' 
+                      ? 'الهاتف المباشر' 
+                      : lang === 'fr' 
+                        ? 'Téléphone direct' 
+                        : 'Direct Phone'} 
+                  </h3> 
+ 
+                  <a 
+                    href={`tel:${tText.directPhone.replace(/\s/g, '')}`} 
+                    className="mt-2 block text-xl font-black text-[#0f4c81] hover:underline" 
+                  > 
+                    {tText.directPhone} 
+                  </a> 
+ 
+                  <div className="mt-5 space-y-2 text-sm text-slate-600"> 
+                    <div className="flex gap-2"> 
+                      <Clock className="mt-0.5 h-4 w-4 shrink-0 text-[#0f4c81]" /> 
+                      <span>{tText.hoursLine1}</span> 
+                    </div> 
+ 
+                    <div className="flex gap-2"> 
+                      <Clock className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" /> 
+                      <span>{tText.hoursClosed}</span> 
+                    </div> 
+                  </div> 
+                </div> 
+              </div> 
+            </div> 
+ 
+            {/* X */} 
+ 
+            <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm"> 
+              <div className="flex items-start gap-4"> 
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-900"> 
+                  <Activity className="h-6 w-6" /> 
+                </div> 
+ 
+                <div> 
+                  <h3 className="text-xl font-black text-slate-900"> 
+                    {tText.xAccountHeading} 
+                  </h3> 
+ 
+                  <p className="mt-2 text-lg font-bold text-[#0f4c81]"> 
+                    {tText.xHandle} 
+                  </p> 
+ 
+                  <a 
+                    href={labCoordinates.xAccountUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="mt-5 inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-sm font-bold text-white transition hover:bg-slate-700" 
+                  > 
+                    <ExternalLink className="h-4 w-4" /> 
+                    {tText.openXBtn} 
+                  </a> 
+                </div> 
+              </div> 
+            </div> 
+          </div> 
+        </div> 
+      </section> 
+ 
+      {/* ====================================================== */} 
+      {/* VISITOR SERVICES */} 
+      {/* ====================================================== */} 
+ 
+      <section className="bg-[#0f4c81] py-16"> 
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"> 
+          <div className="mb-10 text-center text-white"> 
+            <h2 className="text-3xl font-black"> 
+              {tText.visitorHeading} 
+            </h2> 
+ 
+            <p className="mx-auto mt-3 max-w-2xl text-white/80"> 
+              {tText.visitorSub} 
+            </p> 
+          </div> 
+ 
+          <div className="grid gap-5 md:grid-cols-3"> 
+            {/* REGISTER */} 
+ 
+            <Link 
+              to="/register" 
+              className="group rounded-3xl border border-white/15 bg-white/10 p-7 text-white backdrop-blur transition hover:-translate-y-1 hover:bg-white/15" 
+            > 
+              <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#0f4c81]"> 
+                <UserPlus className="h-7 w-7" /> 
+              </div> 
+ 
+              <h3 className="text-xl font-black"> 
+                {tText.registerVisit} 
+              </h3> 
+ 
+              <div className="mt-5 flex items-center gap-2 text-sm font-bold text-white/80 group-hover:text-white"> 
+                {lang === 'ar' 
+                  ? 'ابدأ الآن' 
+                  : lang === 'fr' 
+                    ? 'Commencer' 
+                    : 'Get Started'} 
+ 
+                <ArrowRight className="h-4 w-4 rtl:rotate-180" /> 
+              </div> 
+            </Link> 
+ 
+            {/* SURVEY */} 
+ 
+            <Link 
+              to="/survey" 
+              className="group rounded-3xl border border-white/15 bg-white/10 p-7 text-white backdrop-blur transition hover:-translate-y-1 hover:bg-white/15" 
+            > 
+              <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#0f4c81]"> 
+                <ClipboardList className="h-7 w-7" /> 
+              </div> 
+ 
+              <h3 className="text-xl font-black"> 
+                {tText.takeSurvey} 
+              </h3> 
+ 
+              <div className="mt-5 flex items-center gap-2 text-sm font-bold text-white/80 group-hover:text-white"> 
+                {lang === 'ar' 
+                  ? 'مشاركة التقييم' 
+                  : lang === 'fr' 
+                    ? 'Donner votre avis' 
+                    : 'Share Feedback'} 
+ 
+                <ArrowRight className="h-4 w-4 rtl:rotate-180" /> 
+              </div> 
+            </Link> 
+ 
+            {/* ENQUIRY */} 
+ 
+            <Link 
+              to="/enquiry" 
+              className="group rounded-3xl border border-white/15 bg-white/10 p-7 text-white backdrop-blur transition hover:-translate-y-1 hover:bg-white/15" 
+            > 
+              <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#0f4c81]"> 
+                <Send className="h-7 w-7" /> 
+              </div> 
+ 
+              <h3 className="text-xl font-black"> 
+                {tText.sendEnquiry} 
+              </h3> 
+ 
+              <div className="mt-5 flex items-center gap-2 text-sm font-bold text-white/80 group-hover:text-white"> 
+                {lang === 'ar' 
+                  ? 'إرسال استفسار' 
+                  : lang === 'fr' 
+                    ? 'Envoyer une demande' 
+                    : 'Send an Enquiry'} 
+ 
+                <ArrowRight className="h-4 w-4 rtl:rotate-180" /> 
+              </div> 
+            </Link> 
+          </div> 
+        </div> 
+      </section> 
+ 
+      {/* ====================================================== */} 
+      {/* FULL SCREEN IMAGE MODAL */} 
+      {/* ====================================================== */} 
+ 
+      {selectedImage && ( 
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm" 
+          onClick={() => setSelectedImage(null)} 
+          role="dialog" 
+          aria-modal="true" 
+          aria-label={selectedImage.title} 
+        > 
+          {/* CLOSE */} 
+ 
+          <button 
+            type="button" 
+            onClick={() => setSelectedImage(null)} 
+            className="absolute end-5 top-5 z-20 flex h-12 w-12 items-center justify-center rounded-full bg-white/95 text-slate-900 shadow-xl transition hover:bg-white" 
+            aria-label="Close" 
+          > 
+            <X className="h-6 w-6" /> 
+          </button> 
+ 
+          {/* CONTENT */} 
+ 
+          <div 
+            className="relative flex max-h-[94vh] max-w-7xl flex-col items-center" 
+            onClick={(e) => e.stopPropagation()} 
+          > 
+            <div className="overflow-hidden rounded-2xl bg-black shadow-2xl"> 
+              <img 
+                src={selectedImage.src} 
+                alt={selectedImage.title} 
+                className="max-h-[78vh] max-w-[94vw] object-contain" 
+              /> 
+            </div> 
+ 
+            <div className="mt-4 max-w-3xl rounded-2xl bg-white/95 px-6 py-4 text-center shadow-xl"> 
+              <h3 className="text-lg font-black text-slate-900"> 
+                {selectedImage.title} 
+              </h3> 
+ 
+              {selectedImage.description && ( 
+                <p className="mt-2 text-sm leading-6 text-slate-600"> 
+                  {selectedImage.description} 
+                </p> 
+              )} 
+            </div> 
+          </div> 
+        </div> 
+      )} 
+    </div> 
+  ); 
+} 
