@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import {
   Truck,
@@ -159,20 +159,67 @@ const SERVICES_CATALOG = [
 /* -------------------------------------------------------------------------- */
 
 const REGION_FILTER_TABS = [
-  { key: 'all' as const, count: 4, label: { ar: 'كافة المختبرات المركزية (4)', en: 'All Central Labs (4)', fr: 'Tous les Labos Centraux (4)' } },
-  { key: 'asir' as const, count: 1, label: { ar: 'المختبر المركزي بعسير', en: 'Asir Central', fr: 'Asir Central' } },
-  { key: 'jazan' as const, count: 1, label: { ar: 'المختبر المركزي بجازان', en: 'Jazan Central', fr: 'Jazan Central' } },
-  { key: 'baha' as const, count: 1, label: { ar: 'المختبر المركزي بالباحة', en: 'Al-Baha Central', fr: 'Al-Baha Central' } },
-  { key: 'najran' as const, count: 1, label: { ar: 'المختبر المركزي بنجران', en: 'Najran Central', fr: 'Najran Central' } },
+  {
+    key: 'all' as const,
+    count: 4,
+    label: {
+      ar: 'كافة المختبرات المركزية (4)',
+      en: 'All Central Labs (4)',
+      fr: 'Tous les Labos Centraux (4)',
+    },
+  },
+  {
+    key: 'asir' as const,
+    count: 1,
+    label: {
+      ar: 'المختبر المركزي بعسير',
+      en: 'Asir Central',
+      fr: 'Asir Central',
+    },
+  },
+  {
+    key: 'najran' as const,
+    count: 1,
+    label: {
+      ar: 'المختبر المركزي بنجران',
+      en: 'Najran Central',
+      fr: 'Najran Central',
+    },
+  },
+  {
+    key: 'baha' as const,
+    count: 1,
+    label: {
+      ar: 'المختبر المركزي بالباحة',
+      en: 'Al-Baha Central',
+      fr: 'Al-Baha Central',
+    },
+  },
+  {
+    key: 'jazan' as const,
+    count: 1,
+    label: {
+      ar: 'المختبر المركزي بجازان',
+      en: 'Jazan Central',
+      fr: 'Jazan Central',
+    },
+  },
 ];
 
-const LAB_SECTIONS_KEYS: ('asir' | 'jazan' | 'alBaha' | 'najran')[] = ['asir', 'jazan', 'alBaha', 'najran'];
+const LAB_SECTIONS_KEYS: ('asir' | 'najran' | 'alBaha' | 'jazan')[] = [
+  'asir',
+  'najran',
+  'alBaha',
+  'jazan',
+];
 
 /* -------------------------------------------------------------------------- */
 /* Component Implementation                                                   */
 /* -------------------------------------------------------------------------- */
 export default function MobileLaboratories() {
   const { lang, dir, t } = useLang();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [fleetRegionFilter, setFleetRegionFilter] = useState<'all' | 'asir' | 'baha' | 'jazan' | 'najran'>('all');
   const [detailRegionFilter, setDetailRegionFilter] = useState<'all' | 'asir' | 'baha' | 'jazan' | 'najran'>('all');
 
@@ -215,27 +262,83 @@ export default function MobileLaboratories() {
   }, [detailRegionFilter]);
 
   useEffect(() => {
-    if (window.location.hash) {
-      const rawTarget = window.location.hash.replace('#', '');
-      let resolvedId = rawTarget;
-      if (rawTarget === 'mobile-sharurah') resolvedId = 'mobile-najran';
-      else if (rawTarget === 'mobile-bisha' || rawTarget === 'mobile-muhayil') resolvedId = 'mobile-asir';
-      else if (rawTarget === 'mobile-qalwa') resolvedId = 'mobile-baha';
-      else if (rawTarget === 'mobile-al-darb' || rawTarget === 'mobile-farasan') resolvedId = 'mobile-jazan';
+  const rawTarget = location.hash.replace('#', '');
 
-      const timer = setTimeout(() => {
-        const el = document.getElementById(resolvedId) || document.getElementById(rawTarget);
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          el.classList.add('ring-4', 'ring-blue-500/70', 'ring-offset-4', 'dark:ring-offset-slate-900', 'transition-all', 'duration-500');
-          setTimeout(() => {
-            el.classList.remove('ring-4', 'ring-blue-500/70', 'ring-offset-4', 'dark:ring-offset-slate-900');
-          }, 2500);
-        }
-      }, 350);
-      return () => clearTimeout(timer);
-    }
-  }, []);
+  if (!rawTarget) return;
+
+  let resolvedId = rawTarget;
+
+  // Resolve branch aliases to their Central Laboratory
+  if (rawTarget === 'mobile-sharurah') {
+    resolvedId = 'mobile-najran';
+  } else if (
+    rawTarget === 'mobile-bisha' ||
+    rawTarget === 'mobile-muhayil'
+  ) {
+    resolvedId = 'mobile-asir';
+  } else if (rawTarget === 'mobile-qalwa') {
+    resolvedId = 'mobile-baha';
+  } else if (
+    rawTarget === 'mobile-al-darb' ||
+    rawTarget === 'mobile-farasan'
+  ) {
+    resolvedId = 'mobile-jazan';
+  }
+
+  // Make sure the requested Central Laboratory is visible
+  const unit = ALL_MOBILE_UNITS.find(
+    (u) =>
+      u.anchorId === resolvedId ||
+      u.anchorId === rawTarget ||
+      u.id === rawTarget ||
+      u.aliasAnchorIds?.includes(rawTarget) ||
+      `mobile-${u.parentRegionId}` === resolvedId
+  );
+
+  if (
+    unit &&
+    detailRegionFilter !== 'all' &&
+    detailRegionFilter !== unit.parentRegionId
+  ) {
+    setDetailRegionFilter('all');
+  }
+
+  // Wait for React to render the section if the filter has changed
+  const timer = window.setTimeout(() => {
+    const el =
+      document.getElementById(resolvedId) ||
+      document.getElementById(rawTarget);
+
+    if (!el) return;
+
+    el.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+
+    el.classList.add(
+      'ring-4',
+      'ring-blue-500/70',
+      'ring-offset-4',
+      'dark:ring-offset-slate-900',
+      'transition-all',
+      'duration-500'
+    );
+
+    const highlightTimer = window.setTimeout(() => {
+      el.classList.remove(
+        'ring-4',
+        'ring-blue-500/70',
+        'ring-offset-4',
+        'dark:ring-offset-slate-900'
+      );
+    }, 2500);
+
+    return () => window.clearTimeout(highlightTimer);
+  }, 120);
+
+  return () => window.clearTimeout(timer);
+}, [location.hash, detailRegionFilter]);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] text-slate-900 dark:text-slate-100 transition-colors">
@@ -331,11 +434,39 @@ export default function MobileLaboratories() {
               </div>
               <div className="flex flex-wrap gap-2">
                 {[
-                  { id: 'mobile-asir', label: { ar: 'المختبر المركزي بعسير (وفروع بيشة ومحايل)', en: 'Asir Central (Bisha & Muhayil)', fr: 'Asir Central (Bisha & Muhayil)' } },
-                  { id: 'mobile-jazan', label: { ar: 'المختبر المركزي بجازان (والدرب وفرسان)', en: 'Jazan Central (Al-Darb & Farasan)', fr: 'Jazan Central (Al-Darb & Farasan)' } },
-                  { id: 'mobile-baha', label: { ar: 'المختبر المركزي بالباحة (وقلوة وتهامة)', en: 'Al-Baha Central (Qalwah)', fr: 'Al-Baha Central (Qalwah)' } },
-                  { id: 'mobile-najran', label: { ar: 'المختبر المركزي بنجران (وشرورة والوديعة)', en: 'Najran Central (Sharurah & Wadiah)', fr: 'Najran Central (Sharurah & Wadiah)' } },
-                ].map((unit) => (
+  {
+    id: 'mobile-asir',
+    label: {
+      ar: 'المختبر المركزي بعسير (وفروع بيشة ومحايل)',
+      en: 'Asir Central (Bisha & Muhayil)',
+      fr: 'Asir Central (Bisha & Muhayil)',
+    },
+  },
+  {
+    id: 'mobile-najran',
+    label: {
+      ar: 'المختبر المركزي بنجران (وشرورة والوديعة)',
+      en: 'Najran Central (Sharurah & Wadiah)',
+      fr: 'Najran Central (Sharurah & Wadiah)',
+    },
+  },
+  {
+    id: 'mobile-baha',
+    label: {
+      ar: 'المختبر المركزي بالباحة (وقلوة وتهامة)',
+      en: 'Al-Baha Central (Qalwah)',
+      fr: 'Al-Baha Central (Qalwah)',
+    },
+  },
+  {
+    id: 'mobile-jazan',
+    label: {
+      ar: 'المختبر المركزي بجازان (والدرب وفرسان)',
+      en: 'Jazan Central (Al-Darb & Farasan)',
+      fr: 'Jazan Central (Al-Darb & Farasan)',
+    },
+  },
+].map((unit) => (
                   <button
                     key={unit.id}
                     type="button"

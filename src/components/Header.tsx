@@ -276,7 +276,7 @@ export default function Header() {
           : lang === 'fr'
             ? 'Al-Baha'
             : 'Al-Baha',
-      path: '/mobile-laboratories#mobile-al-baha',
+      path: '/mobile-laboratories#mobile-baha',
     },
     {
       id: 'jazan',
