@@ -81,7 +81,7 @@ name: {
   {
     id: 'jazan-central',
  name: {
-  ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بجازان',
+  ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة جازان',
   en: 'Jazan Central Laboratory for Drinking Water and Environmental Services',
   fr: 'Laboratoire Central de Jazan pour les Eaux Potables et les Services Environnementaux',
 },
@@ -110,7 +110,7 @@ name: {
   {
     id: 'baha-central',
   name: {
-  ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بالباحة',
+  ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة الباحة',
   en: 'Al-Baha Central Laboratory for Drinking Water and Environmental Services',
   fr: 'Laboratoire Central d’Al-Baha pour les Eaux Potables et les Services Environnementaux',
 },
