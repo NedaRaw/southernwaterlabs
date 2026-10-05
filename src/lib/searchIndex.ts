@@ -135,7 +135,87 @@ function buildSearchIndex(lang: Lang): SearchResult[] {
       keywords: `${item.id} ${loc.title} ${loc.category} news خبر actualité`,
     });
   });
+  // Institutional information / accreditation / technical topics
+  const institutionalPages: SearchResult[] = [
+    {
+      id: 'institutional-iso-17025',
+      title:
+        lang === 'ar'
+          ? 'ISO/IEC 17025:2017'
+          : lang === 'fr'
+            ? 'ISO/IEC 17025:2017'
+            : 'ISO/IEC 17025:2017',
+      description:
+        lang === 'ar'
+          ? 'نظام إدارة الجودة والكفاءة الفنية للمختبرات'
+          : lang === 'fr'
+            ? 'Système de management de la qualité et compétence des laboratoires'
+            : 'Laboratory quality management and technical competence',
+      category: 'page',
+      path: '/about',
+      keywords:
+        'ISO ISO/IEC 17025 17025:2017 accreditation اعتماد اعتمادية جودة quality competence كفاءة مختبر laboratory laboratoire',
+    },
+    {
+      id: 'institutional-sac',
+      title:
+        lang === 'ar'
+          ? 'اعتماد SAC'
+          : lang === 'fr'
+            ? 'Accréditation SAC'
+            : 'SAC Accreditation',
+      description:
+        lang === 'ar'
+          ? 'اعتماد المختبرات وفق المتطلبات والمعايير المعتمدة'
+          : lang === 'fr'
+            ? 'Accréditation des laboratoires selon les exigences applicables'
+            : 'Laboratory accreditation according to applicable requirements',
+      category: 'page',
+      path: '/about',
+      keywords:
+        'SAC sac accreditation اعتماد اعتماد مختبر laboratory جودة quality ISO 17025',
+    },
+    {
+      id: 'institutional-water-quality',
+      title:
+        lang === 'ar'
+          ? 'جودة المياه'
+          : lang === 'fr'
+            ? 'Qualité de l’eau'
+            : 'Water Quality',
+      description:
+        lang === 'ar'
+          ? 'فحوصات وتحاليل جودة المياه والخدمات البيئية'
+          : lang === 'fr'
+            ? 'Analyses de la qualité de l’eau et services environnementaux'
+            : 'Water quality testing and environmental laboratory services',
+      category: 'service',
+      path: '/services',
+      keywords:
+        'water مياه ماء qualité qualité المياه جودة مياه drinking potable شرب environmental بيئية تحليل analysis testing فحص',
+    },
+    {
+      id: 'institutional-sampling',
+      title:
+        lang === 'ar'
+          ? 'أخذ العينات الميدانية'
+          : lang === 'fr'
+            ? 'Prélèvement des échantillons sur le terrain'
+            : 'Field Sampling',
+      description:
+        lang === 'ar'
+          ? 'جمع ونقل العينات وفق الإجراءات وسلسلة الحيازة المعتمدة'
+          : lang === 'fr'
+            ? 'Prélèvement et transport des échantillons selon les procédures et la chaîne de traçabilité'
+            : 'Sample collection and transport according to approved procedures and chain of custody',
+      category: 'service',
+      path: '/services/field-sampling',
+      keywords:
+        'sampling أخذ العينات عينات sample samples field ميداني ميدانية prélèvement échantillon chain custody سلسلة الحيازة SAC ISO 5667',
+    },
+  ];
 
+  results.push(...institutionalPages);
   return results;
 }
 

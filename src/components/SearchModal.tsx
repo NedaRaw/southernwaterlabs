@@ -1,4 +1,3 @@
-```tsx
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -467,31 +466,3 @@ export default function SearchModal({
     </div>
   );
 }
-```
-
-**Important:** this file now expects these two i18n keys:
-
-```tsx
-search.navigate
-search.select
-```
-
-Add them to your existing `search` translations in **Arabic, English and French**:
-
-```tsx
-navigate: {
-  ar: 'تنقل',
-  en: 'Navigate',
-  fr: 'Naviguer',
-},
-
-select: {
-  ar: 'اختيار',
-  en: 'Select',
-  fr: 'Sélectionner',
-},
-```
-
-Then **save and compile**.
-
-Do **not** integrate it into `Header.tsx` yet. First make sure this version compiles cleanly. After that, we can add the search button + `SearchModal` to the Header without disturbing your existing navigation.

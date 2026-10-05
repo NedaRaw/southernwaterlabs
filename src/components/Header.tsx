@@ -5,6 +5,7 @@ import {
   X,
   ChevronDown,
   UserPlus,
+  Search,
   FileText,
   MessageSquare,
   Globe,
@@ -26,6 +27,7 @@ import {
 import { useLang, type Lang } from '@/lib/i18n';
 import { useTheme } from '@/lib/theme';
 import LabLogo from '@/components/LabLogo';
+import SearchModal from '@/components/SearchModal';
 
 const languages: { code: Lang; label: string; native: string }[] = [
   { code: 'ar', label: 'العربية', native: 'العربية' },
@@ -40,6 +42,7 @@ export default function Header() {
 
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const [openDropdown, setOpenDropdown] = useState<
     'labs' | 'services' | 'mobile' | 'cs' | 'lang' | null
@@ -151,6 +154,10 @@ export default function Header() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+         if (searchOpen) {
+        setSearchOpen(false);
+        return;
+         }
         if (openDropdown !== null) {
           setOpenDropdown(null);
         } else if (menuOpen) {
@@ -165,7 +172,7 @@ export default function Header() {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [openDropdown, menuOpen]);
+  }, [searchOpen, openDropdown, menuOpen]);
 
   // ============================================================
   // CLEANUP TIMERS
@@ -526,7 +533,7 @@ export default function Header() {
                   ? 'التنقل الرئيسي'
                   : 'Main Navigation'
               }
-              className="hidden xl:flex items-center gap-1 2xl:gap-1.5 text-[13px] 2xl:text-[13.5px] py-1"
+              className="hidden xl:flex items-center justify-start gap-0 xl:gap-0.5 2xl:gap-1 text-[11px] xl:text-[12px] 2xl:text-[13px] py-1 min-w-0 flex-1"
             >
 
               {/* ==================================================
@@ -542,7 +549,7 @@ export default function Header() {
                     : undefined
                 }
                 onClick={() => setOpenDropdown(null)}
-                className={`header-nav-link relative px-2.5 py-1.5 font-medium transition-all rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap shrink-0 ${
+                className={`header-nav-link relative px-1.5 py-1.5 font-medium transition-all rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap shrink-0 ${
                   isActive('/') &&
                   location.pathname === '/'
                     ? 'text-[#1D4ED8] dark:text-[#93C5FD] bg-[#EFF6FF] dark:bg-[rgba(37,99,235,0.20)] font-semibold'
@@ -572,7 +579,7 @@ export default function Header() {
                     : undefined
                 }
                 onClick={() => setOpenDropdown(null)}
-                className={`header-nav-link relative px-2.5 py-1.5 font-medium transition-all rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap shrink-0 ${
+                className={`header-nav-link relative px-1.5 py-1.5 font-medium transition-all rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap shrink-0 ${
                   isActive('/about')
                     ? 'text-[#1D4ED8] dark:text-[#93C5FD] bg-[#EFF6FF] dark:bg-[rgba(37,99,235,0.20)] font-semibold'
                     : 'text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#1D4ED8] dark:hover:text-[#93C5FD] hover:bg-[#EFF6FF] dark:hover:bg-[rgba(59,130,246,0.12)]'
@@ -617,7 +624,7 @@ export default function Header() {
                       'labs'
                     )
                   }
-                  className={`header-nav-link relative flex items-center gap-1.5 px-2.5 py-1.5 font-medium transition-all rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap cursor-pointer group ${
+                  className={`header-nav-link relative flex items-center gap-1.5 px-1.5 py-1.5 font-medium transition-all rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap cursor-pointer group ${
                     isActive('/laboratories') ||
                     openDropdown === 'labs'
                       ? 'text-[#1D4ED8] dark:text-[#93C5FD] bg-[#EFF6FF] dark:bg-[rgba(37,99,235,0.20)] font-semibold'
@@ -766,7 +773,7 @@ export default function Header() {
                       'services'
                     )
                   }
-                  className={`header-nav-link relative flex items-center gap-1.5 px-2.5 py-1.5 font-medium transition-all rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap cursor-pointer group ${
+                  className={`header-nav-link relative flex items-center gap-1.5 px-1.5 py-1.5 font-medium transition-all rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap cursor-pointer group ${
                     isActive('/services') ||
                     openDropdown === 'services'
                       ? 'text-[#1D4ED8] dark:text-[#93C5FD] bg-[#EFF6FF] dark:bg-[rgba(37,99,235,0.20)] font-semibold'
@@ -915,7 +922,7 @@ export default function Header() {
                       'mobile'
                     )
                   }
-                  className={`header-nav-link relative flex items-center gap-1.5 px-2.5 py-1.5 font-medium transition-all rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap cursor-pointer group ${
+                  className={`header-nav-link relative flex items-center gap-1.5 px-1.5 py-1.5 font-medium transition-all rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap cursor-pointer group ${
                     isActive(
                       '/mobile-laboratories'
                     ) ||
@@ -1103,7 +1110,7 @@ export default function Header() {
                   onKeyDown={(e) =>
                     handleDropdownKeyDown(e, 'cs')
                   }
-                  className={`header-nav-link relative flex items-center gap-1.5 px-2.5 py-1.5 font-medium transition-all rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap cursor-pointer group ${
+                  className={`header-nav-link relative flex items-center gap-1.5 px-1.5 py-1.5 font-medium transition-all rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap cursor-pointer group ${
                     isActive('/register') ||
                     isActive('/survey') ||
                     isActive('/enquiry') ||
@@ -1216,7 +1223,7 @@ export default function Header() {
                     : undefined
                 }
                 onClick={() => setOpenDropdown(null)}
-                className={`header-nav-link relative px-2.5 py-1.5 font-medium transition-all rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap shrink-0 ${
+                className={`header-nav-link relative px-1.5 py-1.5 font-medium transition-all rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap shrink-0 ${
                   isActive('/news')
                     ? 'text-[#1D4ED8] dark:text-[#93C5FD] bg-[#EFF6FF] dark:bg-[rgba(37,99,235,0.20)] font-semibold'
                     : 'text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#1D4ED8] dark:hover:text-[#93C5FD] hover:bg-[#EFF6FF] dark:hover:bg-[rgba(59,130,246,0.12)]'
@@ -1244,7 +1251,7 @@ export default function Header() {
                     : undefined
                 }
                 onClick={() => setOpenDropdown(null)}
-                className={`header-nav-link relative px-2.5 py-1.5 font-medium transition-all rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap shrink-0 ${
+                className={`header-nav-link relative px-1.5 py-1.5 font-medium transition-all rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap shrink-0 ${
                   isActive('/contact')
                     ? 'text-[#1D4ED8] dark:text-[#93C5FD] bg-[#EFF6FF] dark:bg-[rgba(37,99,235,0.20)] font-semibold'
                     : 'text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#1D4ED8] dark:hover:text-[#93C5FD] hover:bg-[#EFF6FF] dark:hover:bg-[rgba(59,130,246,0.12)]'
@@ -1265,8 +1272,38 @@ export default function Header() {
                 ZONE 3 - DESKTOP CONTROLS
             ================================================== */}
 
-            <div className="hidden xl:flex items-center gap-2 2xl:gap-2.5 shrink-0">
+            <div className="hidden xl:flex items-center gap-3 xl:gap-4 2xl:gap-5 shrink-0 ml-3 xl:ml-5 2xl:ml-6">
+             {/* SEARCH */}
+  <button
+    type="button"
+    onClick={() => {
+      setSearchOpen(true);
+      setMenuOpen(false);
+      setOpenDropdown(null);
+    }}
+    aria-label={
+      lang === 'ar'
+        ? 'البحث في الموقع'
+        : lang === 'fr'
+          ? 'Rechercher sur le site'
+          : 'Search the site'
+    }
+    title={
+      lang === 'ar'
+        ? 'البحث'
+        : lang === 'fr'
+          ? 'Rechercher'
+          : 'Search'
+    }
+    className="flex items-center justify-center w-8 h-8 rounded-lg text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#1D4ED8] dark:hover:text-[#93C5FD] hover:bg-[#EFF6FF] dark:hover:bg-[#263244] border border-[#CBD5E1] dark:border-[#334155] bg-white dark:bg-[#172033] transition-all duration-200 active:scale-95 focus:outline-none focus-visible:ring-2 focus:ring-blue-600 shadow-xs cursor-pointer"
+  >
+    <Search
+      aria-hidden="true"
+      className="w-4 h-4"
+    />
+  </button>
 
+  
               {/* LANGUAGE */}
 
               <div
@@ -1295,7 +1332,7 @@ export default function Header() {
                       'lang'
                     )
                   }
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#1D4ED8] dark:hover:text-[#93C5FD] hover:bg-[#EFF6FF] dark:hover:bg-[#263244] border border-[#CBD5E1] dark:border-[#334155] bg-white dark:bg-[#172033] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap shadow-xs cursor-pointer"
+                  className="flex items-center gap-1.5 px-1.5 py-1.5 rounded-lg text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#1D4ED8] dark:hover:text-[#93C5FD] hover:bg-[#EFF6FF] dark:hover:bg-[#263244] border border-[#CBD5E1] dark:border-[#334155] bg-white dark:bg-[#172033] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap shadow-xs cursor-pointer"
                 >
                   <Globe
                     aria-hidden="true"
@@ -1428,7 +1465,36 @@ export default function Header() {
             ================================================== */}
 
             <div className="flex xl:hidden items-center gap-1.5">
+{/* SEARCH */}
 
+<button
+  type="button"
+  onClick={() => {
+    setSearchOpen(true);
+    setMenuOpen(false);
+    setOpenDropdown(null);
+  }}
+  aria-label={
+    lang === 'ar'
+      ? 'البحث في الموقع'
+      : lang === 'fr'
+        ? 'Rechercher sur le site'
+        : 'Search the site'
+  }
+  title={
+    lang === 'ar'
+      ? 'البحث'
+      : lang === 'fr'
+        ? 'Rechercher'
+        : 'Search'
+  }
+  className="flex items-center justify-center w-8 h-8 rounded-lg text-[#334155] dark:text-[#F8FAFC] bg-white dark:bg-[#172033] border border-[#E2E8F0] dark:border-[#334155] transition-all duration-200 active:scale-95 cursor-pointer shadow-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+>
+  <Search
+    aria-hidden="true"
+    className="w-4 h-4"
+  />
+</button>
               {/* THEME */}
 
               <button
@@ -1503,7 +1569,7 @@ export default function Header() {
                           setLang(l.code);
                           setOpenDropdown(null);
                         }}
-                        className={`w-full text-xs text-start px-2.5 py-1.5 flex items-center justify-between cursor-pointer ${
+                        className={`w-full text-xs text-start px-1.5 py-1.5 flex items-center justify-between cursor-pointer ${
                           lang === l.code
                             ? 'font-semibold text-[#0F4C81] dark:text-[#93C5FD] bg-[#F1F5F9] dark:bg-[#263244]'
                             : 'text-[#334155] dark:text-[#F8FAFC] hover:bg-[#F8FAFC] dark:hover:bg-[#1E293B]'
@@ -1756,7 +1822,7 @@ export default function Header() {
                           onClick={() =>
                             setMenuOpen(false)
                           }
-                          className="flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs font-medium text-[#0F172A] dark:text-[#F8FAFC] hover:bg-white dark:hover:bg-[#1E293B] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                          className="flex items-center justify-between px-1.5 py-1.5 rounded-md text-xs font-medium text-[#0F172A] dark:text-[#F8FAFC] hover:bg-white dark:hover:bg-[#1E293B] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
                         >
                           <span>
                             {lab.name}
@@ -1773,7 +1839,7 @@ export default function Header() {
                         onClick={() =>
                           setMenuOpen(false)
                         }
-                        className="block px-2.5 py-1.5 rounded-md text-xs font-semibold text-[#1E3A5F] dark:text-[#93C5FD] hover:bg-white dark:hover:bg-[#1E293B] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                        className="block px-1.5 py-1.5 rounded-md text-xs font-semibold text-[#1E3A5F] dark:text-[#93C5FD] hover:bg-white dark:hover:bg-[#1E293B] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
                       >
                         {t('nav.allLabs')} ←
                       </Link>
@@ -1843,7 +1909,7 @@ export default function Header() {
                         onClick={() =>
                           setMenuOpen(false)
                         }
-                        className="block px-2.5 py-1.5 rounded-md text-xs font-semibold text-[#1E3A5F] dark:text-[#93C5FD] hover:bg-white dark:hover:bg-[#1E293B] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                        className="block px-1.5 py-1.5 rounded-md text-xs font-semibold text-[#1E3A5F] dark:text-[#93C5FD] hover:bg-white dark:hover:bg-[#1E293B] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
                       >
                         {t('nav.allServices')} ←
                       </Link>
@@ -2137,6 +2203,12 @@ export default function Header() {
           )}
         </div>
       </header>
+      {searchOpen && (
+  <SearchModal
+    isOpen={searchOpen}
+    onClose={() => setSearchOpen(false)}
+  />
+)}
     </>
   );
 }

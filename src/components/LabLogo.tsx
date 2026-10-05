@@ -60,10 +60,10 @@ export default function LabLogo({
   }[size];
 
   // Proportional font sizes based on size prop - refined & balanced
-  const titleSizeClasses = {
-    sm: 'text-xs sm:text-[12.5px] md:text-[13px] font-semibold leading-snug line-clamp-1 sm:line-clamp-2 max-w-[220px] sm:max-w-xs md:max-w-[280px]',
-    md: 'text-xs sm:text-sm font-semibold leading-snug',
-    lg: 'text-sm sm:text-base font-semibold leading-snug',
+ const titleSizeClasses = {
+   sm: 'text-[10px] sm:text-[11px] md:text-[12px] font-semibold leading-tight whitespace-normal',
+   md: 'text-[10px] sm:text-[11px] md:text-[12px] xl:text-[12px] font-semibold leading-tight whitespace-normal',
+   lg: 'text-[11px] sm:text-[12px] md:text-[13px] font-semibold leading-tight whitespace-normal',
   }[size];
 
   if (isMarkOnly) {
@@ -95,7 +95,7 @@ export default function LabLogo({
       </div>
 
       {/* Official Laboratory Typography */}
-      <div className="flex flex-col text-start justify-center min-w-0">
+      <div className="flex flex-col text-start justify-center min-w-0 shrink">
         <span
           className={`tracking-tight whitespace-normal ${titleSizeClasses} ${
             isWhite ? '!text-white' : 'text-[#0F172A] dark:text-[#F8FAFC]'
