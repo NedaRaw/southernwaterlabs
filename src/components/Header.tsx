@@ -513,7 +513,7 @@ export default function Header() {
                 setMenuOpen(false);
               }}
             >
-              <LabLogo size="sm" showSubtitle={false} />
+              <LabLogo size="md" showSubtitle={false} />
             </Link>
 
             {/* ==================================================

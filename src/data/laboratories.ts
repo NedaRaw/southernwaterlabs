@@ -342,7 +342,7 @@ export const laboratoryCenters: LaboratoryCenter[] = [
 
   {
     id: 'al-baha',
-    name: 'المختبر المركزي لمياه الشرب والخدمات البيئية بالباحة',
+    name: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة الباحة',
     type: 'central',
     region: 'الباحة',
     about:

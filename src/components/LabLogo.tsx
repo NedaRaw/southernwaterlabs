@@ -54,9 +54,9 @@ export default function LabLogo({
 
   // Proportional height classes
   const imageSizeClasses = {
-    sm: 'h-8 sm:h-9 md:h-10 w-auto',
-    md: 'h-9 sm:h-10 md:h-11 w-auto',
-    lg: 'h-11 sm:h-12 md:h-14 w-auto',
+    sm: 'h-9 sm:h-10 md:h-11 w-auto',
+    md: 'h-10 sm:h-11 md:h-12 w-auto',
+    lg: 'h-12 sm:h-13 md:h-14 w-auto',
   }[size];
 
   // Proportional font sizes based on size prop - refined & balanced
