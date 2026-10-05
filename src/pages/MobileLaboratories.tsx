@@ -339,6 +339,18 @@ export default function MobileLaboratories() {
 
   return () => window.clearTimeout(timer);
 }, [location.hash, detailRegionFilter]);
+// ICI : juste avant return
+  const MOBILE_LAB_ORDER = ['asir', 'najran', 'baha', 'jazan'] as const;
+
+const orderedMobileUnits = MOBILE_LAB_ORDER.flatMap((regionId) =>
+  ALL_MOBILE_UNITS.filter((unit) => unit.parentRegionId === regionId)
+);
+  const LAB_ANCHORS = {
+  asir: 'mobile-asir',
+  najran: 'mobile-najran',
+  alBaha: 'mobile-baha',
+  jazan: 'mobile-jazan',
+} as const;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] text-slate-900 dark:text-slate-100 transition-colors">
@@ -534,7 +546,7 @@ export default function MobileLaboratories() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {ALL_MOBILE_UNITS.filter(
+            {orderedMobileUnits.filter(
               (lab) => fleetRegionFilter === 'all' || lab.parentRegionId === fleetRegionFilter
             ).map((lab) => (
               <div
@@ -682,23 +694,18 @@ export default function MobileLaboratories() {
           {LAB_SECTIONS_KEYS.filter((key) => {
             if (detailRegionFilter === 'all') return true;
             if (detailRegionFilter === 'asir') return key === 'asir';
-            if (detailRegionFilter === 'jazan') return key === 'jazan';
-            if (detailRegionFilter === 'baha') return key === 'alBaha';
             if (detailRegionFilter === 'najran') return key === 'najran';
+            if (detailRegionFilter === 'baha') return key === 'alBaha';
+            if (detailRegionFilter === 'jazan') return key === 'jazan';
+            
+            
             return true;
           }).map((labKey) => {
             const lab = mobileLaboratoriesData[labKey];
             return (
               <section
                 key={lab.id}
-                id={
-                  labKey === 'asir'
-                        ? 'mobile-asir'
-                        : labKey === 'jazan'
-                            ? 'mobile-jazan'
-                            : labKey === 'alBaha'
-                               ? 'mobile-baha'
-                               : 'mobile-najran'
+                id={LAB_ANCHORS[labKey]                
                 }
                 className="scroll-mt-28 sm:scroll-mt-32 p-6 sm:p-8 rounded-3xl bg-white dark:bg-[#161f31] border border-slate-200/90 dark:border-slate-800 shadow-md transition-all duration-300 space-y-8"
               >
