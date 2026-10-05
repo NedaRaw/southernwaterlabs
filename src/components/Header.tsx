@@ -528,12 +528,12 @@ export default function Header() {
             ================================================== */}
 
             <nav
-              aria-label={
-                lang === 'ar'
-                  ? 'التنقل الرئيسي'
-                  : 'Main Navigation'
-              }
-              className="hidden xl:flex items-center justify-start gap-0 xl:gap-0.5 2xl:gap-1 text-[11px] xl:text-[12px] 2xl:text-[13px] py-1 min-w-0 flex-1"
+              className={`hidden xl:flex items-center justify-start min-w-0 flex-1 py-1
+                ${
+                  lang === 'ar'
+                   ? 'gap-0 xl:gap-0.5 2xl:gap-1 text-[11px] xl:text-[12px] 2xl:text-[13px]'
+                   : 'gap-0 text-[10px] xl:text-[11px] 2xl:text-[12px]'
+                 }`}
             >
 
               {/* ==================================================
@@ -1550,7 +1550,7 @@ export default function Header() {
                   />
 
                   <span>
-                    {currentLangObj.label}
+                    {lang.toUpperCase()}
                   </span>
 
                   <ChevronDown

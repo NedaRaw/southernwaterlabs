@@ -34,13 +34,13 @@ export const translations: Record<string, { ar: string; en: string; fr: string }
   // Nav
   'nav.home': { ar: 'الرئيسية', en: 'Home', fr: 'Accueil' },
   'nav.about': { ar: 'عن المختبرات', en: 'About Us', fr: 'À Propos' },
-  'nav.labs': { ar: 'المختبرات', en: 'Laboratories', fr: 'Laboratoires' },
+  'nav.labs': { ar: 'المختبرات', en: 'Labs', fr: 'Laboratoires' },
   'nav.services': { ar: 'الخدمات', en: 'Services', fr: 'Services' },
-  'nav.mobileLabs': { ar: 'الوحدات المتنقلة', en: 'Mobile Laboratory Units', fr: 'Unités Mobiles' },
-  'nav.mobileLaboratories': { ar: 'الوحدات المتنقلة', en: 'Mobile Laboratory Units', fr: 'Unités Mobiles' },
+  'nav.mobileLabs': { ar: 'الوحدات المتنقلة', en: 'Mobile Labs', fr: 'Labs Mobiles' },
+  'nav.mobileLaboratories': { ar: 'الوحدات المتنقلة', en: 'Mobile Lab Units', fr: 'Unités Mobiles' },
   'nav.news': { ar: 'الأخبار', en: 'News', fr: 'Actualités' },
   'nav.contact': { ar: 'تواصل معنا', en: 'Contact', fr: 'Contact' },
-  'nav.admin': { ar: 'بوابة الموظفين', en: 'Employee Portal', fr: 'Portail Employés' },
+  'nav.admin': { ar: 'بوابة الموظفين', en: 'Employee', fr: 'Employés' },
   'nav.allLabs': { ar: 'كافة المختبرات والفروع', en: 'All Laboratories & Branches', fr: 'Tous les Laboratoires et Agences' },
   'nav.allServices': { ar: 'استعراض كافة الخدمات', en: 'View All Services', fr: 'Voir Tous les Services' },
   'nav.asir': { ar: 'مختبر عسير المركزي', en: 'Asir Central Laboratory', fr: ' Laboratoire Central d\'Asir' },
@@ -56,7 +56,7 @@ export const translations: Record<string, { ar: string; en: string; fr: string }
   'svc.monitoring': { ar: 'مراقبة جودة المياه', en: 'Water Quality Monitoring', fr: 'Contrôle de la Qualité de l\'Eau' },
 
   // Customer services
-  'cs.title': { ar: 'خدمات الزوار', en: 'Visitor Services', fr: 'Services aux Visiteurs' },
+  'cs.title': { ar: 'خدمات الزوار', en: 'Visitor', fr: 'Visiteurs' },
   'cs.register': { ar: 'تسجيل زيارة', en: 'Register a Visit', fr: 'Réserver une Visite' },
   'cs.survey': { ar: 'استبيان الرضا', en: 'Satisfaction Survey', fr: 'Enquête de Satisfaction' },
   'cs.enquiry': { ar: 'إرسال استفسار', en: 'Submit Enquiry', fr: 'Envoyer une Demande' },
