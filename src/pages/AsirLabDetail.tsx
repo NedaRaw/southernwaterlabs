@@ -134,7 +134,7 @@ const translations: Record<Lang, Record<string, string>> = {
 
     locationHeading: 'الموقع',
     address: 'العنوان',
-    district: 'حي المحالة، أبها، منطقة عسير، المملكة العربية السعودية',
+    district: 'طريق الشيخ جابر الصباح، حي المحالة، أبها، منطقة عسير، المملكة العربية السعودية',
     mapHeading: 'الموقع على الخريطة',
     interactiveMapHeading: 'الموقع الجغرافي للمختبر المركزي بعسير',
     coordinates: 'الإحداثيات',

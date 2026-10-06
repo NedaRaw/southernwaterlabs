@@ -122,14 +122,14 @@ export const laboratoryCenters: LaboratoryCenter[] = [
         about:
           'فرع بيشة التابع للمختبر المركزي لعسير، يخدم محافظة بيشة والمناطق المحيطة بها.',
         location: 'بيشة، منطقة عسير، المملكة العربية السعودية',
-        address: 'حي الوسيطاء، بيشة، منطقة عسير، المملكة العربية السعودية',
+        address: 'مبنى NWC، طريق الملك سعود، بيشة 67611، منطقة عسير، المملكة العربية السعودية',
         contact: {
-          phone: '+966 17 345 6789',
-          email: 'bisha-branch@waterlab.gov.sa',
+          phone: '+966 50 424 8412',
+          email: 'mohfali.c@nwc.com.sa',
           address:
-            'حي الوسيطاء، بيشة، منطقة عسير، المملكة العربية السعودية',
+            'مبنى NWC، طريق الملك سعود، بيشة 67611، منطقة عسير، المملكة العربية السعودية',
           workingHours: 'الأحد - الخميس: 8:00 ص - 4:00 م',
-          mapUrl: 'https://maps.google.com/?q=Bisha',
+          mapUrl: 'https://maps.app.goo.gl/4y6PNRgxegZwgEmY6',
         },
         services: [
           {
@@ -176,11 +176,11 @@ export const laboratoryCenters: LaboratoryCenter[] = [
         location: 'محايل، منطقة عسير، المملكة العربية السعودية',
         address: 'محايل، منطقة عسير، المملكة العربية السعودية',
         contact: {
-          phone: '+966 17 285 4321',
-          email: 'mahayel-branch@waterlab.gov.sa',
-          address: 'محايل، منطقة عسير، المملكة العربية السعودية',
+          phone: '+966 54 571 6051',
+          email: 'mail.c@nwc.com.sa',
+          address: 'مبنى NWC، طريق الملك عبدالله، محايل 4088، منطقة عسير، المملكة العربية السعودية',
           workingHours: 'الأحد - الخميس: 8:00 ص - 4:00 م',
-          mapUrl: 'https://maps.google.com/?q=Muhayil+Asir',
+          mapUrl: 'https://maps.app.goo.gl/D1CWg6YxHtNZn8A79',
         },
         services: [
           {
@@ -293,14 +293,14 @@ export const laboratoryCenters: LaboratoryCenter[] = [
         about:
           'فرع شرورة التابع للمختبر المركزي لنجران، يخدم محافظة شرورة والمناطق الشرقية من المنطقة.',
         location: 'شرورة، منطقة نجران، المملكة العربية السعودية',
-        address: 'حي الشرف، شرورة، منطقة نجران، المملكة العربية السعودية',
+        address: 'طريق الخرخير – بجوار محطة إمداد المياه، شرورة، منطقة نجران، المملكة العربية السعودية',
         contact: {
-          phone: '+966 17 567 8901',
-          email: 'sharurah-branch@waterlab.gov.sa',
+          phone: '+966 56 898 2662',
+          email: 'moalsaed.c@nwc.com.sa',
           address:
-            'حي الشرف، شرورة، منطقة نجران، المملكة العربية السعودية',
+            'طريق الخرخير – بجوار محطة إمداد المياه، شرورة، منطقة نجران، المملكة العربية السعودية',
           workingHours: 'الأحد - الخميس: 8:00 ص - 4:00 م',
-          mapUrl: 'https://maps.google.com/?q=Sharurah',
+          mapUrl: 'https://maps.app.goo.gl/tAGmPdYmsfS92vtK8',
         },
         services: [
           {
@@ -394,13 +394,13 @@ export const laboratoryCenters: LaboratoryCenter[] = [
       },
     ],
     contact: {
-      phone: '+966 17 678 9012',
-      email: 'albaha-lab@waterlab.gov.sa',
-      address: 'حي الوادي، الباحة، الباحة، المملكة العربية السعودية',
+      phone: '+966 56 723 4310',
+      email: 'rmalshahrani.c@nwc.com.sa',
+      address: 'حي الشروق، BASA8307، 8307 الشروق 72، 3151، الباحة 65777، المملكة العربية السعودية',
       workingHours: 'الأحد - الخميس: 8:00 ص - 4:00 م',
-      mapUrl: 'https://maps.google.com/?q=Al+Baha',
+      mapUrl: 'https://maps.app.goo.gl/SsxUYJfWQLK5StKf9',
     },
-    location: 'الباحة، الباحة، المملكة العربية السعودية',
+    location: 'الباحة، المملكة العربية السعودية',
     workingHours: 'الأحد - الخميس: 8:00 ص - 4:00 م',
     branches: [
       {
@@ -411,14 +411,14 @@ export const laboratoryCenters: LaboratoryCenter[] = [
         about:
           'فرع قلوة التابع للمختبر المركزي للباحة، يخدم محافظة قلوة والمناطق الساحلية التابعة لها.',
         location: 'قلوة، الباحة، المملكة العربية السعودية',
-        address: 'حي البلد، قلوة، الباحة، المملكة العربية السعودية',
+        address: 'BMJA4788، 4788 طريق الملك فيصل، 7147، الخليف 65341، قلوة، الباحة، المملكة العربية السعودية',
         contact: {
-          phone: '+966 17 789 0123',
-          email: 'qalwah-branch@waterlab.gov.sa',
+          phone: '+966 50 855 0015',
+          email: 'hamalghamdi.c@nwc.com.sa',
           address:
-            'حي البلد، قلوة، الباحة، المملكة العربية السعودية',
+            'BMJA4788، 4788 طريق الملك فيصل، 7147، الخليف 65341، قلوة، الباحة، المملكة العربية السعودية',
           workingHours: 'الأحد - الخميس: 8:00 ص - 4:00 م',
-          mapUrl: 'https://maps.google.com/?q=Qalwah',
+          mapUrl: 'https://maps.app.goo.gl/sErMrcHkdPpxa7BM6',
         },
         services: [
           {
@@ -524,13 +524,13 @@ export const laboratoryCenters: LaboratoryCenter[] = [
       },
     ],
     contact: {
-      phone: '+966 17 890 1234',
-      email: 'jazan-lab@waterlab.gov.sa',
-      address: 'حي الشاطئ، جازان، منطقة جازان، المملكة العربية السعودية',
+      phone: '+966 55 676 6148',
+      email: 'ftaageeli.c@nwc.com.sa',
+      address: '2612 طريق الملك عبدالعزيز، حي الزهور، GGMA7503، 7503، جيزان ،82841 جازان، المملكة العربية السعودية',
       workingHours: 'الأحد - الخميس: 8:00 ص - 4:00 م',
-      mapUrl: 'https://maps.google.com/?q=Jazan',
+      mapUrl: 'https://maps.app.goo.gl/GJxvFfP61uWNoxx2A',
     },
-    location: 'جازان، منطقة جازان، المملكة العربية السعودية',
+    location: ' جازان، المملكة العربية السعودية',
     workingHours: 'الأحد - الخميس: 8:00 ص - 4:00 م',
     branches: [
       {
@@ -541,14 +541,14 @@ export const laboratoryCenters: LaboratoryCenter[] = [
         about:
           'فرع الدرب التابع للمختبر المركزي لجازان، يخدم محافظة الدرب والمناطق الشمالية من منطقة جازان.',
         location: 'الدرب، منطقة جازان، المملكة العربية السعودية',
-        address: 'حي المحطة، الدرب، منطقة جازان، المملكة العربية السعودية',
+        address: 'حي المحطة، P6XQ+CR7، الدرب 89869، جازان، المملكة العربية السعودية',
         contact: {
-          phone: '+966 17 901 2345',
-          email: 'aldarb-branch@waterlab.gov.sa',
+          phone: '+966 59 425 7912',
+          email: 'hshajri@nwc.com.sa',
           address:
-            'حي المحطة، الدرب، منطقة جازان، المملكة العربية السعودية',
+            'حي المحطة، P6XQ+CR7، الدرب 89869، جازان، المملكة العربية السعودية',
           workingHours: 'الأحد - الخميس: 8:00 ص - 4:00 م',
-          mapUrl: 'https://maps.google.com/?q=Al+Darb',
+          mapUrl: 'https://maps.app.goo.gl/yr3KQTAojBihazsJ8',
         },
         services: [
           {
@@ -602,14 +602,14 @@ export const laboratoryCenters: LaboratoryCenter[] = [
           'فرع فرسان التابع للمختبر المركزي لجازان، يخدم أرخبيل فرسان والمناطق الجزرية في البحر الأحمر.',
         location: 'فرسان، منطقة جازان، المملكة العربية السعودية',
         address:
-          'حي الميناء، جزيرة فرسان، منطقة جازان، المملكة العربية السعودية',
+          '88238، مبنى 2440، الرمز GFAA2440 ،حي الميناء، جزيرة فرسان، منطقة جازان، المملكة العربية السعودية',
         contact: {
-          phone: '+966 17 012 3456',
-          email: 'farasan-branch@waterlab.gov.sa',
+          phone: '+966 59 425 7912',
+          email: 'hshajri@nwc.com.sa',
           address:
-            'حي الميناء، جزيرة فرسان، منطقة جازان، المملكة العربية السعودية',
+            'حي الميناء، جزيرة فرسان، جازان، المملكة العربية السعودية',
           workingHours: 'الأحد - الخميس: 8:00 ص - 4:00 م',
-          mapUrl: 'https://maps.google.com/?q=Farasan',
+          mapUrl: 'https://maps.app.goo.gl/t1oVLUY7Xrb9m6sP9',
         },
         services: [
           {
@@ -745,8 +745,8 @@ const labI18n: Record<string, EntityTranslations> = {
       fr: "Mahayel, Région d'Asir, Royaume d'Arabie Saoudite",
     },
     address: {
-      en: 'Mahayel, Asir Region, Kingdom of Saudi Arabia',
-      fr: "Mahayel, Région d'Asir, Royaume d'Arabie Saoudite",
+      en: 'Sheikh Jaber Al-Sabah Road, Mahayel, Asir Region, Kingdom of Saudi Arabia',
+      fr: "Route Sheikh Jaber Al-Sabah, Mahayel, Région d'Asir, Royaume d'Arabie Saoudite",
     },
     workingHours: {
       en: 'Sunday - Thursday: 8:00 AM - 4:00 PM',
@@ -799,8 +799,8 @@ const labI18n: Record<string, EntityTranslations> = {
       fr: "Sharurah, Région de Najran, Royaume d'Arabie Saoudite",
     },
     address: {
-      en: 'Al-Sharaf District, Sharurah, Najran Region, Kingdom of Saudi Arabia',
-      fr: "Quartier Al-Sharaf, Sharurah, Région de Najran, Royaume d'Arabie Saoudite",
+      en: 'Al-Kharkhir Road, Next to Sharurah Water Supply Station, Sharurah, Najran Region, Kingdom of Saudi Arabia',
+      fr: "route Al-Kharkhir, à côté de la station d’approvisionnement en eau de Sharurah, Sharurah, Région de Najran, Royaume d'Arabie Saoudite",
     },
     workingHours: {
       en: 'Sunday - Thursday: 8:00 AM - 4:00 PM',
@@ -826,8 +826,8 @@ const labI18n: Record<string, EntityTranslations> = {
       fr: "Al-Baha, Région d'Al-Baha, Royaume d'Arabie Saoudite",
     },
     address: {
-      en: 'Al-Wadi District, Al-Baha, Al-Baha Region, Kingdom of Saudi Arabia',
-      fr: "Quartier Al-Wadi, Al-Baha, Région d'Al-Baha, Royaume d'Arabie Saoudite",
+      en: 'Al-Shorouq District, BASA8307, 8307 Al-Shorouq 72, 3151, Al-Baha 65777, Al-Baha Region, Kingdom of Saudi Arabia',
+      fr: "Quartier Al-Shorouq, BASA8307, 8307 Al-Shorouq 72, 3151, Al-Baha 65777, Région d'Al-Baha, Royaume d'Arabie Saoudite",
     },
     workingHours: {
       en: 'Sunday - Thursday: 8:00 AM - 4:00 PM',
@@ -853,8 +853,8 @@ const labI18n: Record<string, EntityTranslations> = {
       fr: "Qalwah, Région d'Al-Baha, Royaume d'Arabie Saoudite",
     },
     address: {
-      en: 'Al-Balad District, Qalwah, Al-Baha Region, Kingdom of Saudi Arabia',
-      fr: "Quartier Al-Balad, Qalwah, Région d'Al-Baha, Royaume d'Arabie Saoudite",
+      en: 'BMJA4788, 4788 King Faisal Road, 7147, Al-Khalif 65341, Qalwah, Al-Baha Region, Kingdom of Saudi Arabia',
+      fr: "BMJA4788, 4788 King Faisal Road, 7147, Al-Khalif 65341, Qalwah, Région d'Al-Baha, Royaume d'Arabie Saoudite",
     },
     workingHours: {
       en: 'Sunday - Thursday: 8:00 AM - 4:00 PM',
@@ -880,8 +880,8 @@ const labI18n: Record<string, EntityTranslations> = {
       fr: "Jazan, Région de Jazan, Royaume d'Arabie Saoudite",
     },
     address: {
-      en: 'Al-Shati District, Jazan, Jazan Region, Kingdom of Saudi Arabia',
-      fr: "Quartier Al-Shati, Jazan, Région de Jazan, Royaume d'Arabie Saoudite",
+      en: '2612 King Abdulaziz Road, Al-Zuhur District, GGMA7503, 7503, Jazan 82841, Jazan Region, Kingdom of Saudi Arabia',
+      fr: "2612 King Abdulaziz Road, quartier Al-Zuhur, GGMA7503, 7503, Jazan 82841, Région de Jazan, Royaume d'Arabie Saoudite",
     },
     workingHours: {
       en: 'Sunday - Thursday: 8:00 AM - 4:00 PM',
@@ -907,8 +907,8 @@ const labI18n: Record<string, EntityTranslations> = {
       fr: "Al-Darb, Région de Jazan, Royaume d'Arabie Saoudite",
     },
     address: {
-      en: 'Al-Mahattah District, Al-Darb, Jazan Region, Kingdom of Saudi Arabia',
-      fr: "Quartier Al-Mahattah, Al-Darb, Région de Jazan, Royaume d'Arabie Saoudite",
+      en: 'Al-Mahattah District P6XQ+CR7, Al-Dar b89869, Jazan Region, Kingdom of Saudi Arabia',
+      fr: "Quartier Al-Mahattah P6XQ+CR7, Al-Darb b89869, Région de Jazan, Royaume d'Arabie Saoudite",
     },
     workingHours: {
       en: 'Sunday - Thursday: 8:00 AM - 4:00 PM',
@@ -934,8 +934,8 @@ const labI18n: Record<string, EntityTranslations> = {
       fr: "Farasan, Région de Jazan, Royaume d'Arabie Saoudite",
     },
     address: {
-      en: 'Al-Mina District, Farasan Island, Jazan Region, Kingdom of Saudi Arabia',
-      fr: "Quartier Al-Mina, Île Farasan, Région de Jazan, Royaume d'Arabie Saoudite",
+      en: 'Al-Mina District, GFAA2440, 2440 Al-Miyah, 6630, Farasan Island 88238, Jazan Region, Kingdom of Saudi Arabia',
+      fr: "Quartier Al-Mina, GFAA2440, 2440 Al-Miyah, 6630, île de Farasan 88238, Région de Jazan, Royaume d'Arabie Saoudite",
     },
     workingHours: {
       en: 'Sunday - Thursday: 8:00 AM - 4:00 PM',
