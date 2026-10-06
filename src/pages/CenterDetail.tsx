@@ -256,67 +256,66 @@ function GenericCenterDetail() {
   };
 
   // ============================================================
-  // Center Coordinates
-  // ============================================================
+// Center Coordinates
+// ============================================================
 
-  const centerCoordinates: Record<
-    string,
-    {
-      lat: number;
-      lng: number;
-      dms: string;
-      decimal: string;
-      mapsUrl: string;
-      directionsUrl: string;
-    }
-  > = {
-    asir: {
-      lat: 18.21639,
-      lng: 42.50528,
-      dms: '18°12\'59.0"N 42°30\'19.0"E',
-      decimal: '18.21639, 42.50528',
-      mapsUrl:
-        'https://maps.google.com/?q=Abha+Asir',
-      directionsUrl:
-        'https://www.google.com/maps/dir/?api=1&destination=18.21639,42.50528',
-    },
+const centerCoordinates: Record<
+  string,
+  {
+    lat: number;
+    lng: number;
+    dms: string;
+    decimal: string;
+    mapsUrl: string;
+    directionsUrl: string;
+  }
+> = {
+  asir: {
+    lat: 18.21639,
+    lng: 42.50528,
+    dms: '18°12\'59.0"N 42°30\'19.0"E',
+    decimal: '18.21639, 42.50528',
+    mapsUrl:
+      'https://maps.google.com/?q=18.21639,42.50528',
+    directionsUrl:
+      'https://www.google.com/maps/dir/?api=1&destination=18.21639,42.50528',
+  },
 
-    'al-baha': {
-      lat: 20.01288,
-      lng: 41.46767,
-      dms: '20°00\'46.4"N 41°28\'03.6"E',
-      decimal: '20.01288, 41.46767',
-      mapsUrl:
-        'https://maps.google.com/?q=Al+Baha',
-      directionsUrl:
-        'https://www.google.com/maps/dir/?api=1&destination=20.01288,41.46767',
-    },
+  'al-baha': {
+    lat: 20.01288,
+    lng: 41.46767,
+    dms: '20°00\'46.4"N 41°28\'03.6"E',
+    decimal: '20.01288, 41.46767',
+    mapsUrl:
+      'https://maps.google.com/?q=20.01288,41.46767',
+    directionsUrl:
+      'https://www.google.com/maps/dir/?api=1&destination=20.01288,41.46767',
+  },
 
-    jazan: {
-      lat: 16.88917,
-      lng: 42.56111,
-      dms: '16°53\'21.0"N 42°33\'40.0"E',
-      decimal: '16.88917, 42.56111',
-      mapsUrl:
-        'https://maps.google.com/?q=Jazan',
-      directionsUrl:
-        'https://www.google.com/maps/dir/?api=1&destination=16.88917,42.56111',
-    },
+  jazan: {
+    lat: 16.92810674784785,
+    lng: 42.613920575129974,
+    dms: '16°55\'41.2"N 42°36\'50.1"E',
+    decimal: '16.92810674784785, 42.613920575129974',
+    mapsUrl:
+      'https://maps.google.com/?q=16.92810674784785,42.613920575129974',
+    directionsUrl:
+      'https://www.google.com/maps/dir/?api=1&destination=16.92810674784785,42.613920575129974',
+  },
+};
+
+const coords =
+  centerCoordinates[center.id] || {
+    lat: 18.21639,
+    lng: 42.50528,
+    dms: '18°12\'59.0"N 42°30\'19.0"E',
+    decimal: '18.21639, 42.50528',
+    mapsUrl: center.contact.mapUrl,
+    directionsUrl:
+      `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
+        center.location
+      )}`,
   };
-
-  const coords =
-    centerCoordinates[center.id] || {
-      lat: 18.21639,
-      lng: 42.50528,
-      dms: '18°12\'59.0"N 42°30\'19.0"E',
-      decimal: '18.21639, 42.50528',
-      mapsUrl: center.contact.mapUrl,
-      directionsUrl:
-        `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
-          center.location
-        )}`,
-    };
-
   // ============================================================
   // Copy Coordinates
   // ============================================================
