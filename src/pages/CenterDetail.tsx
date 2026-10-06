@@ -51,6 +51,19 @@ import labGallery3 from '@/assets/images/IMG-20250723-WA0003.jpg';
 import labGallery4 from '@/assets/images/IMG-20250723-WA0004.jpg';
 import labGallery5 from '@/assets/images/IMG-20250723-WA0005.jpg';
 import labGallery6 from '@/assets/images/IMG-20250723-WA0006.jpg';
+import bahaVan1Img from '@/assets/images/albaha-lab-van1.jpg';
+import bahaVan5Img from '@/assets/images/albaha-lab-van5.jpg';
+import bahaVan3Img from '@/assets/images/albaha-lab-van3.jpg';
+import bahaVan2Img from '@/assets/images/albaha-lab-van2.jpg';
+import bahaVan4Img from '@/assets/images/albaha-lab-van4.jpg';
+import bahalab1Img from '@/assets/images/albaha-lab1.jpg';
+import bahalab2Img from '@/assets/images/albaha-lab2.jpg';
+import jazanVanImg from '@/assets/images/jazan-lab-van4.jpg';
+import jazanSideImg from '@/assets/images/jazan-lab-van2.jpg';
+import jazanRearImg from '@/assets/images/jazan-lab-van5.jpg';
+import jazanDeployImg from '@/assets/images/jazan-lab-van1.jpg';
+import jazanVan3Img from '@/assets/images/jazan-lab-van3.jpg';
+import jazanVan6Img from '@/assets/images/jazan-lab-van6.jpg';
 
 /**
  * Entry component.
@@ -354,103 +367,302 @@ const coords =
   // Gallery
   // ============================================================
 
-  const galleryItems = [
-    {
-      img: labGallery1,
-      title:
-        lang === 'ar'
-          ? 'صالة الاستقبال وبوابة خدمة العملاء'
-          : lang === 'fr'
-            ? "Hall d'accueil et service client"
-            : 'Reception & Customer Service Hall',
-      category:
-        lang === 'ar'
-          ? 'خدمة العملاء'
-          : lang === 'fr'
-            ? 'Service Client'
-            : 'Customer Service',
-    },
+  const galleryItems =
+  centerId === 'al-baha'
+    ? [
+       {
+  img: bahalab1Img,
+  title:
+    lang === 'ar'
+      ? 'خدمات المختبر المركزي المتنقل وبوث خدمات العملاء في منتزه رغدان'
+      : lang === 'fr'
+        ? 'Services du laboratoire central mobile et du point de service client au parc Raghadan'
+        : 'Central Mobile Laboratory & Customer Service at Raghadan Park',
+  category:
+    lang === 'ar'
+      ? 'الخدمات الميدانية'
+      : lang === 'fr'
+        ? 'Services terrain'
+        : 'Field Services',
+},
 
-    {
-      img: labGallery2,
-      title:
-        lang === 'ar'
-          ? 'معمل التحاليل الكيميائية المتقدمة'
-          : lang === 'fr'
-            ? "Laboratoire d'analyses chimiques avancées"
-            : 'Advanced Chemical Analysis Lab',
-      category:
-        lang === 'ar'
-          ? 'التحليل الكيميائي'
-          : lang === 'fr'
-            ? 'Chimie'
-            : 'Chemical Analysis',
-    },
-
-    {
-      img: labGallery3,
-      title:
-        lang === 'ar'
-          ? 'وحدة الفحص الميكروبيولوجي والحضانات'
-          : lang === 'fr'
-            ? 'Unité de microbiologie et incubateurs'
-            : 'Microbiology & Incubation Unit',
-      category:
-        lang === 'ar'
-          ? 'الميكروبيولوجي'
-          : lang === 'fr'
-            ? 'Microbiologie'
-            : 'Microbiology',
-    },
-
-    {
-      img: labGallery4,
-      title:
-        lang === 'ar'
-          ? 'محطة استلام وتشفير العينات الميدانية'
-          : lang === 'fr'
-            ? 'Réception et étiquetage des échantillons'
-            : 'Sample Intake & Coding Station',
-      category:
-        lang === 'ar'
-          ? 'سلسلة الحيازة'
-          : lang === 'fr'
-            ? 'Chaîne de traçabilité'
-            : 'Chain of Custody',
-    },
-
-    {
-      img: labGallery5,
-      title:
-        lang === 'ar'
-          ? 'أجهزة قياس الطيف الكتلي والامتصاص الذري'
-          : lang === 'fr'
-            ? 'Spectrométrie de masse et absorption atomique'
-            : 'Mass Spectrometry & Atomic Absorption',
-      category:
-        lang === 'ar'
-          ? 'أجهزة متقدمة'
-          : lang === 'fr'
-            ? 'Équipements de pointe'
-            : 'Advanced Instrumentation',
-    },
-
-    {
-      img: labGallery6,
-      title:
-        lang === 'ar'
-          ? 'وحدة ضبط وتأكيد الجودة النوعية (QA/QC)'
-          : lang === 'fr'
-            ? "Unité d'assurance et contrôle qualité"
-            : 'Quality Assurance & Control Unit',
-      category:
-        lang === 'ar'
-          ? 'إدارة الجودة'
-          : lang === 'fr'
-            ? 'Qualité'
-            : 'Quality Management',
-    },
-  ];
+{
+  img: bahalab2Img,
+  title:
+    lang === 'ar'
+      ? 'الفحص والتحليل الميداني في منتزه رغدان'
+      : lang === 'fr'
+        ? 'Contrôle et analyse sur le terrain au parc Raghadan'
+        : 'Field Testing & Analysis at Raghadan Park',
+  category:
+    lang === 'ar'
+      ? 'الفحص والتحليل الميداني'
+      : lang === 'fr'
+        ? 'Contrôle et analyse terrain'
+        : 'Field Testing & Analysis',
+},
+        {
+          img: bahaVan1Img,
+          title:
+            lang === 'ar'
+              ? 'مختبر مياه الباحة المركزي'
+              : lang === 'fr'
+                ? 'Laboratoire central des eaux d’Al-Baha'
+                : 'Al-Baha Central Water Laboratory',
+          category:
+            lang === 'ar'
+              ? 'مختبر الباحة'
+              : lang === 'fr'
+                ? 'Laboratoire d’Al-Baha'
+                : 'Al-Baha Laboratory',
+        },
+        {
+          img: bahaVan2Img,
+          title:
+            lang === 'ar'
+              ? 'المختبر المتنقل لمختبر الباحة المركزي'
+              : lang === 'fr'
+                ? 'Laboratoire mobile d’Al-Baha'
+                : 'Al-Baha Mobile Laboratory',
+          category:
+            lang === 'ar'
+              ? 'المختبرات المتنقلة'
+              : lang === 'fr'
+                ? 'Laboratoires mobiles'
+                : 'Mobile Laboratories',
+        },
+        {
+          img: bahaVan3Img,
+          title:
+            lang === 'ar'
+              ? 'مرافق مختبر الباحة المركزي'
+              : lang === 'fr'
+                ? 'Installations du laboratoire central d’Al-Baha'
+                : 'Al-Baha Central Laboratory Facilities',
+          category:
+            lang === 'ar'
+              ? 'المرافق'
+              : lang === 'fr'
+                ? 'Installations'
+                : 'Facilities',
+        },
+        {
+          img: bahaVan4Img,
+          title:
+            lang === 'ar'
+              ? 'مركبة المختبر المتنقل بالباحة'
+              : lang === 'fr'
+                ? 'Véhicule du laboratoire mobile d’Al-Baha'
+                : 'Al-Baha Mobile Laboratory Vehicle',
+          category:
+            lang === 'ar'
+              ? 'المختبر المتنقل'
+              : lang === 'fr'
+                ? 'Laboratoire mobile'
+                : 'Mobile Laboratory',
+        },
+        {
+          img: bahaVan5Img,
+          title:
+            lang === 'ar'
+              ? 'عمليات الفحص الميداني بالباحة'
+              : lang === 'fr'
+                ? 'Opérations d’inspection sur le terrain à Al-Baha'
+                : 'Al-Baha Field Inspection Operations',
+          category:
+            lang === 'ar'
+              ? 'الفحص الميداني'
+              : lang === 'fr'
+                ? 'Inspection terrain'
+                : 'Field Inspection',
+        },
+       
+      ]
+    : centerId === 'jazan'
+      ? [
+          {
+            img: jazanDeployImg,
+            title:
+              lang === 'ar'
+                ? 'المختبر المتنقل لمختبر جازان المركزي'
+                : lang === 'fr'
+                  ? 'Laboratoire mobile de Jazan'
+                  : 'Jazan Mobile Laboratory',
+            category:
+              lang === 'ar'
+                ? 'المختبرات المتنقلة'
+                : lang === 'fr'
+                  ? 'Laboratoires mobiles'
+                  : 'Mobile Laboratories',
+          },
+          {
+            img: jazanSideImg,
+            title:
+              lang === 'ar'
+                ? 'مرافق مختبر جازان المركزي'
+                : lang === 'fr'
+                  ? 'Installations du laboratoire central de Jazan'
+                  : 'Jazan Central Laboratory Facilities',
+            category:
+              lang === 'ar'
+                ? 'المرافق'
+                : lang === 'fr'
+                  ? 'Installations'
+                  : 'Facilities',
+          },
+          {
+            img: jazanVanImg,
+            title:
+              lang === 'ar'
+                ? 'مركبة المختبر المتنقل بجازان'
+                : lang === 'fr'
+                  ? 'Véhicule du laboratoire mobile de Jazan'
+                  : 'Jazan Mobile Laboratory Vehicle',
+            category:
+              lang === 'ar'
+                ? 'المختبر المتنقل'
+                : lang === 'fr'
+                  ? 'Laboratoire mobile'
+                  : 'Mobile Laboratory',
+          },
+          {
+            img: jazanRearImg,
+            title:
+              lang === 'ar'
+                ? 'عمليات المختبر الميداني بجازان'
+                : lang === 'fr'
+                  ? 'Opérations du laboratoire mobile de Jazan'
+                  : 'Jazan Mobile Laboratory Operations',
+            category:
+              lang === 'ar'
+                ? 'العمليات الميدانية'
+                : lang === 'fr'
+                  ? 'Opérations terrain'
+                  : 'Field Operations',
+          },
+          {
+            img: jazanVan3Img,
+            title:
+              lang === 'ar'
+                ? 'المختبر المتنقل لمختبر جازان المركزي'
+                : lang === 'fr'
+                  ? 'Laboratoire mobile du laboratoire central de Jazan'
+                  : 'Jazan Central Laboratory Mobile Unit',
+            category:
+              lang === 'ar'
+                ? 'المختبرات المتنقلة'
+                : lang === 'fr'
+                  ? 'Laboratoires mobiles'
+                  : 'Mobile Laboratories',
+          },
+          {
+            img: jazanVan6Img,
+            title:
+              lang === 'ar'
+                ? 'معدات وعمليات مختبر جازان'
+                : lang === 'fr'
+                  ? 'Équipements et opérations du laboratoire de Jazan'
+                  : 'Jazan Laboratory Equipment & Operations',
+            category:
+              lang === 'ar'
+                ? 'التجهيزات'
+                : lang === 'fr'
+                  ? 'Équipements'
+                  : 'Equipment',
+          },
+        ]
+      : [
+          {
+            img: labGallery1,
+            title:
+              lang === 'ar'
+                ? 'صالة الاستقبال وبوابة خدمة العملاء'
+                : lang === 'fr'
+                  ? "Hall d'accueil et service client"
+                  : 'Reception & Customer Service Hall',
+            category:
+              lang === 'ar'
+                ? 'خدمة العملاء'
+                : lang === 'fr'
+                  ? 'Service Client'
+                  : 'Customer Service',
+          },
+          {
+            img: labGallery2,
+            title:
+              lang === 'ar'
+                ? 'معمل التحاليل الكيميائية المتقدمة'
+                : lang === 'fr'
+                  ? "Laboratoire d'analyses chimiques avancées"
+                  : 'Advanced Chemical Analysis Lab',
+            category:
+              lang === 'ar'
+                ? 'التحليل الكيميائي'
+                : lang === 'fr'
+                  ? 'Chimie'
+                  : 'Chemical Analysis',
+          },
+          {
+            img: labGallery3,
+            title:
+              lang === 'ar'
+                ? 'وحدة الفحص الميكروبيولوجي والحضانات'
+                : lang === 'fr'
+                  ? 'Unité de microbiologie et incubateurs'
+                  : 'Microbiology & Incubation Unit',
+            category:
+              lang === 'ar'
+                ? 'الميكروبيولوجي'
+                : lang === 'fr'
+                  ? 'Microbiologie'
+                  : 'Microbiology',
+          },
+          {
+            img: labGallery4,
+            title:
+              lang === 'ar'
+                ? 'محطة استلام وتشفير العينات الميدانية'
+                : lang === 'fr'
+                  ? 'Réception et étiquetage des échantillons'
+                  : 'Sample Intake & Coding Station',
+            category:
+              lang === 'ar'
+                ? 'سلسلة الحيازة'
+                : lang === 'fr'
+                  ? 'Chaîne de traçabilité'
+                  : 'Chain of Custody',
+          },
+          {
+            img: labGallery5,
+            title:
+              lang === 'ar'
+                ? 'أجهزة قياس الطيف الكتلي والامتصاص الذري'
+                : lang === 'fr'
+                  ? 'Spectrométrie de masse et absorption atomique'
+                  : 'Mass Spectrometry & Atomic Absorption',
+            category:
+              lang === 'ar'
+                ? 'أجهزة متقدمة'
+                : lang === 'fr'
+                  ? 'Équipements de pointe'
+                  : 'Advanced Instrumentation',
+          },
+          {
+            img: labGallery6,
+            title:
+              lang === 'ar'
+                ? 'وحدة ضبط وتأكيد الجودة النوعية (QA/QC)'
+                : lang === 'fr'
+                  ? "Unité d'assurance et contrôle qualité"
+                  : 'Quality Assurance & Control Unit',
+            category:
+              lang === 'ar'
+                ? 'إدارة الجودة'
+                : lang === 'fr'
+                  ? 'Qualité'
+                  : 'Quality Management',
+          },
+        ];
 
   // ============================================================
   // Instruments & Equipment
