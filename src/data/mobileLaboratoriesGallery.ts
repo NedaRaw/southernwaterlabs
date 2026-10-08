@@ -22,12 +22,12 @@ import bahaDeployImg from '@/assets/images/albaha-lab-van2.jpg';
 import albahaVan4Img from '@/assets/images/albaha-lab-van4.jpg';
 
 import najranVanImg from '@/assets/images/lab-car-najran.jpg';
-import najranRealDoorsImg from '@/assets/images/IMG-20250723-WA0001.jpg';
-import najranRealBenchImg from '@/assets/images/IMG-20250723-WA0002.jpg';
-import najranRealTechImg from '@/assets/images/IMG-20250723-WA0003.jpg';
-import najranRealSideImg from '@/assets/images/IMG-20250723-WA0004.jpg';
-import najranRealKitsImg from '@/assets/images/IMG-20250723-WA0005.jpg';
-import najranRealPurityImg from '@/assets/images/IMG-20250723-WA0006.jpg';
+import najranRealDoorsImg from '@/assets/images/Najran-lab-van-01.jpg';
+import najranRealBenchImg from '@/assets/images/Najran-lab-van-02.jpg';
+import najranRealTechImg from '@/assets/images/Najran-lab-van-03.jpg';
+import najranRealSideImg from '@/assets/images/Najran-lab-van-04.jpg';
+import najranRealKitsImg from '@/assets/images/Najran-lab-van-05.jpg';
+import najranRealPurityImg from '@/assets/images/Najran-lab-van-06.jpg';
 
 export interface MobileLabGalleryImage {
   id: string;

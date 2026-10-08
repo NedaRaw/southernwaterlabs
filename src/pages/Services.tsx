@@ -724,7 +724,7 @@ export default function Services() {
             <div className="lg:col-span-6 relative">
               <div className="rounded-xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 bg-slate-900">
                 <img
-                  src={siteMedia.mobileLabCar || siteMedia.fieldAction}
+                  src={siteMedia.waterlabCarImg || siteMedia.waterlabCar}
                   alt="Mobile Laboratory Vehicle"
                   className="w-full h-64 sm:h-72 object-cover object-center"
                 />

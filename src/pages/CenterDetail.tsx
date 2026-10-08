@@ -45,12 +45,12 @@ import {
 } from '@/lib/visitorId';
 
 // Authentic Laboratory & Equipment Facility Photos
-import labGallery1 from '@/assets/images/IMG-20250723-WA0001.jpg';
-import labGallery2 from '@/assets/images/IMG-20250723-WA0002.jpg';
-import labGallery3 from '@/assets/images/IMG-20250723-WA0003.jpg';
-import labGallery4 from '@/assets/images/IMG-20250723-WA0004.jpg';
-import labGallery5 from '@/assets/images/IMG-20250723-WA0005.jpg';
-import labGallery6 from '@/assets/images/IMG-20250723-WA0006.jpg';
+import labGallery1 from '@/assets/images/Najran-lab-van-01.jpg';
+import labGallery2 from '@/assets/images/Najran-lab-van-02.jpg';
+import labGallery3 from '@/assets/images/Najran-lab-van-03.jpg';
+import labGallery4 from '@/assets/images/Najran-lab-van-04.jpg';
+import labGallery5 from '@/assets/images/Najran-lab-van-05.jpg';
+import labGallery6 from '@/assets/images/Najran-lab-van-06.jpg';
 import bahaVan1Img from '@/assets/images/albaha-lab-van1.jpg';
 import bahaVan5Img from '@/assets/images/albaha-lab-van5.jpg';
 import bahaVan3Img from '@/assets/images/albaha-lab-van3.jpg';

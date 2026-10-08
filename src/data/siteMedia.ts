@@ -20,18 +20,18 @@ import jazanMobileLabImg from '@/assets/images/jazan-lab-van4.jpg';
 import najranMobileLabImg from '@/assets/images/lab-car-najran.jpg';
 import najranRealPhotoOriginal from '@/assets/images/lab-car-najran.jpg';
 import najranMobileLabAltImg from '@/assets/images/lab-car-najran.png';
-import najranRealDoorsImg from '@/assets/images/IMG-20250723-WA0001.jpg';
+import najranRealDoorsImg from '@/assets/images/Najran-lab-van-01.jpg';
 import najranRealBenchImg from '@/assets/images/asir-lab-van6.jpg';
-import najranRealTechImg from '@/assets/images/IMG-20250723-WA0003.jpg';
-import najranRealSideImg from '@/assets/images/IMG-20250723-WA0004.jpg';
-import najranRealKitsImg from '@/assets/images/IMG-20250723-WA0005.jpg';
-import najranRealPurityImg from '@/assets/images/IMG-20250723-WA0006.jpg';
+import najranRealTechImg from '@/assets/images/Najran-lab-van-03.jpg';
+import najranRealSideImg from '@/assets/images/Najran-lab-van-04.jpg';
+import najranRealKitsImg from '@/assets/images/Najran-lab-van-05.jpg';
+import najranRealPurityImg from '@/assets/images/Najran-lab-van-06.jpg';
 
 // Newly imported high-resolution assets
 import panoramicBandImg from '@/assets/images/icme-suyu-test.jpg';
 import nwlStudyImg from '@/assets/images/nwlstudu.jpg';
 import puraWaterImg from '@/assets/images/PURA-WATER-TESTING.jpg';
-import fieldInspectionActionImg from '@/assets/images/6fdca855-cb45-4652-b741-9d63923fe79e.jpg';
+import fieldInspectionActionImg from '@/assets/images/labo-najran-mobil-humains.jpg';
 import darkBlueTextureImg from '@/assets/images/pngtree-dark-blue-wallpaper-background-picture-image_1260871.jpg';
 
 import newsMicrobiologyImg from '@/assets/images/news_microbiology_1790237006452.jpg';
@@ -43,10 +43,12 @@ import newsDefaultThumbImg from '@/assets/images/news_default_thumb_179023708681
 import maleTechnicianImg from '@/assets/images/male_technician_lab_1790237074086.jpg';
 
 // Three official National Water Company assets
+import waterlabCarImg from '@/assets/images/waterlab-car.jpeg';
 import nwcCorporateImg from '@/assets/images/nwc.jpg';
 import nwcLabTestingImg from '@/assets/images/nwc-lab1.jpg';
 import nwcLabAgilentImg from '@/assets/images/nwc-lab2.jpg';
 import nwcOfficialLogo from '@/assets/images/nwc-logo.png';
+
 
 export const siteMedia = {
   heroBackground: waterLabHeroImg,
@@ -55,6 +57,7 @@ export const siteMedia = {
   nwcLabTesting: nwcLabTestingImg,
   nwcLabAgilent: nwcLabAgilentImg,
   waterTestingPan: waterTestingPanImg,
+  waterlabCar: waterlabCarImg,
   downloadSampling: waterTestingPanImg,
   panoramicBand: panoramicBandImg,
   studyLab: nwlStudyImg,

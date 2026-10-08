@@ -39,19 +39,19 @@ import najranBuilding from '@/assets/images/lab_najran_central_1790236956545.jpg
 import najranChemist from '@/assets/images/najran_male_chemist_lab_1790161204485.jpg';
 import najranFlyer from '@/assets/images/najran_flyer_labo.png';
 import mobileLabCar from '@/assets/images/lab-car-najran.png';
-import mobileFieldWork from '@/assets/images/6fdca855-cb45-4652-b741-9d63923fe79e.jpg';
+import mobileFieldWork from '@/assets/images/labo-najran-mobil-humains.jpg';
 import orgStructureImg from '@/assets/images/Position-structure.png';
 import functionalStructure1 from '@/assets/images/Najran-branch functional structure1.jpg';
 import functionalStructure2 from '@/assets/images/Najran-branch functional structure2.jpg';
 import functionalStructure3 from '@/assets/images/Najran-branch functional structure3.jpg';
 
 // Authentic Lab & Equipment Photos
-import labGallery1 from '@/assets/images/IMG-20250723-WA0001.jpg';
-import labGallery2 from '@/assets/images/IMG-20250723-WA0002.jpg';
-import labGallery3 from '@/assets/images/IMG-20250723-WA0003.jpg';
-import labGallery4 from '@/assets/images/IMG-20250723-WA0004.jpg';
-import labGallery5 from '@/assets/images/IMG-20250723-WA0005.jpg';
-import labGallery6 from '@/assets/images/IMG-20250723-WA0006.jpg';
+import labGallery1 from '@/assets/images/Najran-lab-van-01.jpg';
+import labGallery2 from '@/assets/images/Najran-lab-van-02.jpg';
+import labGallery3 from '@/assets/images/Najran-lab-van-03.jpg';
+import labGallery4 from '@/assets/images/Najran-lab-van-04.jpg';
+import labGallery5 from '@/assets/images/Najran-lab-van-05.jpg';
+import labGallery6 from '@/assets/images/Najran-lab-van-06.jpg';
 
 export default function NajranLabDetail() {
   const { lang, dir } = useLang();
