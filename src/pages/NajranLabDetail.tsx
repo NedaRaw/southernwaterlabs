@@ -35,7 +35,7 @@ import Breadcrumb from '@/components/Breadcrumb';
 
 // Official Najran Images
 import najranLogo from '@/assets/images/nwc-logo.png';
-import najranBuilding from '@/assets/images/lab_najran_central_1790236956545.jpg';
+import najranBuilding from '@/assets/images/najran-building.jpg';
 import najranChemist from '@/assets/images/najran_male_chemist_lab_1790161204485.jpg';
 import najranFlyer from '@/assets/images/najran_flyer_labo.png';
 import mobileLabCar from '@/assets/images/lab-car-najran.png';
