@@ -3,7 +3,6 @@ import asirSideImg from '@/assets/images/asir-lab-van2.jpg';
 import asirRearImg from '@/assets/images/asir-lab-van8.jpg';
 import asirDeployImg from '@/assets/images/asir-lab-van3.jpg';
 import asirActionImg from '@/assets/images/asir-lab-van7.jpg';
-import asirLabRealImg from '@/assets/images/asir-waterlab1.jpg';
 import asirVan1Img from '@/assets/images/asir-lab-van1.jpg';
 import asirVan4Img from '@/assets/images/asir-lab-van4.jpg';
 import asirVan6Img from '@/assets/images/asir-lab-van6.jpg';
@@ -238,17 +237,25 @@ export const mobileLaboratoriesData: Record<'asir' | 'jazan' | 'alBaha' | 'najra
       },
       {
         id: 'asir-img-9',
-        role: 'interior',
-        roleTitle: { ar: 'المقر المركزي لمختبر عسير (المنشأة المشغلة)', en: 'Asir Central Laboratory Operating Facility', fr: 'Siège opérationnel du Laboratoire Central d\'Asir' },
+        role: 'exterior',
+        roleTitle: {
+          ar: 'الواجهة الأمامية والجانبية للمركبة المتنقلة',
+          en: 'Mobile Lab Front Three-Quarter View',
+          fr: 'Vue trois-quarts avant du véhicule mobile',
+        },
         image: asirVan1Img,
         caption: {
-          ar: 'المقر المركزي للمختبر المرجعي لمياه الشرب والخدمات البيئية بمنطقة عسير (الجهة المشغلة للوحدة المتنقلة).',
-          en: 'Central headquarters of Asir Central Laboratory for Drinking Water and Environmental Services (Operating Facility).',
-          fr: 'Siège central du Laboratoire Central d\'Asir pour l\'eau potable et l\'environnement (Unité d\'exploitation).',
+          ar: 'مركبة المختبر المركزي المتنقل بعسير من منظور أمامي يبرز هيكل الدفع الرباعي المجهز للمناطق الجبلية وهوية شركة المياه الوطنية.',
+          en: 'Front three-quarter view of the Asir Central Mobile Laboratory showcasing all-terrain 4WD specifications and official livery.',
+          fr: 'Vue trois-quarts avant du laboratoire mobile d’Asir mettant en valeur le châssis 4x4 tout-terrain et la livrée officielle NWC.',
         },
-        isRealPhoto: true,
+        isRealPhoto: false,
         isTechnicalReference: false,
-        statusBadge: { ar: 'صورة حقيقية للمنشأة المشغلة بعسير', en: 'Real Photo of Asir Operating Facility', fr: 'Photo réelle de l\'installation d\'Asir' },
+        statusBadge: {
+          ar: 'تصور توضيحي مؤسسي',
+          en: 'Institutional illustrative visualization',
+          fr: 'Visualisation illustrative institutionnelle',
+        },
       },
     ],
   },
@@ -587,13 +594,17 @@ export const mobileLaboratoriesData: Record<'asir' | 'jazan' | 'alBaha' | 'najra
     images: [
       {
         id: 'najran-img-1',
-        role: 'exterior',
-        roleTitle: { ar: 'صورة حقيقية: الواجهة الخلفية والهوية الرسمية', en: 'Real Photo: Rear View & Official Livery', fr: 'Photo réelle : Vue arrière et livrée officielle' },
+        role: 'equipment',
+        roleTitle: {
+          ar: 'صورة حقيقية: لوحة تصنيف المخاطر الكيميائية (NFPA)',
+          en: 'Real Photo: Chemical Hazard Classification Chart (NFPA)',
+          fr: 'Photo réelle : Tableau de classification des risques chimiques (NFPA)',
+        },
         image: najranRealDoorsImg,
         caption: {
-          ar: 'صورة حقيقية لمركبة نجران توضح كتابات الهوية الرسمية: إدارة مختبرات القطاع الجنوبي ومختبر نجران المركزي.',
-          en: 'Real photograph of Najran mobile unit displaying official livery: Southern Cluster Laboratories Management and Najran Central Lab.',
-          fr: 'Photographie réelle montrant les inscriptions officielles : Southern Cluster laboratories management et Najran Central Lab.',
+          ar: 'صورة حقيقية من داخل المختبر توضح لوحة تصنيف وتحديد المخاطر الكيميائية ومعايير السلامة المهنية (NFPA 704) لحماية الفنيين أثناء التعامل مع المواد والكواشف.',
+          en: 'Real photograph from inside the laboratory showing the NFPA 704 chemical hazard identification chart and occupational safety protocols for handling reagents.',
+          fr: 'Photographie réelle de l’intérieur du laboratoire illustrant le tableau de classification des risques chimiques (NFPA 704) et les règles de sécurité relatives aux réactifs.',
         },
         isRealPhoto: true,
         isTechnicalReference: true,
@@ -601,13 +612,17 @@ export const mobileLaboratoriesData: Record<'asir' | 'jazan' | 'alBaha' | 'najra
       },
       {
         id: 'najran-img-2',
-        role: 'side',
-        roleTitle: { ar: 'صورة حقيقية: كتابات الهوية على المركبة', en: 'Real Photo: Vehicle Livery Inscription', fr: 'Photo réelle : Inscriptions sur carrosserie' },
+        role: 'workbench',
+        roleTitle: {
+          ar: 'صورة حقيقية: لوحة الجداول والإرشادات الفنية المخبرية',
+          en: 'Real Photo: Laboratory Technical Reference Chart',
+          fr: 'Photo réelle : Tableau d’instructions et références de laboratoire',
+        },
         image: najranRealSideImg,
         caption: {
-          ar: 'صورة حقيقية مقربة توضح كتابات الهوية المعتمدة: إدارة مختبرات القطاع الجنوبي • Southern Cluster Laboratories Management.',
-          en: 'Real close-up photograph showing official English and Arabic livery inscriptions on the mobile laboratory.',
-          fr: 'Gros plan réel sur les inscriptions bilingues officielles de la gestion des laboratoires du Cluster Sud.',
+          ar: 'صورة حقيقية من داخل المعمل توضح لوحة التعليمات الفنية والجداول المرجعية لضبط جودة الفحوصات والتحاليل المخبرية.',
+          en: 'Real photograph from the laboratory showing technical instructions and analytical reference tables for testing quality control.',
+          fr: 'Photographie réelle du laboratoire montrant le panneau d’instructions techniques et les tables d’analyse pour le contrôle qualité.',
         },
         isRealPhoto: true,
         isTechnicalReference: true,
@@ -616,12 +631,16 @@ export const mobileLaboratoriesData: Record<'asir' | 'jazan' | 'alBaha' | 'najra
       {
         id: 'najran-img-3',
         role: 'workbench',
-        roleTitle: { ar: 'صورة حقيقية: منضدة العمل المخبرية الميدانية', en: 'Real Photo: Interior Laboratory Workbench', fr: 'Photo réelle : Paillasse de laboratoire intérieure' },
+        roleTitle: {
+          ar: 'صورة حقيقية: منضدة التحاليل المخبرية والأدوات الزجاجية',
+          en: 'Real Photo: Analytical Workbench & Calibrated Glassware',
+          fr: 'Photo réelle : Paillasse d’analyse et verrerie étalonnée',
+        },
         image: najranRealBenchImg,
         caption: {
-          ar: 'صورة حقيقية لمنضدة التحليل داخل المركبة المتنقلة: أجهزة قياس العكارة، المحاليل القياسية، وحوافظ العينات المعقمة.',
-          en: 'Real photograph inside the mobile unit: analytical work surface, turbidity meters, standard solutions, and sterile coolers.',
-          fr: 'Photo réelle de l\'intérieur de l\'unité mobile : surface d\'analyse, turbidimètres, étalons et glacières stériles.',
+          ar: 'صورة حقيقية لمنضدة التحليل داخل المختبر مجهزة بالأدوات الزجاجية المعايرة ومحاليل الفحص لمراقبة جودة المياه.',
+          en: 'Real photograph of the analytical workbench inside the laboratory equipped with calibrated glassware and testing solutions for water quality verification.',
+          fr: 'Photographie réelle de la paillasse d’analyse équipée de verrerie étalonnée et de solutions de contrôle de la qualité de l’eau.',
         },
         isRealPhoto: true,
         isTechnicalReference: true,
@@ -630,12 +649,16 @@ export const mobileLaboratoriesData: Record<'asir' | 'jazan' | 'alBaha' | 'najra
       {
         id: 'najran-img-4',
         role: 'interior',
-        roleTitle: { ar: 'صورة حقيقية: كيميائي معتمد يجري الفحوصات', en: 'Real Photo: Certified Chemist at Work', fr: 'Photo réelle : Chimiste certifié en action' },
+        roleTitle: {
+          ar: 'صورة حقيقية: أخصائي المختبر أثناء فحص العينات',
+          en: 'Real Photo: Certified Chemist Conducting Tests',
+          fr: 'Photo réelle : Chimiste certifié effectuant les analyses',
+        },
         image: najranRealTechImg,
         caption: {
-          ar: 'صورة حقيقية لأخصائي مختبر معتمد يقوم بفحص العينات الميكروبيولوجية داخل المختبر المتنقل.',
-          en: 'Real photograph showing certified laboratory technician executing water safety tests inside the vehicle.',
-          fr: 'Photo réelle montrant un technicien qualifié effectuant des analyses microbiologiques à bord.',
+          ar: 'صورة حقيقية توثق عمل أخصائي المختبر أثناء فحص عينات المياه وتطبيق بروتوكولات الفحص المعتمدة.',
+          en: 'Real photograph showing certified laboratory technician performing water sample testing in accordance with standard testing protocols.',
+          fr: 'Photographie réelle montrant un technicien qualifié effectuant des analyses sur des échantillons d’eau selon les protocoles établis.',
         },
         isRealPhoto: true,
         isTechnicalReference: true,
@@ -644,12 +667,16 @@ export const mobileLaboratoriesData: Record<'asir' | 'jazan' | 'alBaha' | 'najra
       {
         id: 'najran-img-5',
         role: 'equipment',
-        roleTitle: { ar: 'صورة حقيقية: حقائب ومعدات الفحص الميداني', en: 'Real Photo: Field Analytical Kits', fr: 'Photo réelle : Mallettes d\'analyse de terrain' },
+        roleTitle: {
+          ar: 'صورة حقيقية: لوحة مهمات الوقاية الشخصية والسلامة (PPE)',
+          en: 'Real Photo: Personal Protective Equipment (PPE) Safety Poster',
+          fr: 'Photo réelle : Affiche de sécurité des équipements de protection (EPI)',
+        },
         image: najranRealKitsImg,
         caption: {
-          ar: 'صورة حقيقية لحقائب الفحص الميداني المحمولة المزودة بمقاييس الطيف والكواشف الفورية للكشف عن الملوثات.',
-          en: 'Real photograph of portable field testing kits with spectrophotometers and rapid chemical reagents.',
-          fr: 'Photo réelle des kits de terrain avec spectrophotomètres portables et réactifs d\'analyse immédiate.',
+          ar: 'صورة حقيقية لملصق السلامة المهنية داخل المختبر يوضح التزام الكادر بارتداء مهمات الوقاية الشخصية (نظارات واقية، قفازات، معطف المختبر).',
+          en: 'Real photograph of the laboratory occupational safety poster displaying mandatory Personal Protective Equipment protocols (goggles, gloves, lab coat).',
+          fr: 'Photographie réelle de l’affiche de sécurité au laboratoire rappelant le port obligatoire des équipements de protection individuelle (lunettes, gants, blouse).',
         },
         isRealPhoto: true,
         isTechnicalReference: true,
@@ -658,12 +685,16 @@ export const mobileLaboratoriesData: Record<'asir' | 'jazan' | 'alBaha' | 'najra
       {
         id: 'najran-img-6',
         role: 'sampling',
-        roleTitle: { ar: 'صورة حقيقية: فحص نقاوة المياه الميدانية', en: 'Real Photo: Water Purity Testing Flask', fr: 'Photo réelle : Fiole de contrôle de pureté' },
+        roleTitle: {
+          ar: 'صورة حقيقية: الجدول الدوري للعناصر الكيميائية بالمعمل',
+          en: 'Real Photo: Periodic Table of the Elements in Laboratory',
+          fr: 'Photo réelle : Tableau périodique des éléments au laboratoire',
+        },
         image: najranRealPurityImg,
         caption: {
-          ar: 'صورة حقيقية لفحص نقاوة المياه المعالجة والتأكد من مطابقتها للمواصفات القياسية السعودية (SASO).',
-          en: 'Real photograph confirming water clarity and absence of turbidity matching SASO national standards.',
-          fr: 'Photo réelle confirmant la clarté et la conformité aux normes nationales saoudiennes SASO.',
+          ar: 'صورة حقيقية للجدول الدوري للعناصر الكيميائية المعروض في معمل التحاليل كمرجع علمي معتمد لفحوصات العناصر والمعادن بمياه الشرب.',
+          en: 'Real photograph of the Periodic Table of the Elements displayed in the laboratory as an authoritative scientific reference for elemental water testing.',
+          fr: 'Photographie réelle du tableau périodique des éléments affiché au laboratoire comme référence scientifique pour le dosage des minéraux de l’eau.',
         },
         isRealPhoto: true,
         isTechnicalReference: true,
@@ -672,16 +703,20 @@ export const mobileLaboratoriesData: Record<'asir' | 'jazan' | 'alBaha' | 'najra
       {
         id: 'najran-img-7',
         role: 'exterior',
-        roleTitle: { ar: 'الهيكل الخارجي للمركبة (تصور عالي الدقة)', en: 'Enhanced Exterior Visualization', fr: 'Visualisation extérieure haute définition' },
+        roleTitle: {
+          ar: 'مركبة المختبر المركزي المتنقل بنجران',
+          en: 'Najran Central Mobile Laboratory Vehicle',
+          fr: 'Véhicule du laboratoire mobile central de Najran',
+        },
         image: najranVanImg,
         caption: {
-          ar: 'تصور عالي الدقة لمركبة نجران المتنقلة يبرز التجهيزات العلوية وأنظمة الاتصال الفضائي والإنارة الميدانية.',
-          en: 'High-definition model of the Najran mobile laboratory highlighting roof-mounted communication and solar arrays.',
-          fr: 'Modèle haute définition montrant les équipements de toit et les liaisons satellites de l\'unité de Najran.',
+          ar: 'مركبة المختبر المتنقل لمختبر نجران المركزي بكامل التجهيزات الميدانية وأنظمة الفحص المتنقلة وهوية شركة المياه الوطنية.',
+          en: 'Najran Central Mobile Laboratory vehicle equipped with on-site testing systems and official National Water Company livery.',
+          fr: 'Véhicule du laboratoire mobile central de Najran doté de systèmes d’analyse sur site et de la livrée officielle de la National Water Company.',
         },
-        isRealPhoto: false,
-        isTechnicalReference: false,
-        statusBadge: { ar: 'تصور توضيحي مؤسسي', en: 'Institutional illustrative visualization', fr: 'Visualisation illustrative institutionnelle' },
+        isRealPhoto: true,
+        isTechnicalReference: true,
+        statusBadge: { ar: 'صورة حقيقية موثقة (المرجع الفني)', en: 'Certified Real Photo (Technical Benchmark)', fr: 'Photo réelle certifiée (Référence technique)' },
       },
     ],
   },

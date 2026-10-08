@@ -5,7 +5,7 @@ import { siteMedia } from '@/data/siteMedia';
 import { siteStats } from '@/data/siteConfig';
 
 export default function About() {
-  const { lang, t } = useLang();
+  const { t } = useLang();
 
   return (
     <div className="pt-16 sm:pt-20 pb-20 bg-[#F8FAFC] dark:bg-[#0B1220] transition-colors duration-200">
@@ -61,34 +61,30 @@ export default function About() {
           <div className="lg:col-span-6 space-y-4">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 text-xs font-medium">
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>{lang === 'ar' ? 'معايير الجودة والاعتماد' : 'Quality & Accreditation Standards'}</span>
+              <span>{t('aboutPage.qualityBadge')}</span>
             </div>
             <h2 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white leading-snug">
-              {lang === 'ar'
-                ? 'كوادر علمية مؤهلة وتجهيزات تقنية بمواصفات مرجعية'
-                : 'Certified Scientific Experts & State-of-the-Art Analytical Equipment'}
+              {t('aboutPage.scientificTitle')}
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              {lang === 'ar'
-                ? 'تضم المختبرات المركزية بالقطاع الجنوبي نخبة من الكيميائيين والبيولوجيين المختصين في مراقبة جودة المياه، مع تطبيق أنظمة ضبط وتوكيد الجودة المستمرة وضمان الامتثال الدقيق للمقاييس الوطنية والدولية.'
-                : 'Southern Sector central laboratories employ elite chemists and microbiologists specialized in water quality surveillance, adhering to rigorous QA/QC protocols and national drinking water standards.'}
+              {t('aboutPage.scientificDesc')}
             </p>
             <div className="grid grid-cols-2 gap-3 pt-2">
               <div className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300">
                 <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                <span>{lang === 'ar' ? 'فحص جرثومي معتمد' : 'Microbiological Testing'}</span>
+                <span>{t('aboutPage.feature.microbiology')}</span>
               </div>
               <div className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300">
                 <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                <span>{lang === 'ar' ? 'تحاليل كيميائية متقدمة' : 'Advanced Chemical Analysis'}</span>
+                <span>{t('aboutPage.feature.chemical')}</span>
               </div>
               <div className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300">
                 <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                <span>{lang === 'ar' ? 'مختبرات ميدانية متنقلة' : 'Mobile Field Laboratories'}</span>
+                <span>{t('aboutPage.feature.mobile')}</span>
               </div>
               <div className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300">
                 <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                <span>{lang === 'ar' ? 'رصد على مدار الساعة' : 'Round-the-clock Monitoring'}</span>
+                <span>{t('aboutPage.feature.monitoring')}</span>
               </div>
             </div>
           </div>
@@ -109,7 +105,7 @@ export default function About() {
           <div className="text-center mb-8">
             <h2 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-1.5">{t('aboutPage.values')}</h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              {lang === 'ar' ? 'المبادئ والقيم المؤسسية التي تحكم جودة أعمالنا المخبرية' : 'Institutional principles governing our laboratory excellence'}
+              {t('aboutPage.valuesSubtitle')}
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -142,7 +138,7 @@ export default function About() {
             <div>
               <h2 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white">{t('aboutPage.structure')}</h2>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                {lang === 'ar' ? 'الهيكل التنظيمي لمنظومة المختبرات المركزية والفروع التابعة' : 'Organizational structure of central and affiliated laboratories'}
+                {t('aboutPage.structureSubtitle')}
               </p>
             </div>
           </div>

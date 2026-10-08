@@ -14,7 +14,7 @@ export interface FacilitySlide {
   region: { ar: string; en: string; fr: string };
   badge: { ar: string; en: string; fr: string };
   description: { ar: string; en: string; fr: string };
-  stats: { label: { ar: string; en: string; fr: string }; val: string };
+  stats: { label: { ar: string; en: string; fr: string }; val: { ar: string; en: string; fr: string } | string };
   image: string;
   link: string;
 }
@@ -22,11 +22,11 @@ export interface FacilitySlide {
 export const facilitySlides: FacilitySlide[] = [
   {
     id: 'asir-central',
-name: {
-  ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة عسير',
-  en: 'Asir Central Laboratory for Drinking Water and Environmental Services',
-  fr: 'Laboratoire Central d’Asir pour les Eaux Potables et les Services Environnementaux',
-},
+    name: {
+      ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة عسير',
+      en: 'Asir Central Laboratory for Drinking Water and Environmental Services',
+      fr: 'Laboratoire Central d’Asir pour les Eaux Potables et les Services Environnementaux',
+    },
     region: {
       ar: 'أبها - منطقة عسير • المملكة العربية السعودية',
       en: 'Abha - Asir Region • KSA',
@@ -51,11 +51,11 @@ name: {
   },
   {
     id: 'najran-central',
-  name: {
-  ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة نجران',
-  en: 'Najran Central Laboratory for Drinking Water and Environmental Services',
-  fr: 'Laboratoire Central de Najran pour les Eaux Potables et les Services Environnementaux',
-},
+    name: {
+      ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة نجران',
+      en: 'Najran Central Laboratory for Drinking Water and Environmental Services',
+      fr: 'Laboratoire Central de Najran pour les Eaux Potables et les Services Environnementaux',
+    },
     region: {
       ar: 'نجران • المملكة العربية السعودية',
       en: 'Najran • KSA',
@@ -80,11 +80,11 @@ name: {
   },
   {
     id: 'jazan-central',
- name: {
-  ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة جازان',
-  en: 'Jazan Central Laboratory for Drinking Water and Environmental Services',
-  fr: 'Laboratoire Central de Jazan pour les Eaux Potables et les Services Environnementaux',
-},
+    name: {
+      ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة جازان',
+      en: 'Jazan Central Laboratory for Drinking Water and Environmental Services',
+      fr: 'Laboratoire Central de Jazan pour les Eaux Potables et les Services Environnementaux',
+    },
     region: {
       ar: 'جازان • المملكة العربية السعودية',
       en: 'Jazan • KSA',
@@ -102,18 +102,18 @@ name: {
     },
     stats: {
       label: { ar: 'الفحوصات اليومية', en: 'Daily Testing Capacity', fr: 'Capacité Quotidienne' },
-      val: '+350 عينة',
+      val: { ar: '+350 عينة', en: '+350 Samples', fr: '+350 Échantillons' },
     },
     image: siteMedia.facilities.jazan,
     link: '/laboratories/jazan',
   },
   {
     id: 'baha-central',
-  name: {
-  ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة الباحة',
-  en: 'Al-Baha Central Laboratory for Drinking Water and Environmental Services',
-  fr: 'Laboratoire Central d’Al-Baha pour les Eaux Potables et les Services Environnementaux',
-},
+    name: {
+      ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة الباحة',
+      en: 'Al-Baha Central Laboratory for Drinking Water and Environmental Services',
+      fr: 'Laboratoire Central d’Al-Baha pour les Eaux Potables et les Services Environnementaux',
+    },
     region: {
       ar: 'الباحة • المملكة العربية السعودية',
       en: 'Al-Baha • KSA',
@@ -131,7 +131,7 @@ name: {
     },
     stats: {
       label: { ar: 'تغطية الفروع الميدانية', en: 'Field Branch Coverage', fr: 'Couverture Territoriale' },
-      val: '5 فروع',
+      val: { ar: '5 فروع', en: '5 Branches', fr: '5 Agences' },
     },
     image: siteMedia.facilities.baha,
     link: '/laboratories/al-baha',
@@ -141,7 +141,7 @@ name: {
 const AUTOPLAY_INTERVAL = 5500; // 5.5 seconds per slide
 
 export default function HeroFacilityCarousel() {
-  const { lang, dir } = useLang();
+  const { lang, dir, t } = useLang();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
@@ -205,7 +205,7 @@ export default function HeroFacilityCarousel() {
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
             <span className="font-bold text-white tracking-wide">
-              {lang === 'ar' ? 'منشآت ومختبرات القطاع الجنوبي' : 'Southern Sector Facilities'}
+              {t('carousel.facilitiesTitle')}
             </span>
           </div>
 
@@ -217,9 +217,9 @@ export default function HeroFacilityCarousel() {
             {/* Play/Pause Button */}
             <button
               onClick={() => setIsPlaying(!isPlaying)}
-              className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-white/10 transition-colors ms-1"
-              title={isPlaying ? 'Pause auto-slide' : 'Resume auto-slide'}
-              aria-label={isPlaying ? 'Pause auto-slide' : 'Resume auto-slide'}
+              className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-white/10 transition-colors ms-1 cursor-pointer"
+              title={isPlaying ? (lang === 'ar' ? 'إيقاف مؤقت' : lang === 'fr' ? 'Pause défilement' : 'Pause auto-slide') : (lang === 'ar' ? 'تشغيل' : lang === 'fr' ? 'Reprendre défilement' : 'Resume auto-slide')}
+              aria-label={isPlaying ? (lang === 'ar' ? 'إيقاف مؤقت' : lang === 'fr' ? 'Pause défilement' : 'Pause auto-slide') : (lang === 'ar' ? 'تشغيل' : lang === 'fr' ? 'Reprendre défilement' : 'Resume auto-slide')}
             >
               {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
             </button>
@@ -280,7 +280,9 @@ export default function HeroFacilityCarousel() {
                       {currentSlide.stats.label[lang] || currentSlide.stats.label.ar}:
                     </span>
                     <span className="text-xs font-black text-white px-2 py-0.5 rounded bg-blue-600/60 border border-blue-400/40">
-                      {currentSlide.stats.val}
+                      {typeof currentSlide.stats.val === 'object'
+                        ? currentSlide.stats.val[lang] || currentSlide.stats.val.ar
+                        : currentSlide.stats.val}
                     </span>
                   </div>
 
@@ -288,7 +290,7 @@ export default function HeroFacilityCarousel() {
                     to={currentSlide.link}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/15 hover:bg-blue-600 text-white text-xs font-bold transition-all border border-white/20 hover:border-blue-400/60"
                   >
-                    <span>{lang === 'ar' ? 'استعراض المركز' : 'View Center'}</span>
+                    <span>{t('carousel.viewCenter')}</span>
                     <Arrow className="w-3 h-3 text-white" />
                   </Link>
                 </div>
@@ -300,15 +302,15 @@ export default function HeroFacilityCarousel() {
           <div className="absolute inset-y-0 inset-x-2 flex items-center justify-between pointer-events-none z-20">
             <button
               onClick={prevSlide}
-              className="pointer-events-auto p-2 rounded-xl bg-navy-950/70 hover:bg-cyan-700/80 text-white backdrop-blur-md border border-white/20 transition-all hover:scale-110 shadow-lg"
-              aria-label="Previous laboratory"
+              className="pointer-events-auto p-2 rounded-xl bg-navy-950/70 hover:bg-cyan-700/80 text-white backdrop-blur-md border border-white/20 transition-all hover:scale-110 shadow-lg cursor-pointer"
+              aria-label={lang === 'ar' ? 'المختبر السابق' : lang === 'fr' ? 'Laboratoire précédent' : 'Previous laboratory'}
             >
               <PrevIcon className="w-4 h-4" />
             </button>
             <button
               onClick={nextSlide}
-              className="pointer-events-auto p-2 rounded-xl bg-navy-950/70 hover:bg-cyan-700/80 text-white backdrop-blur-md border border-white/20 transition-all hover:scale-110 shadow-lg"
-              aria-label="Next laboratory"
+              className="pointer-events-auto p-2 rounded-xl bg-navy-950/70 hover:bg-cyan-700/80 text-white backdrop-blur-md border border-white/20 transition-all hover:scale-110 shadow-lg cursor-pointer"
+              aria-label={lang === 'ar' ? 'المختبر التالي' : lang === 'fr' ? 'Laboratoire suivant' : 'Next laboratory'}
             >
               <NextIcon className="w-4 h-4" />
             </button>
@@ -333,19 +335,19 @@ export default function HeroFacilityCarousel() {
                 <button
                   key={slide.id}
                   onClick={() => goToSlide(idx)}
-                  className={`relative rounded-full transition-all duration-300 ${
+                  className={`relative rounded-full transition-all duration-300 cursor-pointer ${
                     idx === currentIndex
                       ? 'w-8 h-2 bg-gradient-to-r from-cyan-400 to-teal-400 shadow-sm shadow-cyan-400/50'
                       : 'w-2 h-2 bg-white/25 hover:bg-white/50'
                   }`}
-                  aria-label={`Go to slide ${idx + 1}`}
+                  aria-label={`${lang === 'ar' ? 'انتقال للشريحة' : lang === 'fr' ? 'Aller à la diapositive' : 'Go to slide'} ${idx + 1}`}
                 />
               ))}
             </div>
 
             <div className="flex items-center gap-2 text-[11px] text-slate-400">
               <ShieldCheck className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-              <span>{lang === 'ar' ? 'اعتماد مخبري موحد' : 'Unified Accreditation'}</span>
+              <span>{t('carousel.unifiedAccreditation')}</span>
             </div>
           </div>
         </div>
@@ -361,7 +363,7 @@ export default function HeroFacilityCarousel() {
           <CheckCircle2 className="w-4 h-4 text-cyan-300" />
         </div>
         <span className="text-[11px] font-bold text-white whitespace-nowrap">
-          {lang === 'ar' ? 'فحوصات مياه معتمدة' : 'Accredited Water Testing'}
+          {t('carousel.accreditedTesting')}
         </span>
       </div>
 
@@ -376,7 +378,7 @@ export default function HeroFacilityCarousel() {
           <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
         </span>
         <span className="text-[11px] font-bold text-slate-200 whitespace-nowrap">
-          {lang === 'ar' ? 'مراقبة جودة على مدار الساعة' : '24/7 Quality Surveillance'}
+          {t('carousel.roundTheClock')}
         </span>
       </div>
     </div>

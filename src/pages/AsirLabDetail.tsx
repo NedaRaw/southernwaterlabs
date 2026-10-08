@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Activity,
   MapPin,
   Clock,
   Phone,
@@ -386,73 +385,73 @@ const album: ImageItem[] = [
   {
     src: asirWaterLabFacility,
     title: {
-      ar: 'المنشأة المخبرية',
-      en: 'Laboratory Facility',
-      fr: 'Installation du laboratoire',
+      ar: 'المنشأة المخبرية ومحطات المعالجة المائية بعسير',
+      en: 'Laboratory Facility & Water Processing Units in Asir',
+      fr: 'Installation du laboratoire et unités de traitement des eaux d’Asir',
     },
   },
   {
     src: asirMobileVan,
     title: {
-      ar: 'الوحدة الميدانية المتنقلة',
-      en: 'Mobile Field Unit',
-      fr: 'Unité mobile de terrain',
+      ar: 'مركبة المختبر المركزي المتنقل بعسير',
+      en: 'Asir Central Mobile Laboratory Vehicle',
+      fr: 'Véhicule du laboratoire mobile central d’Asir',
     },
   },
   {
     src: asirWaterLab1,
     title: {
-      ar: 'منشآت وتجهيزات المختبر',
-      en: 'Laboratory Facilities and Equipment',
-      fr: 'Installations et équipements',
+      ar: 'منصة الفحوصات والتحاليل المخبرية المعتمدة بعسير',
+      en: 'Accredited Analytical Testing Station at Asir Central Lab',
+      fr: 'Poste d’analyses et de contrôles accrédités au Laboratoire d’Asir',
     },
   },
   {
     src: asirWaterLab2,
     title: {
-      ar: 'بيئة العمل المخبرية',
-      en: 'Laboratory Working Environment',
-      fr: 'Environnement de travail du laboratoire',
+      ar: 'محطة التحاليل الدقيقة والأدوات الزجاجية والمحاليل المعايرة',
+      en: 'Precision Analytical Glassware & Calibrated Chemical Solutions Station',
+      fr: 'Station de verrerie étalonnée et solutions d’analyse de précision',
     },
   },
   {
     src: asirWaterLab3,
     title: {
-      ar: 'التجهيزات والتحاليل',
-      en: 'Laboratory Equipment and Analysis',
-      fr: 'Équipements et analyses',
+      ar: 'أجهزة القياس والتحليل الطيفي لمراقبة جودة مياه الشرب',
+      en: 'Spectrophotometers & Water Quality Testing Equipment',
+      fr: 'Appareils de spectrophotométrie et mesure de qualité de l’eau',
     },
   },
   {
     src: asirWaterLab4,
     title: {
-      ar: 'المرافق المخبرية',
-      en: 'Laboratory Facilities',
-      fr: 'Installations du laboratoire',
+      ar: 'محطة مراقبة الجودة وضبط المعايير المخبرية بعسير',
+      en: 'Quality Assurance & Specimen Evaluation Bench at Asir Lab',
+      fr: 'Banc de contrôle qualité et évaluation des échantillons d’Asir',
     },
   },
   {
     src: cadeauAsir,
     title: {
-      ar: 'المختبر المركزي بعسير',
-      en: 'Asir Central Laboratory',
-      fr: 'Laboratoire central d’Asir',
+      ar: 'درع شكر وتقدير تذكاري من متوسطة الإحسان بأبها للمختبر المركزي',
+      en: 'Commemorative Appreciation Plaque from Al-Ihsan School to Asir Central Lab',
+      fr: 'Bouclier de reconnaissance de l’école Al-Ihsan au Laboratoire Central d’Asir',
     },
   },
   {
     src: labAsirEnf,
     title: {
-      ar: 'المختبر والبيئة المحيطة',
-      en: 'Laboratory and Surroundings',
-      fr: 'Laboratoire et environnement',
+      ar: 'مكتب الاستقبال والترحيب بالزيارات المدرسية بالمختبر المركزي بعسير',
+      en: 'Reception Counter & School Visit Welcome Area at Asir Central Lab',
+      fr: 'Banque d’accueil et réception des visites scolaires au Laboratoire d’Asir',
     },
   },
   {
     src: laboAsir,
     title: {
-      ar: 'منشأة المختبر',
-      en: 'Laboratory Facility',
-      fr: 'Installation du laboratoire',
+      ar: 'قاعة التحاليل والفحوصات المخبرية الرئيسية بمختبر عسير',
+      en: 'Main Analytical Testing Laboratory Hall at Asir Central Lab',
+      fr: 'Salle principale des analyses et examens du Laboratoire Central d’Asir',
     },
   },
 ];

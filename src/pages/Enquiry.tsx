@@ -329,7 +329,7 @@ export default function Enquiry() {
                 <label className={labelClass}>{t('enquiry.subject')}</label>
                 <input
                   type="text"
-                  placeholder={lang === 'ar' ? 'عنوان الموضوع أو التحليل المطلوب' : 'Subject of your request'}
+                  placeholder={lang === 'ar' ? 'عنوان الموضوع أو التحليل المطلوب' : lang === 'fr' ? 'Objet de votre demande ou analyse' : 'Subject of your request'}
                   value={formData.subject}
                   onChange={(e) => handleChange('subject', e.target.value)}
                   className={inputClass('subject')}
@@ -340,7 +340,7 @@ export default function Enquiry() {
                 <label className={labelClass}>{t('enquiry.message')} {req}</label>
                 <textarea
                   rows={5}
-                  placeholder={lang === 'ar' ? 'اكتب تفاصيل طلبك أو استفسارك هنا...' : 'Write your detailed message here...'}
+                  placeholder={lang === 'ar' ? 'اكتب تفاصيل طلبك أو استفسارك هنا...' : lang === 'fr' ? 'Rédigez les détails de votre demande ou message ici...' : 'Write your detailed message here...'}
                   value={formData.message}
                   onChange={(e) => handleChange('message', e.target.value)}
                   className={`${inputClass('message')} resize-none`}

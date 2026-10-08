@@ -76,7 +76,7 @@ export default function Home() {
                       <span>ISO/IEC 17025:2017</span>
                     </div>
                     <p className="text-xs text-slate-200 max-w-sm font-normal leading-relaxed">
-                      {lang === 'ar' ? 'فحوصات ميكروبيولوجية وكيميائية معتمدة وفق أرقى المعايير العالمية' : 'Accredited Microbiological & Chemical Testing under International Quality Standards'}
+                      {t('home.isoBannerSub')}
                     </p>
                   </div>
                 </div>
@@ -151,17 +151,13 @@ export default function Home() {
             <div className="lg:col-span-8 space-y-2.5">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 text-xs font-medium border border-blue-400/25">
                 <ShieldCheck className="w-3.5 h-3.5" />
-                {lang === 'ar' ? 'معايير الجودة ومراقبة مياه الشرب' : 'Quality Standards & Potable Water Assurance'}
+                {t('home.standardsBannerBadge')}
               </span>
               <h2 className="text-xl sm:text-2xl font-semibold text-white leading-snug">
-                {lang === 'ar'
-                  ? 'منظومة مخبرية متطورة لضمان أمان وجودة مياه الشرب'
-                  : 'Advanced Laboratory Infrastructure for Potable Water Assurance'}
+                {t('home.standardsBannerTitle')}
               </h2>
               <p className="text-xs sm:text-sm text-slate-300/90 max-w-2xl leading-relaxed">
-                {lang === 'ar'
-                  ? 'رصد مستمر للشبكات ومصادر الإمداد بمحطات التحلية والسدود والآبار، بإشراف كوادر كيميائية وبيولوجية متخصصة وأسطول مختبرات متنقلة جاهزة للتدخل السريع.'
-                  : 'Continuous surveillance of networks, purification plants, dams, and well reservoirs with specialized analysts and mobile field testing units.'}
+                {t('home.standardsBannerDesc')}
               </p>
             </div>
 
@@ -292,12 +288,10 @@ export default function Home() {
                     {t('services.title')}
                   </span>
                   <h3 className="text-base sm:text-lg font-semibold leading-snug mb-1">
-                    {lang === 'ar' ? 'فحوصات كيميائية وميكروبيولوجية دقيقة' : 'Precision Chemical & Microbiological Analyses'}
+                    {t('home.precisionAnalyses')}
                   </h3>
                   <p className="text-xs text-slate-300 leading-relaxed">
-                    {lang === 'ar'
-                      ? 'مراقبة مطابقة مياه الشرب لأعلى المواصفات القياسية المعتمدة بالمملكة'
-                      : 'Monitoring compliance of potable water against certified Saudi and WHO standards'}
+                    {t('home.complianceSaudi')}
                   </p>
                 </div>
               </div>
@@ -311,7 +305,7 @@ export default function Home() {
                   <span>{t('services.title')}</span>
                 </div>
                 <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 dark:text-white mb-2">
-                  {lang === 'ar' ? 'القدرات التحليلية والخدمات المخبرية المتخصصة' : 'Analytical Capabilities & Specialized Laboratory Services'}
+                  {t('home.capabilitiesHeading')}
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
                   {t('services.desc')}

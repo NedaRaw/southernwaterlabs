@@ -260,10 +260,10 @@ export default function VisitorDetail() {
                 </div>
                 <button
                   onClick={handlePrint}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-bold text-white transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-bold text-white transition-colors cursor-pointer"
                 >
                   <Printer className="w-3.5 h-3.5" />
-                  Print
+                  <span>{lang === 'ar' ? 'طباعة' : lang === 'fr' ? 'Imprimer' : 'Print'}</span>
                 </button>
               </div>
 

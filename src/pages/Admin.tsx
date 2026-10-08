@@ -1610,7 +1610,7 @@ export default function Admin() {
                         : 'Admin Portal'}
                   </h1>
                   <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-blue-500/15 text-blue-300 border border-blue-400/25">
-                    {lang === 'ar' ? 'المختبرات المركزية' : 'Central Laboratories'}
+                    {lang === 'ar' ? 'المختبرات المركزية' : lang === 'fr' ? 'Laboratoires Centraux' : 'Central Laboratories'}
                   </span>
                 </div>
               </div>
@@ -1618,7 +1618,7 @@ export default function Admin() {
             {/* CENTER: Segmented Navigation Control (Desktop) */}
             {loggedIn && (
               <nav
-                aria-label={lang === 'ar' ? 'أقسام لوحة الإدارة' : 'Admin Navigation'}
+                aria-label={lang === 'ar' ? 'أقسام لوحة الإدارة' : lang === 'fr' ? 'Navigation de l\'administration' : 'Admin Navigation'}
                 className="hidden lg:inline-flex items-center p-1 rounded-xl bg-slate-900/80 border border-slate-800/90 gap-0.5"
               >
                 {tabs.map((tab) => {
@@ -1656,7 +1656,7 @@ export default function Admin() {
                     <span className="font-medium text-slate-200 truncate max-w-[100px] xl:max-w-[120px] block leading-tight text-xs">
                       {adminUser?.full_name ||
                         adminUser?.username ||
-                        (lang === 'ar' ? 'المسؤول' : 'Admin')}
+                        (lang === 'ar' ? 'المسؤول' : lang === 'fr' ? 'Admin' : 'Admin')}
                     </span>
                   </div>
                 </div>
@@ -1665,7 +1665,7 @@ export default function Admin() {
               <Link
                 to="/"
                 className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:text-slate-200 hover:bg-slate-900/60 border border-transparent hover:border-slate-800 transition cursor-pointer"
-                title={lang === 'ar' ? 'الموقع الرئيسي' : 'Website'}
+                title={lang === 'ar' ? 'الموقع الرئيسي' : lang === 'fr' ? 'Site web principal' : 'Website'}
               >
                 <Eye className="w-3.5 h-3.5 opacity-70" />
                 <span>{lang === 'ar' ? 'الموقع' : lang === 'fr' ? 'Site' : 'Website'}</span>
@@ -1697,7 +1697,7 @@ export default function Admin() {
           {loggedIn && (
             <div className="lg:hidden border-t border-slate-800/60 py-1.5">
               <nav
-                aria-label={lang === 'ar' ? 'أقسام لوحة الإدارة' : 'Admin Mobile Navigation'}
+                aria-label={lang === 'ar' ? 'أقسام لوحة الإدارة' : lang === 'fr' ? 'Navigation mobile de l\'administration' : 'Admin Mobile Navigation'}
                 className="flex items-center gap-1 overflow-x-auto pb-0.5 scrollbar-none"
               >
                 {tabs.map((tab) => {
@@ -2295,7 +2295,7 @@ export default function Admin() {
                             <span className="font-bold text-blue-700">
                               {lab.samples.toLocaleString()}{' '}
                               <span className="text-[10px] text-slate-500 font-normal">
-                                {lang === 'ar' ? 'عينة' : 'samples'}
+                                {lang === 'ar' ? 'عينة' : lang === 'fr' ? 'échantillons' : 'samples'}
                               </span>
                             </span>
                           </div>
@@ -2306,7 +2306,7 @@ export default function Admin() {
                             />
                           </div>
                           <div className="flex items-center justify-between text-[10px] text-slate-500 mt-1">
-                            <span>{lang === 'ar' ? 'المطابقة القياسية' : 'Compliance'}</span>
+                            <span>{lang === 'ar' ? 'المطابقة القياسية' : lang === 'fr' ? 'Conformité' : 'Compliance'}</span>
                             <span className="text-emerald-600 font-semibold">{lab.compliance}</span>
                           </div>
                         </div>
@@ -2881,8 +2881,8 @@ export default function Admin() {
                     type="button"
                     onClick={handleLogout}
                     className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-semibold cursor-pointer transition shadow-xs"
-                    title={lang === 'ar' ? 'تسجيل الخروج وإعادة الدخول / Logout' : 'Log Out & Sign In Again'}
-                    aria-label={lang === 'ar' ? 'تسجيل الخروج وإعادة الدخول / Logout' : 'Log Out & Sign In Again'}
+                    title={lang === 'ar' ? 'تسجيل الخروج وإعادة الدخول' : lang === 'fr' ? 'Déconnexion et reconnexion' : 'Log Out & Sign In Again'}
+                    aria-label={lang === 'ar' ? 'تسجيل الخروج وإعادة الدخول' : lang === 'fr' ? 'Déconnexion et reconnexion' : 'Log Out & Sign In Again'}
                     data-testid="surveys-error-logout-button"
                   >
                     <LogOut className="w-4 h-4" />
@@ -3329,8 +3329,8 @@ export default function Admin() {
                     type="button"
                     onClick={handleLogout}
                     className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-semibold cursor-pointer transition shadow-xs"
-                    title={lang === 'ar' ? 'تسجيل الخروج وإعادة الدخول / Logout' : 'Log Out & Sign In Again'}
-                    aria-label={lang === 'ar' ? 'تسجيل الخروج وإعادة الدخول / Logout' : 'Log Out & Sign In Again'}
+                    title={lang === 'ar' ? 'تسجيل الخروج وإعادة الدخول' : lang === 'fr' ? 'Déconnexion et reconnexion' : 'Log Out & Sign In Again'}
+                    aria-label={lang === 'ar' ? 'تسجيل الخروج وإعادة الدخول' : lang === 'fr' ? 'Déconnexion et reconnexion' : 'Log Out & Sign In Again'}
                     data-testid="users-error-logout-button"
                   >
                     <LogOut className="w-4 h-4" />

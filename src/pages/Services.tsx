@@ -358,7 +358,7 @@ export default function Services() {
           <div className="relative z-10 p-6 sm:p-10 lg:p-12 max-w-3xl">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 text-xs font-medium mb-3 border border-blue-400/25">
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>{lang === 'ar' ? 'منظومة الفحص المعتمدة' : 'Accredited Testing Framework'}</span>
+              <span>{lang === 'ar' ? 'منظومة الفحص المعتمدة' : lang === 'fr' ? 'Cadre d\'analyse accrédité' : 'Accredited Testing Framework'}</span>
             </div>
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-white leading-tight mb-2">
               {t('services.title')}
@@ -385,7 +385,7 @@ export default function Services() {
               </span>
             </h2>
             <span className="text-xs text-slate-400">
-              {services.length} {lang === 'ar' ? 'خدمات معتمدة' : 'Accredited Services'}
+              {services.length} {lang === 'ar' ? 'خدمات معتمدة' : lang === 'fr' ? 'services accrédités' : 'Accredited Services'}
             </span>
           </div>
 
@@ -578,7 +578,7 @@ export default function Services() {
             </div>
 
             <div className="text-xs text-slate-400 flex items-center gap-1.5">
-              <span>{lang === 'ar' ? 'معرّف الخدمة:' : 'Service ID:'}</span>
+              <span>{lang === 'ar' ? 'معرّف الخدمة:' : lang === 'fr' ? 'Identifiant :' : 'Service ID:'}</span>
               <code className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-mono text-blue-600 dark:text-blue-400">
                 {selectedService.id}
               </code>
@@ -687,17 +687,21 @@ export default function Services() {
             <div className="lg:col-span-6 space-y-4">
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 text-xs font-medium">
                 <Truck className="w-3.5 h-3.5" />
-                <span>{lang === 'ar' ? 'المختبرات الميدانية المتنقلة' : 'Mobile Field Laboratories'}</span>
+                <span>{lang === 'ar' ? 'المختبرات الميدانية المتنقلة' : lang === 'fr' ? 'Laboratoires Mobiles de Terrain' : 'Mobile Field Laboratories'}</span>
               </div>
               <h2 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white leading-snug">
                 {lang === 'ar'
                   ? 'أسطول التدخل السريع والفحص الميداني الفوري لمصادر المياه'
-                  : 'Rapid Response Fleet & Immediate On-Site Potability Verification'}
+                  : lang === 'fr'
+                    ? 'Flotte d’intervention rapide et contrôle immédiat sur site'
+                    : 'Rapid Response Fleet & Immediate On-Site Potability Verification'}
               </h2>
               <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                 {lang === 'ar'
                   ? 'مركبات مجهزة بأحدث أدوات القياس الفوري للطوارئ والمواسم، قادرة على الانتقال السريع إلى السدود ومحطات الضخ وخزانات التوزيع لتقييم جودة المياه وإجراء الفحوصات العاجلة.'
-                  : 'Custom-fitted specialized mobile units equipped with real-time test instrumentation for emergency response, field monitoring, and rapid potability screening across Southern sector facilities.'}
+                  : lang === 'fr'
+                    ? 'Unités mobiles équipées des instruments de pointe pour les urgences et interventions saisonnières, capables de se déployer rapidement vers les barrages, stations de pompage et réservoirs.'
+                    : 'Custom-fitted specialized mobile units equipped with real-time test instrumentation for emergency response, field monitoring, and rapid potability screening across Southern sector facilities.'}
               </p>
               <div className="flex flex-wrap gap-3 pt-2">
                 <Link

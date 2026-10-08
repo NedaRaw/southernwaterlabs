@@ -108,7 +108,7 @@ export const MobileLabAlbum: React.FC<MobileLabAlbumProps> = ({
             type="button"
             onClick={() => openLightbox()}
             className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
-            title={lang === 'ar' ? 'عرض مكبر بملء الشاشة' : 'Fullscreen viewer'}
+            title={lang === 'ar' ? 'عرض مكبر بملء الشاشة' : lang === 'fr' ? 'Plein écran' : 'Fullscreen viewer'}
           >
             <Maximize2 className="w-3.5 h-3.5" />
             <span>{lang === 'ar' ? 'تكبير الألبوم' : lang === 'fr' ? 'Plein écran' : 'Fullscreen'}</span>
@@ -125,7 +125,7 @@ export const MobileLabAlbum: React.FC<MobileLabAlbumProps> = ({
           <img
             src={currentImage.image}
             alt={currentImage.roleTitle[lang] || currentImage.roleTitle.en}
-            className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-102 select-none"
+            className="w-full h-full object-contain object-center transition-transform duration-700 group-hover:scale-102 select-none"
             referrerPolicy="no-referrer"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-black/20 to-black/30 pointer-events-none" />
@@ -187,7 +187,7 @@ export const MobileLabAlbum: React.FC<MobileLabAlbumProps> = ({
           className={`absolute top-1/2 -translate-y-1/2 ${
             dir === 'rtl' ? 'right-3' : 'left-3'
           } w-10 h-10 rounded-full bg-slate-900/80 hover:bg-blue-600 text-white flex items-center justify-center transition-all border border-white/20 hover:scale-105 shadow-lg cursor-pointer z-10`}
-          title={lang === 'ar' ? 'الصورة السابقة' : 'Previous image'}
+          title={lang === 'ar' ? 'الصورة السابقة' : lang === 'fr' ? 'Photo précédente' : 'Previous image'}
           aria-label="Previous image"
         >
           {dir === 'rtl' ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
@@ -199,7 +199,7 @@ export const MobileLabAlbum: React.FC<MobileLabAlbumProps> = ({
           className={`absolute top-1/2 -translate-y-1/2 ${
             dir === 'rtl' ? 'left-3' : 'right-3'
           } w-10 h-10 rounded-full bg-slate-900/80 hover:bg-blue-600 text-white flex items-center justify-center transition-all border border-white/20 hover:scale-105 shadow-lg cursor-pointer z-10`}
-          title={lang === 'ar' ? 'الصورة التالية' : 'Next image'}
+          title={lang === 'ar' ? 'الصورة التالية' : lang === 'fr' ? 'Photo suivante' : 'Next image'}
           aria-label="Next image"
         >
           {dir === 'rtl' ? <ChevronLeft className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
@@ -214,7 +214,7 @@ export const MobileLabAlbum: React.FC<MobileLabAlbumProps> = ({
             <span>{lang === 'ar' ? 'معرض مصغرات الألبوم (اختر للتصفح):' : lang === 'fr' ? 'Miniatures de l\'album :' : 'Album Thumbnails (click to view):'}</span>
           </span>
           <span className="text-[11px] text-slate-400 font-normal">
-            {lang === 'ar' ? 'يمكن استخدام الأسهم للتبديل' : 'Use arrows or click thumbnails'}
+            {lang === 'ar' ? 'يمكن استخدام الأسهم للتبديل' : lang === 'fr' ? 'Utilisez les flèches ou cliquez sur une miniature' : 'Use arrows or click thumbnails'}
           </span>
         </div>
 
@@ -337,7 +337,7 @@ export const MobileLabAlbum: React.FC<MobileLabAlbumProps> = ({
                 type="button"
                 onClick={closeLightbox}
                 className="w-9 h-9 rounded-xl bg-white/10 hover:bg-red-600 text-white flex items-center justify-center transition-colors border border-white/15 cursor-pointer"
-                title={lang === 'ar' ? 'إغلاق (Esc)' : 'Close'}
+                title={lang === 'ar' ? 'إغلاق (Esc)' : lang === 'fr' ? 'Fermer (Échap)' : 'Close'}
                 aria-label="Close lightbox"
               >
                 <X className="w-5 h-5" />

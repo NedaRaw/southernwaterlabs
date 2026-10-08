@@ -370,90 +370,44 @@ const coords =
   const galleryItems =
   centerId === 'al-baha'
     ? [
-       {
-  img: bahalab1Img,
-  title:
-    lang === 'ar'
-      ? 'خدمات المختبر المركزي المتنقل وبوث خدمات العملاء في منتزه رغدان'
-      : lang === 'fr'
-        ? 'Services du laboratoire central mobile et du point de service client au parc Raghadan'
-        : 'Central Mobile Laboratory & Customer Service at Raghadan Park',
-  category:
-    lang === 'ar'
-      ? 'الخدمات الميدانية'
-      : lang === 'fr'
-        ? 'Services terrain'
-        : 'Field Services',
-},
-
-{
-  img: bahalab2Img,
-  title:
-    lang === 'ar'
-      ? 'الفحص والتحليل الميداني في منتزه رغدان'
-      : lang === 'fr'
-        ? 'Contrôle et analyse sur le terrain au parc Raghadan'
-        : 'Field Testing & Analysis at Raghadan Park',
-  category:
-    lang === 'ar'
-      ? 'الفحص والتحليل الميداني'
-      : lang === 'fr'
-        ? 'Contrôle et analyse terrain'
-        : 'Field Testing & Analysis',
-},
+        {
+          img: bahalab1Img,
+          title:
+            lang === 'ar'
+              ? 'بوث خدمات المختبر المتنقل وخدمة المستفيدين في منتزه رغدان بالباحة'
+              : lang === 'fr'
+                ? 'Stand des services du laboratoire mobile et accueil usagers au parc Raghadan'
+                : 'Mobile Lab Field Booth & Customer Service at Raghadan Park, Al-Baha',
+          category:
+            lang === 'ar'
+              ? 'الخدمات الميدانية'
+              : lang === 'fr'
+                ? 'Services terrain'
+                : 'Field Services',
+        },
+        {
+          img: bahalab2Img,
+          title:
+            lang === 'ar'
+              ? 'محطة الفحص الميداني وجودة مياه الشرب ببوث رغدان بالباحة'
+              : lang === 'fr'
+                ? 'Espace d’analyses de terrain et contrôle de l’eau au stand Raghadan'
+                : 'Field Water Quality Testing Display at Raghadan Park Booth, Al-Baha',
+          category:
+            lang === 'ar'
+              ? 'الفحص والتحليل الميداني'
+              : lang === 'fr'
+                ? 'Contrôle et analyse terrain'
+                : 'Field Testing & Analysis',
+        },
         {
           img: bahaVan1Img,
           title:
             lang === 'ar'
-              ? 'مختبر مياه الباحة المركزي'
+              ? 'الهيكل الخارجي لمركبة المختبر المركزي المتنقل بالباحة'
               : lang === 'fr'
-                ? 'Laboratoire central des eaux d’Al-Baha'
-                : 'Al-Baha Central Water Laboratory',
-          category:
-            lang === 'ar'
-              ? 'مختبر الباحة'
-              : lang === 'fr'
-                ? 'Laboratoire d’Al-Baha'
-                : 'Al-Baha Laboratory',
-        },
-        {
-          img: bahaVan2Img,
-          title:
-            lang === 'ar'
-              ? 'المختبر المتنقل لمختبر الباحة المركزي'
-              : lang === 'fr'
-                ? 'Laboratoire mobile d’Al-Baha'
-                : 'Al-Baha Mobile Laboratory',
-          category:
-            lang === 'ar'
-              ? 'المختبرات المتنقلة'
-              : lang === 'fr'
-                ? 'Laboratoires mobiles'
-                : 'Mobile Laboratories',
-        },
-        {
-          img: bahaVan3Img,
-          title:
-            lang === 'ar'
-              ? 'مرافق مختبر الباحة المركزي'
-              : lang === 'fr'
-                ? 'Installations du laboratoire central d’Al-Baha'
-                : 'Al-Baha Central Laboratory Facilities',
-          category:
-            lang === 'ar'
-              ? 'المرافق'
-              : lang === 'fr'
-                ? 'Installations'
-                : 'Facilities',
-        },
-        {
-          img: bahaVan4Img,
-          title:
-            lang === 'ar'
-              ? 'مركبة المختبر المتنقل بالباحة'
-              : lang === 'fr'
-                ? 'Véhicule du laboratoire mobile d’Al-Baha'
-                : 'Al-Baha Mobile Laboratory Vehicle',
+                ? 'Vue extérieure du véhicule laboratoire mobile central d’Al-Baha'
+                : 'Al-Baha Central Mobile Laboratory Vehicle (Exterior View)',
           category:
             lang === 'ar'
               ? 'المختبر المتنقل'
@@ -462,21 +416,65 @@ const coords =
                 : 'Mobile Laboratory',
         },
         {
+          img: bahaVan2Img,
+          title:
+            lang === 'ar'
+              ? 'انتشار وحدة المختبر المتنقل بمواقع السدود والمحطات بالباحة'
+              : lang === 'fr'
+                ? 'Déploiement de l’unité mobile sur les sites de barrages d’Al-Baha'
+                : 'Mobile Lab Unit Deployed at Dam & Water Sites in Al-Baha',
+          category:
+            lang === 'ar'
+              ? 'الانتشار الميداني'
+              : lang === 'fr'
+                ? 'Déploiement terrain'
+                : 'Field Deployment',
+        },
+        {
+          img: bahaVan3Img,
+          title:
+            lang === 'ar'
+              ? 'المقصورة الخلفية ومحطة التحميل بمركبة المختبر المتنقل بالباحة'
+              : lang === 'fr'
+                ? 'Compartiment arrière et zone de chargement du laboratoire mobile d’Al-Baha'
+                : 'Rear Access Bay & Loading Compartment of Al-Baha Mobile Lab',
+          category:
+            lang === 'ar'
+              ? 'المقصورة الخلفية'
+              : lang === 'fr'
+                ? 'Compartiment arrière'
+                : 'Rear Access Bay',
+        },
+        {
+          img: bahaVan4Img,
+          title:
+            lang === 'ar'
+              ? 'منضدة الفحص والتحاليل الميدانية داخل المختبر المتنقل بالباحة'
+              : lang === 'fr'
+                ? 'Paillasse d’analyse et instrumentation à bord du lab mobile d’Al-Baha'
+                : 'Analytical Testing Workbench Inside Al-Baha Mobile Laboratory',
+          category:
+            lang === 'ar'
+              ? 'منضدة التحاليل'
+              : lang === 'fr'
+                ? 'Paillasse d’analyse'
+                : 'Analytical Workbench',
+        },
+        {
           img: bahaVan5Img,
           title:
             lang === 'ar'
-              ? 'عمليات الفحص الميداني بالباحة'
+              ? 'المنظر الجانبي لمركبة المختبر المتنقل بالباحة وهوية شركة المياه الوطنية'
               : lang === 'fr'
-                ? 'Opérations d’inspection sur le terrain à Al-Baha'
-                : 'Al-Baha Field Inspection Operations',
+                ? 'Vue latérale du laboratoire mobile d’Al-Baha et livrée officielle NWC'
+                : 'Side Profile of Al-Baha Mobile Lab Vehicle with Official NWC Livery',
           category:
             lang === 'ar'
-              ? 'الفحص الميداني'
+              ? 'المنظر الجانبي'
               : lang === 'fr'
-                ? 'Inspection terrain'
-                : 'Field Inspection',
+                ? 'Profil latéral'
+                : 'Vehicle Side Profile',
         },
-       
       ]
     : centerId === 'jazan'
       ? [
@@ -484,40 +482,40 @@ const coords =
             img: jazanDeployImg,
             title:
               lang === 'ar'
-                ? 'المختبر المتنقل لمختبر جازان المركزي'
+                ? 'انتشار وحدة المختبر المتنقل بالمناطق الساحلية ومحطات المياه بجازان'
                 : lang === 'fr'
-                  ? 'Laboratoire mobile de Jazan'
-                  : 'Jazan Mobile Laboratory',
+                  ? 'Déploiement de l’unité mobile près des sites côtiers à Jazan'
+                  : 'Mobile Laboratory Deployed Near Coastal Water Sites in Jazan',
             category:
               lang === 'ar'
-                ? 'المختبرات المتنقلة'
+                ? 'الانتشار الميداني'
                 : lang === 'fr'
-                  ? 'Laboratoires mobiles'
-                  : 'Mobile Laboratories',
+                  ? 'Déploiement terrain'
+                  : 'Field Deployment',
           },
           {
             img: jazanSideImg,
             title:
               lang === 'ar'
-                ? 'مرافق مختبر جازان المركزي'
+                ? 'المنظر الجانبي لمركبة المختبر المتنقل بجازان وهوية القطاع الجنوبي'
                 : lang === 'fr'
-                  ? 'Installations du laboratoire central de Jazan'
-                  : 'Jazan Central Laboratory Facilities',
+                  ? 'Profil latéral du véhicule laboratoire mobile de Jazan'
+                  : 'Side Profile of Jazan Mobile Laboratory Vehicle with Official Livery',
             category:
               lang === 'ar'
-                ? 'المرافق'
+                ? 'المنظر الجانبي'
                 : lang === 'fr'
-                  ? 'Installations'
-                  : 'Facilities',
+                  ? 'Profil latéral'
+                  : 'Vehicle Side Profile',
           },
           {
             img: jazanVanImg,
             title:
               lang === 'ar'
-                ? 'مركبة المختبر المتنقل بجازان'
+                ? 'الهيكل الخارجي لمركبة المختبر المركزي المتنقل بجازان'
                 : lang === 'fr'
-                  ? 'Véhicule du laboratoire mobile de Jazan'
-                  : 'Jazan Mobile Laboratory Vehicle',
+                  ? 'Vue extérieure avant du laboratoire mobile central de Jazan'
+                  : 'Jazan Central Mobile Laboratory Vehicle (Front View)',
             category:
               lang === 'ar'
                 ? 'المختبر المتنقل'
@@ -529,46 +527,46 @@ const coords =
             img: jazanRearImg,
             title:
               lang === 'ar'
-                ? 'عمليات المختبر الميداني بجازان'
+                ? 'المقصورة الخلفية ومحطة السلامة بمركبة المختبر المتنقل بجازان'
                 : lang === 'fr'
-                  ? 'Opérations du laboratoire mobile de Jazan'
-                  : 'Jazan Mobile Laboratory Operations',
+                  ? 'Compartiment arrière et équipement de sécurité du lab mobile de Jazan'
+                  : 'Rear Access Bay & Safety Station of Jazan Mobile Lab',
             category:
               lang === 'ar'
-                ? 'العمليات الميدانية'
+                ? 'المقصورة الخلفية'
                 : lang === 'fr'
-                  ? 'Opérations terrain'
-                  : 'Field Operations',
+                  ? 'Compartiment arrière'
+                  : 'Rear Compartment',
           },
           {
             img: jazanVan3Img,
             title:
               lang === 'ar'
-                ? 'المختبر المتنقل لمختبر جازان المركزي'
+                ? 'محطة فحص نقاء العينات وحوافظ المياه بالمختبر المتنقل بجازان'
                 : lang === 'fr'
-                  ? 'Laboratoire mobile du laboratoire central de Jazan'
-                  : 'Jazan Central Laboratory Mobile Unit',
+                  ? 'Poste de contrôle de pureté et flacons d’échantillons du lab mobile de Jazan'
+                  : 'Water Purity Inspection Station & Sample Containers in Jazan Mobile Lab',
             category:
               lang === 'ar'
-                ? 'المختبرات المتنقلة'
+                ? 'فحص العينات'
                 : lang === 'fr'
-                  ? 'Laboratoires mobiles'
-                  : 'Mobile Laboratories',
+                  ? 'Contrôle des échantillons'
+                  : 'Sample Inspection',
           },
           {
             img: jazanVan6Img,
             title:
               lang === 'ar'
-                ? 'معدات وعمليات مختبر جازان'
+                ? 'إجراء الفحوصات الميكروبيولوجية داخل المختبر المتنقل بجازان'
                 : lang === 'fr'
-                  ? 'Équipements et opérations du laboratoire de Jazan'
-                  : 'Jazan Laboratory Equipment & Operations',
+                  ? 'Analyse microbiologique de l’eau à bord du laboratoire mobile de Jazan'
+                  : 'Onboard Microbiological Water Analysis Inside Jazan Mobile Lab',
             category:
               lang === 'ar'
-                ? 'التجهيزات'
+                ? 'الفحص الميكروبيولوجي'
                 : lang === 'fr'
-                  ? 'Équipements'
-                  : 'Equipment',
+                  ? 'Analyse microbiologique'
+                  : 'Microbiological Analysis',
           },
         ]
       : [
@@ -576,91 +574,91 @@ const coords =
             img: labGallery1,
             title:
               lang === 'ar'
-                ? 'صالة الاستقبال وبوابة خدمة العملاء'
+                ? 'لوحة تصنيف وتحديد المخاطر الكيميائية (معيار NFPA 704) بالمعمل'
                 : lang === 'fr'
-                  ? "Hall d'accueil et service client"
-                  : 'Reception & Customer Service Hall',
+                  ? 'Tableau de classification des risques chimiques (NFPA 704) au laboratoire'
+                  : 'NFPA 704 Chemical Hazard Identification Placard in Laboratory',
             category:
               lang === 'ar'
-                ? 'خدمة العملاء'
+                ? 'السلامة الكيميائية'
                 : lang === 'fr'
-                  ? 'Service Client'
-                  : 'Customer Service',
+                  ? 'Sécurité chimique'
+                  : 'Chemical Safety',
           },
           {
             img: labGallery2,
             title:
               lang === 'ar'
-                ? 'معمل التحاليل الكيميائية المتقدمة'
+                ? 'منضدة التحاليل المخبرية والأدوات الزجاجية ومحاليل الفحص المعايرة'
                 : lang === 'fr'
-                  ? "Laboratoire d'analyses chimiques avancées"
-                  : 'Advanced Chemical Analysis Lab',
+                  ? 'Paillasse d’analyse, verrerie étalonnée et solutions de contrôle'
+                  : 'Analytical Workbench with Calibrated Glassware & Testing Reagents',
             category:
               lang === 'ar'
-                ? 'التحليل الكيميائي'
+                ? 'منضدة التحاليل'
                 : lang === 'fr'
-                  ? 'Chimie'
-                  : 'Chemical Analysis',
+                  ? 'Paillasse d’analyse'
+                  : 'Analytical Workbench',
           },
           {
             img: labGallery3,
             title:
               lang === 'ar'
-                ? 'وحدة الفحص الميكروبيولوجي والحضانات'
+                ? 'أخصائي المختبر أثناء إجراء التحاليل المائية وفحص العينات'
                 : lang === 'fr'
-                  ? 'Unité de microbiologie et incubateurs'
-                  : 'Microbiology & Incubation Unit',
+                  ? 'Chimiste certifié effectuant des analyses sur des échantillons d’eau'
+                  : 'Certified Laboratory Chemist Conducting Water Testing',
             category:
               lang === 'ar'
-                ? 'الميكروبيولوجي'
+                ? 'الكوادر الفنية'
                 : lang === 'fr'
-                  ? 'Microbiologie'
-                  : 'Microbiology',
+                  ? 'Personnel technique'
+                  : 'Technical Personnel',
           },
           {
             img: labGallery4,
             title:
               lang === 'ar'
-                ? 'محطة استلام وتشفير العينات الميدانية'
+                ? 'لوحة الجداول الإرشادية والمعايير الفنية لضبط جودة التحاليل'
                 : lang === 'fr'
-                  ? 'Réception et étiquetage des échantillons'
-                  : 'Sample Intake & Coding Station',
+                  ? 'Panneau des tables de référence et protocoles de contrôle qualité'
+                  : 'Technical Reference Charts & Testing Protocol Guidelines',
             category:
               lang === 'ar'
-                ? 'سلسلة الحيازة'
+                ? 'المعايير الفنية'
                 : lang === 'fr'
-                  ? 'Chaîne de traçabilité'
-                  : 'Chain of Custody',
+                  ? 'Protocoles techniques'
+                  : 'Technical Protocols',
           },
           {
             img: labGallery5,
             title:
               lang === 'ar'
-                ? 'أجهزة قياس الطيف الكتلي والامتصاص الذري'
+                ? 'لوحة مهمات الوقاية الشخصية والسلامة المهنية (PPE) بالمعمل'
                 : lang === 'fr'
-                  ? 'Spectrométrie de masse et absorption atomique'
-                  : 'Mass Spectrometry & Atomic Absorption',
+                  ? 'Affiche des équipements de protection individuelle (EPI) au laboratoire'
+                  : 'Personal Protective Equipment (PPE) Safety Poster in Laboratory',
             category:
               lang === 'ar'
-                ? 'أجهزة متقدمة'
+                ? 'السلامة المهنية'
                 : lang === 'fr'
-                  ? 'Équipements de pointe'
-                  : 'Advanced Instrumentation',
+                  ? 'Sécurité au travail'
+                  : 'Occupational Safety',
           },
           {
             img: labGallery6,
             title:
               lang === 'ar'
-                ? 'وحدة ضبط وتأكيد الجودة النوعية (QA/QC)'
+                ? 'الجدول الدوري للعناصر الكيميائية المعتمد بالمعمل'
                 : lang === 'fr'
-                  ? "Unité d'assurance et contrôle qualité"
-                  : 'Quality Assurance & Control Unit',
+                  ? 'Tableau périodique des éléments affiché au laboratoire'
+                  : 'Periodic Table of the Elements Reference Chart in Laboratory',
             category:
               lang === 'ar'
-                ? 'إدارة الجودة'
+                ? 'المرجع العلمي'
                 : lang === 'fr'
-                  ? 'Qualité'
-                  : 'Quality Management',
+                  ? 'Référence scientifique'
+                  : 'Scientific Reference',
           },
         ];
 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 import {
   Truck,
@@ -217,9 +217,8 @@ const LAB_SECTIONS_KEYS: ('asir' | 'najran' | 'alBaha' | 'jazan')[] = [
 /* Component Implementation                                                   */
 /* -------------------------------------------------------------------------- */
 export default function MobileLaboratories() {
-  const { lang, dir, t } = useLang();
+  const { lang, t } = useLang();
   const location = useLocation();
-  const navigate = useNavigate();
   const [fleetRegionFilter, setFleetRegionFilter] = useState<'all' | 'asir' | 'baha' | 'jazan' | 'najran'>('all');
   const [detailRegionFilter, setDetailRegionFilter] = useState<'all' | 'asir' | 'baha' | 'jazan' | 'najran'>('all');
 
@@ -650,7 +649,7 @@ const orderedMobileUnits = MOBILE_LAB_ORDER.flatMap((regionId) =>
                     <div className="p-2 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-300 space-y-0.5">
                       <div className="flex items-center gap-1 font-semibold text-blue-700 dark:text-blue-300 text-[10px]">
                         <Building2 className="w-3 h-3 shrink-0" />
-                        <span>{lang === 'ar' ? 'الفروع والمحافظات المخدومة:' : 'Serviced Branches:'}</span>
+                        <span>{lang === 'ar' ? 'الفروع والمحافظات المخدومة:' : lang === 'fr' ? 'Agences et provinces desservies :' : 'Serviced Branches:'}</span>
                       </div>
                       <p className="line-clamp-2 leading-relaxed text-[10px] text-slate-500 dark:text-slate-400">
                         {lab.coveredBranches[lang] || lab.coveredBranches.en}
@@ -728,7 +727,7 @@ const orderedMobileUnits = MOBILE_LAB_ORDER.flatMap((regionId) =>
                       type="button"
                       onClick={() => scrollToSection('fleet-overview')}
                       className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-colors cursor-pointer"
-                      title={lang === 'ar' ? 'العودة لقائمة الأسطول' : 'Back to fleet overview'}
+                      title={lang === 'ar' ? 'العودة لقائمة الأسطول' : lang === 'fr' ? 'Retour à la liste de la flotte' : 'Back to fleet overview'}
                     >
                       <ArrowUp className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                       <span>{lang === 'ar' ? 'قائمة الأسطول ↑' : lang === 'fr' ? 'Retour flotte ↑' : 'Fleet overview ↑'}</span>
@@ -840,7 +839,7 @@ const orderedMobileUnits = MOBILE_LAB_ORDER.flatMap((regionId) =>
                   <div className="space-y-2">
                     <h5 className="text-xs font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
                       <Truck className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
-                      <span>{lang === 'ar' ? 'المواصفات الفنية وتجهيزات المركبة:' : 'Vehicle Specifications:'}</span>
+                      <span>{lang === 'ar' ? 'المواصفات الفنية وتجهيزات المركبة:' : lang === 'fr' ? 'Spécifications techniques du véhicule :' : 'Vehicle Specifications:'}</span>
                     </h5>
                     <div className="space-y-2">
                       {lab.technicalSpecs.map((spec, sIdx) => (
@@ -859,7 +858,7 @@ const orderedMobileUnits = MOBILE_LAB_ORDER.flatMap((regionId) =>
                   <div className="space-y-2">
                     <h5 className="text-xs font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
                       <FlaskConical className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
-                      <span>{lang === 'ar' ? 'الأجهزة والتقنيات التحليلية المعتمدة:' : 'Analytical Instruments:'}</span>
+                      <span>{lang === 'ar' ? 'الأجهزة والتقنيات التحليلية المعتمدة:' : lang === 'fr' ? 'Instruments et technologies analytiques :' : 'Analytical Instruments:'}</span>
                     </h5>
                     <div className="space-y-2">
                       {lab.equipment.map((eq, eIdx) => (
@@ -883,14 +882,14 @@ const orderedMobileUnits = MOBILE_LAB_ORDER.flatMap((regionId) =>
                       className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs transition-colors shadow-xs"
                     >
                       <UserPlus className="w-4 h-4" />
-                      <span>{lang === 'ar' ? 'طلب فحص ميداني / حجز زيارة' : 'Book Field Audit'}</span>
+                      <span>{lang === 'ar' ? 'طلب فحص ميداني / حجز زيارة' : lang === 'fr' ? 'Demande d\'audit / visite' : 'Book Field Audit'}</span>
                     </Link>
                     <Link
                       to="/enquiry"
                       className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs transition-colors"
                     >
                       <MessageSquare className="w-4 h-4" />
-                      <span>{lang === 'ar' ? 'استفسار فني مباشر' : 'Technical Enquiry'}</span>
+                      <span>{lang === 'ar' ? 'استفسار فني مباشر' : lang === 'fr' ? 'Demande technique directe' : 'Technical Enquiry'}</span>
                     </Link>
                   </div>
 
@@ -900,7 +899,7 @@ const orderedMobileUnits = MOBILE_LAB_ORDER.flatMap((regionId) =>
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 transition-colors cursor-pointer"
                   >
                     <ArrowUp className="w-3.5 h-3.5" />
-                    <span>{lang === 'ar' ? 'أعلى الصفحة ↑' : 'Scroll to top ↑'}</span>
+                    <span>{lang === 'ar' ? 'أعلى الصفحة ↑' : lang === 'fr' ? 'Haut de page ↑' : 'Scroll to top ↑'}</span>
                   </button>
                 </div>
               </section>
@@ -961,7 +960,7 @@ const orderedMobileUnits = MOBILE_LAB_ORDER.flatMap((regionId) =>
                   </div>
 
                   <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-[11px] font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-1">
-                    <span>{lang === 'ar' ? `المرحلة ${step.step}` : `Stage ${step.step}`}</span>
+                    <span>{lang === 'ar' ? `المرحلة ${step.step}` : lang === 'fr' ? `Étape ${step.step}` : `Stage ${step.step}`}</span>
                     <ChevronRight className="w-3 h-3" />
                   </div>
                 </div>
@@ -1018,7 +1017,7 @@ const orderedMobileUnits = MOBILE_LAB_ORDER.flatMap((regionId) =>
                   <div className="pt-3.5 mt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 font-mono">
                     <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-sans font-medium">
                       <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>{lang === 'ar' ? 'فحص فوري' : 'Real-time test'}</span>
+                      <span>{lang === 'ar' ? 'فحص فوري' : lang === 'fr' ? 'Contrôle instantané' : 'Real-time test'}</span>
                     </span>
                     <span>ISO/IEC 17025</span>
                   </div>
@@ -1054,7 +1053,7 @@ const orderedMobileUnits = MOBILE_LAB_ORDER.flatMap((regionId) =>
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white hover:bg-slate-100 text-blue-900 font-bold text-xs sm:text-sm transition-all shadow-md cursor-pointer"
               >
                 <UserPlus className="w-4 h-4 text-blue-900" />
-                <span>{lang === 'ar' ? 'طلب فحص ميداني / حجز زيارة' : 'Book Mobile Field Audit'}</span>
+                <span>{lang === 'ar' ? 'طلب فحص ميداني / حجز زيارة' : lang === 'fr' ? 'Demander un audit / réserver une visite' : 'Book Mobile Field Audit'}</span>
               </Link>
               <Link
                 to="/enquiry"

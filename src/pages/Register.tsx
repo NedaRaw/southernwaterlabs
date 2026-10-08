@@ -432,7 +432,7 @@ export default function Register() {
                 <label className={labelClass}>{t('register.employee')} {req}</label>
                 <input
                   type="text"
-                  placeholder={lang === 'ar' ? 'اسم الموظف أو رئيس القسم' : 'Staff or department head'}
+                  placeholder={lang === 'ar' ? 'اسم الموظف أو رئيس القسم' : lang === 'fr' ? "Nom de l'agent ou chef de service" : 'Staff or department head'}
                   value={formData.employee}
                   onChange={(e) => handleChange('employee', e.target.value)}
                   className={inputClass('employee')}

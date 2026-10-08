@@ -41,6 +41,9 @@ import najranFlyer from '@/assets/images/najran_flyer_labo.png';
 import mobileLabCar from '@/assets/images/lab-car-najran.png';
 import mobileFieldWork from '@/assets/images/6fdca855-cb45-4652-b741-9d63923fe79e.jpg';
 import orgStructureImg from '@/assets/images/Position-structure.png';
+import functionalStructure1 from '@/assets/images/Najran-branch functional structure1.jpg';
+import functionalStructure2 from '@/assets/images/Najran-branch functional structure2.jpg';
+import functionalStructure3 from '@/assets/images/Najran-branch functional structure3.jpg';
 
 // Authentic Lab & Equipment Photos
 import labGallery1 from '@/assets/images/IMG-20250723-WA0001.jpg';
@@ -197,6 +200,18 @@ export default function NajranLabDetail() {
       fr: 'L\'organigramme officiel et la hiérarchie organisationnelle du Laboratoire Central de Najran',
     }[lang],
     viewChartBtn: { ar: 'تكبير المخطط التنظيمي', en: 'Enlarge Organization Chart', fr: 'Agrandir l\'Organigramme' }[lang],
+    
+    functionalStructureTitle: {
+    ar: 'الهيكل الوظيفي لمختبر نجران المركزي وفرع شرورة',
+    en: 'Najran Central Laboratory & Sharorah Branch Functional Structure',
+    fr: 'Structure fonctionnelle du Laboratoire central de Najran et de la branche de Sharorah',
+    }[lang],
+
+    viewFunctionalStructureBtn: {
+    ar: 'عرض الهيكل الوظيفي',
+    en: 'View Functional Structure',
+    fr: 'Voir la structure fonctionnelle',
+    }[lang],
 
     // Sharurah Branch Link
     sharurahTitle: { ar: 'مختبر فرع شرورة ', en: 'Sharurah Branch', fr: 'Branche de Sharurah' }[lang],
@@ -522,13 +537,21 @@ export default function NajranLabDetail() {
                 <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 flex items-start gap-3">
                   <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
                   <div className="text-xs text-slate-700 dark:text-slate-300 font-medium">
-                    {lang === 'ar' ? 'اعتماد متكامل ISO/IEC 17025:2017 للكفاءة الفنية للمختبرات' : 'Fully accredited under ISO/IEC 17025:2017 for technical competence'}
+                    {lang === 'ar'
+                      ? 'اعتماد متكامل ISO/IEC 17025:2017 للكفاءة الفنية للمختبرات'
+                      : lang === 'fr'
+                        ? 'Accréditation complète ISO/IEC 17025:2017 pour la compétence technique'
+                        : 'Fully accredited under ISO/IEC 17025:2017 for technical competence'}
                   </div>
                 </div>
                 <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 flex items-start gap-3">
                   <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
                   <div className="text-xs text-slate-700 dark:text-slate-300 font-medium">
-                    {lang === 'ar' ? 'سلسلة حيازة مشددة لجمع العينات وحفظها ونقلها المبرد' : 'Strict chain of custody for field sampling, preservation, and cold transport'}
+                    {lang === 'ar'
+                      ? 'سلسلة حيازة مشددة لجمع العينات وحفظها ونقلها المبرد'
+                      : lang === 'fr'
+                        ? 'Chaîne de traçabilité stricte pour le prélèvement, la conservation et le transport réfrigéré'
+                        : 'Strict chain of custody for field sampling, preservation, and cold transport'}
                   </div>
                 </div>
               </div>
@@ -555,7 +578,11 @@ export default function NajranLabDetail() {
                       {tText.buildingBadge}
                     </span>
                     <p className="text-xs text-slate-200">
-                      {lang === 'ar' ? 'المقر الإداري والمخبري الرئيسي - نجران' : 'Main Laboratory Facility - Najran'}
+                      {lang === 'ar'
+                        ? 'المقر الإداري والمخبري الرئيسي - نجران'
+                        : lang === 'fr'
+                          ? 'Siège administratif et laboratoire principal - Najran'
+                          : 'Main Laboratory Facility - Najran'}
                     </p>
                   </div>
                 </div>
@@ -599,7 +626,9 @@ export default function NajranLabDetail() {
                   <p className="text-xs sm:text-sm text-slate-200 max-w-md">
                     {lang === 'ar'
                       ? 'إجراء التحاليل الفيزيائية والكيميائية الدقيقة لعينات مياه الشرب باستخدام مقاييس الطيف الضوئي وأجهزة الكروماتوغرافيا'
-                      : 'Conducting high-precision physical and chemical tests on drinking water samples using spectrophotometers'}
+                      : lang === 'fr'
+                        ? 'Analyses physico-chimiques de haute précision sur des échantillons d’eau potable par spectrophotométrie et chromatographie'
+                        : 'Conducting high-precision physical and chemical tests on drinking water samples using spectrophotometers'}
                   </p>
                 </div>
               </div>
@@ -616,17 +645,25 @@ export default function NajranLabDetail() {
               <div className="relative z-10 space-y-3">
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 text-white text-[11px] font-semibold ring-1 ring-white/20">
                   <FileText className="w-3.5 h-3.5 text-blue-400" />
-                  {lang === 'ar' ? 'الوثيقة والمطوية الرسمية' : 'Official Laboratory Document'}
+                  {lang === 'ar'
+                    ? 'الوثيقة والمطوية الرسمية'
+                    : lang === 'fr'
+                      ? 'Document officiel et brochure'
+                      : 'Official Laboratory Document'}
                 </span>
                 <h3 className="text-lg font-bold text-white leading-snug">
                   {lang === 'ar'
                     ? 'مطوية الخدمات والتحاليل المعتمدة للمختبر المركزي للخدمات البيئية بنجران'
-                    : 'Najran Central Environmental Laboratory Official Services & Accreditations Flyer'}
+                    : lang === 'fr'
+                      ? 'Brochure officielle des services et analyses accréditées du Laboratoire de Najran'
+                      : 'Najran Central Environmental Laboratory Official Services & Accreditations Flyer'}
                 </h3>
                 <p className="text-xs text-slate-300 leading-relaxed">
                   {lang === 'ar'
                     ? 'تتضمن كافة اشتراطات الفحص ونطاق التحاليل المعتمدة تحت إشراف شركة المياه الوطنية والمركز السعودي للاعتماد.'
-                    : 'Includes all accredited scopes and analytical requirements under NWC and Saudi Accreditation Center.'}
+                    : lang === 'fr'
+                      ? 'Comprend l’ensemble des portées d’accréditation sous la supervision de la NWC et du Centre Saoudien d’Accréditation.'
+                      : 'Includes all accredited scopes and analytical requirements under NWC and Saudi Accreditation Center.'}
                 </p>
               </div>
 
@@ -652,12 +689,12 @@ export default function NajranLabDetail() {
           {/* Authentic Real Lab Photos Grid */}
           <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             {[
-              { img: labGallery1, label: lang === 'ar' ? 'تجهيزات التحليل الطيفي' : 'Spectrophotometry Unit' },
-              { img: labGallery2, label: lang === 'ar' ? 'محطة فحص العكارة والأس الهيدروجيني' : 'Turbidity & pH Station' },
-              { img: labGallery3, label: lang === 'ar' ? 'وحدة الفحص الميكروبيولوجي' : 'Microbiology Section' },
-              { img: labGallery4, label: lang === 'ar' ? 'حواضن ومستلزمات الزراعة البكتيرية' : 'Bacterial Incubators' },
-              { img: labGallery5, label: lang === 'ar' ? 'غرفة الكواشف والأوساط المعقمة' : 'Reagents & Sterile Media' },
-              { img: labGallery6, label: lang === 'ar' ? 'استلام العينات وسلسلة الحيازة' : 'Sample Reception Area' },
+              { img: labGallery1, label: lang === 'ar' ? 'تجهيزات التحليل الطيفي' : lang === 'fr' ? 'Unité de spectrophotométrie' : 'Spectrophotometry Unit' },
+              { img: labGallery2, label: lang === 'ar' ? 'محطة فحص العكارة والأس الهيدروجيني' : lang === 'fr' ? 'Station de turbidité et pH' : 'Turbidity & pH Station' },
+              { img: labGallery3, label: lang === 'ar' ? 'وحدة الفحص الميكروبيولوجي' : lang === 'fr' ? 'Section microbiologie' : 'Microbiology Section' },
+              { img: labGallery4, label: lang === 'ar' ? 'حواضن ومستلزمات الزراعة البكتيرية' : lang === 'fr' ? 'Incubateurs bactériologiques' : 'Bacterial Incubators' },
+              { img: labGallery5, label: lang === 'ar' ? 'غرفة الكواشف والأوساط المعقمة' : lang === 'fr' ? 'Réactifs et milieux stériles' : 'Reagents & Sterile Media' },
+              { img: labGallery6, label: lang === 'ar' ? 'استلام العينات وسلسلة الحيازة' : lang === 'fr' ? 'Réception des échantillons' : 'Sample Reception Area' },
             ].map((item, idx) => (
               <div
                 key={idx}
@@ -749,13 +786,13 @@ export default function NajranLabDetail() {
 
               <div className="pt-2 flex flex-wrap gap-2 text-xs">
                 <span className="px-3 py-1.5 rounded-lg bg-white/10 text-white font-medium ring-1 ring-white/20">
-                  {lang === 'ar' ? 'فحص عكارة فوري' : 'Instant Turbidity Testing'}
+                  {lang === 'ar' ? 'فحص عكارة فوري' : lang === 'fr' ? 'Test de turbidité instantané' : 'Instant Turbidity Testing'}
                 </span>
                 <span className="px-3 py-1.5 rounded-lg bg-white/10 text-white font-medium ring-1 ring-white/20">
-                  {lang === 'ar' ? 'فحص الكلور المتبقي' : 'Residual Chlorine Testing'}
+                  {lang === 'ar' ? 'فحص الكلور المتبقي' : lang === 'fr' ? 'Test du chlore résiduel' : 'Residual Chlorine Testing'}
                 </span>
                 <span className="px-3 py-1.5 rounded-lg bg-white/10 text-white font-medium ring-1 ring-white/20">
-                  {lang === 'ar' ? 'حفظ بارد وسلسلة حيازة SAC' : 'SAC Compliant Cold Custody'}
+                  {lang === 'ar' ? 'حفظ بارد وسلسلة حيازة SAC' : lang === 'fr' ? 'Conservation à froid conforme SAC' : 'SAC Compliant Cold Custody'}
                 </span>
               </div>
             </div>
@@ -848,73 +885,73 @@ export default function NajranLabDetail() {
             img: mobileLabCar,
             label:
               lang === 'ar'
-                ? 'المركبة المتنقلة'
+                ? 'مركبة المختبر المركزي المتنقل بنجران (الهيكل الخارجي)'
                 : lang === 'fr'
-                ? 'Véhicule mobile'
-                : 'Mobile Vehicle',
+                ? 'Véhicule du laboratoire mobile central de Najran (Vue extérieure)'
+                : 'Najran Central Mobile Laboratory Vehicle (Exterior View)',
           },
           {
             img: mobileFieldWork,
             label:
               lang === 'ar'
-                ? 'العمليات الميدانية'
+                ? 'بيئة العمل المخبرية ومحطة الإرشادات الفنية بمختبر نجران'
                 : lang === 'fr'
-                ? 'Opérations de terrain'
-                : 'Field Operations',
+                ? 'Environnement de travail et poste d’instructions techniques'
+                : 'Laboratory Interior & Technical Instructions Station',
           },
           {
             img: labGallery1,
             label:
               lang === 'ar'
-                ? 'تجهيزات التحليل الطيفي'
+                ? 'لوحة تصنيف وتحديد المخاطر الكيميائية (معيار NFPA 704) بالمعمل'
                 : lang === 'fr'
-                ? 'Équipements de spectrophotométrie'
-                : 'Spectrophotometry Equipment',
+                ? 'Tableau de classification des risques chimiques (NFPA 704)'
+                : 'NFPA 704 Chemical Hazard Identification Chart in Lab',
           },
           {
             img: labGallery2,
             label:
               lang === 'ar'
-                ? 'محطة العكارة والأس الهيدروجيني'
+                ? 'منضدة التحاليل المخبرية والأدوات الزجاجية ومحاليل الفحص'
                 : lang === 'fr'
-                ? 'Station de turbidité et pH'
-                : 'Turbidity & pH Station',
+                ? 'Paillasse d’analyse, verrerie étalonnée et solutions de contrôle'
+                : 'Analytical Workbench with Calibrated Glassware & Reagents',
           },
           {
             img: labGallery3,
             label:
               lang === 'ar'
-                ? 'الفحص الميكروبيولوجي'
+                ? 'أخصائي المختبر أثناء إجراء التحاليل المائية وفحص العينات'
                 : lang === 'fr'
-                ? 'Analyse microbiologique'
-                : 'Microbiology Analysis',
+                ? 'Chimiste certifié effectuant des analyses sur des échantillons d’eau'
+                : 'Certified Chemist Conducting Water Sample Analysis',
           },
           {
             img: labGallery4,
             label:
               lang === 'ar'
-                ? 'الحواضن ومستلزمات الزراعة'
+                ? 'لوحة الجداول الإرشادية والمعايير الفنية لضبط جودة التحاليل'
                 : lang === 'fr'
-                ? 'Incubateurs et matériel de culture'
-                : 'Incubators & Culture Equipment',
+                ? 'Panneau des tables de référence et protocoles de contrôle qualité'
+                : 'Technical Reference Charts & Testing Protocol Guidelines',
           },
           {
             img: labGallery5,
             label:
               lang === 'ar'
-                ? 'الكواشف والأوساط المعقمة'
+                ? 'لوحة مهمات الوقاية الشخصية والسلامة المهنية (PPE) بالمعمل'
                 : lang === 'fr'
-                ? 'Réactifs et milieux stériles'
-                : 'Reagents & Sterile Media',
+                ? 'Affiche des équipements de protection individuelle (EPI) au laboratoire'
+                : 'Personal Protective Equipment (PPE) Safety Poster in Lab',
           },
           {
             img: labGallery6,
             label:
               lang === 'ar'
-                ? 'استلام العينات وسلسلة الحيازة'
+                ? 'الجدول الدوري للعناصر الكيميائية المعتمد بالمعمل'
                 : lang === 'fr'
-                ? 'Réception des échantillons et chaîne de traçabilité'
-                : 'Sample Reception & Chain of Custody',
+                ? 'Tableau périodique des éléments chimiques au laboratoire'
+                : 'Periodic Table of the Elements Chart in Laboratory',
           },
         ].map((item, idx) => (
           <button
@@ -951,7 +988,74 @@ export default function NajranLabDetail() {
           </div>
         </section>
 
-        {/* 07: Organizational Structure */}
+        {/* ===================================================== */}
+        {/* 07: Najran Central Laboratory & Sharorah Branch       */}
+        {/* Functional Structure                                  */}
+        {/* ===================================================== */}
+
+        <section className="mt-12 bg-white dark:bg-[#172033] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-8 lg:p-10 shadow-2xs">
+
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4">
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 text-xs font-medium mb-1.5">
+                <Building2 className="w-3.5 h-3.5" />
+
+                <span>{tText.functionalStructureTitle}</span>
+              </div>
+
+              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-slate-900 dark:text-white">
+                {tText.functionalStructureTitle}
+              </h2>
+            </div>
+          </div>
+
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+            {[
+              {
+                image: functionalStructure1,
+                title: `${tText.functionalStructureTitle} 1`,
+              },
+              {
+                image: functionalStructure2,
+                title: `${tText.functionalStructureTitle} 2`,
+              },
+              {
+                image: functionalStructure3,
+                title: `${tText.functionalStructureTitle} 3`,
+              },
+            ].map((item, index) => (
+              <button
+                key={index}
+                type="button"
+                onClick={() => {
+                  setSelectedImage(item.image);
+                  setSelectedImageTitle(item.title);
+                }}
+                className="group relative overflow-hidden rounded-xl border border-slate-200/80 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-3 cursor-pointer"
+              >
+
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  className="w-full h-auto max-h-[420px] object-contain mx-auto rounded-lg group-hover:scale-[1.01] transition-transform duration-200"
+                />
+
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <span className="px-3.5 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-medium shadow-md flex items-center gap-1.5">
+                    <Eye className="w-3.5 h-3.5" />
+                    <span>{tText.viewFunctionalStructureBtn}</span>
+                  </span>
+                </div>
+
+              </button>
+            ))}
+
+          </div>
+        </section>
+
+        {/* 08: Organizational Structure */}
         <section className="mt-12 bg-white dark:bg-[#172033] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-8 lg:p-10 shadow-2xs">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4">
             <div>
@@ -1012,7 +1116,11 @@ export default function NajranLabDetail() {
                 </div>
                 <div>
                   <span className="text-xs font-bold text-blue-600 dark:text-blue-400 block mb-1">
-                    {lang === 'ar' ? 'الشبكة المخبرية لمنطقة نجران' : 'Najran Laboratory Network'}
+                    {lang === 'ar'
+                      ? 'الشبكة المخبرية لمنطقة نجران'
+                      : lang === 'fr'
+                        ? 'Réseau des laboratoires de la région de Najran'
+                        : 'Najran Laboratory Network'}
                   </span>
                   <h3 className="text-xl font-extrabold text-slate-900 dark:text-white">
                     {tText.sharurahTitle}
@@ -1117,7 +1225,7 @@ export default function NajranLabDetail() {
                 <div className="space-y-2 mb-6">
                   <div className="flex items-center justify-between p-2.5 rounded-lg bg-white dark:bg-slate-900/70 text-xs border border-slate-200 dark:border-slate-700/80">
                     <span className="text-slate-500 dark:text-slate-400 font-medium">
-                      {lang === 'ar' ? 'خط العرض (Latitude):' : 'Latitude:'}
+                      {lang === 'ar' ? 'خط العرض (Latitude):' : lang === 'fr' ? 'Latitude :' : 'Latitude:'}
                     </span>
                     <span dir="ltr" className="font-mono font-bold text-slate-800 dark:text-slate-200">
                       17.545673° N
@@ -1125,7 +1233,7 @@ export default function NajranLabDetail() {
                   </div>
                   <div className="flex items-center justify-between p-2.5 rounded-lg bg-white dark:bg-slate-900/70 text-xs border border-slate-200 dark:border-slate-700/80">
                     <span className="text-slate-500 dark:text-slate-400 font-medium">
-                      {lang === 'ar' ? 'خط الطول (Longitude):' : 'Longitude:'}
+                      {lang === 'ar' ? 'خط الطول (Longitude):' : lang === 'fr' ? 'Longitude :' : 'Longitude:'}
                     </span>
                     <span dir="ltr" className="font-mono font-bold text-slate-800 dark:text-slate-200">
                       44.2495585° E
@@ -1167,14 +1275,16 @@ export default function NajranLabDetail() {
                 <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
                   {lang === 'ar'
                     ? 'يمكنكم التواصل المباشر مع إدارة المختبر أو خدمة عملاء شركة المياه الوطنية'
-                    : 'Direct contact with laboratory management and NWC customer service'}
+                    : lang === 'fr'
+                      ? 'Contact direct avec la direction du laboratoire ou le service client NWC'
+                      : 'Direct contact with laboratory management and NWC customer service'}
                 </p>
 
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center justify-between p-2.5 rounded-lg bg-white dark:bg-slate-900/70 text-xs border border-slate-200 dark:border-slate-700/80">
                     <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                       <Phone className="w-3.5 h-3.5 text-blue-500" />
-                      {lang === 'ar' ? 'الهاتف المباشر:' : 'Direct Phone:'}
+                      {lang === 'ar' ? 'الهاتف المباشر:' : lang === 'fr' ? 'Téléphone direct :' : 'Direct Phone:'}
                     </span>
                     <a
                       href={`tel:${tText.directPhone}`}
@@ -1188,7 +1298,7 @@ export default function NajranLabDetail() {
                   <div className="flex items-center justify-between p-2.5 rounded-lg bg-white dark:bg-slate-900/70 text-xs border border-slate-200 dark:border-slate-700/80">
                     <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                       <Building2 className="w-3.5 h-3.5 text-emerald-500" />
-                      {lang === 'ar' ? 'خدمة العملاء (شركة المياه):' : 'NWC Care:'}
+                      {lang === 'ar' ? 'خدمة العملاء (شركة المياه):' : lang === 'fr' ? 'Service client NWC :' : 'NWC Care:'}
                     </span>
                     <a
                       href={`tel:${tText.nwcPhone}`}
@@ -1202,7 +1312,7 @@ export default function NajranLabDetail() {
                   <div className="flex items-center justify-between p-2.5 rounded-lg bg-white dark:bg-slate-900/70 text-xs border border-slate-200 dark:border-slate-700/80">
                     <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                       <Mail className="w-3.5 h-3.5 text-indigo-500" />
-                      {lang === 'ar' ? 'البريد الإلكتروني:' : 'Email:'}
+                      {lang === 'ar' ? 'البريد الإلكتروني:' : lang === 'fr' ? 'Email :' : 'Email:'}
                     </span>
                     <a
                       href={`mailto:${tText.labEmail}`}
@@ -1216,7 +1326,7 @@ export default function NajranLabDetail() {
                   <div className="flex items-center justify-between p-2.5 rounded-lg bg-white dark:bg-slate-900/70 text-xs border border-slate-200 dark:border-slate-700/80">
                     <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                       <Clock className="w-3.5 h-3.5 text-slate-500" />
-                      {lang === 'ar' ? 'أوقات العمل:' : 'Hours:'}
+                      {lang === 'ar' ? 'أوقات العمل:' : lang === 'fr' ? 'Horaires :' : 'Hours:'}
                     </span>
                     <span className="font-semibold text-slate-800 dark:text-slate-200">
                       {tText.hoursVal}
@@ -1258,11 +1368,13 @@ export default function NajranLabDetail() {
                 <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                   {lang === 'ar'
                     ? 'تسجيل موعد مسبق والحصول على تصريح وبطاقة QR لدخول المختبر واستلام العينات'
-                    : 'Schedule an appointment and generate an official QR badge for lab entry'}
+                    : lang === 'fr'
+                      ? 'Prendre rendez-vous et générer un badge QR officiel pour l’accès au laboratoire'
+                      : 'Schedule an appointment and generate an official QR badge for lab entry'}
                 </p>
               </div>
               <div className="mt-4 pt-3 flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400">
-                <span>{lang === 'ar' ? 'بدء التسجيل' : 'Start Registration'}</span>
+                <span>{lang === 'ar' ? 'بدء التسجيل' : lang === 'fr' ? 'Commencer l\'inscription' : 'Start Registration'}</span>
                 <Arrow className="w-4 h-4" />
               </div>
             </Link>
@@ -1281,11 +1393,13 @@ export default function NajranLabDetail() {
                 <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                   {lang === 'ar'
                     ? 'شاركنا تقييمك لسرعة ودقة التحاليل وجودة الخدمة المقدمة في المختبر'
-                    : 'Share your feedback on analysis speed, accuracy, and customer experience'}
+                    : lang === 'fr'
+                      ? 'Partagez votre avis sur la rapidité, la précision des analyses et le service'
+                      : 'Share your feedback on analysis speed, accuracy, and customer experience'}
                 </p>
               </div>
               <div className="mt-4 pt-3 flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                <span>{lang === 'ar' ? 'تعبئة الاستبيان' : 'Complete Survey'}</span>
+                <span>{lang === 'ar' ? 'تعبئة الاستبيان' : lang === 'fr' ? 'Remplir l\'enquête' : 'Complete Survey'}</span>
                 <Arrow className="w-4 h-4" />
               </div>
             </Link>
@@ -1304,11 +1418,13 @@ export default function NajranLabDetail() {
                 <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                   {lang === 'ar'
                     ? 'إرسال استفسار فني أو طلب فحص مخصص لعينات الآبار وشبكات المياه'
-                    : 'Submit technical inquiries or testing requests for wells and water networks'}
+                    : lang === 'fr'
+                      ? 'Transmettre une demande technique ou un contrôle d’échantillons de puits et réseaux'
+                      : 'Submit technical inquiries or testing requests for wells and water networks'}
                 </p>
               </div>
               <div className="mt-4 pt-3 flex items-center gap-1.5 text-xs font-bold text-slate-800 dark:text-slate-200">
-                <span>{lang === 'ar' ? 'إرسال الطلب' : 'Submit Request'}</span>
+                <span>{lang === 'ar' ? 'إرسال الطلب' : lang === 'fr' ? 'Envoyer la demande' : 'Submit Request'}</span>
                 <Arrow className="w-4 h-4" />
               </div>
             </Link>

@@ -39,7 +39,7 @@ export default function Footer() {
                     className="text-sm text-slate-300 hover:text-white transition-colors flex items-center gap-2 group"
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 group-hover:scale-125 transition-transform" />
-                    <span className="group-hover:translate-x-0.5 transition-transform">{center.name}</span>
+                    <span className="rtl:group-hover:-translate-x-0.5 ltr:group-hover:translate-x-0.5 transition-transform">{center.name}</span>
                   </Link>
                 </li>
               ))}
@@ -55,19 +55,19 @@ export default function Footer() {
               <li>
                 <Link to="/register" className="text-sm text-slate-300 hover:text-white transition-colors flex items-center gap-2 group">
                   <UserPlus className="w-4 h-4 text-cyan-400 shrink-0" />
-                  <span className="group-hover:translate-x-0.5 transition-transform">{t('cs.register')}</span>
+                  <span className="rtl:group-hover:-translate-x-0.5 ltr:group-hover:translate-x-0.5 transition-transform">{t('cs.register')}</span>
                 </Link>
               </li>
               <li>
                 <Link to="/survey" className="text-sm text-slate-300 hover:text-white transition-colors flex items-center gap-2 group">
                   <FileText className="w-4 h-4 text-cyan-400 shrink-0" />
-                  <span className="group-hover:translate-x-0.5 transition-transform">{t('cs.survey')}</span>
+                  <span className="rtl:group-hover:-translate-x-0.5 ltr:group-hover:translate-x-0.5 transition-transform">{t('cs.survey')}</span>
                 </Link>
               </li>
               <li>
                 <Link to="/enquiry" className="text-sm text-slate-300 hover:text-white transition-colors flex items-center gap-2 group">
                   <MessageSquare className="w-4 h-4 text-cyan-400 shrink-0" />
-                  <span className="group-hover:translate-x-0.5 transition-transform">{t('cs.enquiry')}</span>
+                  <span className="rtl:group-hover:-translate-x-0.5 ltr:group-hover:translate-x-0.5 transition-transform">{t('cs.enquiry')}</span>
                 </Link>
               </li>
             </ul>

@@ -38,7 +38,7 @@ export default function LabLogo({
   const officialTitle = {
     ar: 'المختبرات المركزية لمياه الشرب والخدمات البيئية بالقطاع الجنوبي',
     en: 'Southern Sector Central Laboratories for Drinking Water and Environmental Services',
-    fr: 'Laboratoires Centraux du Secteur Sud pour les Eaux Potables et les Services Environnementaux',
+    fr: 'Laboratoires Centraux des Eaux du Secteur Sud',
   }[lang] || 'المختبرات المركزية لمياه الشرب والخدمات البيئية بالقطاع الجنوبي';
 
   const officialSubtitle = {
@@ -86,12 +86,22 @@ export default function LabLogo({
     >
       {/* Official Laboratory Logo Emblem */}
       <div className="shrink-0 flex items-center justify-center">
-        <img
-          src={logoSrc}
-          alt={officialTitle}
-          className={`${imageSizeClasses} object-contain transition-transform duration-200 group-hover:scale-[1.02] drop-shadow-sm`}
-          loading="eager"
-        />
+        <div
+          className={`flex items-center justify-center transition-all ${
+            isWhite
+              ? 'bg-white px-2 py-1.5 rounded-xl shadow-xs ring-1 ring-white/30'
+              : isDarkMode
+                ? 'bg-white/95 px-2 py-1 rounded-xl shadow-xs'
+                : ''
+          }`}
+        >
+          <img
+            src={logoSrc}
+            alt={officialTitle}
+            className={`${imageSizeClasses} object-contain transition-transform duration-200 group-hover:scale-[1.02] drop-shadow-xs`}
+            loading="eager"
+          />
+        </div>
       </div>
 
       {/* Official Laboratory Typography */}

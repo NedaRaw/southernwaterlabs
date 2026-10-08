@@ -42,8 +42,18 @@ import newsTrainingWorkshopImg from '@/assets/images/news_training_workshop_1790
 import newsDefaultThumbImg from '@/assets/images/news_default_thumb_1790237086812.jpg';
 import maleTechnicianImg from '@/assets/images/male_technician_lab_1790237074086.jpg';
 
+// Three official National Water Company assets
+import nwcCorporateImg from '@/assets/images/nwc.jpg';
+import nwcLabTestingImg from '@/assets/images/nwc-lab1.jpg';
+import nwcLabAgilentImg from '@/assets/images/nwc-lab2.jpg';
+import nwcOfficialLogo from '@/assets/images/nwc-logo.png';
+
 export const siteMedia = {
   heroBackground: waterLabHeroImg,
+  nwcLogo: nwcOfficialLogo,
+  nwcCorporate: nwcCorporateImg,
+  nwcLabTesting: nwcLabTestingImg,
+  nwcLabAgilent: nwcLabAgilentImg,
   waterTestingPan: waterTestingPanImg,
   downloadSampling: waterTestingPanImg,
   panoramicBand: panoramicBandImg,

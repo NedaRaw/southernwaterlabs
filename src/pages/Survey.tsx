@@ -480,9 +480,9 @@ export default function Survey() {
                 className="w-full accent-navy-600 cursor-pointer"
               />
               <div className="flex justify-between text-xs text-slate-400 mt-1">
-                <span>{lang === 'ar' ? '0 (غير محتمل)' : '0 (Not likely)'}</span>
+                <span>{lang === 'ar' ? '0 (غير محتمل)' : lang === 'fr' ? '0 (Peu probable)' : '0 (Not likely)'}</span>
                 <span>5</span>
-                <span>{lang === 'ar' ? '10 (محتمل جداً)' : '10 (Very likely)'}</span>
+                <span>{lang === 'ar' ? '10 (محتمل جداً)' : lang === 'fr' ? '10 (Très probable)' : '10 (Very likely)'}</span>
               </div>
             </div>
           </div>
@@ -501,7 +501,7 @@ export default function Survey() {
                 <label className={labelClass}>{t('survey.likedMost')}</label>
                 <input
                   type="text"
-                  placeholder={lang === 'ar' ? 'أكثر ما أعجبك في الخدمة أو تعامل الفريق...' : 'What you liked most...'}
+                  placeholder={lang === 'ar' ? 'أكثر ما أعجبك في الخدمة أو تعامل الفريق...' : lang === 'fr' ? 'Ce que vous avez le plus apprécié...' : 'What you liked most...'}
                   value={formData.liked_most}
                   onChange={(e) => handleChange('liked_most', e.target.value)}
                   className={inputClass('liked_most')}
@@ -512,7 +512,7 @@ export default function Survey() {
                 <label className={labelClass}>{t('survey.improvements')}</label>
                 <input
                   type="text"
-                  placeholder={lang === 'ar' ? 'أي جانب ترى أنه بحاجة إلى تحسين...' : 'Suggestions for improvement...'}
+                  placeholder={lang === 'ar' ? 'أي جانب ترى أنه بحاجة إلى تحسين...' : lang === 'fr' ? 'Suggestions d\'amélioration...' : 'Suggestions for improvement...'}
                   value={formData.improvements}
                   onChange={(e) => handleChange('improvements', e.target.value)}
                   className={inputClass('improvements')}
@@ -551,7 +551,7 @@ export default function Survey() {
                 <label className={labelClass}>{t('survey.additionalComments')}</label>
                 <textarea
                   rows={3}
-                  placeholder={lang === 'ar' ? 'أي ملاحظات أو رسائل أخرى تود مشاركتها...' : 'Additional feedback or notes...'}
+                  placeholder={lang === 'ar' ? 'أي ملاحظات أو رسائل أخرى تود مشاركتها...' : lang === 'fr' ? 'Remarques ou commentaires supplémentaires...' : 'Additional feedback or notes...'}
                   value={formData.additional_comments}
                   onChange={(e) => handleChange('additional_comments', e.target.value)}
                   className={`${inputClass('additional_comments')} resize-none`}
