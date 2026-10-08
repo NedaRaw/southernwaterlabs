@@ -1143,37 +1143,53 @@ function GenericCenterDetail() {
           <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
             {/* NWC Logo + Laboratory Identity — Left Column */}
             <div className="lg:col-span-4 flex justify-center">
-              <div className="relative p-6 sm:p-8 rounded-3xl bg-white border border-slate-200/80 shadow-lg max-w-sm w-full text-center">
+              <div className="relative w-full max-w-sm rounded-3xl bg-white border border-slate-200/80 p-6 sm:p-8 shadow-lg text-center">
 
-                {/* ISO */}
-                <div className="mb-4">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs sm:text-sm font-bold border border-emerald-200">
-                    ISO/IEC 17025:2017
-                  </span>
-                </div>
+                {/* Institutional circular emblem frame */}
+                <div className="relative mx-auto flex h-48 w-48 items-center justify-center sm:h-52 sm:w-52">
 
-                {/* Laboratory Name */}
-                <p className="text-slate-800 text-sm sm:text-base font-bold leading-relaxed mb-5">
-                  {lang === 'ar'
-                    ? `المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة ${center.region}`
-                    : lang === 'fr'
-                      ? `Laboratoire central des eaux potables et des services environnementaux — ${center.region}`
-                      : `Central Laboratory for Drinking Water and Environmental Services — ${center.region}`}
-                </p>
-
-                {/* NWC Logo */}
-                <div className="relative w-40 h-40 sm:w-48 sm:h-48 mx-auto flex items-center justify-center">
-
+                  {/* Outer institutional ring */}
                   <div className="absolute inset-0 rounded-full border border-blue-700/25" />
+
+                  {/* Inner accreditation ring */}
                   <div className="absolute inset-2 rounded-full border border-amber-500/35" />
+
+                  {/* Subtle inner white field */}
                   <div className="absolute inset-4 rounded-full bg-white shadow-sm" />
 
-                  <div className="relative z-10 w-36 h-36 sm:w-40 sm:h-40 flex items-center justify-center p-2">
+                  {/* Official NWC Logo */}
+                  <div className="relative z-10 flex h-44 w-44 items-center justify-center p-2 sm:h-48 sm:w-48">
                     <img
                       src={nwcLogo}
                       alt="National Water Company"
-                      className="max-h-full max-w-full object-contain"
+                      className="block max-h-full max-w-full object-contain"
                     />
+                  </div>
+
+                </div>
+
+                {/* Institutional identification */}
+                <div className="mt-5 border-t border-slate-200 pt-4 text-center">
+
+                  <span className="block text-xs font-bold leading-snug tracking-wide text-slate-800 sm:text-sm">
+                    {lang === 'ar'
+                      ? `المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة ${center.region}`
+                      : lang === 'fr'
+                        ? `Laboratoire central des eaux potables et des services environnementaux — ${center.region}`
+                        : `Central Laboratory for Drinking Water and Environmental Services — ${center.region}`}
+                  </span>
+
+                  {/* Accreditation */}
+                  <div className="mt-2 flex items-center justify-center gap-2">
+
+                    <span className="h-px w-5 bg-amber-500/50" />
+
+                    <span className="text-[10px] font-semibold tracking-[0.12em] text-slate-600 sm:text-[11px]">
+                      ISO/IEC 17025:2017
+                    </span>
+
+                    <span className="h-px w-5 bg-amber-500/50" />
+
                   </div>
 
                 </div>
