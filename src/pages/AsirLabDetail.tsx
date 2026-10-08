@@ -70,7 +70,7 @@ const translations: Record<Lang, Record<string, string>> = {
   ar: {
     officialTitle:
       'المختبر المركزي للمياه بالمنطقة الجنوبية - منطقة عسير',
-    shortTitle: 'المختبر المركزي لعسير',
+    shortTitle: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة عسير',
     institutionalAffiliation:
       'القطاع الجنوبي للمختبرات البيئية ومختبرات المياه',
     tagline:
@@ -630,19 +630,52 @@ export default function AsirLabDetail() {
             </div>
 
             {/* Logo Emblem Container */}
-            <div className="flex justify-center lg:col-span-4">
-              <div className="flex w-full max-w-sm items-center justify-center rounded-3xl bg-white/95 p-5 shadow-2xl ring-1 ring-white/30 backdrop-blur-md dark:bg-slate-900/90 sm:p-6">
-                
-                <div className="flex h-60 w-60 items-center justify-center sm:h-64 sm:w-64">
-                  <img
-                    src={nwcLogo}
-                    alt={t.officialTitle}
-                    className="block h-full w-full object-contain"
-                  />
-                </div>
+<div className="flex justify-center lg:col-span-4">
+  <div className="relative w-full max-w-sm rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700/80 p-6 sm:p-8 shadow-lg text-center">
 
-              </div>
-            </div>
+    {/* Institutional circular emblem frame */}
+    <div className="relative mx-auto flex h-48 w-48 items-center justify-center sm:h-52 sm:w-52">
+
+      {/* Outer institutional ring */}
+      <div className="absolute inset-0 rounded-full border border-blue-700/25 dark:border-blue-400/25" />
+
+      {/* Inner accreditation ring */}
+      <div className="absolute inset-2 rounded-full border border-amber-500/35 dark:border-amber-400/30" />
+
+      {/* Subtle inner white field */}
+      <div className="absolute inset-4 rounded-full bg-white dark:bg-slate-900 shadow-sm" />
+
+      {/* Official NWC Logo */}
+      <div className="relative z-10 flex h-44 w-44 items-center justify-center p-2 sm:h-48 sm:w-48">
+        <img
+          src={nwcLogo}
+          alt={t.officialTitle}
+          className="block max-h-full max-w-full object-contain"
+        />
+      </div>
+    </div>
+
+    {/* Institutional identification */}
+    <div className="mt-5 border-t border-slate-200 pt-4 text-center dark:border-slate-700">
+
+      <span className="block text-xs font-bold leading-snug tracking-wide text-slate-800 dark:text-slate-200 sm:text-sm">
+        {t.shortTitle}
+      </span>
+
+      {/* Accreditation */}
+      <div className="mt-2 flex items-center justify-center gap-2">
+        <span className="h-px w-5 bg-amber-500/50" />
+
+        <span className="text-[10px] font-semibold tracking-[0.12em] text-slate-600 dark:text-slate-400 sm:text-[11px]">
+          ISO/IEC 17025:2017
+        </span>
+
+        <span className="h-px w-5 bg-amber-500/50" />
+      </div>
+
+    </div>
+  </div>
+</div>
 
           </div>
         </div>

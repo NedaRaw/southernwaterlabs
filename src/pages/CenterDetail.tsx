@@ -64,6 +64,7 @@ import jazanRearImg from '@/assets/images/jazan-lab-van5.jpg';
 import jazanDeployImg from '@/assets/images/jazan-lab-van1.jpg';
 import jazanVan3Img from '@/assets/images/jazan-lab-van3.jpg';
 import jazanVan6Img from '@/assets/images/jazan-lab-van6.jpg';
+import nwcLogo from '@/assets/images/nwc-logo.png';
 
 /**
  * Entry component.
@@ -269,66 +270,66 @@ function GenericCenterDetail() {
   };
 
   // ============================================================
-// Center Coordinates
-// ============================================================
+  // Center Coordinates
+  // ============================================================
 
-const centerCoordinates: Record<
-  string,
-  {
-    lat: number;
-    lng: number;
-    dms: string;
-    decimal: string;
-    mapsUrl: string;
-    directionsUrl: string;
-  }
-> = {
-  asir: {
-    lat: 18.21639,
-    lng: 42.50528,
-    dms: '18°12\'59.0"N 42°30\'19.0"E',
-    decimal: '18.21639, 42.50528',
-    mapsUrl:
-      'https://maps.google.com/?q=18.21639,42.50528',
-    directionsUrl:
-      'https://www.google.com/maps/dir/?api=1&destination=18.21639,42.50528',
-  },
+  const centerCoordinates: Record<
+    string,
+    {
+      lat: number;
+      lng: number;
+      dms: string;
+      decimal: string;
+      mapsUrl: string;
+      directionsUrl: string;
+    }
+  > = {
+    asir: {
+      lat: 18.21639,
+      lng: 42.50528,
+      dms: '18°12\'59.0"N 42°30\'19.0"E',
+      decimal: '18.21639, 42.50528',
+      mapsUrl:
+        'https://maps.google.com/?q=18.21639,42.50528',
+      directionsUrl:
+        'https://www.google.com/maps/dir/?api=1&destination=18.21639,42.50528',
+    },
 
-  'al-baha': {
-    lat: 20.01288,
-    lng: 41.46767,
-    dms: '20°00\'46.4"N 41°28\'03.6"E',
-    decimal: '20.01288, 41.46767',
-    mapsUrl:
-      'https://maps.google.com/?q=20.01288,41.46767',
-    directionsUrl:
-      'https://www.google.com/maps/dir/?api=1&destination=20.01288,41.46767',
-  },
+    'al-baha': {
+      lat: 20.01288,
+      lng: 41.46767,
+      dms: '20°00\'46.4"N 41°28\'03.6"E',
+      decimal: '20.01288, 41.46767',
+      mapsUrl:
+        'https://maps.google.com/?q=20.01288,41.46767',
+      directionsUrl:
+        'https://www.google.com/maps/dir/?api=1&destination=20.01288,41.46767',
+    },
 
-  jazan: {
-    lat: 16.92810674784785,
-    lng: 42.613920575129974,
-    dms: '16°55\'41.2"N 42°36\'50.1"E',
-    decimal: '16.92810674784785, 42.613920575129974',
-    mapsUrl:
-      'https://maps.google.com/?q=16.92810674784785,42.613920575129974',
-    directionsUrl:
-      'https://www.google.com/maps/dir/?api=1&destination=16.92810674784785,42.613920575129974',
-  },
-};
-
-const coords =
-  centerCoordinates[center.id] || {
-    lat: 18.21639,
-    lng: 42.50528,
-    dms: '18°12\'59.0"N 42°30\'19.0"E',
-    decimal: '18.21639, 42.50528',
-    mapsUrl: center.contact.mapUrl,
-    directionsUrl:
-      `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
-        center.location
-      )}`,
+    jazan: {
+      lat: 16.92810674784785,
+      lng: 42.613920575129974,
+      dms: '16°55\'41.2"N 42°36\'50.1"E',
+      decimal: '16.92810674784785, 42.613920575129974',
+      mapsUrl:
+        'https://maps.google.com/?q=16.92810674784785,42.613920575129974',
+      directionsUrl:
+        'https://www.google.com/maps/dir/?api=1&destination=16.92810674784785,42.613920575129974',
+    },
   };
+
+  const coords =
+    centerCoordinates[center.id] || {
+      lat: 18.21639,
+      lng: 42.50528,
+      dms: '18°12\'59.0"N 42°30\'19.0"E',
+      decimal: '18.21639, 42.50528',
+      mapsUrl: center.contact.mapUrl,
+      directionsUrl:
+        `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
+          center.location
+        )}`,
+    };
   // ============================================================
   // Copy Coordinates
   // ============================================================
@@ -359,7 +360,7 @@ const coords =
   const facilityPhoto =
     (centerId &&
       siteMedia.facilities[
-        centerId as keyof typeof siteMedia.facilities
+      centerId as keyof typeof siteMedia.facilities
       ]) ||
     siteMedia.aboutSection;
 
@@ -368,8 +369,8 @@ const coords =
   // ============================================================
 
   const galleryItems =
-  centerId === 'al-baha'
-    ? [
+    centerId === 'al-baha'
+      ? [
         {
           img: bahalab1Img,
           title:
@@ -476,8 +477,8 @@ const coords =
                 : 'Vehicle Side Profile',
         },
       ]
-    : centerId === 'jazan'
-      ? [
+      : centerId === 'jazan'
+        ? [
           {
             img: jazanDeployImg,
             title:
@@ -569,7 +570,7 @@ const coords =
                   : 'Microbiological Analysis',
           },
         ]
-      : [
+        : [
           {
             img: labGallery1,
             title:
@@ -878,12 +879,12 @@ const coords =
 
       const arrival_time =
         bookingTime &&
-        /^\d{1,2}:\d{2}$/.test(
-          bookingTime
-        )
+          /^\d{1,2}:\d{2}$/.test(
+            bookingTime
+          )
           ? `${bookingTime}:00`
           : bookingTime ||
-            '09:00:00';
+          '09:00:00';
 
       // --------------------------------------------------------
       // EXACT visitors table payload
@@ -972,7 +973,7 @@ const coords =
         insertResult.error &&
         (
           insertResult.error.code ===
-            'PGRST204' ||
+          'PGRST204' ||
           insertResult.error.message?.includes(
             'schema cache'
           )
@@ -1063,7 +1064,7 @@ const coords =
         );
       }, 1500);
     } catch (
-      err: unknown
+    err: unknown
     ) {
       console.error(
         'Booking submission failed:',
@@ -1072,15 +1073,15 @@ const coords =
 
       const msg =
         err &&
-        typeof err === 'object' &&
-        'message' in err
+          typeof err === 'object' &&
+          'message' in err
           ? String(
-              (
-                err as {
-                  message: string;
-                }
-              ).message
-            )
+            (
+              err as {
+                message: string;
+              }
+            ).message
+          )
           : '';
 
       const errorPrefix =
@@ -1091,8 +1092,7 @@ const coords =
             : 'Booking failed: ';
 
       setBookingError(
-        `${errorPrefix}${
-          msg || 'Unknown error'
+        `${errorPrefix}${msg || 'Unknown error'
         }`
       );
     } finally {
@@ -1140,272 +1140,314 @@ const coords =
 
           </div>
 
-          <div className="relative z-10 max-w-4xl">
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+            {/* NWC Logo + Laboratory Identity — Left Column */}
+            <div className="lg:col-span-4 flex justify-center">
+              <div className="relative p-6 sm:p-8 rounded-3xl bg-white border border-slate-200/80 shadow-lg max-w-sm w-full text-center">
 
-            {/* Accreditation & Institutional Badges */}
+                {/* ISO */}
+                <div className="mb-4">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs sm:text-sm font-bold border border-emerald-200">
+                    ISO/IEC 17025:2017
+                  </span>
+                </div>
 
-            <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 mb-4">
+                {/* Laboratory Name */}
+                <p className="text-slate-800 text-sm sm:text-base font-bold leading-relaxed mb-5">
+                  {lang === 'ar'
+                    ? `المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة ${center.region}`
+                    : lang === 'fr'
+                      ? `Laboratoire central des eaux potables et des services environnementaux — ${center.region}`
+                      : `Central Laboratory for Drinking Water and Environmental Services — ${center.region}`}
+                </p>
 
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-600/30 text-blue-300 text-xs font-semibold border border-blue-400/30 backdrop-blur-md">
+                {/* NWC Logo */}
+                <div className="relative w-40 h-40 sm:w-48 sm:h-48 mx-auto flex items-center justify-center">
 
-                <ShieldCheck className="w-3.5 h-3.5" />
+                  <div className="absolute inset-0 rounded-full border border-blue-700/25" />
+                  <div className="absolute inset-2 rounded-full border border-amber-500/35" />
+                  <div className="absolute inset-4 rounded-full bg-white shadow-sm" />
 
-                {lang === 'ar'
-                  ? 'شركة المياه الوطنية — الإدارة العامة للمختبرات بالقطاع الجنوبي'
-                  : lang === 'fr'
-                    ? 'NWC — Laboratoires des eaux du secteur sud'
-                    : 'NWC — Southern Sector Water Laboratories'}
+                  <div className="relative z-10 w-36 h-36 sm:w-40 sm:h-40 flex items-center justify-center p-2">
+                    <img
+                      src={nwcLogo}
+                      alt="National Water Company"
+                      className="max-h-full max-w-full object-contain"
+                    />
+                  </div>
 
-              </span>
+                </div>
 
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-semibold border border-emerald-400/30 backdrop-blur-md">
-
-                <Award className="w-3.5 h-3.5" />
-
-                {lang === 'ar'
-                  ? 'معتمد وفق المواصفة ISO/IEC 17025:2017'
-                  : lang === 'fr'
-                    ? 'Accrédité selon ISO/IEC 17025:2017'
-                    : 'Accredited ISO/IEC 17025:2017'}
-
-              </span>
-
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white text-xs font-medium border border-white/20 backdrop-blur-md">
-
-                <MapPin className="w-3.5 h-3.5 text-blue-400" />
-
-                {center.region}
-
-              </span>
-
+              </div>
             </div>
+            {/* Right Column — Existing Content */}
+            <div className="lg:col-span-8">
 
-            {/* Official Title */}
+              {/* Accreditation & Institutional Badges */}
 
-            <div className="flex items-start sm:items-center gap-3.5 mb-3">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 mb-4">
 
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 text-white flex items-center justify-center shrink-0 shadow-lg shadow-blue-900/40 border border-blue-400/30 mt-1 sm:mt-0">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-600/30 text-blue-300 text-xs font-semibold border border-blue-400/30 backdrop-blur-md">
 
-                <Building2 className="w-6 h-6" />
+                  <ShieldCheck className="w-3.5 h-3.5" />
 
-              </div>
-
-              <div>
-
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white leading-snug tracking-tight">
-                  {center.name}
-                </h1>
-
-                <p className="text-xs sm:text-sm text-blue-200/90 font-medium mt-0.5">
                   {lang === 'ar'
-                    ? 'خبراء مختصون في أحدث التقنيات والمعايير الدولية في مجال تحليل مياه الشرب والخدمات البيئية'
+                    ? 'شركة المياه الوطنية — الإدارة العامة للمختبرات بالقطاع الجنوبي'
                     : lang === 'fr'
-                      ? "Experts spécialisés dans l'analyse des eaux potables et les services environnementaux"
-                      : 'Specialized experts in international standards for drinking water and environmental testing'}
-                </p>
+                      ? 'NWC — Laboratoires des eaux du secteur sud'
+                      : 'NWC — Southern Sector Water Laboratories'}
 
-              </div>
-
-            </div>
-
-            <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-3xl mb-6 font-normal">
-              {center.about}
-            </p>
-
-            {/* Action Buttons */}
-
-            <div className="flex flex-wrap items-center gap-3">
-
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveTab(
-                    'booking'
-                  );
-
-                  document
-                    .getElementById(
-                      'booking-section'
-                    )
-                    ?.scrollIntoView({
-                      behavior:
-                        'smooth',
-                    });
-                }}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-semibold text-xs sm:text-sm transition-all shadow-md hover:shadow-lg whitespace-nowrap cursor-pointer"
-              >
-                <UserPlus className="w-4 h-4 shrink-0" />
-
-                <span>
-                  {lang === 'ar'
-                    ? 'تسجيل زيارة للمختبر'
-                    : lang === 'fr'
-                      ? 'Réserver une visite'
-                      : 'Book a Lab Visit'}
                 </span>
-              </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveTab(
-                    'location'
-                  );
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-semibold border border-emerald-400/30 backdrop-blur-md">
 
-                  document
-                    .getElementById(
-                      'location-section'
-                    )
-                    ?.scrollIntoView({
-                      behavior:
-                        'smooth',
-                    });
-                }}
-                className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 active:bg-white/25 text-white font-semibold text-xs sm:text-sm transition-all border border-white/25 backdrop-blur-md shadow-xs hover:shadow-md whitespace-nowrap cursor-pointer"
-              >
-                <Navigation className="w-4 h-4 shrink-0 text-blue-300" />
+                  <Award className="w-3.5 h-3.5" />
 
-                <span>
                   {lang === 'ar'
-                    ? 'الموقع على الخريطة'
+                    ? 'معتمد وفق المواصفة ISO/IEC 17025:2017'
                     : lang === 'fr'
-                      ? 'Localisation'
-                      : 'Location on Map'}
+                      ? 'Accrédité selon ISO/IEC 17025:2017'
+                      : 'Accredited ISO/IEC 17025:2017'}
+
                 </span>
-              </button>
 
-              <Link
-                to={`/survey?laboratory=${encodeURIComponent(
-                  center.id
-                )}`}
-                className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 active:bg-white/25 text-white font-semibold text-xs sm:text-sm transition-all border border-white/25 backdrop-blur-md shadow-xs hover:shadow-md whitespace-nowrap"
-              >
-                <FileText className="w-4 h-4 shrink-0 text-emerald-300" />
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white text-xs font-medium border border-white/20 backdrop-blur-md">
 
-                <span>
-                  {lang === 'ar'
-                    ? 'استبيان رضا العملاء'
-                    : lang === 'fr'
-                      ? 'Enquête de satisfaction'
-                      : 'Customer Survey'}
-                </span>
-              </Link>
+                  <MapPin className="w-3.5 h-3.5 text-blue-400" />
 
-              <Link
-                to={`/enquiry?laboratory=${encodeURIComponent(
-                  center.id
-                )}`}
-                className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 active:bg-white/25 text-white font-semibold text-xs sm:text-sm transition-all border border-white/25 backdrop-blur-md shadow-xs hover:shadow-md whitespace-nowrap"
-              >
-                <Send className="w-4 h-4 shrink-0 text-amber-300" />
-
-                <span>
-                  {lang === 'ar'
-                    ? 'إرسال استفسار'
-                    : lang === 'fr'
-                      ? 'Envoyer une demande'
-                      : 'Submit Enquiry'}
-                </span>
-              </Link>
-
-            </div>
-
-            {/* Key Stats */}
-
-            <div className="mt-8 pt-6 border-t border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-4">
-
-              <div className="p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xs">
-
-                <p className="text-lg sm:text-xl font-bold font-mono text-blue-400">
-                  ISO/IEC
-                </p>
-
-                <p className="text-xs font-semibold text-white">
-                  17025:2017
-                </p>
-
-                <p className="text-[11px] text-slate-400 mt-0.5">
-                  {lang === 'ar'
-                    ? 'اعتماد دولي للكفاءة'
-                    : lang === 'fr'
-                      ? 'Accréditation internationale'
-                      : 'International Accreditation'}
-                </p>
-
-              </div>
-
-              <div className="p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xs">
-
-                <p className="text-lg sm:text-xl font-bold font-mono text-emerald-400">
-                  24 / 7
-                </p>
-
-                <p className="text-xs font-semibold text-white">
-                  {lang === 'ar'
-                    ? 'مراقبة مستمرة'
-                    : lang === 'fr'
-                      ? 'Surveillance continue'
-                      : 'Continuous Surveillance'}
-                </p>
-
-                <p className="text-[11px] text-slate-400 mt-0.5">
-                  {lang === 'ar'
-                    ? 'شبكات مياه الشرب'
-                    : lang === 'fr'
-                      ? 'Réseaux d’eau potable'
-                      : 'Drinking Water Networks'}
-                </p>
-
-              </div>
-
-              <div className="p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xs">
-
-                <p className="text-lg sm:text-xl font-bold text-amber-300 truncate">
                   {center.region}
-                </p>
 
-                <p className="text-xs font-semibold text-white">
-                  {lang === 'ar'
-                    ? 'المختبر المركزي'
-                    : lang === 'fr'
-                      ? 'Laboratoire Central'
-                      : 'Central Laboratory'}
-                </p>
-
-                <p className="text-[11px] text-slate-400 mt-0.5">
-                  {lang === 'ar'
-                    ? 'حاضنة المحافظات'
-                    : lang === 'fr'
-                      ? 'Couverture régionale'
-                      : 'Serving Provinces'}
-                </p>
+                </span>
 
               </div>
 
-              <div className="p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xs">
+              {/* Official Title */}
 
-                <p className="text-lg sm:text-xl font-bold font-mono text-sky-400">
-                  SAC
-                </p>
+              <div className="flex items-start sm:items-center gap-3.5 mb-3">
 
-                <p className="text-xs font-semibold text-white">
-                  {lang === 'ar'
-                    ? 'المركز السعودي للاعتماد'
-                    : lang === 'fr'
-                      ? 'Accréditation saoudienne'
-                      : 'Saudi Accreditation'}
-                </p>
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 text-white flex items-center justify-center shrink-0 shadow-lg shadow-blue-900/40 border border-blue-400/30 mt-1 sm:mt-0">
 
-                <p className="text-[11px] text-slate-400 mt-0.5">
-                  {lang === 'ar'
-                    ? 'المعايير الوطنية'
-                    : lang === 'fr'
-                      ? 'Normes nationales'
-                      : 'National Standards'}
-                </p>
+                  <Building2 className="w-6 h-6" />
+
+                </div>
+
+                <div>
+
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white leading-snug tracking-tight">
+                    {center.name}
+                  </h1>
+
+                  <p className="text-xs sm:text-sm text-blue-200/90 font-medium mt-0.5">
+                    {lang === 'ar'
+                      ? 'خبراء مختصون في أحدث التقنيات والمعايير الدولية في مجال تحليل مياه الشرب والخدمات البيئية'
+                      : lang === 'fr'
+                        ? "Experts spécialisés dans l'analyse des eaux potables et les services environnementaux"
+                        : 'Specialized experts in international standards for drinking water and environmental testing'}
+                  </p>
+
+                </div>
 
               </div>
 
+              <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-3xl mb-6 font-normal">
+                {center.about}
+              </p>
+
+              {/* Action Buttons */}
+
+              <div className="flex flex-wrap items-center gap-3">
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab(
+                      'booking'
+                    );
+
+                    document
+                      .getElementById(
+                        'booking-section'
+                      )
+                      ?.scrollIntoView({
+                        behavior:
+                          'smooth',
+                      });
+                  }}
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-semibold text-xs sm:text-sm transition-all shadow-md hover:shadow-lg whitespace-nowrap cursor-pointer"
+                >
+                  <UserPlus className="w-4 h-4 shrink-0" />
+
+                  <span>
+                    {lang === 'ar'
+                      ? 'تسجيل زيارة للمختبر'
+                      : lang === 'fr'
+                        ? 'Réserver une visite'
+                        : 'Book a Lab Visit'}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab(
+                      'location'
+                    );
+
+                    document
+                      .getElementById(
+                        'location-section'
+                      )
+                      ?.scrollIntoView({
+                        behavior:
+                          'smooth',
+                      });
+                  }}
+                  className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 active:bg-white/25 text-white font-semibold text-xs sm:text-sm transition-all border border-white/25 backdrop-blur-md shadow-xs hover:shadow-md whitespace-nowrap cursor-pointer"
+                >
+                  <Navigation className="w-4 h-4 shrink-0 text-blue-300" />
+
+                  <span>
+                    {lang === 'ar'
+                      ? 'الموقع على الخريطة'
+                      : lang === 'fr'
+                        ? 'Localisation'
+                        : 'Location on Map'}
+                  </span>
+                </button>
+
+                <Link
+                  to={`/survey?laboratory=${encodeURIComponent(
+                    center.id
+                  )}`}
+                  className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 active:bg-white/25 text-white font-semibold text-xs sm:text-sm transition-all border border-white/25 backdrop-blur-md shadow-xs hover:shadow-md whitespace-nowrap"
+                >
+                  <FileText className="w-4 h-4 shrink-0 text-emerald-300" />
+
+                  <span>
+                    {lang === 'ar'
+                      ? 'استبيان رضا العملاء'
+                      : lang === 'fr'
+                        ? 'Enquête de satisfaction'
+                        : 'Customer Survey'}
+                  </span>
+                </Link>
+
+                <Link
+                  to={`/enquiry?laboratory=${encodeURIComponent(
+                    center.id
+                  )}`}
+                  className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 active:bg-white/25 text-white font-semibold text-xs sm:text-sm transition-all border border-white/25 backdrop-blur-md shadow-xs hover:shadow-md whitespace-nowrap"
+                >
+                  <Send className="w-4 h-4 shrink-0 text-amber-300" />
+
+                  <span>
+                    {lang === 'ar'
+                      ? 'إرسال استفسار'
+                      : lang === 'fr'
+                        ? 'Envoyer une demande'
+                        : 'Submit Enquiry'}
+                  </span>
+                </Link>
+
+              </div>
+
+              {/* Key Stats */}
+
+              <div className="mt-8 pt-6 border-t border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-4">
+
+                <div className="p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xs">
+
+                  <p className="text-lg sm:text-xl font-bold font-mono text-blue-400">
+                    ISO/IEC
+                  </p>
+
+                  <p className="text-xs font-semibold text-white">
+                    17025:2017
+                  </p>
+
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    {lang === 'ar'
+                      ? 'اعتماد دولي للكفاءة'
+                      : lang === 'fr'
+                        ? 'Accréditation internationale'
+                        : 'International Accreditation'}
+                  </p>
+
+                </div>
+
+                <div className="p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xs">
+
+                  <p className="text-lg sm:text-xl font-bold font-mono text-emerald-400">
+                    24 / 7
+                  </p>
+
+                  <p className="text-xs font-semibold text-white">
+                    {lang === 'ar'
+                      ? 'مراقبة مستمرة'
+                      : lang === 'fr'
+                        ? 'Surveillance continue'
+                        : 'Continuous Surveillance'}
+                  </p>
+
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    {lang === 'ar'
+                      ? 'شبكات مياه الشرب'
+                      : lang === 'fr'
+                        ? 'Réseaux d’eau potable'
+                        : 'Drinking Water Networks'}
+                  </p>
+
+                </div>
+
+                <div className="p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xs">
+
+                  <p className="text-lg sm:text-xl font-bold text-amber-300 truncate">
+                    {center.region}
+                  </p>
+
+                  <p className="text-xs font-semibold text-white">
+                    {lang === 'ar'
+                      ? 'المختبر المركزي'
+                      : lang === 'fr'
+                        ? 'Laboratoire Central'
+                        : 'Central Laboratory'}
+                  </p>
+
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    {lang === 'ar'
+                      ? 'حاضنة المحافظات'
+                      : lang === 'fr'
+                        ? 'Couverture régionale'
+                        : 'Serving Provinces'}
+                  </p>
+
+                </div>
+
+                <div className="p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xs">
+
+                  <p className="text-lg sm:text-xl font-bold font-mono text-sky-400">
+                    SAC
+                  </p>
+
+                  <p className="text-xs font-semibold text-white">
+                    {lang === 'ar'
+                      ? 'المركز السعودي للاعتماد'
+                      : lang === 'fr'
+                        ? 'Accréditation saoudienne'
+                        : 'Saudi Accreditation'}
+                  </p>
+
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    {lang === 'ar'
+                      ? 'المعايير الوطنية'
+                      : lang === 'fr'
+                        ? 'Normes nationales'
+                        : 'National Standards'}
+                  </p>
+
+                </div>
+
+              </div>
             </div>
 
           </div>
@@ -1517,11 +1559,10 @@ const coords =
                     });
                   }
                 }}
-                className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap cursor-pointer ${
-                  isActive
-                    ? 'bg-blue-600 text-white shadow-xs'
-                    : 'bg-white dark:bg-[#172033] text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800'
-                }`}
+                className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap cursor-pointer ${isActive
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-white dark:bg-[#172033] text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800'
+                  }`}
               >
                 <Icon className="w-4 h-4 shrink-0" />
                 <span>
@@ -1891,7 +1932,7 @@ const coords =
           </div>
 
           {center.branches &&
-          center.branches.length > 0 ? (
+            center.branches.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
               {center.branches.map(
@@ -2157,13 +2198,12 @@ const coords =
 
             <iframe
               title={`${center.name} Interactive Google Map`}
-              src={`https://maps.google.com/maps?q=${coords.lat},${coords.lng}&hl=${
-                lang === 'ar'
-                  ? 'ar'
-                  : lang === 'fr'
-                    ? 'fr'
-                    : 'en'
-              }&z=15&output=embed`}
+              src={`https://maps.google.com/maps?q=${coords.lat},${coords.lng}&hl=${lang === 'ar'
+                ? 'ar'
+                : lang === 'fr'
+                  ? 'fr'
+                  : 'en'
+                }&z=15&output=embed`}
               className="w-full h-80 sm:h-96 border-0"
               loading="lazy"
               allowFullScreen
@@ -2984,16 +3024,16 @@ const coords =
                       <p className="text-xs text-blue-700 dark:text-blue-300 mt-0.5">
 
                         {bookingBranch ===
-                        'central'
+                          'central'
                           ? getCentralOptionLabel()
                           : center.branches?.find(
-                              (
-                                branch
-                              ) =>
-                                branch.id ===
-                                bookingBranch
-                            )?.name ||
-                            bookingBranch}
+                            (
+                              branch
+                            ) =>
+                              branch.id ===
+                              bookingBranch
+                          )?.name ||
+                          bookingBranch}
 
                       </p>
 

@@ -97,7 +97,7 @@ export default function NajranLabDetail() {
       fr: 'Laboratoire Central de l\'Eau Potable et des Services Environnementaux de la Région de Najran',
     }[lang],
     shortTitle: {
-      ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بنجران',
+      ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة نجران',
       en: 'Najran Central Drinking Water & Environmental Laboratory',
       fr: 'Laboratoire Central de l\'Eau Potable et de l\'Environnement de Najran',
     }[lang],
@@ -451,25 +451,52 @@ export default function NajranLabDetail() {
             </div>
 
             {/* Logo Emblem Container */}
-            <div className="lg:col-span-4 flex justify-center">
-              <div className="relative p-6 sm:p-8 rounded-3xl bg-white/95 dark:bg-slate-900/90 shadow-2xl ring-1 ring-white/30 backdrop-blur-md max-w-xs w-full text-center">
-                <div className="w-44 h-44 sm:w-52 sm:h-52 mx-auto flex items-center justify-center p-2">
-                  <img
-                    src={najranLogo}
-                    alt={tText.officialTitle}
-                    className="max-h-full max-w-full object-contain"
-                  />
-                </div>
-                <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800">
-                  <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 block uppercase tracking-wider">
-                    {tText.shortTitle}
-                  </span>
-                  <span className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold block mt-0.5">
-                    ISO/IEC 17025:2017
-                  </span>
-                </div>
-              </div>
-            </div>
+<div className="lg:col-span-4 flex justify-center">
+  <div className="relative p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700/80 shadow-lg max-w-xs w-full text-center">
+
+    {/* Institutional circular emblem frame */}
+    <div className="relative w-40 h-40 sm:w-48 sm:h-48 mx-auto flex items-center justify-center">
+
+      {/* Outer institutional ring */}
+      <div className="absolute inset-0 rounded-full border border-blue-700/25 dark:border-blue-400/25" />
+
+      {/* Inner accreditation ring */}
+      <div className="absolute inset-2 rounded-full border border-amber-500/35 dark:border-amber-400/30" />
+
+      {/* Subtle inner white field */}
+      <div className="absolute inset-4 rounded-full bg-white dark:bg-slate-900 shadow-sm" />
+
+      {/* Official NWC Logo */}
+      <div className="relative z-10 w-36 h-36 sm:w-40 sm:h-40 flex items-center justify-center p-2">
+        <img
+          src={najranLogo}
+          alt={tText.officialTitle}
+          className="max-h-full max-w-full object-contain"
+        />
+      </div>
+    </div>
+
+    {/* Institutional identification */}
+    <div className="mt-5 pt-4 border-t border-slate-200 dark:border-slate-700 text-center">
+
+      <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 block tracking-wide leading-snug">
+        {tText.shortTitle}
+      </span>
+
+      {/* Accreditation */}
+      <div className="mt-2 flex items-center justify-center gap-2">
+        <span className="h-px w-5 bg-amber-500/50" />
+
+        <span className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-400 tracking-[0.12em]">
+          ISO/IEC 17025:2017
+        </span>
+
+        <span className="h-px w-5 bg-amber-500/50" />
+      </div>
+
+    </div>
+  </div>
+</div>
           </div>
         </section>
 
