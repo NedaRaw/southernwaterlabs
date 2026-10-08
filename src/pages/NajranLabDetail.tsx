@@ -53,6 +53,15 @@ import labGallery4 from '@/assets/images/Najran-lab-van-04.jpg';
 import labGallery5 from '@/assets/images/Najran-lab-van-05.jpg';
 import labGallery6 from '@/assets/images/Najran-lab-van-06.jpg';
 
+import labChimNajran1 from '@/assets/images/lab-chim-najran1.jpeg';
+import labChimNajran2 from '@/assets/images/lab-chim-najran2.jpeg';
+import labChimNajran3 from '@/assets/images/lab-chim-GC-MSMS-najran3.jpeg';
+import labChimNajran4 from '@/assets/images/lab-chim-IC-881-najran4.jpeg';
+import labChimNajran5 from '@/assets/images/lab-chim-najran5.jpeg';
+import labChimNajran6 from '@/assets/images/lab-chim-IC-904-najran6.jpeg';
+import labChimNajran7 from '@/assets/images/lab-chim-GC-MSMS-najran7.jpeg';
+
+
 export default function NajranLabDetail() {
   const { lang, dir } = useLang();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -689,12 +698,13 @@ export default function NajranLabDetail() {
           {/* Authentic Real Lab Photos Grid */}
           <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             {[
-              { img: labGallery1, label: lang === 'ar' ? 'تجهيزات التحليل الطيفي' : lang === 'fr' ? 'Unité de spectrophotométrie' : 'Spectrophotometry Unit' },
-              { img: labGallery2, label: lang === 'ar' ? 'محطة فحص العكارة والأس الهيدروجيني' : lang === 'fr' ? 'Station de turbidité et pH' : 'Turbidity & pH Station' },
-              { img: labGallery3, label: lang === 'ar' ? 'وحدة الفحص الميكروبيولوجي' : lang === 'fr' ? 'Section microbiologie' : 'Microbiology Section' },
-              { img: labGallery4, label: lang === 'ar' ? 'حواضن ومستلزمات الزراعة البكتيرية' : lang === 'fr' ? 'Incubateurs bactériologiques' : 'Bacterial Incubators' },
-              { img: labGallery5, label: lang === 'ar' ? 'غرفة الكواشف والأوساط المعقمة' : lang === 'fr' ? 'Réactifs et milieux stériles' : 'Reagents & Sterile Media' },
-              { img: labGallery6, label: lang === 'ar' ? 'استلام العينات وسلسلة الحيازة' : lang === 'fr' ? 'Réception des échantillons' : 'Sample Reception Area' },
+              { img: labChimNajran1, label: lang === 'ar' ? 'المختبر الكيميائي' : lang === 'fr' ? 'Laboratoire de chimie' : 'Chemical Laboratory' },
+              { img: labChimNajran2, label: lang === 'ar' ? 'المختبر' : lang === 'fr' ? 'Laboratoire de chimie' : 'Chemical Laboratory' },
+              { img: labChimNajran3, label: lang === 'ar' ? 'جهاز كروماتوغرافيا الغاز مع مطياف الكتلة الترادفي' : lang === 'fr' ? 'GC-MS/MS' : 'GC-MS/MS' },
+              { img: labChimNajran4, label: lang === 'ar' ? 'نظام كروماتوغرافيا الأيونات' : lang === 'fr' ? 'IC-881' : 'IC-881' },
+              { img: labChimNajran5, label: lang === 'ar' ? 'المختبر' : lang === 'fr' ? 'Laboratoire de chimie' : 'Chemical Laboratory' },
+              { img: labChimNajran6, label: lang === 'ar' ? 'نظام كروماتوغرافيا الأيونات' : lang === 'fr' ? 'IC-904' : 'IC-904' },
+              { img: labChimNajran7, label: lang === 'ar' ? 'جهاز كروماتوغرافيا الغاز مع مطياف الكتلة الترادفي' : lang === 'fr' ? 'GC-MS/MS' : 'GC-MS/MS' },
             ].map((item, idx) => (
               <div
                 key={idx}
