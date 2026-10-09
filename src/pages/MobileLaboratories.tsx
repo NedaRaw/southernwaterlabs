@@ -489,15 +489,15 @@ const orderedMobileUnits = MOBILE_LAB_ORDER.flatMap((regionId) =>
                     {
                       id: 'mobile-najran',
                       label: {
-                        ar: 'مختبر نجران (شرورة والوديعة)',
-                        en: 'Najran (Sharurah & Wadiah)',
-                        fr: 'Najran (Sharurah & Wadiah)',
+                        ar: 'مختبر نجران (شرورة)',
+                        en: 'Najran (Sharurah)',
+                        fr: 'Najran (Sharurah)',
                       },
                     },
                     {
                       id: 'mobile-baha',
                       label: {
-                        ar: 'مختبر الباحة (قلوة وتهامة)',
+                        ar: 'مختبر الباحة (قلوة)',
                         en: 'Al-Baha (Qalwah)',
                         fr: 'Al-Baha (Qalwah)',
                       },
