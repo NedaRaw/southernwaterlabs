@@ -57,7 +57,6 @@ import labChimNajran1 from '@/assets/images/lab-chim-najran1.jpeg';
 import labChimNajran2 from '@/assets/images/lab-chim-najran2.jpeg';
 import labChimNajran3 from '@/assets/images/lab-chim-GC-MSMS-najran3.jpeg';
 import labChimNajran4 from '@/assets/images/lab-chim-IC-881-najran4.jpeg';
-import labChimNajran5 from '@/assets/images/lab-chim-najran5.jpeg';
 import labChimNajran6 from '@/assets/images/lab-chim-IC-904-najran6.jpeg';
 import labChimNajran7 from '@/assets/images/lab-chim-GC-MSMS-najran7.jpeg';
 
@@ -738,7 +737,6 @@ export default function NajranLabDetail() {
               { img: labChimNajran2, label: lang === 'ar' ? 'المختبر' : lang === 'fr' ? 'Laboratoire de chimie' : 'Chemical Laboratory' },
               { img: labChimNajran3, label: lang === 'ar' ? 'جهاز كروماتوغرافيا الغاز مع مطياف الكتلة الترادفي' : lang === 'fr' ? 'GC-MS/MS' : 'GC-MS/MS' },
               { img: labChimNajran4, label: lang === 'ar' ? 'نظام كروماتوغرافيا الأيونات' : lang === 'fr' ? 'IC-881' : 'IC-881' },
-              { img: labChimNajran5, label: lang === 'ar' ? 'المختبر' : lang === 'fr' ? 'Laboratoire de chimie' : 'Chemical Laboratory' },
               { img: labChimNajran6, label: lang === 'ar' ? 'نظام كروماتوغرافيا الأيونات' : lang === 'fr' ? 'IC-904' : 'IC-904' },
               { img: labChimNajran7, label: lang === 'ar' ? 'جهاز كروماتوغرافيا الغاز مع مطياف الكتلة الترادفي' : lang === 'fr' ? 'GC-MS/MS' : 'GC-MS/MS' },
             ].map((item, idx) => (
