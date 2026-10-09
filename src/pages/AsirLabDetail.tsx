@@ -25,6 +25,8 @@ import {
   FileText,
   ArrowRight,
   ShieldCheck,
+  Award,
+  Sparkles,
 } from 'lucide-react';
 
 import { useLang } from '@/lib/i18n';
@@ -69,20 +71,27 @@ const labCoordinates = {
 const translations: Record<Lang, Record<string, string>> = {
   ar: {
     officialTitle:
-      'المختبر المركزي للمياه بالمنطقة الجنوبية - منطقة عسير',
+      'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة عسير',
     shortTitle: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة عسير',
+    sectorTitle:
+      'شركة المياه الوطنية — الإدارة العامة للمختبرات والخدمات البيئية بالقطاع الجنوبي',
     institutionalAffiliation:
-      'القطاع الجنوبي للمختبرات البيئية ومختبرات المياه',
+      'شركة المياه الوطنية — الإدارة العامة للمختبرات والخدمات البيئية بالقطاع الجنوبي',
     tagline:
-      'التميز في الفحوصات والتحاليل المخبرية لجودة المياه والبيئة',
+      'خبراء مختصون في أحدث التقنيات والمعايير الدولية في مجال تحليل مياه الشرب والخدمات البيئية',
+    accreditationBadge: 'معتمد وفق المواصفة القياسية ISO/IEC 17025:2017',
+    sacBadge: 'اعتماد المركز السعودي للاعتماد (SAC)',
+    nwcBadge: 'شركة المياه الوطنية — الإدارة العامة للمختبرات بالقطاع الجنوبي',
+    heroDesc:
+      'مختبر مركزي معتمد يقدم خدمات الفحص والتحليل المخبري الدقيق، الرقابة البيئية، وجمع العينات الميدانية لمصادر وشبكات مياه الشرب والخدمات البيئية بمنطقة عسير والمحافظات التابعة وفق أعلى المعايير القياسية.',
     mewaBadge: 'وزارة البيئة والمياه والزراعة',
     centralBadge: 'مختبر مركزي',
     region: 'منطقة عسير',
     hours: 'الأحد – الخميس | 8:30 ص – 3:15 م',
     affiliation: 'القطاع الجنوبي',
 
-    registerVisit: 'تسجيل زيارة',
-    takeSurvey: 'المشاركة في الاستبيان',
+    registerVisit: 'تسجيل زيارة للمختبر',
+    takeSurvey: 'استبيان رضا العملاء',
     sendEnquiry: 'إرسال استفسار',
 
     aboutHeading: 'عن المختبر',
@@ -169,12 +178,19 @@ const translations: Record<Lang, Record<string, string>> = {
 
   en: {
     officialTitle:
-      'Central Water Laboratory - Southern Sector - Asir Region',
-    shortTitle: 'Asir Central Laboratory',
+      'Central Laboratory for Drinking Water and Environmental Services - Asir Region',
+    shortTitle: 'Asir Central Drinking Water & Environmental Laboratory',
+    sectorTitle:
+      'National Water Company — Southern Sector Environmental & Water Laboratories',
     institutionalAffiliation:
-      'Southern Sector Environmental & Water Laboratories',
+      'National Water Company — Southern Sector Environmental & Water Laboratories',
     tagline:
-      'Excellence in laboratory testing and analysis of water and environmental quality',
+      'Specialized experts in the latest technologies and international standards in drinking water and environmental analysis',
+    accreditationBadge: 'Accredited ISO/IEC 17025:2017',
+    sacBadge: 'Saudi Accreditation Center (SAC)',
+    nwcBadge: 'National Water Company — Southern Sector Laboratories Administration',
+    heroDesc:
+      'A Central accredited laboratory providing high-precision testing, certified field sampling, and rigorous quality assurance for drinking water and environmental sources serving Asir and surrounding provinces.',
     mewaBadge: 'Ministry of Environment, Water and Agriculture',
     centralBadge: 'Central Laboratory',
     region: 'Asir Region',
@@ -182,7 +198,7 @@ const translations: Record<Lang, Record<string, string>> = {
     affiliation: 'Southern Sector',
 
     registerVisit: 'Register as a Visitor',
-    takeSurvey: 'Take Survey',
+    takeSurvey: 'Customer Survey',
     sendEnquiry: 'Send Enquiry',
 
     aboutHeading: 'About the Laboratory',
@@ -271,12 +287,19 @@ const translations: Record<Lang, Record<string, string>> = {
 
   fr: {
     officialTitle:
-      'Laboratoire central de l’eau - Secteur Sud - Région d’Asir',
-    shortTitle: 'Laboratoire central d’Asir',
+      'Laboratoire Central de l\'Eau Potable et des Services Environnementaux de la Région d\'Asir',
+    shortTitle: 'Laboratoire Central de l\'Eau Potable et de l\'Environnement d\'Asir',
+    sectorTitle:
+      'Compagnie Nationale des Eaux — Laboratoires Environnementaux du Secteur Sud',
     institutionalAffiliation:
-      'Laboratoires environnementaux et de l’eau du secteur Sud',
+      'Compagnie Nationale des Eaux — Laboratoires Environnementaux du Secteur Sud',
     tagline:
-      'Excellence dans les analyses et les essais de la qualité de l’eau et de l’environnement',
+      'Experts spécialisés dans les technologies de pointe et les normes internationales d\'analyse de l\'eau potable et de l\'environnement',
+    accreditationBadge: 'Accrédité selon la norme ISO/IEC 17025:2017',
+    sacBadge: 'Centre Saoudien d\'Accréditation (SAC)',
+    nwcBadge: 'Compagnie Nationale des Eaux — Administration des Laboratoires du Secteur Sud',
+    heroDesc:
+      'Un laboratoire Central accrédité offrant des analyses de haute précision, des prélèvements conformes et une assurance qualité certifiée pour les eaux potables et l\'environnement dans la région d\'Asir.',
     mewaBadge:
       'Ministère de l’Environnement, de l’Eau et de l’Agriculture',
     centralBadge: 'Laboratoire central',
@@ -284,9 +307,9 @@ const translations: Record<Lang, Record<string, string>> = {
     hours: 'Dimanche – jeudi | 08h30 – 15h15',
     affiliation: 'Secteur Sud',
 
-    registerVisit: 'Enregistrer une visite',
-    takeSurvey: 'Répondre au sondage',
-    sendEnquiry: 'Envoyer une demande',
+    registerVisit: 'Réserver une Visite',
+    takeSurvey: 'Enquête de Satisfaction',
+    sendEnquiry: 'Envoyer une Demande',
 
     aboutHeading: 'À propos du laboratoire',
     aboutSub: 'Laboratoire central de l’eau - Région d’Asir',
@@ -539,147 +562,145 @@ export default function AsirLabDetail() {
   return (
     <div
       dir={dir}
-      className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-white"
+      className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-white pt-16 sm:pt-20 pb-20 transition-colors duration-200"
     >
-      <Breadcrumb
-        items={[
-          {
-            label:
-              currentLang === 'ar'
-                ? 'المختبرات'
-                : currentLang === 'fr'
-                  ? 'Laboratoires'
-                  : 'Laboratories',
-            href: '/laboratories',
-          },
-          {
-            label: t.shortTitle,
-          },
-        ]}
-      />
-      {/* ====================================================== */}
-      {/* HERO */}
-      {/* ====================================================== */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Breadcrumb
+          items={[
+            {
+              label:
+                currentLang === 'ar'
+                  ? 'المختبرات'
+                  : currentLang === 'fr'
+                    ? 'Laboratoires'
+                    : 'Laboratories',
+              to: '/laboratories',
+            },
+            {
+              label: t.shortTitle,
+            },
+          ]}
+        />
 
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-blue-950 to-blue-900">
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-cyan-400 blur-3xl" />
-          <div className="absolute -bottom-40 -right-32 h-[32rem] w-[32rem] rounded-full bg-blue-400 blur-3xl" />
-        </div>
+        {/* 01: Institutional Hero Section */}
+        <section className="mt-4 relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1E3A5F] via-[#152B47] to-[#0A1324] p-6 sm:p-10 lg:p-12 text-white shadow-lg ring-1 ring-white/10">
+          <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-96 h-96 rounded-full bg-teal-500/10 blur-3xl pointer-events-none" />
 
-        <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-20">
-          <div className="grid items-center gap-10 lg:grid-cols-12">
-
-            {/* Hero text */}
-            <div className="text-white lg:col-span-8">
-              <div className="mb-5 flex flex-wrap gap-2">
-                <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold backdrop-blur">
-                  <ShieldCheck className="h-4 w-4" />
-                  {t.iso}
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+            {/* Left/Right Text Content (Child 1: on Right in RTL, on Left in LTR) */}
+            <div className="lg:col-span-8 space-y-4">
+              {/* Badges strip */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-medium border border-emerald-400/25">
+                  <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+                  {t.accreditationBadge}
                 </span>
-
-                <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold backdrop-blur">
-                  <ShieldCheck className="h-4 w-4" />
-                  {t.sac}
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-xs font-medium border border-amber-400/25">
+                  <Award className="w-3.5 h-3.5 shrink-0" />
+                  {t.sacBadge}
                 </span>
-
-                <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold backdrop-blur">
-                  <Building2 className="h-4 w-4" />
-                  {t.centralBadge}
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-200 text-xs font-medium border border-blue-400/25">
+                  <Building2 className="w-3.5 h-3.5 shrink-0" />
+                  {t.nwcBadge}
                 </span>
               </div>
 
-              <p className="mb-3 text-sm font-semibold tracking-wide text-cyan-300">
-                {t.institutionalAffiliation}
+              {/* Main Official Title */}
+              <div>
+                <p className="text-xs sm:text-sm font-semibold text-blue-300 uppercase tracking-wider mb-1">
+                  {t.sectorTitle}
+                </p>
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-white leading-tight">
+                  {t.officialTitle}
+                </h1>
+                <p className="text-xs sm:text-sm font-normal text-emerald-300 mt-2 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  {t.tagline}
+                </p>
+              </div>
+
+              {/* Institutional description */}
+              <p className="text-slate-200/90 text-xs sm:text-sm leading-relaxed max-w-2xl font-normal">
+                {t.heroDesc}
               </p>
 
-              {/* Smaller title */}
-              <h1 className="max-w-3xl text-xl font-black leading-[1.35] sm:text-2xl lg:text-3xl">
-                {t.officialTitle}
-              </h1>
-
-              <p className="mt-5 max-w-3xl text-base leading-8 text-blue-100 sm:text-lg">
-                {t.tagline}
-              </p>
-
-              <div className="mt-8 flex flex-wrap gap-3">
+              {/* Quick Action Buttons */}
+              <div className="pt-2 flex flex-wrap items-center gap-3">
                 <Link
                   to="/register"
-                  className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-blue-900 shadow-lg transition hover:-translate-y-0.5 hover:bg-blue-50"
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-all duration-200 shadow-lg shadow-blue-900/30 hover:shadow-blue-600/40"
                 >
-                  <UserPlus className="h-4 w-4" />
-                  {t.registerVisit}
+                  <UserPlus className="w-4 h-4" />
+                  <span>{t.registerVisit}</span>
                 </Link>
-
                 <Link
                   to="/survey"
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-5 py-3 text-sm font-bold text-white backdrop-blur transition hover:bg-white/20"
+                  className="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium text-sm transition-all duration-200 ring-1 ring-white/20"
                 >
-                  <ClipboardList className="h-4 w-4" />
-                  {t.takeSurvey}
+                  <ClipboardList className="w-4 h-4" />
+                  <span>{t.takeSurvey}</span>
                 </Link>
-
                 <Link
                   to="/enquiry"
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-5 py-3 text-sm font-bold text-white backdrop-blur transition hover:bg-white/20"
+                  className="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium text-sm transition-all duration-200 ring-1 ring-white/20"
                 >
-                  <Send className="h-4 w-4" />
-                  {t.sendEnquiry}
+                  <Send className="w-4 h-4" />
+                  <span>{t.sendEnquiry}</span>
                 </Link>
               </div>
             </div>
 
-            {/* Logo Emblem Container */}
-<div className="flex justify-center lg:col-span-4">
-  <div className="relative w-full max-w-sm rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700/80 p-6 sm:p-8 shadow-lg text-center">
+            {/* Logo Emblem Container (Child 2: on Left in RTL, on Right in LTR) */}
+            <div className="lg:col-span-4 flex justify-center">
+              <div className="relative p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700/80 shadow-lg max-w-xs w-full text-center">
 
-    {/* Institutional circular emblem frame */}
-    <div className="relative mx-auto flex h-48 w-48 items-center justify-center sm:h-52 sm:w-52">
+                {/* Institutional circular emblem frame */}
+                <div className="relative w-40 h-40 sm:w-48 sm:h-48 mx-auto flex items-center justify-center">
 
-      {/* Outer institutional ring */}
-      <div className="absolute inset-0 rounded-full border border-blue-700/25 dark:border-blue-400/25" />
+                  {/* Outer institutional ring */}
+                  <div className="absolute inset-0 rounded-full border border-blue-700/25 dark:border-blue-400/25" />
 
-      {/* Inner accreditation ring */}
-      <div className="absolute inset-2 rounded-full border border-amber-500/35 dark:border-amber-400/30" />
+                  {/* Inner accreditation ring */}
+                  <div className="absolute inset-2 rounded-full border border-amber-500/35 dark:border-amber-400/30" />
 
-      {/* Subtle inner white field */}
-      <div className="absolute inset-4 rounded-full bg-white dark:bg-slate-900 shadow-sm" />
+                  {/* Subtle inner white field */}
+                  <div className="absolute inset-4 rounded-full bg-white dark:bg-slate-900 shadow-sm" />
 
-      {/* Official NWC Logo */}
-      <div className="relative z-10 flex h-44 w-44 items-center justify-center p-2 sm:h-48 sm:w-48">
-        <img
-          src={nwcLogo}
-          alt={t.officialTitle}
-          className="block max-h-full max-w-full object-contain"
-        />
-      </div>
-    </div>
+                  {/* Official NWC Logo */}
+                  <div className="relative z-10 w-36 h-36 sm:w-40 sm:h-40 flex items-center justify-center p-2">
+                    <img
+                      src={nwcLogo}
+                      alt={t.officialTitle}
+                      className="max-h-full max-w-full object-contain"
+                    />
+                  </div>
+                </div>
 
-    {/* Institutional identification */}
-    <div className="mt-5 border-t border-slate-200 pt-4 text-center dark:border-slate-700">
+                {/* Institutional identification */}
+                <div className="mt-5 pt-4 border-t border-slate-200 dark:border-slate-700 text-center">
 
-      <span className="block text-xs font-bold leading-snug tracking-wide text-slate-800 dark:text-slate-200 sm:text-sm">
-        {t.shortTitle}
-      </span>
+                  <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 block tracking-wide leading-snug">
+                    {t.shortTitle}
+                  </span>
 
-      {/* Accreditation */}
-      <div className="mt-2 flex items-center justify-center gap-2">
-        <span className="h-px w-5 bg-amber-500/50" />
+                  {/* Accreditation */}
+                  <div className="mt-2 flex items-center justify-center gap-2">
+                    <span className="h-px w-5 bg-amber-500/50" />
 
-        <span className="text-[10px] font-semibold tracking-[0.12em] text-slate-600 dark:text-slate-400 sm:text-[11px]">
-          ISO/IEC 17025:2017
-        </span>
+                    <span className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-400 tracking-[0.12em]">
+                      ISO/IEC 17025:2017 &bull; SAC
+                    </span>
 
-        <span className="h-px w-5 bg-amber-500/50" />
-      </div>
+                    <span className="h-px w-5 bg-amber-500/50" />
+                  </div>
 
-    </div>
-  </div>
-</div>
-
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
       {/* ====================================================== */}
       {/* KEY INFORMATION STRIP */}
       {/* ====================================================== */}

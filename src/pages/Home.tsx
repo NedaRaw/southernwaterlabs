@@ -302,13 +302,13 @@ export default function Home() {
               <div className="mb-6">
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 text-xs font-medium mb-2">
                   <FlaskConical className="w-3.5 h-3.5" />
-                  <span>{t('services.title')}</span>
+                  <span>{t('home.capabilitiesTitle')}</span>
                 </div>
                 <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 dark:text-white mb-2">
                   {t('home.capabilitiesHeading')}
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-                  {t('services.desc')}
+                  {t('home.capabilitiesDesc')}
                 </p>
               </div>
 

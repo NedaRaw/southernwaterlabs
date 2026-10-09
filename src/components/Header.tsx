@@ -24,6 +24,7 @@ import {
   Moon,
   Truck,
   Sparkles,
+  Network,
 } from 'lucide-react';
 import { useLang, type Lang } from '@/lib/i18n';
 import { useTheme } from '@/lib/theme';
@@ -48,6 +49,24 @@ export default function Header() {
   const [openDropdown, setOpenDropdown] = useState<
     'labs' | 'services' | 'mobile' | 'cs' | 'lang' | null
   >(null);
+
+  // Individual central lab branch dropdown open/close states
+  const [expandedLabs, setExpandedLabs] = useState<Record<string, boolean>>({});
+  const [mobileExpandedLabs, setMobileExpandedLabs] = useState<Record<string, boolean>>({});
+
+  const toggleLabBranches = (labId: string) => {
+    setExpandedLabs((prev) => ({
+      ...prev,
+      [labId]: !prev[labId],
+    }));
+  };
+
+  const toggleMobileLabBranches = (labId: string) => {
+    setMobileExpandedLabs((prev) => ({
+      ...prev,
+      [labId]: !prev[labId],
+    }));
+  };
 
   // Mobile accordion state
   const [mobileExpanded, setMobileExpanded] = useState<{
@@ -101,6 +120,8 @@ export default function Header() {
   useEffect(() => {
     setMenuOpen(false);
     setOpenDropdown(null);
+    setExpandedLabs({});
+    setMobileExpandedLabs({});
   }, [location.pathname, location.hash]);
 
   // ============================================================
@@ -158,6 +179,7 @@ export default function Header() {
         }
         if (openDropdown !== null) {
           setOpenDropdown(null);
+          setExpandedLabs({});
         } else if (menuOpen) {
           setMenuOpen(false);
           mobileToggleRef.current?.focus();
@@ -195,8 +217,8 @@ export default function Header() {
   };
 
   // ============================================================
-  // CENTRAL LABORATORIES
-  // 4 CENTRAL LABS
+  // CENTRAL LABORATORIES & HIERARCHICAL BRANCHES
+  // 4 CENTRAL LABS + ASSOCIATED REGIONAL BRANCHES
   // ============================================================
 
   const labItems = useMemo(
@@ -204,26 +226,156 @@ export default function Header() {
       {
         id: 'asir',
         name: t('nav.asir'),
-        region: lang === 'ar' ? 'منطقة عسير' : lang === 'fr' ? 'Région d’Asir' : 'Asir Region',
+        region:
+          lang === 'ar'
+            ? 'منطقة عسير'
+            : lang === 'fr'
+              ? 'Région d’Asir'
+              : 'Asir Region',
         path: '/laboratories/asir',
+        branches: [
+          {
+            id: 'bisha',
+            name: lang === 'ar' ? 'بيشة' : 'Bisha',
+            fullName:
+              lang === 'ar'
+                ? 'مختبر فرع بيشة'
+                : lang === 'fr'
+                  ? 'Agence de Bisha'
+                  : 'Bisha Branch Laboratory',
+            path: '/laboratories/asir/bisha',
+            desc:
+              lang === 'ar'
+                ? 'محافظة بيشة'
+                : lang === 'fr'
+                  ? 'Gouvernorat de Bisha'
+                  : 'Bisha Governorate',
+          },
+          {
+            id: 'mahayel',
+            name: lang === 'ar' ? 'محايل' : lang === 'fr' ? 'Muhayil' : 'Muhayil',
+            fullName:
+              lang === 'ar'
+                ? 'مختبر فرع محايل'
+                : lang === 'fr'
+                  ? 'Agence de Muhayil'
+                  : 'Muhayil Branch Laboratory',
+            path: '/laboratories/asir/mahayel',
+            desc:
+              lang === 'ar'
+                ? 'محافظة محايل عسير'
+                : lang === 'fr'
+                  ? 'Gouvernorat de Muhayil'
+                  : 'Muhayil Governorate',
+          },
+        ],
       },
       {
         id: 'najran',
         name: t('nav.najran'),
-        region: lang === 'ar' ? 'منطقة نجران' : lang === 'fr' ? 'Région de Najran' : 'Najran Region',
+        region:
+          lang === 'ar'
+            ? 'منطقة نجران'
+            : lang === 'fr'
+              ? 'Région de Najran'
+              : 'Najran Region',
         path: '/laboratories/najran',
+        branches: [
+          {
+            id: 'sharurah',
+            name: lang === 'ar' ? 'شرورة' : 'Sharurah',
+            fullName:
+              lang === 'ar'
+                ? 'مختبر فرع شرورة'
+                : lang === 'fr'
+                  ? 'Agence de Sharurah'
+                  : 'Sharurah Branch Laboratory',
+            path: '/laboratories/najran/sharurah',
+            desc:
+              lang === 'ar'
+                ? 'محافظة شرورة'
+                : lang === 'fr'
+                  ? 'Gouvernorat de Sharurah'
+                  : 'Sharurah Governorate',
+          },
+        ],
       },
       {
         id: 'al-baha',
         name: t('nav.baha'),
-        region: lang === 'ar' ? 'منطقة الباحة' : lang === 'fr' ? 'Région d’Al-Baha' : 'Al-Baha Region',
+        region:
+          lang === 'ar'
+            ? 'منطقة الباحة'
+            : lang === 'fr'
+              ? 'Région d’Al-Baha'
+              : 'Al-Baha Region',
         path: '/laboratories/al-baha',
+        branches: [
+          {
+            id: 'qalwah',
+            name: lang === 'ar' ? 'قلوة' : lang === 'fr' ? 'Qalwa' : 'Qalwa',
+            fullName:
+              lang === 'ar'
+                ? 'مختبر فرع قلوة'
+                : lang === 'fr'
+                  ? 'Agence de Qalwa'
+                  : 'Qalwa Branch Laboratory',
+            path: '/laboratories/al-baha/qalwah',
+            desc:
+              lang === 'ar'
+                ? 'محافظة قلوة وتهامة'
+                : lang === 'fr'
+                  ? 'Gouvernorat de Qalwa'
+                  : 'Qalwa Governorate',
+          },
+        ],
       },
       {
         id: 'jazan',
         name: t('nav.jazan'),
-        region: lang === 'ar' ? 'منطقة جازان' : lang === 'fr' ? 'Région de Jazan' : 'Jazan Region',
+        region:
+          lang === 'ar'
+            ? 'منطقة جازان'
+            : lang === 'fr'
+              ? 'Région de Jazan'
+              : 'Jazan Region',
         path: '/laboratories/jazan',
+        branches: [
+          {
+            id: 'al-darb',
+            name: lang === 'ar' ? 'الدرب' : 'Al-Darb',
+            fullName:
+              lang === 'ar'
+                ? 'مختبر فرع الدرب'
+                : lang === 'fr'
+                  ? 'Agence d’Al-Darb'
+                  : 'Al-Darb Branch Laboratory',
+            path: '/laboratories/jazan/al-darb',
+            desc:
+              lang === 'ar'
+                ? 'محافظة الدرب والساحل'
+                : lang === 'fr'
+                  ? 'Gouvernorat d’Al-Darb'
+                  : 'Al-Darb Governorate',
+          },
+          {
+            id: 'farasan',
+            name: lang === 'ar' ? 'فرسان' : 'Farasan',
+            fullName:
+              lang === 'ar'
+                ? 'مختبر فرع فرسان'
+                : lang === 'fr'
+                  ? 'Agence de Farasan'
+                  : 'Farasan Islands Branch Laboratory',
+            path: '/laboratories/jazan/farasan',
+            desc:
+              lang === 'ar'
+                ? 'جزر وأرخبيل فرسان'
+                : lang === 'fr'
+                  ? 'Archipel de Farasan'
+                  : 'Farasan Archipelago',
+          },
+        ],
       },
     ],
     [lang, t]
@@ -658,19 +810,19 @@ export default function Header() {
                     id="nav-labs-menu"
                     role="menu"
                     aria-labelledby="nav-labs-button"
-                    className="absolute start-0 top-full mt-2 w-72 sm:w-80 z-50 animate-fade-in focus:outline-none pointer-events-auto"
+                    className="absolute start-0 top-full mt-2 w-80 sm:w-[360px] md:w-[390px] max-w-[94vw] z-50 animate-fade-in focus:outline-none pointer-events-auto"
                   >
-                    <div className="bg-white dark:bg-[#151D2F] rounded-2xl shadow-2xl border border-[#E2E8F0] dark:border-[#334155] p-2.5 backdrop-blur-xl">
+                    <div className="bg-white dark:bg-[#151D2F] rounded-2xl shadow-2xl border border-[#E2E8F0] dark:border-[#334155] p-2.5 backdrop-blur-xl max-h-[82vh] overflow-y-auto">
                       {/* Dropdown Header */}
                       <div className="flex items-center justify-between px-2.5 py-2 border-b border-[#E2E8F0] dark:border-[#334155] mb-1.5">
                         <p className="text-[11px] font-bold text-[#1E3A5F] dark:text-[#93C5FD] uppercase tracking-wider flex items-center gap-1.5">
                           <Building2 className="w-3.5 h-3.5" />
                           <span>
                             {lang === 'ar'
-                              ? 'المختبرات المركزية المعتمدة'
+                              ? 'المختبرات المركزية والفروع'
                               : lang === 'fr'
-                                ? 'Laboratoires Centraux Agréés'
-                                : 'Accredited Central Labs'}
+                                ? 'Laboratoires Centraux & Agences'
+                                : 'Central Laboratories & Branches'}
                           </span>
                         </p>
                         <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-[#2563EB] dark:text-[#60A5FA]">
@@ -678,37 +830,170 @@ export default function Header() {
                         </span>
                       </div>
 
-                      <div className="space-y-1" role="none">
-                        {labItems.map((lab) => (
-                          <Link
-                            key={lab.id}
-                            to={lab.path}
-                            role="menuitem"
-                            onClick={() => setOpenDropdown(null)}
-                            className="flex items-center justify-between p-2 rounded-xl hover:bg-blue-50/80 dark:hover:bg-blue-950/40 transition-colors group focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
-                          >
-                            <div className="flex items-center gap-2.5 min-w-0">
-                              <div
-                                className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/50 flex items-center justify-center text-[#2563EB] dark:text-[#60A5FA] group-hover:bg-[#2563EB] group-hover:text-white transition-colors shrink-0"
-                                aria-hidden="true"
-                              >
-                                <Building2 className="w-4 h-4" />
+                      <div className="space-y-1.5" role="none">
+                        {labItems.map((lab) => {
+                          const isExpanded = !!expandedLabs[lab.id];
+                          return (
+                            <div
+                              key={lab.id}
+                              className={`rounded-xl border transition-all overflow-hidden ${
+                                isExpanded
+                                  ? 'bg-blue-50/40 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900/60 shadow-xs'
+                                  : 'bg-transparent hover:bg-slate-50 dark:hover:bg-slate-800/40 border-transparent hover:border-slate-200/80 dark:hover:border-slate-700/60'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between p-1.5 sm:p-2 gap-1.5">
+                                {/* Link to Central Lab */}
+                                <Link
+                                  to={lab.path}
+                                  role="menuitem"
+                                  onClick={() => setOpenDropdown(null)}
+                                  className="flex items-center gap-2.5 min-w-0 flex-1 p-1 rounded-lg hover:bg-blue-50/80 dark:hover:bg-blue-950/40 transition-colors group focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                                  title={`${lab.name} - ${lab.region}`}
+                                >
+                                  <div
+                                    className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/50 flex items-center justify-center text-[#2563EB] dark:text-[#60A5FA] group-hover:bg-[#2563EB] group-hover:text-white transition-colors shrink-0"
+                                    aria-hidden="true"
+                                  >
+                                    <Building2 className="w-4 h-4" />
+                                  </div>
+                                  <div className="min-w-0 text-start">
+                                    <p className="text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC] group-hover:text-[#1D4ED8] dark:group-hover:text-[#93C5FD] truncate">
+                                      {lab.name}
+                                    </p>
+                                    <p className="text-[11px] text-[#64748B] dark:text-[#94A3B8] truncate flex items-center gap-1.5">
+                                      <span>{lab.region}</span>
+                                      <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                                        • {lab.branches.length}{' '}
+                                        {lang === 'ar'
+                                          ? lab.branches.length > 1
+                                            ? 'فروع'
+                                            : 'فرع'
+                                          : lab.branches.length > 1
+                                            ? 'branches'
+                                            : 'branch'}
+                                      </span>
+                                    </p>
+                                  </div>
+                                </Link>
+
+                                {/* Arrow Button that toggles branches */}
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    toggleLabBranches(lab.id);
+                                  }}
+                                  aria-expanded={isExpanded}
+                                  aria-controls={`nav-branches-${lab.id}`}
+                                  aria-label={
+                                    isExpanded
+                                      ? lang === 'ar'
+                                        ? `إغلاق قائمة فروع ${lab.name}`
+                                        : lang === 'fr'
+                                          ? `Masquer les agences de ${lab.name}`
+                                          : `Hide branches of ${lab.name}`
+                                      : lang === 'ar'
+                                        ? `عرض فروع ${lab.name}`
+                                        : lang === 'fr'
+                                          ? `Afficher les agences de ${lab.name}`
+                                          : `Show branches of ${lab.name}`
+                                  }
+                                  title={
+                                    isExpanded
+                                      ? lang === 'ar'
+                                        ? 'إغلاق قائمة الفروع'
+                                        : 'Hide branches'
+                                      : lang === 'ar'
+                                        ? 'عرض الفروع التابعة'
+                                        : 'Show branches'
+                                  }
+                                  className={`p-1.5 sm:p-2 rounded-lg border transition-all cursor-pointer shrink-0 ms-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 flex items-center justify-center ${
+                                    isExpanded
+                                      ? 'bg-[#2563EB] text-white border-[#2563EB] shadow-2xs'
+                                      : 'bg-white dark:bg-[#1E293B] text-slate-500 dark:text-slate-400 hover:text-[#1D4ED8] dark:hover:text-[#93C5FD] hover:bg-blue-50 dark:hover:bg-blue-950/60 border-[#E2E8F0] dark:border-[#334155] shadow-2xs'
+                                  }`}
+                                >
+                                  <ChevronDown
+                                    aria-hidden="true"
+                                    className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                                      isExpanded ? 'rotate-180' : ''
+                                    }`}
+                                  />
+                                </button>
                               </div>
-                              <div className="min-w-0 text-start">
-                                <p className="text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC] group-hover:text-[#1D4ED8] dark:group-hover:text-[#93C5FD] truncate">
-                                  {lab.name}
-                                </p>
-                                <p className="text-[11px] text-[#64748B] dark:text-[#94A3B8] truncate">
-                                  {lab.region}
-                                </p>
-                              </div>
+
+                              {/* Branches Submenu */}
+                              {isExpanded && (
+                                <div
+                                  id={`nav-branches-${lab.id}`}
+                                  role="group"
+                                  aria-label={
+                                    lang === 'ar'
+                                      ? `فروع ${lab.name}`
+                                      : `Branches of ${lab.name}`
+                                  }
+                                  className="px-2.5 pb-2.5 pt-1 space-y-1 bg-white/95 dark:bg-[#111827]/90 border-t border-slate-200/80 dark:border-slate-800 animate-fade-in"
+                                >
+                                  <div className="flex items-center justify-between px-1 py-0.5 text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                                    <span className="flex items-center gap-1">
+                                      <Network className="w-3 h-3 text-[#2563EB] dark:text-[#60A5FA]" />
+                                      <span>
+                                        {lang === 'ar'
+                                          ? 'الفروع التابعة للمختبر:'
+                                          : lang === 'fr'
+                                            ? 'Agences rattachées :'
+                                            : 'Associated branches:'}
+                                      </span>
+                                    </span>
+                                    <Link
+                                      to={lab.path}
+                                      onClick={() => setOpenDropdown(null)}
+                                      className="text-[#2563EB] dark:text-[#60A5FA] hover:underline flex items-center gap-0.5 text-[10px]"
+                                    >
+                                      <span>
+                                        {lang === 'ar'
+                                          ? 'المختبر الرئيسي'
+                                          : lang === 'fr'
+                                            ? 'Labo central'
+                                            : 'Central lab'}
+                                      </span>
+                                      <Arrow className="w-2.5 h-2.5" />
+                                    </Link>
+                                  </div>
+
+                                  <div className="space-y-1" role="none">
+                                    {lab.branches.map((branch) => (
+                                      <Link
+                                        key={branch.id}
+                                        to={branch.path}
+                                        role="menuitem"
+                                        onClick={() => setOpenDropdown(null)}
+                                        className="flex items-center justify-between p-2 rounded-lg bg-slate-50/90 dark:bg-[#1E293B]/80 hover:bg-blue-50 dark:hover:bg-blue-950/60 transition-colors group/branch border border-slate-100 dark:border-slate-800/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                                      >
+                                        <div className="flex items-center gap-2 min-w-0">
+                                          <div className="w-6 h-6 rounded-md bg-blue-100/80 dark:bg-blue-900/40 text-[#2563EB] dark:text-[#60A5FA] flex items-center justify-center shrink-0 group-hover/branch:bg-[#2563EB] group-hover/branch:text-white transition-colors">
+                                            <Network className="w-3 h-3" />
+                                          </div>
+                                          <div className="min-w-0 text-start">
+                                            <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 group-hover/branch:text-[#1D4ED8] dark:group-hover:text-[#93C5FD] truncate">
+                                              {branch.fullName}
+                                            </p>
+                                            <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                                              {branch.desc}
+                                            </p>
+                                          </div>
+                                        </div>
+                                        <Arrow className="w-3 h-3 text-slate-400 group-hover/branch:text-[#1D4ED8] dark:group-hover:text-[#93C5FD] shrink-0 opacity-60 group-hover/branch:opacity-100" />
+                                      </Link>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
                             </div>
-                            <Arrow
-                              aria-hidden="true"
-                              className="w-3.5 h-3.5 text-current opacity-50 group-hover:opacity-100 group-hover:text-[#1D4ED8] dark:group-hover:text-[#93C5FD] shrink-0"
-                            />
-                          </Link>
-                        ))}
+                          );
+                        })}
                       </div>
 
                       <div className="mt-2 pt-2 border-t border-[#E2E8F0] dark:border-[#334155]" role="none">
@@ -1542,20 +1827,111 @@ export default function Header() {
                   </button>
 
                   {mobileExpanded.labs && (
-                    <div className="px-2.5 pb-2.5 pt-1 space-y-1 border-t border-[#E2E8F0] dark:border-[#334155] animate-fade-in">
-                      {labItems.map((lab) => (
-                        <Link
-                          key={lab.id}
-                          to={lab.path}
-                          onClick={() => setMenuOpen(false)}
-                          className="flex items-center justify-between p-2 rounded-lg text-xs font-medium text-[#0F172A] dark:text-[#F8FAFC] hover:bg-white dark:hover:bg-[#1E293B] transition-colors"
-                        >
-                          <span>{lab.name}</span>
-                          <span className="text-[10px] text-[#64748B] dark:text-[#94A3B8]">
-                            {lab.region}
-                          </span>
-                        </Link>
-                      ))}
+                    <div className="px-2 pb-2.5 pt-1 space-y-1.5 border-t border-[#E2E8F0] dark:border-[#334155] animate-fade-in">
+                      {labItems.map((lab) => {
+                        const isExpanded = !!mobileExpandedLabs[lab.id];
+                        return (
+                          <div
+                            key={lab.id}
+                            className={`rounded-lg border transition-all overflow-hidden ${
+                              isExpanded
+                                ? 'bg-blue-50/50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-900/60'
+                                : 'bg-white dark:bg-[#1E293B] border-slate-200/80 dark:border-slate-700/60'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between p-2 gap-1">
+                              <Link
+                                to={lab.path}
+                                onClick={() => setMenuOpen(false)}
+                                className="flex items-center gap-2 min-w-0 flex-1 text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#1D4ED8] dark:hover:text-[#93C5FD]"
+                              >
+                                <Building2 className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#60A5FA] shrink-0" />
+                                <div className="min-w-0 text-start">
+                                  <p className="truncate">{lab.name}</p>
+                                  <p className="text-[10px] text-[#64748B] dark:text-[#94A3B8] font-normal truncate">
+                                    {lab.region} • {lab.branches.length}{' '}
+                                    {lang === 'ar'
+                                      ? lab.branches.length > 1
+                                        ? 'فروع'
+                                        : 'فرع'
+                                      : lab.branches.length > 1
+                                        ? 'branches'
+                                        : 'branch'}
+                                  </p>
+                                </div>
+                              </Link>
+
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  toggleMobileLabBranches(lab.id);
+                                }}
+                                aria-expanded={isExpanded}
+                                aria-label={
+                                  isExpanded
+                                    ? lang === 'ar'
+                                      ? `إغلاق فروع ${lab.name}`
+                                      : `Hide branches of ${lab.name}`
+                                    : lang === 'ar'
+                                      ? `عرض فروع ${lab.name}`
+                                      : `Show branches of ${lab.name}`
+                                }
+                                className={`p-1.5 rounded-md border text-xs transition-colors shrink-0 ms-1 cursor-pointer ${
+                                  isExpanded
+                                    ? 'bg-[#2563EB] text-white border-[#2563EB] shadow-2xs'
+                                    : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+                                }`}
+                              >
+                                <ChevronDown
+                                  className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                                    isExpanded ? 'rotate-180' : ''
+                                  }`}
+                                />
+                              </button>
+                            </div>
+
+                            {isExpanded && (
+                              <div className="px-2 pb-2 pt-1 space-y-1 bg-slate-50/80 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800 animate-fade-in">
+                                <div className="flex items-center justify-between px-1 py-0.5 text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                                  <span className="flex items-center gap-1">
+                                    <Network className="w-3 h-3 text-[#2563EB] dark:text-[#60A5FA]" />
+                                    <span>
+                                      {lang === 'ar'
+                                        ? 'الفروع التابعة:'
+                                        : lang === 'fr'
+                                          ? 'Agences rattachées :'
+                                          : 'Branches:'}
+                                    </span>
+                                  </span>
+                                  <Link
+                                    to={lab.path}
+                                    onClick={() => setMenuOpen(false)}
+                                    className="text-[#2563EB] dark:text-[#60A5FA] hover:underline"
+                                  >
+                                    {lang === 'ar' ? 'المختبر الرئيسي' : 'Central lab'}
+                                  </Link>
+                                </div>
+                                {lab.branches.map((branch) => (
+                                  <Link
+                                    key={branch.id}
+                                    to={branch.path}
+                                    onClick={() => setMenuOpen(false)}
+                                    className="flex items-center justify-between p-2 rounded-md bg-white dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-slate-200 hover:text-[#1D4ED8] dark:hover:text-[#93C5FD] transition-colors border border-slate-100 dark:border-slate-700/60"
+                                  >
+                                    <span className="flex items-center gap-1.5 min-w-0">
+                                      <Network className="w-3 h-3 text-[#2563EB] dark:text-[#60A5FA] shrink-0" />
+                                      <span className="truncate">{branch.fullName}</span>
+                                    </span>
+                                    <Arrow className="w-3 h-3 text-slate-400 shrink-0" />
+                                  </Link>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
 
                       <Link
                         to="/laboratories"

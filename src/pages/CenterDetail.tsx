@@ -15,7 +15,6 @@ import {
   Award,
   CheckCircle2,
   Activity,
-  FileText,
   Sparkles,
   ExternalLink,
   Navigation,
@@ -27,6 +26,7 @@ import {
   Microscope,
   Send,
   CalendarCheck,
+  ClipboardList,
   AlertCircle,
   X,
   Network,
@@ -37,7 +37,6 @@ import { useLang } from '@/lib/i18n';
 import Breadcrumb from '@/components/Breadcrumb';
 import NajranLabDetail from '@/pages/NajranLabDetail';
 import AsirLabDetail from '@/pages/AsirLabDetail';
-import { siteMedia } from '@/data/siteMedia';
 import { supabase } from '@/lib/supabase';
 import {
   getNextVisitorId,
@@ -193,6 +192,94 @@ function GenericCenterDetail() {
   if (!center) {
     return <Navigate to="/laboratories" replace />;
   }
+
+  // ============================================================
+  // Institutional Hero Texts (Uniform Najran Reference Model)
+  // ============================================================
+
+  const heroSectorTitle = {
+    ar: 'شركة المياه الوطنية — الإدارة العامة للمختبرات والخدمات البيئية بالقطاع الجنوبي',
+    en: 'National Water Company — Southern Sector Environmental & Water Laboratories',
+    fr: 'Compagnie Nationale des Eaux — Laboratoires Environnementaux du Secteur Sud',
+  }[lang];
+
+  const heroTagline = {
+    ar: 'خبراء مختصون في أحدث التقنيات والمعايير الدولية في مجال تحليل مياه الشرب والخدمات البيئية',
+    en: 'Specialized experts in the latest technologies and international standards in drinking water and environmental analysis',
+    fr: "Experts spécialisés dans les technologies de pointe et les normes internationales d'analyse de l'eau potable et de l'environnement",
+  }[lang];
+
+  const heroAccreditationBadge = {
+    ar: 'معتمد وفق المواصفة القياسية ISO/IEC 17025:2017',
+    en: 'Accredited ISO/IEC 17025:2017',
+    fr: 'Accrédité selon la norme ISO/IEC 17025:2017',
+  }[lang];
+
+  const heroSacBadge = {
+    ar: 'اعتماد المركز السعودي للاعتماد (SAC)',
+    en: 'Saudi Accreditation Center (SAC)',
+    fr: "Centre Saoudien d'Accréditation (SAC)",
+  }[lang];
+
+  const heroNwcBadge = {
+    ar: 'شركة المياه الوطنية — الإدارة العامة للمختبرات بالقطاع الجنوبي',
+    en: 'National Water Company — Southern Sector Laboratories Administration',
+    fr: 'Compagnie Nationale des Eaux — Administration des Laboratoires du Secteur Sud',
+  }[lang];
+
+  const heroOfficialTitle = center.id === 'al-baha'
+    ? {
+        ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة الباحة',
+        en: 'Central Laboratory for Drinking Water and Environmental Services - Al-Baha Region',
+        fr: "Laboratoire Central de l'Eau Potable et des Services Environnementaux de la Région d'Al-Baha",
+      }[lang]
+    : center.id === 'jazan'
+    ? {
+        ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة جازان',
+        en: 'Central Laboratory for Drinking Water and Environmental Services - Jazan Region',
+        fr: "Laboratoire Central de l'Eau Potable et des Services Environnementaux de la Région de Jazan",
+      }[lang]
+    : {
+        ar: `المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة ${center.region}`,
+        en: `Central Laboratory for Drinking Water and Environmental Services - ${center.region} Region`,
+        fr: `Laboratoire Central de l'Eau Potable et des Services Environnementaux de la Région de ${center.region}`,
+      }[lang];
+
+  const heroShortTitle = center.id === 'al-baha'
+    ? {
+        ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة الباحة',
+        en: 'Al-Baha Central Drinking Water & Environmental Laboratory',
+        fr: "Laboratoire Central de l'Eau Potable et de l'Environnement d'Al-Baha",
+      }[lang]
+    : center.id === 'jazan'
+    ? {
+        ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة جازان',
+        en: 'Jazan Central Drinking Water & Environmental Laboratory',
+        fr: "Laboratoire Central de l'Eau Potable et de l'Environnement de Jazan",
+      }[lang]
+    : {
+        ar: `المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة ${center.region}`,
+        en: `${center.region} Central Drinking Water & Environmental Laboratory`,
+        fr: `Laboratoire Central de l'Eau Potable et de l'Environnement de ${center.region}`,
+      }[lang];
+
+  const heroDesc = center.id === 'al-baha'
+    ? {
+        ar: 'مختبر مركزي معتمد يقدم خدمات الفحص والتحليل المخبري الدقيق، الرقابة البيئية، وجمع العينات الميدانية لمصادر وشبكات مياه الشرب والخدمات البيئية بمنطقة الباحة والمحافظات التابعة وفق أعلى المعايير القياسية.',
+        en: 'A Central accredited laboratory providing high-precision testing, certified field sampling, and rigorous quality assurance for drinking water and environmental sources serving Al-Baha and surrounding provinces.',
+        fr: "Un laboratoire Central accrédité offrant des analyses de haute précision, des prélèvements conformes et une assurance qualité certifiée pour les eaux potables et l'environnement dans la région d'Al-Baha.",
+      }[lang]
+    : center.id === 'jazan'
+    ? {
+        ar: 'مختبر مركزي معتمد يقدم خدمات الفحص والتحليل المخبري الدقيق، الرقابة البيئية، وجمع العينات الميدانية لمصادر وشبكات مياه الشرب والخدمات البيئية بمنطقة جازان والمحافظات التابعة وفق أعلى المعايير القياسية.',
+        en: 'A Central accredited laboratory providing high-precision testing, certified field sampling, and rigorous quality assurance for drinking water and environmental sources serving Jazan and surrounding provinces.',
+        fr: "Un laboratoire Central accrédité offrant des analyses de haute précision, des prélèvements conformes et une assurance qualité certifiée pour les eaux potables et l'environnement dans la région de Jazan.",
+      }[lang]
+    : {
+        ar: `مختبر مركزي معتمد يقدم خدمات الفحص والتحليل المخبري الدقيق، الرقابة البيئية، وجمع العينات الميدانية لمصادر وشبكات مياه الشرب والخدمات البيئية بمنطقة ${center.region} والمحافظات التابعة وفق أعلى المعايير القياسية.`,
+        en: `A Central accredited laboratory providing high-precision testing, certified field sampling, and rigorous quality assurance for drinking water and environmental sources serving ${center.region} and surrounding provinces.`,
+        fr: `Un laboratoire Central accrédité offrant des analyses de haute précision, des prélèvements conformes et une assurance qualité certifiée pour les eaux potables et l'environnement dans la région de ${center.region}.`,
+      }[lang];
 
   // ============================================================
   // Booking Options
@@ -352,17 +439,6 @@ function GenericCenterDetail() {
       );
     }
   };
-
-  // ============================================================
-  // Facility Photo
-  // ============================================================
-
-  const facilityPhoto =
-    (centerId &&
-      siteMedia.facilities[
-      centerId as keyof typeof siteMedia.facilities
-      ]) ||
-    siteMedia.aboutSection;
 
   // ============================================================
   // Gallery
@@ -1121,207 +1197,111 @@ function GenericCenterDetail() {
         />
 
         {/* ======================================================
-            Executive Hero Banner
+            01: Institutional Hero Section (Najran Reference Model)
         ====================================================== */}
-
-        <div className="mt-4 relative overflow-hidden rounded-3xl bg-[#071324] text-white p-6 sm:p-10 lg:p-12 shadow-2xl border border-slate-800">
-
-          <div className="absolute inset-0 z-0">
-
-            <img
-              src={facilityPhoto}
-              alt={center.name}
-              className="w-full h-full object-cover object-center opacity-25 mix-blend-luminosity scale-102 filter brightness-95"
-            />
-
-            <div className="absolute inset-0 bg-gradient-to-r from-[#071324] via-[#071324]/95 sm:via-[#071324]/90 to-[#0e2a4a]/70" />
-
-            <div className="absolute inset-0 bg-gradient-to-t from-[#071324] via-transparent to-transparent" />
-
-          </div>
+        <section className="mt-4 relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1E3A5F] via-[#152B47] to-[#0A1324] p-6 sm:p-10 lg:p-12 text-white shadow-lg ring-1 ring-white/10">
+          <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-96 h-96 rounded-full bg-teal-500/10 blur-3xl pointer-events-none" />
 
           <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
-            {/* NWC Logo + Laboratory Identity — Left Column */}
-            <div className="lg:col-span-4 flex justify-center">
-              <div className="relative w-full max-w-sm rounded-3xl bg-white border border-slate-200/80 p-6 sm:p-8 shadow-lg text-center">
-
-                {/* Institutional circular emblem frame */}
-                <div className="relative mx-auto flex h-48 w-48 items-center justify-center sm:h-52 sm:w-52">
-
-                  {/* Outer institutional ring */}
-                  <div className="absolute inset-0 rounded-full border border-blue-700/25" />
-
-                  {/* Inner accreditation ring */}
-                  <div className="absolute inset-2 rounded-full border border-amber-500/35" />
-
-                  {/* Subtle inner white field */}
-                  <div className="absolute inset-4 rounded-full bg-white shadow-sm" />
-
-                  {/* Official NWC Logo */}
-                  <div className="relative z-10 flex h-44 w-44 items-center justify-center p-2 sm:h-48 sm:w-48">
-                    <img
-                      src={nwcLogo}
-                      alt="National Water Company"
-                      className="block max-h-full max-w-full object-contain"
-                    />
-                  </div>
-
-                </div>
-
-                {/* Institutional identification */}
-                <div className="mt-5 border-t border-slate-200 pt-4 text-center">
-
-                  <span className="block text-xs font-bold leading-snug tracking-wide text-slate-800 sm:text-sm">
-                    {lang === 'ar'
-                      ? `المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة ${center.region}`
-                      : lang === 'fr'
-                        ? `Laboratoire central des eaux potables et des services environnementaux — ${center.region}`
-                        : `Central Laboratory for Drinking Water and Environmental Services — ${center.region}`}
-                  </span>
-
-                  {/* Accreditation */}
-                  <div className="mt-2 flex items-center justify-center gap-2">
-
-                    <span className="h-px w-5 bg-amber-500/50" />
-
-                    <span className="text-[10px] font-semibold tracking-[0.12em] text-slate-600 sm:text-[11px]">
-                      ISO/IEC 17025:2017
-                    </span>
-
-                    <span className="h-px w-5 bg-amber-500/50" />
-
-                  </div>
-
-                </div>
-
-              </div>
-            </div>
-            {/* Right Column — Existing Content */}
-            <div className="lg:col-span-8">
-
-              {/* Accreditation & Institutional Badges */}
-
-              <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 mb-4">
-
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-600/30 text-blue-300 text-xs font-semibold border border-blue-400/30 backdrop-blur-md">
-
-                  <ShieldCheck className="w-3.5 h-3.5" />
-
-                  {lang === 'ar'
-                    ? 'شركة المياه الوطنية — الإدارة العامة للمختبرات بالقطاع الجنوبي'
-                    : lang === 'fr'
-                      ? 'NWC — Laboratoires des eaux du secteur sud'
-                      : 'NWC — Southern Sector Water Laboratories'}
-
+            {/* Left/Right Text Content (Child 1: on Right in RTL, on Left in LTR) */}
+            <div className="lg:col-span-8 space-y-4">
+              {/* Badges strip */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-medium border border-emerald-400/25">
+                  <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+                  {heroAccreditationBadge}
                 </span>
-
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-semibold border border-emerald-400/30 backdrop-blur-md">
-
-                  <Award className="w-3.5 h-3.5" />
-
-                  {lang === 'ar'
-                    ? 'معتمد وفق المواصفة ISO/IEC 17025:2017'
-                    : lang === 'fr'
-                      ? 'Accrédité selon ISO/IEC 17025:2017'
-                      : 'Accredited ISO/IEC 17025:2017'}
-
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-xs font-medium border border-amber-400/25">
+                  <Award className="w-3.5 h-3.5 shrink-0" />
+                  {heroSacBadge}
                 </span>
-
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white text-xs font-medium border border-white/20 backdrop-blur-md">
-
-                  <MapPin className="w-3.5 h-3.5 text-blue-400" />
-
-                  {center.region}
-
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-200 text-xs font-medium border border-blue-400/25">
+                  <Building2 className="w-3.5 h-3.5 shrink-0" />
+                  {heroNwcBadge}
                 </span>
-
               </div>
 
-              {/* Official Title */}
-
-              <div className="flex items-start sm:items-center gap-3.5 mb-3">
-
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 text-white flex items-center justify-center shrink-0 shadow-lg shadow-blue-900/40 border border-blue-400/30 mt-1 sm:mt-0">
-
-                  <Building2 className="w-6 h-6" />
-
-                </div>
-
-                <div>
-
-                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white leading-snug tracking-tight">
-                    {center.name}
-                  </h1>
-
-                  <p className="text-xs sm:text-sm text-blue-200/90 font-medium mt-0.5">
-                    {lang === 'ar'
-                      ? 'خبراء مختصون في أحدث التقنيات والمعايير الدولية في مجال تحليل مياه الشرب والخدمات البيئية'
-                      : lang === 'fr'
-                        ? "Experts spécialisés dans l'analyse des eaux potables et les services environnementaux"
-                        : 'Specialized experts in international standards for drinking water and environmental testing'}
-                  </p>
-
-                </div>
-
+              {/* Main Official Title */}
+              <div>
+                <p className="text-xs sm:text-sm font-semibold text-blue-300 uppercase tracking-wider mb-1">
+                  {heroSectorTitle}
+                </p>
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-white leading-tight">
+                  {heroOfficialTitle}
+                </h1>
+                <p className="text-xs sm:text-sm font-normal text-emerald-300 mt-2 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  {heroTagline}
+                </p>
               </div>
 
-              <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-3xl mb-6 font-normal">
-                {center.about}
+              {/* Institutional description */}
+              <p className="text-slate-200/90 text-xs sm:text-sm leading-relaxed max-w-2xl font-normal">
+                {heroDesc}
               </p>
 
-              {/* Action Buttons */}
-
-              <div className="flex flex-wrap items-center gap-3">
-
+              {/* Quick Action Buttons */}
+              <div className="pt-2 flex flex-wrap items-center gap-3">
                 <button
                   type="button"
                   onClick={() => {
-                    setActiveTab(
-                      'booking'
-                    );
-
+                    setActiveTab('booking');
                     document
-                      .getElementById(
-                        'booking-section'
-                      )
-                      ?.scrollIntoView({
-                        behavior:
-                          'smooth',
-                      });
+                      .getElementById('booking-section')
+                      ?.scrollIntoView({ behavior: 'smooth' });
                   }}
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-semibold text-xs sm:text-sm transition-all shadow-md hover:shadow-lg whitespace-nowrap cursor-pointer"
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-all duration-200 shadow-lg shadow-blue-900/30 hover:shadow-blue-600/40 cursor-pointer"
                 >
                   <UserPlus className="w-4 h-4 shrink-0" />
-
                   <span>
                     {lang === 'ar'
                       ? 'تسجيل زيارة للمختبر'
                       : lang === 'fr'
-                        ? 'Réserver une visite'
-                        : 'Book a Lab Visit'}
+                        ? 'Réserver une Visite'
+                        : 'Register as a Visitor'}
                   </span>
                 </button>
+
+                <Link
+                  to={`/survey?laboratory=${encodeURIComponent(center.id)}`}
+                  className="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium text-sm transition-all duration-200 ring-1 ring-white/20"
+                >
+                  <ClipboardList className="w-4 h-4 shrink-0" />
+                  <span>
+                    {lang === 'ar'
+                      ? 'استبيان رضا العملاء'
+                      : lang === 'fr'
+                        ? 'Enquête de Satisfaction'
+                        : 'Customer Survey'}
+                  </span>
+                </Link>
+
+                <Link
+                  to={`/enquiry?laboratory=${encodeURIComponent(center.id)}`}
+                  className="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium text-sm transition-all duration-200 ring-1 ring-white/20"
+                >
+                  <Send className="w-4 h-4 shrink-0" />
+                  <span>
+                    {lang === 'ar'
+                      ? 'إرسال استفسار'
+                      : lang === 'fr'
+                        ? 'Envoyer une Demande'
+                        : 'Send Enquiry'}
+                  </span>
+                </Link>
 
                 <button
                   type="button"
                   onClick={() => {
-                    setActiveTab(
-                      'location'
-                    );
-
+                    setActiveTab('location');
                     document
-                      .getElementById(
-                        'location-section'
-                      )
-                      ?.scrollIntoView({
-                        behavior:
-                          'smooth',
-                      });
+                      .getElementById('location-section')
+                      ?.scrollIntoView({ behavior: 'smooth' });
                   }}
-                  className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 active:bg-white/25 text-white font-semibold text-xs sm:text-sm transition-all border border-white/25 backdrop-blur-md shadow-xs hover:shadow-md whitespace-nowrap cursor-pointer"
+                  className="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium text-sm transition-all duration-200 ring-1 ring-white/20 cursor-pointer"
                 >
                   <Navigation className="w-4 h-4 shrink-0 text-blue-300" />
-
                   <span>
                     {lang === 'ar'
                       ? 'الموقع على الخريطة'
@@ -1330,144 +1310,117 @@ function GenericCenterDetail() {
                         : 'Location on Map'}
                   </span>
                 </button>
-
-                <Link
-                  to={`/survey?laboratory=${encodeURIComponent(
-                    center.id
-                  )}`}
-                  className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 active:bg-white/25 text-white font-semibold text-xs sm:text-sm transition-all border border-white/25 backdrop-blur-md shadow-xs hover:shadow-md whitespace-nowrap"
-                >
-                  <FileText className="w-4 h-4 shrink-0 text-emerald-300" />
-
-                  <span>
-                    {lang === 'ar'
-                      ? 'استبيان رضا العملاء'
-                      : lang === 'fr'
-                        ? 'Enquête de satisfaction'
-                        : 'Customer Survey'}
-                  </span>
-                </Link>
-
-                <Link
-                  to={`/enquiry?laboratory=${encodeURIComponent(
-                    center.id
-                  )}`}
-                  className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 active:bg-white/25 text-white font-semibold text-xs sm:text-sm transition-all border border-white/25 backdrop-blur-md shadow-xs hover:shadow-md whitespace-nowrap"
-                >
-                  <Send className="w-4 h-4 shrink-0 text-amber-300" />
-
-                  <span>
-                    {lang === 'ar'
-                      ? 'إرسال استفسار'
-                      : lang === 'fr'
-                        ? 'Envoyer une demande'
-                        : 'Submit Enquiry'}
-                  </span>
-                </Link>
-
-              </div>
-
-              {/* Key Stats */}
-
-              <div className="mt-8 pt-6 border-t border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-4">
-
-                <div className="p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xs">
-
-                  <p className="text-lg sm:text-xl font-bold font-mono text-blue-400">
-                    ISO/IEC
-                  </p>
-
-                  <p className="text-xs font-semibold text-white">
-                    17025:2017
-                  </p>
-
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    {lang === 'ar'
-                      ? 'اعتماد دولي للكفاءة'
-                      : lang === 'fr'
-                        ? 'Accréditation internationale'
-                        : 'International Accreditation'}
-                  </p>
-
-                </div>
-
-                <div className="p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xs">
-
-                  <p className="text-lg sm:text-xl font-bold font-mono text-emerald-400">
-                    24 / 7
-                  </p>
-
-                  <p className="text-xs font-semibold text-white">
-                    {lang === 'ar'
-                      ? 'مراقبة مستمرة'
-                      : lang === 'fr'
-                        ? 'Surveillance continue'
-                        : 'Continuous Surveillance'}
-                  </p>
-
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    {lang === 'ar'
-                      ? 'شبكات مياه الشرب'
-                      : lang === 'fr'
-                        ? 'Réseaux d’eau potable'
-                        : 'Drinking Water Networks'}
-                  </p>
-
-                </div>
-
-                <div className="p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xs">
-
-                  <p className="text-lg sm:text-xl font-bold text-amber-300 truncate">
-                    {center.region}
-                  </p>
-
-                  <p className="text-xs font-semibold text-white">
-                    {lang === 'ar'
-                      ? 'المختبر المركزي'
-                      : lang === 'fr'
-                        ? 'Laboratoire Central'
-                        : 'Central Laboratory'}
-                  </p>
-
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    {lang === 'ar'
-                      ? 'حاضنة المحافظات'
-                      : lang === 'fr'
-                        ? 'Couverture régionale'
-                        : 'Serving Provinces'}
-                  </p>
-
-                </div>
-
-                <div className="p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xs">
-
-                  <p className="text-lg sm:text-xl font-bold font-mono text-sky-400">
-                    SAC
-                  </p>
-
-                  <p className="text-xs font-semibold text-white">
-                    {lang === 'ar'
-                      ? 'المركز السعودي للاعتماد'
-                      : lang === 'fr'
-                        ? 'Accréditation saoudienne'
-                        : 'Saudi Accreditation'}
-                  </p>
-
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    {lang === 'ar'
-                      ? 'المعايير الوطنية'
-                      : lang === 'fr'
-                        ? 'Normes nationales'
-                        : 'National Standards'}
-                  </p>
-
-                </div>
-
               </div>
             </div>
 
+            {/* Logo Emblem Container (Child 2: on Left in RTL, on Right in LTR) */}
+            <div className="lg:col-span-4 flex justify-center">
+              <div className="relative p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700/80 shadow-lg max-w-xs w-full text-center">
+
+                {/* Institutional circular emblem frame */}
+                <div className="relative w-40 h-40 sm:w-48 sm:h-48 mx-auto flex items-center justify-center">
+
+                  {/* Outer institutional ring */}
+                  <div className="absolute inset-0 rounded-full border border-blue-700/25 dark:border-blue-400/25" />
+
+                  {/* Inner accreditation ring */}
+                  <div className="absolute inset-2 rounded-full border border-amber-500/35 dark:border-amber-400/30" />
+
+                  {/* Subtle inner white field */}
+                  <div className="absolute inset-4 rounded-full bg-white dark:bg-slate-900 shadow-sm" />
+
+                  {/* Official NWC Logo */}
+                  <div className="relative z-10 w-36 h-36 sm:w-40 sm:h-40 flex items-center justify-center p-2">
+                    <img
+                      src={nwcLogo}
+                      alt={heroOfficialTitle}
+                      className="max-h-full max-w-full object-contain"
+                    />
+                  </div>
+                </div>
+
+                {/* Institutional identification */}
+                <div className="mt-5 pt-4 border-t border-slate-200 dark:border-slate-700 text-center">
+
+                  <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 block tracking-wide leading-snug">
+                    {heroShortTitle}
+                  </span>
+
+                  {/* Accreditation */}
+                  <div className="mt-2 flex items-center justify-center gap-2">
+                    <span className="h-px w-5 bg-amber-500/50" />
+
+                    <span className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-400 tracking-[0.12em]">
+                      ISO/IEC 17025:2017 &bull; SAC
+                    </span>
+
+                    <span className="h-px w-5 bg-amber-500/50" />
+                  </div>
+
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        </section>
+
+        {/* 02: Key Accreditation & Verification Strip (Uniform Najran Style) */}
+        <section className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+          <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#172033] border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white leading-tight">
+                ISO/IEC <span className="text-blue-600 dark:text-blue-400">17025:2017</span>
+              </div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">
+                {lang === 'ar' ? 'اعتماد دولي للكفاءة الفنية' : lang === 'fr' ? 'Accréditation internationale' : 'International Accreditation'}
+              </div>
+            </div>
+          </div>
+
+          <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#172033] border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-xl bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0">
+              <Clock className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white leading-tight">
+                24 / 7 <span className="text-teal-600 dark:text-teal-400">{lang === 'ar' ? 'مراقبة مستمرة' : lang === 'fr' ? 'Surveillance continue' : 'Continuous Monitoring'}</span>
+              </div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">
+                {lang === 'ar' ? 'فحص دوري وشبكات مياه الشرب' : lang === 'fr' ? 'Réseaux d\'eau potable' : 'Drinking Water Networks'}
+              </div>
+            </div>
+          </div>
+
+          <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#172033] border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+              <Building2 className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white leading-tight">
+                {center.region} <span className="text-blue-600 dark:text-blue-400">{lang === 'ar' ? 'المختبر المركزي' : lang === 'fr' ? 'Laboratoire Central' : 'Central Laboratory'}</span>
+              </div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">
+                {lang === 'ar' ? 'يغطي المنطقة والمحافظات' : lang === 'fr' ? 'Couvre la région et provinces' : 'Serving Region & Provinces'}
+              </div>
+            </div>
+          </div>
+
+          <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#172033] border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+              <Award className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white leading-tight">
+                SAC <span className="text-amber-600 dark:text-amber-400">{lang === 'ar' ? 'المركز السعودي للاعتماد' : lang === 'fr' ? 'Centre Saoudien' : 'Saudi Center'}</span>
+              </div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">
+                {lang === 'ar' ? 'مطابقة المعايير الوطنية القياسية' : lang === 'fr' ? 'Conformité aux normes' : 'National Standards Compliance'}
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* ======================================================
             Quick Navigation Tabs

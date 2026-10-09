@@ -116,6 +116,11 @@ export default function NajranLabDetail() {
       en: 'Accredited ISO/IEC 17025:2017',
       fr: 'Accrédité selon la norme ISO/IEC 17025:2017',
     }[lang],
+    sacBadge: {
+      ar: 'اعتماد المركز السعودي للاعتماد (SAC)',
+      en: 'Saudi Accreditation Center (SAC)',
+      fr: 'Centre Saoudien d\'Accréditation (SAC)',
+    }[lang],
     nwcBadge: {
       ar: 'شركة المياه الوطنية — الإدارة العامة للمختبرات بالقطاع الجنوبي',
       en: 'National Water Company — Southern Sector Laboratories Administration',
@@ -399,6 +404,10 @@ export default function NajranLabDetail() {
                   <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
                   {tText.accreditationBadge}
                 </span>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-xs font-medium border border-amber-400/25">
+                  <Award className="w-3.5 h-3.5 shrink-0" />
+                  {tText.sacBadge}
+                </span>
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-200 text-xs font-medium border border-blue-400/25">
                   <Building2 className="w-3.5 h-3.5 shrink-0" />
                   {tText.nwcBadge}
@@ -488,7 +497,7 @@ export default function NajranLabDetail() {
         <span className="h-px w-5 bg-amber-500/50" />
 
         <span className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-400 tracking-[0.12em]">
-          ISO/IEC 17025:2017
+          ISO/IEC 17025:2017 &bull; SAC
         </span>
 
         <span className="h-px w-5 bg-amber-500/50" />

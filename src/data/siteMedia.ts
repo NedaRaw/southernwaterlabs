@@ -91,6 +91,7 @@ export const siteMedia = {
   facilities: {
     asir: labAsirImg,
     najran: labNajranImg1,
+    najranBuilding: labNajranImg,
     jazan: labJazanImg,
     baha: labBahaImg,
   },

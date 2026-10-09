@@ -1320,9 +1320,15 @@ export function getBranchById(
   lang: Lang = 'ar'
 ): Branch | undefined {
   const center = getCenterById(centerId, lang);
+  if (!center) return undefined;
 
-  return center?.branches.find(
-    (b) => b.id === branchId
+  const normalized = branchId.toLowerCase().replace(/_/g, '-');
+  return center.branches.find(
+    (b) =>
+      b.id === branchId ||
+      (b.id === 'mahayel' && (normalized === 'muhayil' || normalized === 'muhayel' || normalized === 'mahayil')) ||
+      (b.id === 'qalwah' && (normalized === 'qalwa' || normalized === 'qilwah')) ||
+      (b.id === 'al-darb' && normalized === 'aldarb')
   );
 }
 

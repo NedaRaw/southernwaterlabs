@@ -556,15 +556,38 @@ export const translations: Record<string, { ar: string; en: string; fr: string }
 
   // Home Specific Banners
   'home.standardsBadge': { ar: 'معايير الجودة ومراقبة مياه الشرب', en: 'Quality Standards & Potable Water Assurance', fr: 'Normes de Qualité et Garantie de l\'Eau Potable' },
+  'home.standardsBannerBadge': { ar: 'معايير الجودة ومراقبة مياه الشرب', en: 'Quality Standards & Potable Water Assurance', fr: 'Normes de Qualité et Garantie de l\'Eau Potable' },
   'home.standardsTitle': { ar: 'منظومة مخبرية متطورة لضمان أمان وجودة مياه الشرب', en: 'Advanced Laboratory Infrastructure for Potable Water Assurance', fr: 'Infrastructure de Laboratoire de Pointe pour la Garantie de l\'Eau Potable' },
+  'home.standardsBannerTitle': { ar: 'منظومة مخبرية متطورة لضمان أمان وجودة مياه الشرب', en: 'Advanced Laboratory Infrastructure for Potable Water Assurance', fr: 'Infrastructure de Laboratoire de Pointe pour la Garantie de l\'Eau Potable' },
   'home.standardsDesc': {
     ar: 'رصد مستمر للشبكات ومصادر الإمداد بمحطات التحلية والسدود والآبار، بإشراف كوادر كيميائية وبيولوجية متخصصة وأسطول مختبرات متنقلة جاهزة للتدخل السريع.',
     en: 'Continuous surveillance of networks, purification plants, dams, and well reservoirs with specialized analysts and mobile field testing units.',
     fr: 'Surveillance continue des réseaux, usines de traitement, barrages et forages avec des analystes spécialisés et une flotte mobile prête à intervenir.',
   },
+  'home.standardsBannerDesc': {
+    ar: 'رصد مستمر للشبكات ومصادر الإمداد بمحطات التحلية والسدود والآبار، بإشراف كوادر كيميائية وبيولوجية متخصصة وأسطول مختبرات متنقلة جاهزة للتدخل السريع.',
+    en: 'Continuous surveillance of networks, purification plants, dams, and well reservoirs with specialized analysts and mobile field testing units.',
+    fr: 'Surveillance continue des réseaux, usines de traitement, barrages et forages avec des analystes spécialisés et une flotte mobile prête à intervenir.',
+  },
+  'home.capabilitiesHeading': {
+    ar: 'خدمات الفحص والتحليل المخبري',
+    en: 'Laboratory Testing & Analysis Services',
+    fr: 'Services d\'Analyses et d\'Essais en Laboratoire',
+  },
+  'home.capabilitiesDesc': {
+    ar: 'نقدم حزمة شاملة من الفحوصات والتحاليل المعتمدة لمراقبة جودة مياه الشرب والمياه المعالجة والسطحية والجوفية.',
+    en: 'We offer a comprehensive suite of accredited testing services to monitor drinking, treated, surface, and groundwater quality.',
+    fr: 'Nous proposons une gamme complète d\'analyses accréditées pour surveiller l\'eau potable, traitée, de surface et souterraine.',
+  },
   'home.capabilitiesTitle': { ar: 'القدرات التحليلية والخدمات المخبرية المتخصصة', en: 'Analytical Capabilities & Specialized Laboratory Services', fr: 'Capacités Analytiques et Services de Laboratoire Spécialisés' },
   'home.precisionTesting': { ar: 'فحوصات كيميائية وميكروبيولوجية دقيقة', en: 'Precision Chemical & Microbiological Analyses', fr: 'Analyses Chimiques et Microbiologiques de Précision' },
+  'home.precisionAnalyses': { ar: 'فحوصات كيميائية وميكروبيولوجية دقيقة', en: 'Precision Chemical & Microbiological Analyses', fr: 'Analyses Chimiques et Microbiologiques de Précision' },
   'home.standardsCompliance': {
+    ar: 'مراقبة مطابقة مياه الشرب لأعلى المواصفات القياسية المعتمدة بالمملكة',
+    en: 'Monitoring compliance of potable water against certified Saudi and WHO standards',
+    fr: 'Contrôle de la conformité de l\'eau potable aux normes saoudiennes certifiées et de l\'OMS',
+  },
+  'home.complianceSaudi': {
     ar: 'مراقبة مطابقة مياه الشرب لأعلى المواصفات القياسية المعتمدة بالمملكة',
     en: 'Monitoring compliance of potable water against certified Saudi and WHO standards',
     fr: 'Contrôle de la conformité de l\'eau potable aux normes saoudiennes certifiées et de l\'OMS',
@@ -574,6 +597,22 @@ export const translations: Record<string, { ar: string; en: string; fr: string }
     en: 'Accredited Microbiological & Chemical Testing under International Quality Standards',
     fr: 'Analyses microbiologiques et chimiques accréditées selon les normes internationales',
   },
+  'home.isoBannerSub': {
+    ar: 'فحوصات ميكروبيولوجية وكيميائية معتمدة وفق أرقى المعايير العالمية',
+    en: 'Accredited Microbiological & Chemical Testing under International Quality Standards',
+    fr: 'Analyses microbiologiques et chimiques accréditées selon les normes internationales',
+  },
+
+  // Search Modal
+  'search.title': { ar: 'البحث في المنظومة المخبرية', en: 'Search Laboratory System', fr: 'Rechercher dans le Réseau de Laboratoires' },
+  'search.placeholder': { ar: 'ابحث عن مختبر، فحص، فرع، خدمة...', en: 'Search labs, tests, branches, services...', fr: 'Rechercher un labo, test, agence, service...' },
+  'search.close': { ar: 'إغلاق', en: 'Close', fr: 'Fermer' },
+  'search.popular': { ar: 'عمليات البحث الشائعة', en: 'Popular Searches', fr: 'Recherches Fréquentes' },
+  'search.noResults': { ar: 'لم يتم العثور على نتائج', en: 'No results found', fr: 'Aucun résultat trouvé' },
+  'search.tryDifferent': { ar: 'يرجى تجربة كلمات بحث أخرى أو تغيير العبارة', en: 'Try searching with different terms', fr: 'Essayez avec d\'autres termes' },
+  'search.results': { ar: 'النتائج', en: 'Results', fr: 'Résultats' },
+  'search.navigate': { ar: 'للتنقل', en: 'Navigate', fr: 'Naviguer' },
+  'search.select': { ar: 'للاختيار', en: 'Select', fr: 'Sélectionner' },
 
   // Misc
   'misc.loading': { ar: 'جاري تحميل البيانات...', en: 'Loading data...', fr: 'Chargement des données...' },
