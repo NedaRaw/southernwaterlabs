@@ -9,8 +9,8 @@ export interface LocalizedString {
 }
 
 export const contactConfig = {
-  phone: '+966 17 222 0000',
-  email: 'info@southernwaterlabs.gov.sa',
+  phone: '+966 56 898 2662',
+  email: 'moalsaed.c@new.com.sa',
   address: 'المملكة العربية السعودية - القطاع الجنوبي',
   workingHours: 'الأحد - الخميس: 7:30 صباحاً - 2:30 مساءً',
   addressI18n: {
