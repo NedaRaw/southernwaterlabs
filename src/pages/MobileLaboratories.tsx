@@ -29,6 +29,8 @@ import Breadcrumb from '@/components/Breadcrumb';
 import { ALL_MOBILE_UNITS } from '@/data/mobileUnits';
 import { mobileLaboratoriesData } from '@/data/mobileLaboratoriesGallery';
 import { MobileLabAlbum } from '@/components/MobileLabAlbum';
+import { siteMedia } from '@/data/siteMedia';
+import nwcLogo from '@/assets/images/nwc-logo.png';
 
 /* -------------------------------------------------------------------------- */
 /* Operational Workflow Steps                                                 */
@@ -217,7 +219,7 @@ const LAB_SECTIONS_KEYS: ('asir' | 'najran' | 'alBaha' | 'jazan')[] = [
 /* Component Implementation                                                   */
 /* -------------------------------------------------------------------------- */
 export default function MobileLaboratories() {
-  const { lang, t } = useLang();
+  const { lang, t, dir } = useLang();
   const location = useLocation();
   const [fleetRegionFilter, setFleetRegionFilter] = useState<'all' | 'asir' | 'baha' | 'jazan' | 'najran'>('all');
   const [detailRegionFilter, setDetailRegionFilter] = useState<'all' | 'asir' | 'baha' | 'jazan' | 'najran'>('all');
@@ -352,7 +354,10 @@ const orderedMobileUnits = MOBILE_LAB_ORDER.flatMap((regionId) =>
 } as const;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] text-slate-900 dark:text-slate-100 transition-colors">
+    <div
+      dir={dir}
+      className="min-h-screen bg-[#F8FAFC] dark:bg-[#0B1220] text-slate-900 dark:text-slate-100 transition-colors duration-200"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <Breadcrumb
           items={[
@@ -368,126 +373,306 @@ const orderedMobileUnits = MOBILE_LAB_ORDER.flatMap((regionId) =>
         />
 
         {/* ============================================================
-            1. HERO BANNER
+            1. INSTITUTIONAL HERO SECTION (MATCHING NAJRAN, ASIR, JAZAN, AL-BAHA, ABOUT)
         ============================================================= */}
-        <section className="mt-6 mb-16 relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 border border-slate-800 text-white shadow-xl p-8 sm:p-12">
-          <div className="absolute top-0 end-0 -mt-16 -me-16 w-80 h-80 rounded-full bg-blue-600/15 blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 start-0 -mb-16 -ms-16 w-80 h-80 rounded-full bg-cyan-600/10 blur-3xl pointer-events-none" />
+        <section className="mt-4 mb-8 relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1E3A5F] via-[#152B47] to-[#0A1324] p-6 sm:p-10 lg:p-12 text-white shadow-lg ring-1 ring-white/10">
+          {/* Ambient blurred glow circles */}
+          <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-96 h-96 rounded-full bg-teal-500/10 blur-3xl pointer-events-none" />
 
-          <div className="relative z-10 max-w-4xl">
-            {/* Live Status Pill */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-600/30 border border-blue-400/50 text-white text-xs font-bold mb-4 backdrop-blur-md shadow-md">
-              <Truck className="w-4 h-4 text-blue-300" />
-              <span>
-                {lang === 'ar'
-                  ? 'الوحدات المتنقلة للمختبرات المركزية لمياه الشرب والخدمات البيئية بالقطاع الجنوبي'
-                  : lang === 'fr'
-                    ? 'Unités Mobiles des Laboratoires Centraux d’Eau Potable et de Services Environnementaux'
-                    : 'Mobile Laboratory Units of the Central Laboratories for Drinking Water and Environmental Services'}
-              </span>
-            </div>
+          {/* Background image overlay */}
+          <div className="absolute inset-0 z-0 pointer-events-none">
+            <img
+              src={siteMedia.waterlabCar || siteMedia.waterTestingPan}
+              alt="Mobile Water Laboratories"
+              className="w-full h-full object-cover object-center opacity-20 mix-blend-luminosity scale-102"
+            />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#1E3A5F]/95 via-[#152B47]/90 to-[#0A1324]/95" />
+          </div>
 
-            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight text-white mb-4">
-              {lang === 'ar'
-                ? 'الوحدات المتنقلة للمختبرات المركزية لمياه الشرب والخدمات البيئية بالقطاع الجنوبي'
-                : lang === 'fr'
-                  ? 'Unités Mobiles des Laboratoires Centraux d’Eau Potable et de Services Environnementaux'
-                  : 'Mobile Laboratory Units of Central Laboratories for Drinking Water & Environmental Services'}
-            </h1>
-
-            <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-normal mb-8 max-w-3xl">
-              {lang === 'ar'
-                ? 'منظومة متكاملة من وحدات الفحص الميداني المتنقلة التابعة للمختبرات المركزية المجهزة بأحدث تقنيات التحليل الفوري لمياه الشرب ومصادر الإمداد، للاستجابة السريعة وتغطية مختلف التضاريس الجبلية والساحلية والصحراوية بمناطق عسير، جازان، الباحة، ونجران.'
-                : lang === 'fr'
-                  ? 'Une flotte spécialisée d’unités mobiles rattachées aux laboratoires centraux, équipées des technologies de pointe pour le contrôle direct de l’eau potable et des services environnementaux en Asir, Jazan, Al-Baha et Najran.'
-                  : 'An integrated fleet of high-readiness mobile water testing units engineered for rapid field deployment and real-time potability assurance across diverse highland, coastal, and desert terrains of Asir, Jazan, Al-Baha, and Najran.'}
-            </p>
-
-            {/* Quick Metrics Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-slate-800/80">
-              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                <div className="text-2xl sm:text-3xl font-black text-white">04</div>
-                <div className="text-xs text-slate-300 font-bold mt-1">
-                  {lang === 'ar' ? 'مختبرات مركزية مجهزة' : lang === 'fr' ? 'Labos Centraux Équipés' : 'Central Mobile Units'}
-                </div>
-              </div>
-              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                <div className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">100%</div>
-                <div className="text-xs text-slate-300 font-bold mt-1">
-                  {lang === 'ar' ? 'جاهزية وتدخل سريع' : lang === 'fr' ? 'Disponibilité Rapide' : 'Field Readiness'}
-                </div>
-              </div>
-              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                <div className="text-2xl sm:text-3xl font-black text-blue-400 font-mono">SASO</div>
-                <div className="text-xs text-slate-300 font-bold mt-1">
-                  {lang === 'ar' ? 'معايير جودة معتمدة' : lang === 'fr' ? 'Normes Certifiées' : 'Certified Standards'}
-                </div>
-              </div>
-              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                <div className="text-2xl sm:text-3xl font-black text-amber-400 font-mono">24/7</div>
-                <div className="text-xs text-slate-300 font-bold mt-1">
-                  {lang === 'ar' ? 'دعم الطوارئ والمواسم' : lang === 'fr' ? 'Intervention Continue' : 'Emergency & Seasonal'}
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Interactive Jump Navigation */}
-            <div className="mt-8 pt-6 border-t border-slate-800/80">
-              <div className="flex items-center gap-2 text-xs text-white font-extrabold mb-3">
-                <ArrowDown className="w-3.5 h-3.5 text-blue-400 animate-bounce" />
-                <span>
-                  {lang === 'ar'
-                    ? 'الانتقال المباشر للمختبرات المركزية وألبومات الصور (Smooth Scroll):'
-                    : lang === 'fr'
-                      ? 'Accès direct aux laboratoires et albums photos (Défilement fluide) :'
-                      : 'Direct Smooth Scroll to Central Laboratory Albums:'}
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+            {/* Left/Right Text Content (Child 1: on Right in RTL, on Left in LTR) */}
+            <div className="lg:col-span-8 space-y-4">
+              {/* Badges strip */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-medium border border-emerald-400/25">
+                  <Truck className="w-3.5 h-3.5 shrink-0" />
+                  <span>
+                    {lang === 'ar'
+                      ? 'أسطول المختبرات الميدانية المتنقلة'
+                      : lang === 'fr'
+                        ? 'Flotte des Laboratoires Mobiles de Terrain'
+                        : 'Mobile Field Laboratories Fleet'}
+                  </span>
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-xs font-medium border border-amber-400/25">
+                  <Award className="w-3.5 h-3.5 shrink-0" />
+                  <span>
+                    {lang === 'ar'
+                      ? 'معايير SASO والجودة المعتمدة'
+                      : lang === 'fr'
+                        ? 'Normes SASO & Qualité Certifiée'
+                        : 'SASO & Certified Quality Standards'}
+                  </span>
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-200 text-xs font-medium border border-blue-400/25">
+                  <Building2 className="w-3.5 h-3.5 shrink-0" />
+                  <span>
+                    {lang === 'ar'
+                      ? 'شركة المياه الوطنية — NWC'
+                      : lang === 'fr'
+                        ? 'Compagnie Nationale des Eaux — NWC'
+                        : 'National Water Company — NWC'}
+                  </span>
                 </span>
               </div>
-              <div className="flex flex-wrap gap-2">
-                {[
-  {
-    id: 'mobile-asir',
-    label: {
-      ar: 'المختبر المركزي بعسير (وفروع بيشة ومحايل)',
-      en: 'Asir Central (Bisha & Muhayil)',
-      fr: 'Asir Central (Bisha & Muhayil)',
-    },
-  },
-  {
-    id: 'mobile-najran',
-    label: {
-      ar: 'المختبر المركزي بنجران (وشرورة والوديعة)',
-      en: 'Najran Central (Sharurah & Wadiah)',
-      fr: 'Najran Central (Sharurah & Wadiah)',
-    },
-  },
-  {
-    id: 'mobile-baha',
-    label: {
-      ar: 'المختبر المركزي بالباحة (وقلوة وتهامة)',
-      en: 'Al-Baha Central (Qalwah)',
-      fr: 'Al-Baha Central (Qalwah)',
-    },
-  },
-  {
-    id: 'mobile-jazan',
-    label: {
-      ar: 'المختبر المركزي بجازان (والدرب وفرسان)',
-      en: 'Jazan Central (Al-Darb & Farasan)',
-      fr: 'Jazan Central (Al-Darb & Farasan)',
-    },
-  },
-].map((unit) => (
-                  <button
-                    key={unit.id}
-                    type="button"
-                    onClick={() => scrollToSection(unit.id)}
-                    className="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-blue-600 text-white text-xs font-bold transition-all border border-white/15 hover:border-blue-400 active:scale-95 cursor-pointer flex items-center gap-1.5 shadow-xs"
-                  >
-                    <span>{unit.label[lang] || unit.label.en}</span>
-                    <ArrowDown className="w-3 h-3 text-blue-300" />
-                  </button>
-                ))}
+
+              {/* Main Official Title */}
+              <div>
+                <p className="text-xs sm:text-sm font-semibold text-blue-300 uppercase tracking-wider mb-1">
+                  {lang === 'ar'
+                    ? 'منظومة مختبرات القطاع الجنوبي — التحليل الميداني والتدخل السريع'
+                    : lang === 'fr'
+                      ? 'Réseau des Laboratoires du Secteur Sud — Analyses Rapides sur le Terrain'
+                      : 'Southern Sector Laboratories Network — Rapid Field Analysis'}
+                </p>
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-white leading-tight">
+                  {lang === 'ar'
+                    ? 'الوحدات المتنقلة للمختبرات المركزية لمياه الشرب والخدمات البيئية بالقطاع الجنوبي'
+                    : lang === 'fr'
+                      ? 'Unités Mobiles des Laboratoires Centraux d’Eau Potable et de Services Environnementaux'
+                      : 'Mobile Laboratory Units of Central Laboratories for Drinking Water and Environmental Services'}
+                </h1>
+                <p className="text-xs sm:text-sm font-normal text-emerald-300 mt-2 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <span>
+                    {lang === 'ar'
+                      ? 'جاهزية ميدانية عالية وفحص فوري لمصادر وشبكات مياه الشرب'
+                      : lang === 'fr'
+                        ? 'Disponibilité opérationnelle continue et analyse instantanée des réseaux d’eau'
+                        : 'High operational readiness and real-time field testing of water supplies'}
+                  </span>
+                </p>
+              </div>
+
+              {/* Institutional description */}
+              <p className="text-slate-200/90 text-xs sm:text-sm leading-relaxed max-w-2xl font-normal">
+                {lang === 'ar'
+                  ? 'منظومة متكاملة من وحدات الفحص الميداني المتنقلة التابعة للمختبرات المركزية المجهزة بأحدث تقنيات التحليل الفوري لمياه الشرب ومصادر الإمداد، للاستجابة السريعة وتغطية مختلف التضاريس الجبلية والساحلية والصحراوية بمناطق عسير، جازان، الباحة، ونجران.'
+                  : lang === 'fr'
+                    ? 'Une flotte spécialisée d’unités mobiles rattachées aux laboratoires centraux, équipées des technologies de pointe pour le contrôle direct de l’eau potable et des services environnementaux en Asir, Jazan, Al-Baha et Najran.'
+                    : 'An integrated fleet of high-readiness mobile water testing units engineered for rapid field deployment and real-time potability assurance across diverse highland, coastal, and desert terrains of Asir, Jazan, Al-Baha, and Najran.'}
+              </p>
+
+              {/* Quick Jump Smooth Scroll navigation to regional albums */}
+              <div className="pt-2">
+                <div className="flex items-center gap-2 text-xs text-blue-200 font-semibold mb-2">
+                  <ArrowDown className="w-3.5 h-3.5 text-blue-300 animate-bounce" />
+                  <span>
+                    {lang === 'ar'
+                      ? 'الانتقال المباشر للوحدات الميدانية وألبومات الصور:'
+                      : lang === 'fr'
+                        ? 'Accès direct aux unités mobiles et albums photos :'
+                        : 'Direct Smooth Scroll to Regional Units & Albums:'}
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    {
+                      id: 'mobile-asir',
+                      label: {
+                        ar: 'مختبر عسير (بيشة ومحايل)',
+                        en: 'Asir (Bisha & Muhayil)',
+                        fr: 'Asir (Bisha & Muhayil)',
+                      },
+                    },
+                    {
+                      id: 'mobile-najran',
+                      label: {
+                        ar: 'مختبر نجران (شرورة والوديعة)',
+                        en: 'Najran (Sharurah & Wadiah)',
+                        fr: 'Najran (Sharurah & Wadiah)',
+                      },
+                    },
+                    {
+                      id: 'mobile-baha',
+                      label: {
+                        ar: 'مختبر الباحة (قلوة وتهامة)',
+                        en: 'Al-Baha (Qalwah)',
+                        fr: 'Al-Baha (Qalwah)',
+                      },
+                    },
+                    {
+                      id: 'mobile-jazan',
+                      label: {
+                        ar: 'مختبر جازان (الدرب وفرسان)',
+                        en: 'Jazan (Al-Darb & Farasan)',
+                        fr: 'Jazan (Al-Darb & Farasan)',
+                      },
+                    },
+                  ].map((unit) => (
+                    <button
+                      key={unit.id}
+                      type="button"
+                      onClick={() => scrollToSection(unit.id)}
+                      className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-blue-600 text-white text-xs font-medium transition-all border border-white/15 hover:border-blue-400 active:scale-95 cursor-pointer flex items-center gap-1.5 shadow-xs"
+                    >
+                      <span>{unit.label[lang] || unit.label.en}</span>
+                      <ArrowDown className="w-3 h-3 text-blue-300" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="pt-2 flex flex-wrap items-center gap-3">
+                <Link
+                  to="/register"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs sm:text-sm transition-all duration-200 shadow-lg shadow-blue-900/30 hover:shadow-blue-600/40"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  <span>
+                    {lang === 'ar'
+                      ? 'طلب فحص ميداني / حجز زيارة'
+                      : lang === 'fr'
+                        ? 'Demander un contrôle / Visite'
+                        : 'Book Mobile Field Audit'}
+                  </span>
+                </Link>
+                <Link
+                  to="/enquiry"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium text-xs sm:text-sm transition-all duration-200 ring-1 ring-white/20"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  <span>
+                    {lang === 'ar'
+                      ? 'استفسار فني مباشر'
+                      : lang === 'fr'
+                        ? 'Demande technique'
+                        : 'Technical Enquiry'}
+                  </span>
+                </Link>
+              </div>
+            </div>
+
+            {/* Logo Emblem Container (Child 2: on Left in RTL, on Right in LTR) */}
+            <div className="lg:col-span-4 flex justify-center">
+              <div className="relative p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700/80 shadow-lg max-w-xs w-full text-center">
+                {/* Institutional circular emblem frame */}
+                <div className="relative w-40 h-40 sm:w-48 sm:h-48 mx-auto flex items-center justify-center">
+                  {/* Outer institutional ring */}
+                  <div className="absolute inset-0 rounded-full border border-blue-700/25 dark:border-blue-400/25" />
+
+                  {/* Inner accreditation ring */}
+                  <div className="absolute inset-2 rounded-full border border-amber-500/35 dark:border-amber-400/30" />
+
+                  {/* Subtle inner white field */}
+                  <div className="absolute inset-4 rounded-full bg-white dark:bg-slate-900 shadow-sm" />
+
+                  {/* Official NWC Logo */}
+                  <div className="relative z-10 w-36 h-36 sm:w-40 sm:h-40 flex items-center justify-center p-2">
+                    <img
+                      src={nwcLogo}
+                      alt={
+                        lang === 'ar'
+                          ? 'شركة المياه الوطنية'
+                          : lang === 'fr'
+                            ? 'Compagnie Nationale des Eaux'
+                            : 'National Water Company'
+                      }
+                      className="max-h-full max-w-full object-contain"
+                    />
+                  </div>
+                </div>
+
+                {/* Institutional identification below logo */}
+                <div className="mt-5 pt-4 border-t border-slate-200 dark:border-slate-700 text-center">
+                  <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 block tracking-wide leading-snug">
+                    {lang === 'ar'
+                      ? 'شركة المياه الوطنية'
+                      : lang === 'fr'
+                        ? 'Compagnie Nationale des Eaux'
+                        : 'National Water Company'}
+                  </span>
+
+                  <span className="text-[11px] text-blue-600 dark:text-blue-400 font-medium block mt-1">
+                    {lang === 'ar'
+                      ? 'الوحدات المتنقلة — المختبرات المركزية'
+                      : lang === 'fr'
+                        ? 'Unités Mobiles — Laboratoires Centraux'
+                        : 'Mobile Units — Central Laboratories'}
+                  </span>
+
+                  {/* Accreditation / Quality tag */}
+                  <div className="mt-2 flex items-center justify-center gap-2">
+                    <span className="h-px w-5 bg-amber-500/50" />
+                    <span className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-400 tracking-[0.12em]">
+                      ISO/IEC 17025:2017 &bull; SASO
+                    </span>
+                    <span className="h-px w-5 bg-amber-500/50" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ============================================================
+            2. KEY ACCREDITATION & FLEET READINESS STRIP (UNIFORM STYLE)
+        ============================================================= */}
+        <section className="mb-14 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+          <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800 shadow-2xs flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+              <Truck className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white leading-tight font-mono">
+                04 <span className="text-blue-600 dark:text-blue-400 font-sans text-xs sm:text-sm font-semibold">{lang === 'ar' ? 'وحدات مركزية' : lang === 'fr' ? 'Unités' : 'Units'}</span>
+              </div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">
+                {lang === 'ar' ? 'عسير • نجران • الباحة • جازان' : lang === 'fr' ? 'Asir • Najran • Al-Baha • Jazan' : 'Asir • Najran • Al-Baha • Jazan'}
+              </div>
+            </div>
+          </div>
+
+          <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800 shadow-2xs flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white leading-tight font-mono">
+                100% <span className="text-emerald-600 dark:text-emerald-400 font-sans text-xs sm:text-sm font-semibold">{lang === 'ar' ? 'جاهزية' : lang === 'fr' ? 'Prêt' : 'Ready'}</span>
+              </div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">
+                {lang === 'ar' ? 'استجابة وتدخل فوري بالميدان' : lang === 'fr' ? 'Intervention rapide sur le terrain' : 'Rapid field deployment'}
+              </div>
+            </div>
+          </div>
+
+          <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800 shadow-2xs flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+              <Award className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white leading-tight">
+                SASO <span className="text-amber-600 dark:text-amber-400 font-sans text-xs sm:text-sm font-semibold">{lang === 'ar' ? 'معتمد' : lang === 'fr' ? 'Normes' : 'Standard'}</span>
+              </div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">
+                {lang === 'ar' ? 'مطابقة اشتراطات مياه الشرب' : lang === 'fr' ? 'Conformité eau potable' : 'Drinking water compliance'}
+              </div>
+            </div>
+          </div>
+
+          <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800 shadow-2xs flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+              <Activity className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white leading-tight font-mono">
+                24/7 <span className="text-indigo-600 dark:text-indigo-400 font-sans text-xs sm:text-sm font-semibold">{lang === 'ar' ? 'مستمر' : lang === 'fr' ? 'Continu' : 'Support'}</span>
+              </div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">
+                {lang === 'ar' ? 'طوارئ المواسم والمواقع النائية' : lang === 'fr' ? 'Urgences & sites isolés' : 'Seasonal & emergency dispatch'}
               </div>
             </div>
           </div>
