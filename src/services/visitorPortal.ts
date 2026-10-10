@@ -512,41 +512,110 @@ export const visitorPortalService = {
     }
   },
 
+
   /**
-   * Reschedule appointment date & time
+ * Reschedule appointment date & time.
+ * Supabase arrival_time column uses SQL type TIME.
+ */
+async rescheduleAppointment(
+  appointmentId: string,
+  newDate: string,
+  newTime: string
+): Promise<boolean> {
+  try {
+    const match = newTime.trim().match(/^(\d{1,2}):(\d{2})\s*(.*)$/);
+
+    if (!match) {
+      console.error('Invalid appointment time:', newTime);
+      return false;
+    }
+
+    let hours = Number(match[1]);
+    const minutes = Number(match[2]);
+    const period = match[3];
+
+    // Convert Arabic AM/PM to 24-hour format.
+    if (period.includes('ظهراً') || period.includes('مساءً')) {
+      if (hours < 12) hours += 12;
+    } else if (period.includes('صباحاً')) {
+      if (hours === 12) hours = 0;
+    }
+
+    if (
+      !Number.isInteger(hours) ||
+      !Number.isInteger(minutes) ||
+      hours < 0 ||
+      hours > 23 ||
+      minutes < 0 ||
+      minutes > 59
+    ) {
+      console.error('Invalid appointment time:', newTime);
+      return false;
+    }
+
+    const sqlTime =
+      `${String(hours).padStart(2, '0')}:` +
+      `${String(minutes).padStart(2, '0')}:00`;
+
+    const { data, error } = await supabase
+      .from('visitors')
+      .update({
+        visit_date: newDate,
+        arrival_time: sqlTime,
+        status: 'Confirmed',
+      })
+      .eq('id', appointmentId)
+      .select('id');
+
+    if (error) {
+      console.error('Failed to reschedule appointment:', error);
+      return false;
+    }
+
+    if (!data || data.length === 0) {
+      console.error(
+        'No appointment was updated. Check the ID and Supabase permissions.'
+      );
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Unexpected error rescheduling appointment:', error);
+    return false;
+  }
+},
+  /**
+   * Cancel an upcoming visit.
+   * Return true only when Supabase confirms that a row was updated.
    */
-  async rescheduleAppointment(
-    appointmentId: string,
-    newDate: string,
-    newTime: string
-  ): Promise<boolean> {
+  async cancelAppointment(appointmentId: string): Promise<boolean> {
     try {
-      await supabase
+      const { data, error } = await supabase
         .from('visitors')
-        .update({ visit_date: newDate, arrival_time: newTime, status: 'Confirmed' })
-        .eq('id', appointmentId);
+        .update({ status: 'Cancelled' })
+        .eq('id', appointmentId)
+        .select('id');
+
+      if (error) {
+        console.error('Failed to cancel appointment:', error);
+        return false;
+      }
+
+      if (!data || data.length === 0) {
+        console.error(
+          'Cancellation affected no rows. Check appointment ID and Supabase permissions.'
+        );
+        return false;
+      }
+
       return true;
-    } catch (e) {
-      console.warn('Failed to reschedule in supabase:', e);
+    } catch (error) {
+      console.error('Unexpected error cancelling appointment:', error);
       return false;
     }
   },
 
-  /**
-   * Cancel an upcoming visit
-   */
-  async cancelAppointment(appointmentId: string): Promise<boolean> {
-    try {
-      await supabase
-        .from('visitors')
-        .update({ status: 'Cancelled' })
-        .eq('id', appointmentId);
-      return true;
-    } catch (e) {
-      console.warn('Failed to cancel appointment in supabase:', e);
-      return false;
-    }
-  },
 
   /**
    * Generate an iCalendar (.ics) file content and trigger browser download
@@ -690,8 +759,8 @@ export const visitorPortalService = {
           </thead>
           <tbody>
             ${report.parameters
-              .map(
-                (p, idx) => `
+        .map(
+          (p, idx) => `
               <tr>
                 <td>${idx + 1}</td>
                 <td><strong>${isAr ? p.name_ar : p.name_en}</strong></td>
@@ -702,8 +771,8 @@ export const visitorPortalService = {
                 <td class="status-normal">${isAr ? 'مطابق ✓' : 'PASS ✓'}</td>
               </tr>
             `
-              )
-              .join('')}
+        )
+        .join('')}
           </tbody>
         </table>
 

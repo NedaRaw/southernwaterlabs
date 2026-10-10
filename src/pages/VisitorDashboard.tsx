@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useParams } from 'react-router-dom';
 import {
   Calendar,
   Clock,
@@ -44,6 +44,7 @@ import { getLabLabel, getBranchLabel } from '@/data/labServices';
 export default function VisitorDashboard() {
   const { lang, t, dir } = useLang();
   const [searchParams] = useSearchParams();
+  const { id: routeVisitorId } = useParams<{ id: string }>();
 
   // Active visitor state
   const [currentVisitor, setCurrentVisitor] = useState<VisitorProfile | null>(null);
@@ -92,7 +93,10 @@ export default function VisitorDashboard() {
 
   // Check URL params or saved session on mount
   useEffect(() => {
-    const queryId = searchParams.get('id') || searchParams.get('visitor_id');
+    const queryId =
+      routeVisitorId ||
+      searchParams.get('id') ||
+      searchParams.get('visitor_id');
     const init = async () => {
       if (queryId) {
         setLoginLoading(true);
@@ -113,7 +117,7 @@ export default function VisitorDashboard() {
       }
     };
     init();
-  }, [searchParams, loadVisitorData]);
+  }, [searchParams, loadVisitorData, routeVisitorId]);
 
   // Handle Login submission
   const handleLogin = async (e: React.FormEvent) => {
@@ -175,24 +179,53 @@ export default function VisitorDashboard() {
     setTimeout(() => setCopiedId(false), 2000);
   };
 
-  // Reschedule submit
+
   const handleRescheduleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!rescheduleModalAppt || !rescheduleDate) return;
+
+    if (!rescheduleModalAppt || !rescheduleDate || rescheduleSubmitting) {
+      return;
+    }
 
     setRescheduleSubmitting(true);
-    const success = await visitorPortalService.rescheduleAppointment(
-      rescheduleModalAppt.id,
-      rescheduleDate,
-      rescheduleTime || '09:00 صباحاً'
-    );
-    setRescheduleSubmitting(false);
 
-    if (success && currentVisitor) {
-      setRescheduleModalAppt(null);
-      loadVisitorData(currentVisitor);
+    try {
+      const success = await visitorPortalService.rescheduleAppointment(
+        rescheduleModalAppt.id,
+        rescheduleDate,
+        rescheduleTime || '09:00 صباحاً'
+      );
+
+      if (!success) {
+        window.alert(
+          lang === 'ar'
+            ? 'تعذر حفظ الموعد. يرجى التحقق من البيانات والمحاولة مرة أخرى.'
+            : lang === 'fr'
+              ? 'Impossible d’enregistrer le rendez-vous. Vérifiez les données et réessayez.'
+              : 'Could not save the appointment. Please check the details and try again.'
+        );
+        return;
+      }
+
+      if (currentVisitor) {
+        setRescheduleModalAppt(null);
+        await loadVisitorData(currentVisitor);
+      }
+    } catch (error) {
+      console.error('Reschedule submit failed:', error);
+
+      window.alert(
+        lang === 'ar'
+          ? 'حدث خطأ أثناء حفظ الموعد.'
+          : lang === 'fr'
+            ? 'Une erreur est survenue lors de l’enregistrement.'
+            : 'An error occurred while saving the appointment.'
+      );
+    } finally {
+      setRescheduleSubmitting(false);
     }
   };
+
 
   // Cancel appointment
   const handleCancelAppt = async (apptId: string) => {
@@ -595,11 +628,10 @@ export default function VisitorDashboard() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
               <div
                 onClick={() => setActiveTab('upcoming')}
-                className={`p-4 rounded-2xl bg-white dark:bg-[#172033] border transition-all cursor-pointer shadow-2xs ${
-                  activeTab === 'upcoming'
-                    ? 'border-blue-500 ring-2 ring-blue-500/20'
-                    : 'border-slate-200/80 dark:border-slate-800 hover:border-slate-300'
-                }`}
+                className={`p-4 rounded-2xl bg-white dark:bg-[#172033] border transition-all cursor-pointer shadow-2xs ${activeTab === 'upcoming'
+                  ? 'border-blue-500 ring-2 ring-blue-500/20'
+                  : 'border-slate-200/80 dark:border-slate-800 hover:border-slate-300'
+                  }`}
               >
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
@@ -617,11 +649,10 @@ export default function VisitorDashboard() {
 
               <div
                 onClick={() => setActiveTab('history')}
-                className={`p-4 rounded-2xl bg-white dark:bg-[#172033] border transition-all cursor-pointer shadow-2xs ${
-                  activeTab === 'history'
-                    ? 'border-blue-500 ring-2 ring-blue-500/20'
-                    : 'border-slate-200/80 dark:border-slate-800 hover:border-slate-300'
-                }`}
+                className={`p-4 rounded-2xl bg-white dark:bg-[#172033] border transition-all cursor-pointer shadow-2xs ${activeTab === 'history'
+                  ? 'border-blue-500 ring-2 ring-blue-500/20'
+                  : 'border-slate-200/80 dark:border-slate-800 hover:border-slate-300'
+                  }`}
               >
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
@@ -639,11 +670,10 @@ export default function VisitorDashboard() {
 
               <div
                 onClick={() => setActiveTab('reports')}
-                className={`p-4 rounded-2xl bg-white dark:bg-[#172033] border transition-all cursor-pointer shadow-2xs ${
-                  activeTab === 'reports'
-                    ? 'border-blue-500 ring-2 ring-blue-500/20'
-                    : 'border-slate-200/80 dark:border-slate-800 hover:border-slate-300'
-                }`}
+                className={`p-4 rounded-2xl bg-white dark:bg-[#172033] border transition-all cursor-pointer shadow-2xs ${activeTab === 'reports'
+                  ? 'border-blue-500 ring-2 ring-blue-500/20'
+                  : 'border-slate-200/80 dark:border-slate-800 hover:border-slate-300'
+                  }`}
               >
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
@@ -682,11 +712,10 @@ export default function VisitorDashboard() {
               <button
                 type="button"
                 onClick={() => setActiveTab('upcoming')}
-                className={`pb-3 text-sm font-bold flex items-center gap-2 border-b-2 transition-all cursor-pointer ${
-                  activeTab === 'upcoming'
-                    ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white'
-                }`}
+                className={`pb-3 text-sm font-bold flex items-center gap-2 border-b-2 transition-all cursor-pointer ${activeTab === 'upcoming'
+                  ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                  : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                  }`}
               >
                 <CalendarDays className="w-4 h-4" />
                 <span>
@@ -700,11 +729,10 @@ export default function VisitorDashboard() {
               <button
                 type="button"
                 onClick={() => setActiveTab('history')}
-                className={`pb-3 text-sm font-bold flex items-center gap-2 border-b-2 transition-all cursor-pointer ${
-                  activeTab === 'history'
-                    ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white'
-                }`}
+                className={`pb-3 text-sm font-bold flex items-center gap-2 border-b-2 transition-all cursor-pointer ${activeTab === 'history'
+                  ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                  : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                  }`}
               >
                 <History className="w-4 h-4" />
                 <span>
@@ -718,11 +746,10 @@ export default function VisitorDashboard() {
               <button
                 type="button"
                 onClick={() => setActiveTab('reports')}
-                className={`pb-3 text-sm font-bold flex items-center gap-2 border-b-2 transition-all cursor-pointer ${
-                  activeTab === 'reports'
-                    ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white'
-                }`}
+                className={`pb-3 text-sm font-bold flex items-center gap-2 border-b-2 transition-all cursor-pointer ${activeTab === 'reports'
+                  ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                  : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                  }`}
               >
                 <FileCheck2 className="w-4 h-4" />
                 <span>
@@ -747,397 +774,395 @@ export default function VisitorDashboard() {
                     TAB 1: UPCOMING APPOINTMENTS
                 ============================================================= */}
                 {activeTab === 'upcoming' && (
-              <div className="space-y-4">
-                {upcomingAppointments.length === 0 ? (
-                  <div className="p-8 sm:p-12 text-center rounded-2xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800">
-                    <CalendarDays className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
-                    <h3 className="text-base font-bold text-slate-800 dark:text-slate-200 mb-1">
-                      {lang === 'ar' ? 'لا توجد مواعيد قادمة مجدولة' : 'No upcoming appointments'}
-                    </h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-5">
-                      {lang === 'ar'
-                        ? 'يمكنك حجز موعد جديد لزيارة أي من المختبرات المركزية وفروعها بالقطاع الجنوبي لتسليم العينات أو المتابعة الفنية.'
-                        : 'You can book a new visit appointment to submit water samples or meet our technical specialists.'}
-                    </p>
-                    <Link
-                      to="/register"
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs sm:text-sm shadow-xs transition-colors"
-                    >
-                      <PlusCircle className="w-4 h-4" />
-                      <span>{lang === 'ar' ? 'حجز موعد زيارة جديد' : 'Schedule a Visit'}</span>
-                    </Link>
-                  </div>
-                ) : (
-                  upcomingAppointments.map((appt) => (
-                    <div
-                      key={appt.id}
-                      className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800 shadow-2xs hover:border-blue-500/30 transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-5"
-                    >
-                      <div className="space-y-3 flex-1">
-                        <div className="flex flex-wrap items-center gap-2.5">
-                          <span className="px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-mono text-xs font-bold border border-blue-200 dark:border-blue-800">
-                            {appt.visitor_id}
-                          </span>
-                          <span className="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-xs font-bold border border-emerald-200 dark:border-emerald-800/50 flex items-center gap-1">
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                            <span>
-                              {appt.status === 'Confirmed'
-                                ? lang === 'ar'
-                                  ? 'موعد مؤكد ومصرح'
-                                  : 'Confirmed & Approved'
-                                : lang === 'ar'
-                                  ? 'قيد المعالجة'
-                                  : 'Pending'}
-                            </span>
-                          </span>
-                          <span className="text-xs text-slate-500 dark:text-slate-400">
-                            {getLabLabel(appt.laboratory, lang)}
-                            {appt.branch ? ` — ${getBranchLabel(appt.laboratory, appt.branch, lang)}` : ''}
-                          </span>
-                        </div>
+                  <div className="space-y-4">
+                    {upcomingAppointments.length === 0 ? (
+                      <div className="p-8 sm:p-12 text-center rounded-2xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800">
+                        <CalendarDays className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+                        <h3 className="text-base font-bold text-slate-800 dark:text-slate-200 mb-1">
+                          {lang === 'ar' ? 'لا توجد مواعيد قادمة مجدولة' : 'No upcoming appointments'}
+                        </h3>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-5">
+                          {lang === 'ar'
+                            ? 'يمكنك حجز موعد جديد لزيارة أي من المختبرات المركزية وفروعها بالقطاع الجنوبي لتسليم العينات أو المتابعة الفنية.'
+                            : 'You can book a new visit appointment to submit water samples or meet our technical specialists.'}
+                        </p>
+                        <Link
+                          to="/register"
+                          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs sm:text-sm shadow-xs transition-colors"
+                        >
+                          <PlusCircle className="w-4 h-4" />
+                          <span>{lang === 'ar' ? 'حجز موعد زيارة جديد' : 'Schedule a Visit'}</span>
+                        </Link>
+                      </div>
+                    ) : (
+                      upcomingAppointments.map((appt) => (
+                        <div
+                          key={appt.id}
+                          className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800 shadow-2xs hover:border-blue-500/30 transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-5"
+                        >
+                          <div className="space-y-3 flex-1">
+                            <div className="flex flex-wrap items-center gap-2.5">
+                              <span className="px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-mono text-xs font-bold border border-blue-200 dark:border-blue-800">
+                                {appt.visitor_id}
+                              </span>
+                              <span className="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-xs font-bold border border-emerald-200 dark:border-emerald-800/50 flex items-center gap-1">
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                <span>
+                                  {appt.status === 'Confirmed'
+                                    ? lang === 'ar'
+                                      ? 'موعد مؤكد ومصرح'
+                                      : 'Confirmed & Approved'
+                                    : lang === 'ar'
+                                      ? 'قيد المعالجة'
+                                      : 'Pending'}
+                                </span>
+                              </span>
+                              <span className="text-xs text-slate-500 dark:text-slate-400">
+                                {getLabLabel(appt.laboratory, lang)}
+                                {appt.branch ? ` — ${getBranchLabel(appt.laboratory, appt.branch, lang)}` : ''}
+                              </span>
+                            </div>
 
-                        <div>
-                          <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">
-                            {appt.purpose}
-                          </h3>
-                          <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs text-slate-600 dark:text-slate-300">
-                            <span className="flex items-center gap-1.5 font-medium text-blue-700 dark:text-blue-400">
-                              <Calendar className="w-3.5 h-3.5" />
-                              <span>{appt.visit_date}</span>
-                            </span>
-                            {appt.arrival_time && (
-                              <span className="flex items-center gap-1.5">
-                                <Clock className="w-3.5 h-3.5 text-slate-400" />
-                                <span>{appt.arrival_time}</span>
-                              </span>
-                            )}
-                            {appt.department && (
-                              <span className="flex items-center gap-1.5">
-                                <Building2 className="w-3.5 h-3.5 text-slate-400" />
-                                <span>{appt.department}</span>
-                              </span>
+                            <div>
+                              <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">
+                                {appt.purpose}
+                              </h3>
+                              <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs text-slate-600 dark:text-slate-300">
+                                <span className="flex items-center gap-1.5 font-medium text-blue-700 dark:text-blue-400">
+                                  <Calendar className="w-3.5 h-3.5" />
+                                  <span>{appt.visit_date}</span>
+                                </span>
+                                {appt.arrival_time && (
+                                  <span className="flex items-center gap-1.5">
+                                    <Clock className="w-3.5 h-3.5 text-slate-400" />
+                                    <span>{appt.arrival_time}</span>
+                                  </span>
+                                )}
+                                {appt.department && (
+                                  <span className="flex items-center gap-1.5">
+                                    <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                                    <span>{appt.department}</span>
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            {appt.notes && (
+                              <p className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/80">
+                                <strong>{lang === 'ar' ? 'ملاحظة:' : 'Note:'}</strong> {appt.notes}
+                              </p>
                             )}
                           </div>
+
+                          {/* Action buttons */}
+                          <div className="flex flex-wrap items-center gap-2 pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-100 dark:border-slate-800">
+                            <button
+                              type="button"
+                              onClick={() => setBadgeModalAppt(appt)}
+                              className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-colors flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                            >
+                              <QrCode className="w-3.5 h-3.5" />
+                              <span>{lang === 'ar' ? 'بطاقة وتصريح الزيارة' : 'Visitor Pass'}</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => visitorPortalService.downloadCalendarIcs(appt)}
+                              title="Add to Calendar (.ics)"
+                              className="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs transition-colors cursor-pointer flex items-center gap-1.5"
+                            >
+                              <Calendar className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                              <span>{lang === 'ar' ? 'حفظ بالتقويم' : 'Calendar'}</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setRescheduleModalAppt(appt);
+                                setRescheduleDate(appt.visit_date);
+                                setRescheduleTime(appt.arrival_time || '09:30 صباحاً');
+                              }}
+                              className="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs transition-colors cursor-pointer flex items-center gap-1.5"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" />
+                              <span>{lang === 'ar' ? 'تعديل الموعد' : 'Reschedule'}</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleCancelAppt(appt.id)}
+                              className="px-2.5 py-2 rounded-xl bg-red-50 dark:bg-red-950/40 hover:bg-red-100 text-red-600 dark:text-red-400 font-semibold text-xs transition-colors cursor-pointer"
+                              title="Cancel appointment"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
-
-                        {appt.notes && (
-                          <p className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/80">
-                            <strong>{lang === 'ar' ? 'ملاحظة:' : 'Note:'}</strong> {appt.notes}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Action buttons */}
-                      <div className="flex flex-wrap items-center gap-2 pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-100 dark:border-slate-800">
-                        <button
-                          type="button"
-                          onClick={() => setBadgeModalAppt(appt)}
-                          className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-colors flex items-center gap-1.5 shadow-2xs cursor-pointer"
-                        >
-                          <QrCode className="w-3.5 h-3.5" />
-                          <span>{lang === 'ar' ? 'بطاقة وتصريح الزيارة' : 'Visitor Pass'}</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => visitorPortalService.downloadCalendarIcs(appt)}
-                          title="Add to Calendar (.ics)"
-                          className="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs transition-colors cursor-pointer flex items-center gap-1.5"
-                        >
-                          <Calendar className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                          <span>{lang === 'ar' ? 'حفظ بالتقويم' : 'Calendar'}</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setRescheduleModalAppt(appt);
-                            setRescheduleDate(appt.visit_date);
-                            setRescheduleTime(appt.arrival_time || '09:30 صباحاً');
-                          }}
-                          className="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs transition-colors cursor-pointer flex items-center gap-1.5"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" />
-                          <span>{lang === 'ar' ? 'تعديل الموعد' : 'Reschedule'}</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleCancelAppt(appt.id)}
-                          className="px-2.5 py-2 rounded-xl bg-red-50 dark:bg-red-950/40 hover:bg-red-100 text-red-600 dark:text-red-400 font-semibold text-xs transition-colors cursor-pointer"
-                          title="Cancel appointment"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </div>
-                  ))
+                      ))
+                    )}
+                  </div>
                 )}
-              </div>
-            )}
 
-            {/* ============================================================
+                {/* ============================================================
                 TAB 2: VISIT HISTORY
             ============================================================= */}
-            {activeTab === 'history' && (
-              <div className="space-y-4">
-                {/* Filter bar */}
-                <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800">
-                  <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                    {lang === 'ar' ? 'تصفية حسب المختبر:' : 'Filter by Laboratory:'}
-                  </span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {[
-                      { key: 'all', label: lang === 'ar' ? 'الكل' : 'All' },
-                      { key: 'asir', label: lang === 'ar' ? 'عسير' : 'Asir' },
-                      { key: 'najran', label: lang === 'ar' ? 'نجران' : 'Najran' },
-                      { key: 'baha', label: lang === 'ar' ? 'الباحة' : 'Al-Baha' },
-                      { key: 'jazan', label: lang === 'ar' ? 'جازان' : 'Jazan' },
-                    ].map((tab) => (
-                      <button
-                        key={tab.key}
-                        type="button"
-                        onClick={() => setHistoryLabFilter(tab.key)}
-                        className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
-                          historyLabFilter === tab.key
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
-                        }`}
-                      >
-                        {tab.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {filteredHistory.length === 0 ? (
-                  <div className="p-8 sm:p-12 text-center rounded-2xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800">
-                    <History className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
-                    <h3 className="text-base font-bold text-slate-800 dark:text-slate-200 mb-1">
-                      {lang === 'ar' ? 'لا يوجد سجل زيارات سابق' : 'No past visits recorded'}
-                    </h3>
-                    <p className="text-xs text-slate-500">
-                      {lang === 'ar'
-                        ? 'ستظهر هنا كافة زياراتك المكتملة وتاريخ الحضور وتقارير الفحص الصادرة.'
-                        : 'Your attended visits and completed audits will appear here.'}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="divide-y divide-slate-100 dark:divide-slate-800 rounded-2xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-2xs">
-                    {filteredHistory.map((visit) => (
-                      <div
-                        key={visit.id}
-                        className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors"
-                      >
-                        <div className="space-y-1.5">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span className="text-xs font-bold font-mono text-slate-500">
-                              {visit.visitor_id}
-                            </span>
-                            <span
-                              className={`px-2 py-0.5 rounded text-[11px] font-bold ${
-                                visit.status === 'Cancelled'
-                                  ? 'bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300'
-                                  : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
+                {activeTab === 'history' && (
+                  <div className="space-y-4">
+                    {/* Filter bar */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800">
+                      <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        {lang === 'ar' ? 'تصفية حسب المختبر:' : 'Filter by Laboratory:'}
+                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {[
+                          { key: 'all', label: lang === 'ar' ? 'الكل' : 'All' },
+                          { key: 'asir', label: lang === 'ar' ? 'عسير' : 'Asir' },
+                          { key: 'najran', label: lang === 'ar' ? 'نجران' : 'Najran' },
+                          { key: 'baha', label: lang === 'ar' ? 'الباحة' : 'Al-Baha' },
+                          { key: 'jazan', label: lang === 'ar' ? 'جازان' : 'Jazan' },
+                        ].map((tab) => (
+                          <button
+                            key={tab.key}
+                            type="button"
+                            onClick={() => setHistoryLabFilter(tab.key)}
+                            className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors cursor-pointer ${historyLabFilter === tab.key
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
                               }`}
-                            >
-                              {visit.status === 'Cancelled'
-                                ? lang === 'ar'
-                                  ? 'ملغي'
-                                  : 'Cancelled'
-                                : lang === 'ar'
-                                  ? 'مكتملة وموثقة'
-                                  : 'Completed'}
-                            </span>
-                            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                              {getLabLabel(visit.laboratory, lang)}
-                            </span>
-                          </div>
-
-                          <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                            {visit.purpose}
-                          </p>
-
-                          <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500">
-                            <span className="flex items-center gap-1">
-                              <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                              <span>{visit.visit_date}</span>
-                            </span>
-                            {visit.department && (
-                              <span className="flex items-center gap-1">
-                                <Building2 className="w-3.5 h-3.5 text-slate-400" />
-                                <span>{visit.department}</span>
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <Link
-                            to={`/visitor/${visit.visitor_id}`}
-                            className="px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors"
                           >
-                            <span>{lang === 'ar' ? 'عرض السجل' : 'View Pass'}</span>
-                          </Link>
-                          <Link
-                            to={`/survey?laboratory=${encodeURIComponent(visit.laboratory)}`}
-                            className="px-3.5 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 text-amber-800 dark:text-amber-300 text-xs font-semibold transition-colors flex items-center gap-1"
-                          >
-                            <Award className="w-3.5 h-3.5 text-amber-600" />
-                            <span>{lang === 'ar' ? 'تقييم الزيارة' : 'Rate'}</span>
-                          </Link>
-                        </div>
+                            {tab.label}
+                          </button>
+                        ))}
                       </div>
-                    ))}
+                    </div>
+
+                    {filteredHistory.length === 0 ? (
+                      <div className="p-8 sm:p-12 text-center rounded-2xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800">
+                        <History className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+                        <h3 className="text-base font-bold text-slate-800 dark:text-slate-200 mb-1">
+                          {lang === 'ar' ? 'لا يوجد سجل زيارات سابق' : 'No past visits recorded'}
+                        </h3>
+                        <p className="text-xs text-slate-500">
+                          {lang === 'ar'
+                            ? 'ستظهر هنا كافة زياراتك المكتملة وتاريخ الحضور وتقارير الفحص الصادرة.'
+                            : 'Your attended visits and completed audits will appear here.'}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="divide-y divide-slate-100 dark:divide-slate-800 rounded-2xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-2xs">
+                        {filteredHistory.map((visit) => (
+                          <div
+                            key={visit.id}
+                            className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors"
+                          >
+                            <div className="space-y-1.5">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span className="text-xs font-bold font-mono text-slate-500">
+                                  {visit.visitor_id}
+                                </span>
+                                <span
+                                  className={`px-2 py-0.5 rounded text-[11px] font-bold ${visit.status === 'Cancelled'
+                                    ? 'bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300'
+                                    : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
+                                    }`}
+                                >
+                                  {visit.status === 'Cancelled'
+                                    ? lang === 'ar'
+                                      ? 'ملغي'
+                                      : 'Cancelled'
+                                    : lang === 'ar'
+                                      ? 'مكتملة وموثقة'
+                                      : 'Completed'}
+                                </span>
+                                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                  {getLabLabel(visit.laboratory, lang)}
+                                </span>
+                              </div>
+
+                              <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                                {visit.purpose}
+                              </p>
+
+                              <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500">
+                                <span className="flex items-center gap-1">
+                                  <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                                  <span>{visit.visit_date}</span>
+                                </span>
+                                {visit.department && (
+                                  <span className="flex items-center gap-1">
+                                    <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                                    <span>{visit.department}</span>
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <Link
+                                to={`/visitor/${visit.visitor_id}`}
+                                className="px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors"
+                              >
+                                <span>{lang === 'ar' ? 'عرض السجل' : 'View Pass'}</span>
+                              </Link>
+                              <Link
+                                to={`/survey?laboratory=${encodeURIComponent(visit.laboratory)}`}
+                                className="px-3.5 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 text-amber-800 dark:text-amber-300 text-xs font-semibold transition-colors flex items-center gap-1"
+                              >
+                                <Award className="w-3.5 h-3.5 text-amber-600" />
+                                <span>{lang === 'ar' ? 'تقييم الزيارة' : 'Rate'}</span>
+                              </Link>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
-              </div>
-            )}
 
-            {/* ============================================================
+                {/* ============================================================
                 TAB 3: CERTIFIED LAB REPORTS & SAMPLE TEST RESULTS
             ============================================================= */}
-            {activeTab === 'reports' && (
-              <div className="space-y-4">
-                {/* Search Bar */}
-                <div className="flex items-center gap-3 p-3 rounded-2xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800">
-                  <div className="relative flex-1">
-                    <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input
-                      type="text"
-                      value={reportsSearch}
-                      onChange={(e) => setReportsSearch(e.target.value)}
-                      placeholder={
-                        lang === 'ar'
-                          ? 'البحث برقم التقرير (NWC-SL-...) أو كود العينة أو نوع المياه...'
-                          : 'Search by report number, sample code, or water type...'
-                      }
-                      className="w-full ps-10 pe-4 py-2 text-xs sm:text-sm rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
-
-                {filteredReports.length === 0 ? (
-                  <div className="p-8 sm:p-12 text-center rounded-2xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800">
-                    <FileCheck2 className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
-                    <h3 className="text-base font-bold text-slate-800 dark:text-slate-200 mb-1">
-                      {lang === 'ar' ? 'لا توجد تقارير تطابق البحث' : 'No matching reports found'}
-                    </h3>
-                    <p className="text-xs text-slate-500">
-                      {lang === 'ar'
-                        ? 'تظهر هنا تقارير الفحص الكيميائي والميكروبيولوجي المعتمدة فور انتهاء الفحوصات المخبرية.'
-                        : 'Official certified chemical & microbiological reports will appear here upon completion.'}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {filteredReports.map((report) => (
-                      <div
-                        key={report.id}
-                        className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800 shadow-2xs hover:border-blue-500/30 transition-all flex flex-col justify-between"
-                      >
-                        <div className="space-y-3">
-                          {/* Report header */}
-                          <div className="flex items-start justify-between gap-3">
-                            <div>
-                              <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider block">
-                                {lang === 'ar' ? 'شهادة فحص معتمدة' : 'Certified Test Report'}
-                              </span>
-                              <h4 className="text-base font-bold text-slate-900 dark:text-white font-mono">
-                                {report.report_number}
-                              </h4>
-                            </div>
-                            <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center gap-1 shrink-0">
-                              <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-                              <span>{lang === 'ar' ? 'مطابق SASO' : 'Compliant'}</span>
-                            </span>
-                          </div>
-
-                          {/* Matrix & Location */}
-                          <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800 space-y-1 text-xs">
-                            <div className="font-semibold text-slate-900 dark:text-white">
-                              {lang === 'ar' ? report.sample_type_ar : report.sample_type_en}
-                            </div>
-                            <div className="text-slate-500 text-[11px]">
-                              {lang === 'ar' ? report.source_location_ar : report.source_location_en}
-                            </div>
-                          </div>
-
-                          {/* Details strip */}
-                          <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-600 dark:text-slate-400">
-                            <div>
-                              <span className="text-slate-400 block">{lang === 'ar' ? 'كود العينة:' : 'Sample Code:'}</span>
-                              <span className="font-mono font-bold text-slate-800 dark:text-slate-200">
-                                {report.sample_code}
-                              </span>
-                            </div>
-                            <div>
-                              <span className="text-slate-400 block">{lang === 'ar' ? 'المختبر الفاحص:' : 'Laboratory:'}</span>
-                              <span className="font-semibold text-slate-800 dark:text-slate-200 truncate block">
-                                {report.laboratory_name_ar}
-                              </span>
-                            </div>
-                            <div>
-                              <span className="text-slate-400 block">{lang === 'ar' ? 'تاريخ السحب:' : 'Sampling Date:'}</span>
-                              <span>{report.collection_date}</span>
-                            </div>
-                            <div>
-                              <span className="text-slate-400 block">{lang === 'ar' ? 'تاريخ الاعتماد:' : 'Issue Date:'}</span>
-                              <span className="text-emerald-600 dark:text-emerald-400 font-medium">
-                                {report.issue_date}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Micro-preview of parameters */}
-                          <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
-                            <div className="text-[10px] font-semibold text-slate-400 mb-1.5 uppercase">
-                              {lang === 'ar' ? 'أبرز المؤشرات المفحوصة:' : 'Key Parameters Analyzed:'}
-                            </div>
-                            <div className="flex flex-wrap gap-1.5">
-                              {report.parameters.slice(0, 4).map((p, idx) => (
-                                <span
-                                  key={idx}
-                                  className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-mono"
-                                >
-                                  {lang === 'ar' ? p.name_ar : p.name_en}: <strong>{p.measured_value} {p.unit}</strong>
-                                </span>
-                              ))}
-                              {report.parameters.length > 4 && (
-                                <span className="px-1.5 py-0.5 text-[10px] text-slate-400">
-                                  +{report.parameters.length - 4}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Action buttons */}
-                        <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
-                          <button
-                            type="button"
-                            onClick={() => setSelectedReport(report)}
-                            className="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-semibold text-xs transition-colors cursor-pointer flex items-center gap-1.5"
-                          >
-                            <FileText className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                            <span>{lang === 'ar' ? 'استعراض المؤشرات' : 'View Parameters'}</span>
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => visitorPortalService.openPrintableReport(report, lang as 'ar' | 'en' | 'fr')}
-                            className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-colors shadow-2xs cursor-pointer flex items-center gap-1.5"
-                          >
-                            <Download className="w-3.5 h-3.5" />
-                            <span>{lang === 'ar' ? 'تحميل التقرير (PDF)' : 'Download (PDF)'}</span>
-                          </button>
-                        </div>
+                {activeTab === 'reports' && (
+                  <div className="space-y-4">
+                    {/* Search Bar */}
+                    <div className="flex items-center gap-3 p-3 rounded-2xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800">
+                      <div className="relative flex-1">
+                        <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <input
+                          type="text"
+                          value={reportsSearch}
+                          onChange={(e) => setReportsSearch(e.target.value)}
+                          placeholder={
+                            lang === 'ar'
+                              ? 'البحث برقم التقرير (NWC-SL-...) أو كود العينة أو نوع المياه...'
+                              : 'Search by report number, sample code, or water type...'
+                          }
+                          className="w-full ps-10 pe-4 py-2 text-xs sm:text-sm rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
                       </div>
-                    ))}
+                    </div>
+
+                    {filteredReports.length === 0 ? (
+                      <div className="p-8 sm:p-12 text-center rounded-2xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800">
+                        <FileCheck2 className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+                        <h3 className="text-base font-bold text-slate-800 dark:text-slate-200 mb-1">
+                          {lang === 'ar' ? 'لا توجد تقارير تطابق البحث' : 'No matching reports found'}
+                        </h3>
+                        <p className="text-xs text-slate-500">
+                          {lang === 'ar'
+                            ? 'تظهر هنا تقارير الفحص الكيميائي والميكروبيولوجي المعتمدة فور انتهاء الفحوصات المخبرية.'
+                            : 'Official certified chemical & microbiological reports will appear here upon completion.'}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {filteredReports.map((report) => (
+                          <div
+                            key={report.id}
+                            className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800 shadow-2xs hover:border-blue-500/30 transition-all flex flex-col justify-between"
+                          >
+                            <div className="space-y-3">
+                              {/* Report header */}
+                              <div className="flex items-start justify-between gap-3">
+                                <div>
+                                  <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider block">
+                                    {lang === 'ar' ? 'شهادة فحص معتمدة' : 'Certified Test Report'}
+                                  </span>
+                                  <h4 className="text-base font-bold text-slate-900 dark:text-white font-mono">
+                                    {report.report_number}
+                                  </h4>
+                                </div>
+                                <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center gap-1 shrink-0">
+                                  <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                                  <span>{lang === 'ar' ? 'مطابق SASO' : 'Compliant'}</span>
+                                </span>
+                              </div>
+
+                              {/* Matrix & Location */}
+                              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800 space-y-1 text-xs">
+                                <div className="font-semibold text-slate-900 dark:text-white">
+                                  {lang === 'ar' ? report.sample_type_ar : report.sample_type_en}
+                                </div>
+                                <div className="text-slate-500 text-[11px]">
+                                  {lang === 'ar' ? report.source_location_ar : report.source_location_en}
+                                </div>
+                              </div>
+
+                              {/* Details strip */}
+                              <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-600 dark:text-slate-400">
+                                <div>
+                                  <span className="text-slate-400 block">{lang === 'ar' ? 'كود العينة:' : 'Sample Code:'}</span>
+                                  <span className="font-mono font-bold text-slate-800 dark:text-slate-200">
+                                    {report.sample_code}
+                                  </span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-400 block">{lang === 'ar' ? 'المختبر الفاحص:' : 'Laboratory:'}</span>
+                                  <span className="font-semibold text-slate-800 dark:text-slate-200 truncate block">
+                                    {report.laboratory_name_ar}
+                                  </span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-400 block">{lang === 'ar' ? 'تاريخ السحب:' : 'Sampling Date:'}</span>
+                                  <span>{report.collection_date}</span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-400 block">{lang === 'ar' ? 'تاريخ الاعتماد:' : 'Issue Date:'}</span>
+                                  <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+                                    {report.issue_date}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Micro-preview of parameters */}
+                              <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+                                <div className="text-[10px] font-semibold text-slate-400 mb-1.5 uppercase">
+                                  {lang === 'ar' ? 'أبرز المؤشرات المفحوصة:' : 'Key Parameters Analyzed:'}
+                                </div>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {report.parameters.slice(0, 4).map((p, idx) => (
+                                    <span
+                                      key={idx}
+                                      className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-mono"
+                                    >
+                                      {lang === 'ar' ? p.name_ar : p.name_en}: <strong>{p.measured_value} {p.unit}</strong>
+                                    </span>
+                                  ))}
+                                  {report.parameters.length > 4 && (
+                                    <span className="px-1.5 py-0.5 text-[10px] text-slate-400">
+                                      +{report.parameters.length - 4}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Action buttons */}
+                            <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
+                              <button
+                                type="button"
+                                onClick={() => setSelectedReport(report)}
+                                className="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-semibold text-xs transition-colors cursor-pointer flex items-center gap-1.5"
+                              >
+                                <FileText className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                                <span>{lang === 'ar' ? 'استعراض المؤشرات' : 'View Parameters'}</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => visitorPortalService.openPrintableReport(report, lang as 'ar' | 'en' | 'fr')}
+                                className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-colors shadow-2xs cursor-pointer flex items-center gap-1.5"
+                              >
+                                <Download className="w-3.5 h-3.5" />
+                                <span>{lang === 'ar' ? 'تحميل التقرير (PDF)' : 'Download (PDF)'}</span>
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
-              </div>
-            )}
               </>
             )}
           </div>
@@ -1174,7 +1199,9 @@ export default function VisitorDashboard() {
                 <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-inner inline-block mx-auto">
                   <img
                     src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
-                      `https://southernwaterlabs.gov.sa/visitor/${badgeModalAppt.visitor_id}`
+                      `${window.location.origin}/visitor/${encodeURIComponent(
+                        badgeModalAppt.visitor_id
+                      )}`
                     )}`}
                     alt="QR Pass"
                     className="w-36 h-36 mx-auto"
