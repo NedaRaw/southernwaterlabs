@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import {
   Droplets, Building2, MapPin, ChevronLeft, ChevronRight, Network, ArrowLeft, ArrowRight,
   UserPlus, FileText, MessageSquare, FlaskConical, ShieldCheck,
-  Target, Eye, Award
+  Target, Eye, Award, FileCheck2
 } from 'lucide-react';
 import { getLocalizedCenters } from '@/data/laboratories';
 import { siteStats } from '@/data/siteConfig';
@@ -373,8 +373,9 @@ export default function Home() {
             <p className="text-slate-300 text-xs sm:text-sm max-w-2xl mx-auto">{t('cta.desc')}</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {[
+              { to: '/portal', icon: FileCheck2, title: lang === 'ar' ? 'بوابة الزوار والتقارير' : lang === 'fr' ? 'Espace Visiteur & Rapports' : 'Visitor Portal & Reports', desc: lang === 'ar' ? 'متابعة مواعيدك المجدولة، سجل الزيارات وتحميل تقارير الفحص' : lang === 'fr' ? 'Suivi des rendez-vous et téléchargement des rapports certifiés' : 'Track your appointments, visit history & download lab reports' },
               { to: '/register', icon: UserPlus, title: t('cs.register'), desc: t('cta.register.desc') },
               { to: '/survey', icon: FileText, title: t('quick.survey'), desc: t('cta.survey.desc') },
               { to: '/enquiry', icon: MessageSquare, title: t('quick.enquiry'), desc: t('cta.enquiry.desc') },

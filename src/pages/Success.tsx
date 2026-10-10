@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import {
-  CheckCircle2, Download, Home, Star, User, Calendar,
-  Building2, Hash, AlertCircle, Loader2, Printer, ShieldCheck
+  CheckCircle2, Download, Star, User, Calendar,
+  Building2, Hash, AlertCircle, Loader2, Printer, ShieldCheck, FileCheck2
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useLang } from '@/lib/i18n';
@@ -252,23 +252,27 @@ export default function Success() {
           )}
 
           <div className="mt-6 flex flex-col sm:flex-row gap-3">
+            <Link
+              to={`/portal?visitor_id=${encodeURIComponent(displayRefId)}`}
+              className="flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-all flex-1 shadow-md hover:shadow-lg whitespace-nowrap cursor-pointer"
+            >
+              <FileCheck2 className="w-4 h-4 shrink-0" />
+              <span>
+                {lang === 'ar'
+                  ? 'لوحة تحكم الزائر ومتابعة التقارير'
+                  : 'My Visitor Dashboard & Reports'}
+              </span>
+            </Link>
             <button
               onClick={() => setShowBadge(!showBadge)}
-              className="flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-semibold text-sm transition-all flex-1 shadow-xs hover:shadow-md whitespace-nowrap cursor-pointer"
+              className="flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 text-slate-800 dark:text-slate-200 font-semibold text-sm border border-slate-300 dark:border-slate-700 transition-all flex-1 shadow-xs hover:shadow-md whitespace-nowrap cursor-pointer"
             >
               <Download className="w-4 h-4 shrink-0" />
               <span>{t('success.badge')}</span>
             </button>
             <Link
-              to="/"
-              className="flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-semibold text-sm border border-slate-300 transition-all flex-1 shadow-xs hover:shadow-md whitespace-nowrap"
-            >
-              <Home className="w-4 h-4 shrink-0" />
-              <span>{t('success.home')}</span>
-            </Link>
-            <Link
               to="/survey"
-              className="flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-semibold text-sm border border-slate-300 transition-all flex-1 shadow-xs hover:shadow-md whitespace-nowrap"
+              className="flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 text-slate-800 dark:text-slate-200 font-semibold text-sm border border-slate-300 dark:border-slate-700 transition-all shadow-xs hover:shadow-md whitespace-nowrap"
             >
               <Star className="w-4 h-4 shrink-0 text-amber-500" />
               <span>{t('success.rate')}</span>

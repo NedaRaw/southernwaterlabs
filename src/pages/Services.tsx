@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -12,17 +12,36 @@ import {
   Award,
   Sparkles,
   Layers,
+  Building2,
+  ClipboardList,
+  Send,
+  FlaskConical,
+  Camera,
+  Eye,
+  ZoomIn,
+  X,
 } from 'lucide-react';
 import { services, getLocalizedService } from '@/data/siteConfig';
 import { useLang } from '@/lib/i18n';
 import Breadcrumb from '@/components/Breadcrumb';
 import { siteMedia } from '@/data/siteMedia';
+import nwcLogo from '@/assets/images/nwc-logo.png';
+import nwcCorporateImg from '@/assets/images/nwc.jpg';
+import nwcLabTestingImg from '@/assets/images/nwc-lab1.jpg';
+import nwcLabAgilentImg from '@/assets/images/nwc-lab2.jpg';
 
 interface ServiceSpec {
   features: { ar: string; en: string; fr: string }[];
   parameters: { ar: string; en: string; fr: string }[];
   turnaroundTime: { ar: string; en: string; fr: string };
   accreditation: string;
+}
+
+interface ShowcaseImage {
+  src: string;
+  badge: { ar: string; en: string; fr: string };
+  title: { ar: string; en: string; fr: string };
+  desc: { ar: string; en: string; fr: string };
 }
 
 const SERVICE_SPECS: Record<string, ServiceSpec> = {
@@ -294,6 +313,20 @@ export default function Services() {
   const navigate = useNavigate();
   const detailSectionRef = useRef<HTMLDivElement>(null);
 
+  // Lightbox modal state for photographic showcase
+  const [selectedImage, setSelectedImage] = useState<ShowcaseImage | null>(null);
+
+  // Close lightbox on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSelectedImage(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedImage]);
+
   // Retrieve service identifier from either /services/:serviceId OR /services?service=:id
   const currentParam = serviceId || searchParams.get('service');
 
@@ -329,6 +362,64 @@ export default function Services() {
     navigate(`/services/${id}`);
   };
 
+  // Showcase gallery of the 3 requested NWC images
+  const showcaseImages: ShowcaseImage[] = [
+    {
+      src: nwcCorporateImg,
+      badge: {
+        ar: 'المنشأة والاعتماد المؤسسي',
+        en: 'Corporate Identity & Accreditation',
+        fr: 'Identité Institutionnelle & Siège',
+      },
+      title: {
+        ar: 'شركة المياه الوطنية — حزمة الخدمات المخبرية والبيئية الشاملة بالقطاع الجنوبي',
+        en: 'National Water Company — Comprehensive Laboratory & Environmental Services',
+        fr: 'Compagnie Nationale des Eaux — Offre Globale d’Analyses et Services Environnementaux',
+      },
+      desc: {
+        ar: 'المنظومة المؤسسية المعتمدة لشركة المياه الوطنية الرائدة في تقديم أدق الفحوصات والتحاليل المخبرية لمياه الشرب ومصادر الإمداد وفق أعلى معايير الجودة والسلامة العالمية.',
+        en: 'The certified institutional framework of National Water Company delivering high-precision water and environmental testing across all Southern Sector regions.',
+        fr: 'Le cadre institutionnel certifié de la National Water Company garantissant des analyses physico-chimiques et microbiologiques conformes aux exigences les plus strictes.',
+      },
+    },
+    {
+      src: nwcLabTestingImg,
+      badge: {
+        ar: 'محطات التحاليل والفحوصات',
+        en: 'Laboratory Analytical Stations',
+        fr: 'Postes d’Analyses & Contrôles',
+      },
+      title: {
+        ar: 'محطة الفحوصات الميكروبيولوجية والكيميائية الدقيقة لمياه الشرب',
+        en: 'Precision Microbiological & Chemical Water Analysis Stations',
+        fr: 'Stations de Contrôle Microbiologique et Chimique de l’Eau Potable',
+      },
+      desc: {
+        ar: 'كوادر وطنية متخصصة ومعدات مخبرية معقمة ومحطات ترشيح غشائي تضمن الفحص الجرثومي والكيميائي المستمر لشبكات الإمداد والخزانات على مدار 24 ساعة.',
+        en: 'Specialized national scientific personnel and standardized membrane filtration suites executing continuous 24/7 microbial and chemical verification.',
+        fr: 'Personnel scientifique hautement qualifié et postes d’analyses stériles assurant le suivi bactériologique et chimique en continu des réseaux d’adduction.',
+      },
+    },
+    {
+      src: nwcLabAgilentImg,
+      badge: {
+        ar: 'التقنيات التحليلية المتقدمة',
+        en: 'Advanced Analytical Instrumentation',
+        fr: 'Instrumentation Analytique de Pointe',
+      },
+      title: {
+        ar: 'منظومة مطيافية البلازما والكروماتوغرافيا المتطورة (Agilent Technologies)',
+        en: 'Advanced ICP-MS & Chromatographic Analytical Systems (Agilent Technologies)',
+        fr: 'Systèmes Analytiques Haute Précision ICP-MS & Chromatographie (Agilent Technologies)',
+      },
+      desc: {
+        ar: 'تجهيزات مخبرية عالية الدقة والتقنية لقياس المعادن الثقيلة، المركبات النزرة، والتأكد التام من مطابقة المواصفات القياسية السعودية (SASO) والخليجية (GSO).',
+        en: 'State-of-the-art analytical instrumentation for ultra-trace element quantification, heavy metals detection, and total SASO / GSO compliance.',
+        fr: 'Équipements de pointe pour le dosage des métaux lourds à l’échelle du ppb et la conformité absolue aux spécifications nationales et internationales.',
+      },
+    },
+  ];
+
   return (
     <div className="pt-16 sm:pt-20 pb-20 bg-[#F8FAFC] dark:bg-[#0B1220] transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -344,30 +435,352 @@ export default function Services() {
           }
         />
 
-        {/* Hero Visual Banner - Clean Institutional Style */}
-        <div className="mt-4 mb-8 relative rounded-2xl overflow-hidden bg-[#0A1324] text-white shadow-lg border border-slate-800">
-          <div className="absolute inset-0 z-0">
-            <img
-              src={siteMedia.panoramicBand || siteMedia.waterTestingPan}
-              alt="Laboratory Services"
-              className="w-full h-full object-cover object-center opacity-30 mix-blend-luminosity scale-102"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0A1324] via-[#0A1324]/90 to-[#102A43]/75" />
+        {/* ============================================================ */}
+        {/* 01: INSTITUTIONAL HERO SECTION WITH OFFICIAL LOGO & DETAILS  */}
+        {/* Harmonized with Asir, Najran, Jazan, and Laboratories pages   */}
+        {/* ============================================================ */}
+        <section className="mt-4 mb-10 relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1E3A5F] via-[#152B47] to-[#0A1324] p-6 sm:p-10 lg:p-12 text-white shadow-lg ring-1 ring-white/10">
+          <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-96 h-96 rounded-full bg-teal-500/10 blur-3xl pointer-events-none" />
+
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+            {/* Left/Right Text Content (Child 1: Right in RTL, Left in LTR) */}
+            <div className="lg:col-span-8 space-y-4">
+              {/* Badges strip */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-medium border border-emerald-400/25">
+                  <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+                  <span>
+                    {lang === 'ar'
+                      ? 'فحوصات معتمدة وفق المواصفة ISO/IEC 17025:2017'
+                      : lang === 'fr'
+                        ? 'Analyses accréditées selon ISO/IEC 17025:2017'
+                        : 'Accredited Testing Scope ISO/IEC 17025:2017'}
+                  </span>
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-xs font-medium border border-amber-400/25">
+                  <Award className="w-3.5 h-3.5 shrink-0" />
+                  <span>
+                    {lang === 'ar'
+                      ? 'اعتماد المركز السعودي للاعتماد (SAC)'
+                      : lang === 'fr'
+                        ? 'Centre Saoudien d’Accréditation (SAC)'
+                        : 'Saudi Accreditation Center (SAC)'}
+                  </span>
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-200 text-xs font-medium border border-blue-400/25">
+                  <Building2 className="w-3.5 h-3.5 shrink-0" />
+                  <span>
+                    {lang === 'ar'
+                      ? 'شركة المياه الوطنية — القطاع الجنوبي'
+                      : lang === 'fr'
+                        ? 'Compagnie Nationale des Eaux — Secteur Sud'
+                        : 'National Water Company — Southern Sector'}
+                  </span>
+                </span>
+              </div>
+
+              {/* Main Official Title */}
+              <div>
+                <p className="text-xs sm:text-sm font-semibold text-blue-300 uppercase tracking-wider mb-1">
+                  {lang === 'ar'
+                    ? 'شركة المياه الوطنية — الإدارة العامة للمختبرات والخدمات البيئية بالقطاع الجنوبي'
+                    : lang === 'fr'
+                      ? 'Compagnie Nationale des Eaux — Direction des Laboratoires du Secteur Sud'
+                      : 'National Water Company — Southern Sector Environmental & Water Laboratories'}
+                </p>
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-white leading-tight">
+                  {t('services.title')}
+                </h1>
+                <p className="text-xs sm:text-sm font-normal text-emerald-300 mt-2 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <span>
+                    {lang === 'ar'
+                      ? 'منظومة فحوصات مخبرية متكاملة وتحاليل كيميائية وميكروبيولوجية مطابقة لأعلى المعايير العالمية'
+                      : lang === 'fr'
+                        ? 'Gamme intégrée d’analyses physico-chimiques et microbiologiques conformes aux normes internationales'
+                        : 'Integrated portfolio of chemical, microbiological, and specialized water testing adhering to global standards'}
+                  </span>
+                </p>
+              </div>
+
+              {/* Institutional description */}
+              <p className="text-slate-200/90 text-xs sm:text-sm leading-relaxed max-w-2xl font-normal">
+                {t('services.desc')}
+              </p>
+
+              {/* Quick Action Buttons */}
+              <div className="pt-2 flex flex-wrap items-center gap-3">
+                <Link
+                  to="/register"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs sm:text-sm transition-all duration-200 shadow-lg shadow-blue-900/30 hover:shadow-blue-600/40"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  <span>
+                    {lang === 'ar'
+                      ? 'طلب فحص العينات / تسجيل زيارة'
+                      : lang === 'fr'
+                        ? 'Demander une Analyse / Visite'
+                        : 'Request Sample Testing / Visit'}
+                  </span>
+                </Link>
+                <Link
+                  to="/survey"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium text-xs sm:text-sm transition-all duration-200 ring-1 ring-white/20"
+                >
+                  <ClipboardList className="w-4 h-4" />
+                  <span>
+                    {lang === 'ar'
+                      ? 'استبيان رضا العملاء'
+                      : lang === 'fr'
+                        ? 'Enquête de Satisfaction'
+                        : 'Customer Survey'}
+                  </span>
+                </Link>
+                <Link
+                  to="/enquiry"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium text-xs sm:text-sm transition-all duration-200 ring-1 ring-white/20"
+                >
+                  <Send className="w-4 h-4" />
+                  <span>
+                    {lang === 'ar'
+                      ? 'إرسال استفسار فني'
+                      : lang === 'fr'
+                        ? 'Envoyer une Demande'
+                        : 'Send Technical Enquiry'}
+                  </span>
+                </Link>
+                <Link
+                  to="/mobile-laboratories"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal-500/20 hover:bg-teal-500/30 text-teal-200 font-medium text-xs sm:text-sm transition-all duration-200 ring-1 ring-teal-400/30"
+                >
+                  <FlaskConical className="w-4 h-4 text-teal-300" />
+                  <span>
+                    {lang === 'ar'
+                      ? 'المختبرات المتنقلة'
+                      : lang === 'fr'
+                        ? 'Unités Mobiles'
+                        : 'Mobile Laboratories'}
+                  </span>
+                </Link>
+              </div>
+            </div>
+
+            {/* Logo Emblem Container (Child 2: Left in RTL, Right in LTR) */}
+            <div className="lg:col-span-4 flex justify-center">
+              <div className="relative p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700/80 shadow-lg max-w-xs w-full text-center">
+                {/* Institutional circular emblem frame */}
+                <div className="relative w-40 h-40 sm:w-48 sm:h-48 mx-auto flex items-center justify-center">
+                  {/* Outer institutional ring */}
+                  <div className="absolute inset-0 rounded-full border border-blue-700/25 dark:border-blue-400/25" />
+
+                  {/* Inner accreditation ring */}
+                  <div className="absolute inset-2 rounded-full border border-amber-500/35 dark:border-amber-400/30" />
+
+                  {/* Subtle inner white field */}
+                  <div className="absolute inset-4 rounded-full bg-white dark:bg-slate-900 shadow-sm" />
+
+                  {/* Official NWC Logo */}
+                  <div className="relative z-10 w-36 h-36 sm:w-40 sm:h-40 flex items-center justify-center p-2">
+                    <img
+                      src={nwcLogo}
+                      alt={
+                        lang === 'ar'
+                          ? 'شركة المياه الوطنية'
+                          : lang === 'fr'
+                            ? 'Compagnie Nationale des Eaux'
+                            : 'National Water Company'
+                      }
+                      className="max-h-full max-w-full object-contain"
+                    />
+                  </div>
+                </div>
+
+                {/* Institutional identification below logo inside the frame */}
+                <div className="mt-5 pt-4 border-t border-slate-200 dark:border-slate-700 text-center">
+                  <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 block tracking-wide leading-snug">
+                    {lang === 'ar'
+                      ? 'حزمة الخدمات والتحاليل المخبرية'
+                      : lang === 'fr'
+                        ? 'Services & Analyses de Laboratoires'
+                        : 'Accredited Laboratory Services & Analysis'}
+                  </span>
+
+                  <span className="text-[11px] text-blue-600 dark:text-blue-400 font-medium block mt-1">
+                    {lang === 'ar'
+                      ? 'منظومة الجودة وضبط الفحوصات — القطاع الجنوبي'
+                      : lang === 'fr'
+                        ? 'Cadre d’Analyse & Contrôle Qualité — Secteur Sud'
+                        : 'Testing & Quality Framework — Southern Sector'}
+                  </span>
+
+                  {/* Accreditation */}
+                  <div className="mt-2 flex items-center justify-center gap-2">
+                    <span className="h-px w-5 bg-amber-500/50" />
+                    <span className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-400 tracking-[0.12em]">
+                      ISO/IEC 17025:2017 &bull; SAC
+                    </span>
+                    <span className="h-px w-5 bg-amber-500/50" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ============================================================ */}
+        {/* 02: OFFICIAL PHOTOGRAPHIC SHOWCASE (nwc.jpg, nwc-lab1, nwc-lab2) */}
+        {/* High-quality laboratory and institutional facilities gallery  */}
+        {/* ============================================================ */}
+        <section className="mb-12">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 text-xs font-semibold mb-2">
+                <Camera className="w-3.5 h-3.5" />
+                <span>
+                  {lang === 'ar'
+                    ? 'المعرض المصور للمنشآت والتقنيات التحليلية'
+                    : lang === 'fr'
+                      ? 'Galerie des Installations & Équipements Analytiques'
+                      : 'Photographic Showcase: Analytical Facilities & Technology'}
+                </span>
+              </div>
+              <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
+                {lang === 'ar'
+                  ? 'البيئة المخبرية المعتمدة والأجهزة التحليلية المتقدمة'
+                  : lang === 'fr'
+                    ? 'Environnement Analytique Accrédité & Équipements de Pointe'
+                    : 'Accredited Laboratory Environment & Advanced Analytical Suites'}
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                {lang === 'ar'
+                  ? 'صور رسمية توثق التجهيزات المخبرية المتقدمة لشركة المياه الوطنية وأحدث أجهزة التحليل الدقيقة'
+                  : lang === 'fr'
+                    ? 'Photographies officielles illustrant les équipements d’analyse de pointe de la National Water Company'
+                    : 'Official imagery documenting the advanced testing suites and state-of-the-art analytical equipment'}
+              </p>
+            </div>
+            <div className="text-xs text-slate-400 dark:text-slate-500 hidden sm:flex items-center gap-1">
+              <Eye className="w-3.5 h-3.5" />
+              <span>
+                {lang === 'ar'
+                  ? 'انقر على أي صورة للعرض المكبر'
+                  : lang === 'fr'
+                    ? 'Cliquez pour agrandir'
+                    : 'Click any photo to enlarge'}
+              </span>
+            </div>
           </div>
 
-          <div className="relative z-10 p-6 sm:p-10 lg:p-12 max-w-3xl">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 text-xs font-medium mb-3 border border-blue-400/25">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>{lang === 'ar' ? 'منظومة الفحص المعتمدة' : lang === 'fr' ? 'Cadre d\'analyse accrédité' : 'Accredited Testing Framework'}</span>
-            </div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-white leading-tight mb-2">
-              {t('services.title')}
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-300/90 leading-relaxed font-normal">
-              {t('services.desc')}
-            </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {showcaseImages.map((img, idx) => (
+              <div
+                key={idx}
+                onClick={() => setSelectedImage(img)}
+                className="group relative rounded-2xl overflow-hidden bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col"
+              >
+                {/* Image Container */}
+                <div className="relative aspect-4/3 w-full overflow-hidden bg-slate-900">
+                  <img
+                    src={img.src}
+                    alt={img.title[lang] || img.title.en}
+                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                  {/* Subtle gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+
+                  {/* Badge */}
+                  <div className="absolute top-3 start-3">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-white/90 dark:bg-slate-900/90 text-blue-700 dark:text-blue-300 backdrop-blur-xs border border-white/20 shadow-xs">
+                      {img.badge[lang] || img.badge.en}
+                    </span>
+                  </div>
+
+                  {/* Zoom indicator on hover */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/25">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 dark:bg-slate-900/90 text-xs font-semibold text-slate-900 dark:text-white shadow-md">
+                      <ZoomIn className="w-3.5 h-3.5 text-blue-600" />
+                      <span>{lang === 'ar' ? 'عرض مكبر' : lang === 'fr' ? 'Agrandir' : 'Enlarge'}</span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* Text Content */}
+                <div className="p-5 flex-1 flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-snug mb-2">
+                      {img.title[lang] || img.title.en}
+                    </h3>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
+                      {img.desc[lang] || img.desc.en}
+                    </p>
+                  </div>
+
+                  <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-blue-600 dark:text-blue-400 font-medium">
+                    <span className="flex items-center gap-1">
+                      <ZoomIn className="w-3 h-3" />
+                      <span>{lang === 'ar' ? 'معاينة بالحجم الكامل' : lang === 'fr' ? 'Afficher en plein écran' : 'View full-size'}</span>
+                    </span>
+                    <span className="text-slate-400 font-mono text-[10px]">NWC</span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
+        </section>
+
+        {/* Modal Lightbox for Image Preview */}
+        {selectedImage && (
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 sm:p-6"
+            onClick={() => setSelectedImage(null)}
+          >
+            <div
+              className="relative max-w-4xl w-full bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-2xl border border-white/10"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={() => setSelectedImage(null)}
+                aria-label={lang === 'ar' ? 'إغلاق' : lang === 'fr' ? 'Fermer' : 'Close'}
+                className="absolute top-3 end-3 z-20 p-2 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {/* Image Frame */}
+              <div className="relative max-h-[70vh] bg-black flex items-center justify-center overflow-hidden">
+                <img
+                  src={selectedImage.src}
+                  alt={selectedImage.title[lang] || selectedImage.title.en}
+                  className="max-h-[70vh] w-auto max-w-full object-contain"
+                />
+              </div>
+
+              {/* Caption and description */}
+              <div className="p-5 sm:p-6 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300">
+                    {selectedImage.badge[lang] || selectedImage.badge.en}
+                  </span>
+                  <span className="text-xs text-slate-400">
+                    {lang === 'ar' ? 'شركة المياه الوطنية — القطاع الجنوبي' : lang === 'fr' ? 'Compagnie Nationale des Eaux — Secteur Sud' : 'National Water Company — Southern Sector'}
+                  </span>
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-2">
+                  {selectedImage.title[lang] || selectedImage.title.en}
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
+                  {selectedImage.desc[lang] || selectedImage.desc.en}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ============================================================
             Service Selector Tabs Bar (Synchronized with URL)

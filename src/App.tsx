@@ -20,6 +20,7 @@ import Survey from '@/pages/Survey';
 import Enquiry from '@/pages/Enquiry';
 import Admin from '@/pages/Admin';
 import MobileLaboratories from '@/pages/MobileLaboratories';
+import VisitorDashboard from '@/pages/VisitorDashboard';
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -92,6 +93,8 @@ function App() {
               <Route path="/mobile-laboratories" element={<MobileLaboratories />} />
               <Route path="/news" element={<News />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/portal" element={<VisitorDashboard />} />
+              <Route path="/visitor-dashboard" element={<VisitorDashboard />} />
               <Route path="/success" element={<Success />} />
               <Route path="/visitor/:id" element={<VisitorDetail />} />
               <Route path="/survey" element={<Survey />} />

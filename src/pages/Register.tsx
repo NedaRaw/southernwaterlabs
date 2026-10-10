@@ -220,6 +220,23 @@ export default function Register() {
       }
 
       if (data && (data.id || data.visitor_id)) {
+        try {
+          const sessionUser = {
+            id: data.id || data.visitor_id,
+            visitor_id: data.visitor_id || data.id,
+            visitor_name: `${formData.first_name} ${formData.last_name}`.trim(),
+            first_name: formData.first_name,
+            last_name: formData.last_name,
+            national_id: formData.national_id,
+            phone: formData.phone,
+            email: formData.email,
+            company: formData.company,
+            job_title: formData.job_title,
+          };
+          localStorage.setItem('swl_visitor_portal_user', JSON.stringify(sessionUser));
+        } catch {
+          // Non-critical session storage fallback
+        }
         // Direct navigation to success only after confirmed insertion
         navigate(`/success?id=${encodeURIComponent(data.visitor_id || data.id)}`);
       } else {

@@ -19,17 +19,17 @@ import {
   CheckCircle2,
   Waves,
   LogIn,
-  Users,
   Sun,
   Moon,
   Truck,
   Sparkles,
   Network,
+  FileCheck,
 } from 'lucide-react';
 import { useLang, type Lang } from '@/lib/i18n';
 import { useTheme } from '@/lib/theme';
-import LabLogo from '@/components/LabLogo';
 import SearchModal from '@/components/SearchModal';
+import nwcLogo from '@/assets/images/nwc-logo.png';
 
 const languages: { code: Lang; label: string; native: string }[] = [
   { code: 'ar', label: 'العربية', native: 'العربية' },
@@ -47,7 +47,7 @@ export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
 
   const [openDropdown, setOpenDropdown] = useState<
-    'labs' | 'services' | 'mobile' | 'cs' | 'lang' | null
+    'labs' | 'services' | 'mobile' | 'lang' | null
   >(null);
 
   // Individual central lab branch dropdown open/close states
@@ -73,12 +73,10 @@ export default function Header() {
     labs: boolean;
     services: boolean;
     mobile: boolean;
-    cs: boolean;
   }>({
     labs: true,
     services: false,
     mobile: false,
-    cs: false,
   });
 
   // Container refs for click-outside detection
@@ -86,7 +84,6 @@ export default function Header() {
   const labsRef = useRef<HTMLDivElement>(null);
   const servicesRef = useRef<HTMLDivElement>(null);
   const mobileRef = useRef<HTMLDivElement>(null);
-  const csRef = useRef<HTMLDivElement>(null);
   const langRef = useRef<HTMLDivElement>(null);
   const mobileLangRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
@@ -142,8 +139,6 @@ export default function Header() {
         currentRef = servicesRef.current;
       } else if (openDropdown === 'mobile') {
         currentRef = mobileRef.current;
-      } else if (openDropdown === 'cs') {
-        currentRef = csRef.current;
       } else if (openDropdown === 'lang') {
         if (
           langRef.current?.contains(target) ||
@@ -172,6 +167,11 @@ export default function Header() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
+        e.preventDefault();
+        setSearchOpen((prev) => !prev);
+        return;
+      }
       if (e.key === 'Escape') {
         if (searchOpen) {
           setSearchOpen(false);
@@ -538,34 +538,6 @@ export default function Header() {
     [lang, t]
   );
 
-  // ============================================================
-  // CUSTOMER SERVICES
-  // ============================================================
-
-  const customerServices = useMemo(
-    () => [
-      {
-        to: '/register',
-        label: t('cs.register'),
-        icon: UserPlus,
-        desc: t('quick.register.desc'),
-      },
-      {
-        to: '/survey',
-        label: t('cs.survey'),
-        icon: FileText,
-        desc: t('quick.survey.desc'),
-      },
-      {
-        to: '/enquiry',
-        label: t('cs.enquiry'),
-        icon: MessageSquare,
-        desc: t('quick.enquiry.desc'),
-      },
-    ],
-    [t]
-  );
-
   const currentLangObj =
     languages.find((l) => l.code === lang) || languages[0];
 
@@ -574,7 +546,7 @@ export default function Header() {
   // ============================================================
 
   const handleMouseEnter = (
-    dropdownKey: 'labs' | 'services' | 'mobile' | 'cs' | 'lang'
+    dropdownKey: 'labs' | 'services' | 'mobile' | 'lang'
   ) => {
     if (leaveTimerRef.current) {
       clearTimeout(leaveTimerRef.current);
@@ -599,7 +571,7 @@ export default function Header() {
 
   const handleButtonClick = (
     e: React.MouseEvent,
-    dropdownKey: 'labs' | 'services' | 'mobile' | 'cs' | 'lang'
+    dropdownKey: 'labs' | 'services' | 'mobile' | 'lang'
   ) => {
     e.preventDefault();
     e.stopPropagation();
@@ -623,7 +595,7 @@ export default function Header() {
 
   const handleDropdownKeyDown = (
     e: React.KeyboardEvent,
-    dropdownKey: 'labs' | 'services' | 'mobile' | 'cs' | 'lang'
+    dropdownKey: 'labs' | 'services' | 'mobile' | 'lang'
   ) => {
     if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -638,7 +610,7 @@ export default function Header() {
   // MOBILE ACCORDION
   // ============================================================
 
-  const toggleMobileSection = (key: 'labs' | 'services' | 'mobile' | 'cs') => {
+  const toggleMobileSection = (key: 'labs' | 'services' | 'mobile') => {
     setMobileExpanded((prev) => ({
       ...prev,
       [key]: !prev[key],
@@ -673,55 +645,768 @@ export default function Header() {
       </a>
 
       {/* ======================================================
-          PRIMARY FIXED HEADER
+          PRIMARY FIXED TWO-LEVEL HEADER
       ====================================================== */}
       <header
         ref={navRef}
         role="banner"
         dir={dir}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 ${
-          menuOpen
-            ? 'bg-white dark:bg-[#111827] shadow-md border-b border-[#E2E8F0] dark:border-[#334155]'
-            : scrolled
-              ? 'bg-white/95 dark:bg-[#111827]/95 backdrop-blur-md shadow-sm border-b border-[#E2E8F0] dark:border-[#334155] h-[56px] xl:h-[60px]'
-              : 'bg-white dark:bg-[#111827] border-b border-[#E2E8F0] dark:border-[#334155] h-[56px] xl:h-[60px]'
-        }`}
+        className="fixed top-0 left-0 right-0 z-50 transition-all duration-200"
       >
-        <div className="max-w-[1600px] mx-auto px-3 sm:px-5 lg:px-6 xl:px-8 h-full">
-          <div className="flex items-center justify-between h-full gap-2 xl:gap-3 2xl:gap-4">
-            {/* ==================================================
-                ZONE 1 - LOGO
-            ================================================== */}
-            <Link
-              to="/"
-              className="flex items-center shrink-0 rounded-lg py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 transition-opacity hover:opacity-95 max-w-[210px] sm:max-w-[240px] xl:max-w-[260px]"
-              aria-label={`${t('brand.name')} - ${t('nav.home')}`}
-              onClick={() => {
-                setOpenDropdown(null);
-                setMenuOpen(false);
-              }}
-            >
-              <LabLogo size="md" showSubtitle={false} />
-            </Link>
+        {/* ====================================================
+            TOP BAR: INSTITUTIONAL IDENTITY & UTILITY CONTROLS
+        ==================================================== */}
+        <div
+          className={`relative z-20 bg-white dark:bg-[#111827] border-b border-[#E2E8F0] dark:border-[#1E293B] transition-all duration-200 ${menuOpen
+              ? 'shadow-md'
+              : scrolled
+                ? 'h-[58px] xl:h-[62px] shadow-sm backdrop-blur-md bg-white/98 dark:bg-[#111827]/98'
+                : 'h-[62px] xl:h-[68px] shadow-2xs'
+            }`}
+        >
+          <div className="max-w-[1600px] mx-auto px-3 sm:px-5 lg:px-6 xl:px-8 h-full">
+            <div className="flex items-center justify-between h-full gap-3 sm:gap-4">
+              {/* 1. OFFICIAL INSTITUTIONAL IDENTITY & LOGO */}
+              <Link
+                to="/"
+                className="flex items-center gap-2.5 sm:gap-3 shrink-0 rounded-xl py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 transition-opacity hover:opacity-95 max-w-[280px] sm:max-w-[340px] md:max-w-[420px] lg:max-w-[460px]"
+                aria-label={`${t('brand.name')} - ${t('nav.home')}`}
+                onClick={() => {
+                  setOpenDropdown(null);
+                  setMenuOpen(false);
+                }}
+              >
+                {/* Official NWC Logo with preserved original proportions */}
+                <div className="shrink-0 flex items-center justify-center">
+                  <div className="bg-white px-2 py-1 rounded-xl border border-slate-200/90 dark:border-white/20 shadow-2xs flex items-center justify-center ring-1 ring-slate-100 dark:ring-white/10">
+                    <img
+                      src={nwcLogo}
+                      alt="National Water Company Logo"
+                      className="h-9 sm:h-10 md:h-11 w-auto object-contain drop-shadow-2xs transition-transform duration-200 hover:scale-[1.02]"
+                      loading="eager"
+                    />
+                  </div>
+                </div>
+
+                {/* Institutional Calligraphic & Official Typography */}
+                <div className="flex flex-col text-start justify-center min-w-0">
+                  <span className="text-[10px] sm:text-[10.5px] font-medium text-[#64748B] dark:text-[#94A3B8] leading-tight hidden sm:block truncate mt-0.5">
+                    {lang === 'ar'
+                      ? 'شركة المياه الوطنية | National Water Company'
+                      : lang === 'fr'
+                        ? 'Société Nationale des Eaux | NWC'
+                        : 'National Water Company | Water Quality Assurance'}
+                  </span>
+                  <span className="text-[11.5px] sm:text-[12px] md:text-[12.5px] xl:text-[13px] font-bold text-[#1E3A5F] dark:text-[#F8FAFC] leading-snug tracking-tight">
+                    {lang === 'ar'
+                      ? 'المختبرات المركزية لمياه الشرب والخدمات البيئية بالقطاع الجنوبي'
+                      : lang === 'fr'
+                        ? 'Laboratoires Centraux des Eaux du Secteur Sud'
+                        : 'Southern Sector Central Water Laboratories'}
+                  </span>
+
+                </div>
+              </Link>
+
+              {/* 2. SEARCH CONTROL (INSPIRED BY LAHAK REFERENCE) */}
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchOpen(true);
+                  setMenuOpen(false);
+                  setOpenDropdown(null);
+                }}
+                aria-label={
+                  lang === 'ar'
+                    ? 'البحث في الموقع والمختبرات والتحاليل'
+                    : lang === 'fr'
+                      ? 'Rechercher sur le site'
+                      : 'Search the site'
+                }
+                className="hidden md:flex items-center justify-between gap-3 px-3.5 py-1.5 xl:py-2 rounded-xl text-xs bg-slate-50 dark:bg-[#1E293B]/80 hover:bg-slate-100 dark:hover:bg-[#1E293B] border border-slate-200 dark:border-slate-700/80 hover:border-blue-400 dark:hover:border-blue-500/60 text-slate-500 dark:text-slate-400 transition-all shadow-2xs group cursor-pointer w-44 lg:w-72 xl:w-88 max-w-sm focus:outline-none focus:ring-2 focus:ring-blue-600/40 shrink"
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <Search className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors shrink-0" />
+                  <span className="truncate text-slate-500 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-300">
+                    {lang === 'ar'
+                      ? 'ابحث عن فحص مياه، مختبر، أو خدمة...'
+                      : lang === 'fr'
+                        ? 'Rechercher une analyse, labo...'
+                        : 'Search tests, labs, or services...'}
+                  </span>
+                </div>
+                <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-semibold text-slate-400 dark:text-slate-500 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md shadow-2xs shrink-0">
+                  ⌘K
+                </kbd>
+              </button>
+
+              {/* 3. DESKTOP UTILITIES (LANGUAGE, THEME, EMPLOYEE LOGIN) */}
+              <div className="hidden xl:flex items-center gap-2 shrink-0">
+                {/* LANGUAGE SELECTOR */}
+                <div
+                  ref={langRef}
+                  className="relative shrink-0"
+                  onMouseEnter={() => handleMouseEnter('lang')}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  <button
+                    type="button"
+                    id="lang-selector-button"
+                    aria-haspopup="listbox"
+                    aria-expanded={openDropdown === 'lang'}
+                    aria-controls="lang-selector-listbox"
+                    aria-label={`Language: ${currentLangObj.label}`}
+                    onClick={(e) => handleButtonClick(e, 'lang')}
+                    onKeyDown={(e) => handleDropdownKeyDown(e, 'lang')}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#1D4ED8] dark:hover:text-[#93C5FD] hover:bg-blue-50 dark:hover:bg-[#1E293B] border border-[#CBD5E1] dark:border-[#334155] bg-white dark:bg-[#151D2F] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap shadow-2xs cursor-pointer"
+                  >
+                    <Globe aria-hidden="true" className="w-3.5 h-3.5 text-[#1E3A5F] dark:text-[#60A5FA] shrink-0 opacity-80" />
+                    <span>{currentLangObj.label}</span>
+                    <ChevronDown
+                      aria-hidden="true"
+                      className={`w-3 h-3 transition-transform duration-200 text-current opacity-70 ${openDropdown === 'lang' ? 'rotate-180 text-[#1D4ED8] dark:text-[#60A5FA]' : ''
+                        }`}
+                    />
+                  </button>
+
+                  {openDropdown === 'lang' && (
+                    <div
+                      id="lang-selector-listbox"
+                      role="listbox"
+                      aria-labelledby="lang-selector-button"
+                      className="absolute end-0 top-full mt-1.5 w-36 bg-white dark:bg-[#151D2F] rounded-xl shadow-xl border border-[#E2E8F0] dark:border-[#334155] py-1 z-50 animate-fade-in focus:outline-none pointer-events-auto"
+                    >
+                      {languages.map((l) => (
+                        <button
+                          key={l.code}
+                          type="button"
+                          role="option"
+                          aria-selected={lang === l.code}
+                          onClick={() => {
+                            setLang(l.code);
+                            setOpenDropdown(null);
+                          }}
+                          className={`w-full flex items-center justify-between px-3 py-1.5 text-xs text-start transition-colors focus:outline-none cursor-pointer ${lang === l.code
+                              ? 'bg-blue-50 dark:bg-blue-950/60 text-[#1D4ED8] dark:text-[#93C5FD] font-semibold'
+                              : 'text-[#0F172A] dark:text-[#F8FAFC] hover:bg-slate-50 dark:hover:bg-slate-800/60'
+                            }`}
+                        >
+                          <span className="flex items-center gap-2">
+                            <Globe aria-hidden="true" className="w-3 h-3 text-current opacity-70" />
+                            <span>{l.label}</span>
+                          </span>
+                          {lang === l.code && (
+                            <Check aria-hidden="true" className="w-3.5 h-3.5 text-[#1D4ED8] dark:text-[#93C5FD]" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* THEME TOGGLE */}
+                <button
+                  type="button"
+                  onClick={toggleTheme}
+                  aria-label={
+                    theme === 'dark'
+                      ? lang === 'ar'
+                        ? 'التبديل إلى الوضع النهاري'
+                        : lang === 'fr'
+                          ? 'Passer au mode clair'
+                          : 'Switch to light mode'
+                      : lang === 'ar'
+                        ? 'التبديل إلى الوضع الليلي'
+                        : lang === 'fr'
+                          ? 'Passer au mode sombre'
+                          : 'Switch to dark mode'
+                  }
+                  title={
+                    theme === 'dark'
+                      ? lang === 'ar'
+                        ? 'الوضع النهاري'
+                        : 'Light Mode'
+                      : lang === 'ar'
+                        ? 'الوضع الليلي'
+                        : 'Dark Mode'
+                  }
+                  className="flex items-center justify-center w-8 h-8 rounded-xl text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#1D4ED8] dark:hover:text-[#93C5FD] hover:bg-blue-50 dark:hover:bg-[#1E293B] border border-[#CBD5E1] dark:border-[#334155] bg-white dark:bg-[#151D2F] transition-all duration-150 active:scale-95 focus:outline-none focus-visible:ring-2 focus:ring-blue-600 shadow-2xs cursor-pointer group"
+                >
+                  {theme === 'dark' ? (
+                    <Sun aria-hidden="true" className="w-3.5 h-3.5 text-amber-400 group-hover:rotate-12 transition-transform" />
+                  ) : (
+                    <Moon aria-hidden="true" className="w-3.5 h-3.5 text-slate-700 dark:text-slate-200 group-hover:-rotate-12 transition-transform" />
+                  )}
+                </button>
+
+                {/* EMPLOYEE LOGIN (CONNECTED TO AUTH / ADMIN SYSTEM) */}
+                <Link
+                  to="/admin"
+                  className={`flex items-center gap-2 px-3.5 py-1.5 xl:py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 shadow-2xs border ${isActive('/admin')
+                      ? 'bg-[#1E3A5F] text-white border-[#1E3A5F] dark:bg-blue-600 dark:border-blue-500 ring-2 ring-blue-500/20'
+                      : 'bg-[#1E3A5F] hover:bg-[#152B47] text-white border-transparent dark:bg-blue-600 dark:hover:bg-blue-500'
+                    } active:scale-95 shrink-0`}
+                >
+                  <LogIn aria-hidden="true" className="w-3.5 h-3.5 text-white shrink-0" />
+                  <span>
+                    {lang === 'ar'
+                      ? 'دخول الموظفين'
+                      : lang === 'fr'
+                        ? 'Espace Employés'
+                        : 'Employee Login'}
+                  </span>
+                </Link>
+              </div>
+
+              {/* 4. MOBILE HEADER CONTROLS (< xl) */}
+              <div className="flex xl:hidden items-center gap-1.5">
+                {/* SEARCH BUTTON */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchOpen(true);
+                    setMenuOpen(false);
+                    setOpenDropdown(null);
+                  }}
+                  aria-label={
+                    lang === 'ar'
+                      ? 'البحث في الموقع'
+                      : lang === 'fr'
+                        ? 'Rechercher sur le site'
+                        : 'Search the site'
+                  }
+                  className="flex items-center justify-center w-8 h-8 rounded-lg text-[#334155] dark:text-[#F8FAFC] bg-white dark:bg-[#151D2F] border border-[#E2E8F0] dark:border-[#334155] transition-all duration-150 active:scale-95 cursor-pointer shadow-2xs focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                >
+                  <Search aria-hidden="true" className="w-3.5 h-3.5" />
+                </button>
+
+                {/* THEME TOGGLE */}
+                <button
+                  type="button"
+                  onClick={toggleTheme}
+                  aria-label="Toggle Theme"
+                  className="flex items-center justify-center w-8 h-8 rounded-lg text-[#334155] dark:text-[#F8FAFC] bg-white dark:bg-[#151D2F] border border-[#E2E8F0] dark:border-[#334155] transition-all duration-150 active:scale-95 cursor-pointer shadow-2xs"
+                >
+                  {theme === 'dark' ? (
+                    <Sun aria-hidden="true" className="w-3.5 h-3.5 text-amber-400" />
+                  ) : (
+                    <Moon aria-hidden="true" className="w-3.5 h-3.5 text-[#334155]" />
+                  )}
+                </button>
+
+                {/* MOBILE LANGUAGE */}
+                <div ref={mobileLangRef} className="relative">
+                  <button
+                    type="button"
+                    id="mobile-lang-btn"
+                    aria-haspopup="listbox"
+                    aria-expanded={openDropdown === 'lang'}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenDropdown(openDropdown === 'lang' ? null : 'lang');
+                    }}
+                    className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-semibold text-[#334155] dark:text-[#F8FAFC] bg-white dark:bg-[#151D2F] border border-[#E2E8F0] dark:border-[#334155] cursor-pointer shadow-2xs"
+                  >
+                    <Globe aria-hidden="true" className="w-3 h-3 text-[#0F4C81] dark:text-[#60A5FA]" />
+                    <span>{lang.toUpperCase()}</span>
+                    <ChevronDown aria-hidden="true" className="w-2.5 h-2.5 text-slate-400" />
+                  </button>
+
+                  {openDropdown === 'lang' && (
+                    <div className="absolute end-0 top-full mt-1.5 w-32 bg-white dark:bg-[#151D2F] rounded-xl shadow-xl border border-[#E2E8F0] dark:border-[#334155] py-1 z-50 animate-fade-in">
+                      {languages.map((l) => (
+                        <button
+                          key={l.code}
+                          type="button"
+                          onClick={() => {
+                            setLang(l.code);
+                            setOpenDropdown(null);
+                          }}
+                          className={`w-full text-xs text-start px-2.5 py-1.5 flex items-center justify-between cursor-pointer ${lang === l.code
+                              ? 'font-semibold text-[#0F4C81] dark:text-[#93C5FD] bg-blue-50 dark:bg-blue-950/60'
+                              : 'text-[#334155] dark:text-[#F8FAFC] hover:bg-slate-50 dark:hover:bg-slate-800/60'
+                            }`}
+                        >
+                          <span>{l.label}</span>
+                          {lang === l.code && (
+                            <Check className="w-3.5 h-3.5 text-[#0F4C81] dark:text-[#93C5FD]" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* HAMBURGER TOGGLE */}
+                <button
+                  ref={mobileToggleRef}
+                  type="button"
+                  id="mobile-menu-button"
+                  aria-haspopup="true"
+                  aria-expanded={menuOpen}
+                  aria-controls="mobile-navigation-drawer"
+                  aria-label={
+                    menuOpen
+                      ? lang === 'ar'
+                        ? 'إغلاق القائمة الرئيسية'
+                        : 'Fermer le menu'
+                      : lang === 'ar'
+                        ? 'فتح القائمة الرئيسية'
+                        : 'Ouvrir le menu'
+                  }
+                  onClick={() => {
+                    setOpenDropdown(null);
+                    setMenuOpen(!menuOpen);
+                  }}
+                  className="p-1.5 rounded-lg text-[#1E293B] dark:text-[#F8FAFC] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 cursor-pointer"
+                >
+                  {menuOpen ? (
+                    <X aria-hidden="true" className="w-5 h-5" />
+                  ) : (
+                    <Menu aria-hidden="true" className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
+            </div>
 
             {/* ==================================================
-                ZONE 2 - DESKTOP NAVIGATION
+                MOBILE NAVIGATION DRAWER (< xl)
             ================================================== */}
+            {menuOpen && (
+              <div
+                ref={mobileMenuRef}
+                id="mobile-navigation-drawer"
+                role="dialog"
+                aria-modal="true"
+                dir={dir}
+                aria-label={
+                  lang === 'ar'
+                    ? 'قائمة التنقل للأجهزة الذكية'
+                    : 'Menu de navigation mobile'
+                }
+                className="xl:hidden mt-2 pb-6 border-t border-[#E2E8F0] dark:border-[#334155] pt-3 flex flex-col gap-2 animate-fade-in max-h-[82vh] overflow-y-auto"
+              >
+                {/* QUICK EMPLOYEE & VISITOR BUTTONS */}
+                <div className="grid grid-cols-2 gap-2 mb-1">
+                  <Link
+                    to="/admin"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold text-white bg-[#1E3A5F] hover:bg-[#152B47] dark:bg-blue-600 dark:hover:bg-blue-700 shadow-2xs"
+                  >
+                    <LogIn className="w-3.5 h-3.5" />
+                    <span>
+                      {lang === 'ar'
+                        ? 'دخول الموظفين'
+                        : lang === 'fr'
+                          ? 'Espace Employés'
+                          : 'Employee Login'}
+                    </span>
+                  </Link>
+
+                  <Link
+                    to="/portal"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold text-blue-900 dark:text-blue-200 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 shadow-2xs"
+                  >
+                    <FileCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                    <span>
+                      {lang === 'ar'
+                        ? 'بوابة الزوار والتقارير'
+                        : lang === 'fr'
+                          ? 'Portail Visiteurs'
+                          : 'Visitor Portal'}
+                    </span>
+                  </Link>
+                </div>
+
+                {/* MOBILE NAV LINKS (ALL UPPER NAVIGATION SECTIONS) */}
+                <nav
+                  aria-label="Mobile Navigation"
+                  className="flex flex-col gap-1 text-start"
+                >
+                  {/* HOME */}
+                  <Link
+                    to="/"
+                    aria-current={isActive('/') && location.pathname === '/' ? 'page' : undefined}
+                    onClick={() => setMenuOpen(false)}
+                    className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${isActive('/') && location.pathname === '/'
+                        ? 'bg-blue-50 dark:bg-blue-950/40 text-[#1D4ED8] dark:text-[#93C5FD]'
+                        : 'text-[#0F172A] dark:text-[#F8FAFC] hover:bg-slate-50 dark:hover:bg-[#151D2F]'
+                      }`}
+                  >
+                    {t('nav.home')}
+                  </Link>
+
+                  {/* LABORATORIES ACCORDION */}
+                  <div className="rounded-xl bg-slate-50/80 dark:bg-[#151D2F] border border-[#E2E8F0] dark:border-[#334155] overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => toggleMobileSection('labs')}
+                      aria-expanded={mobileExpanded.labs}
+                      className="w-full flex items-center justify-between p-2.5 text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC] hover:bg-blue-50/60 dark:hover:bg-[#1E293B] transition-colors cursor-pointer"
+                    >
+                      <span className="flex items-center gap-2">
+                        <Building2 aria-hidden="true" className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#60A5FA]" />
+                        <span>{t('nav.labs')}</span>
+                      </span>
+                      <ChevronDown
+                        aria-hidden="true"
+                        className={`w-3.5 h-3.5 text-current transition-transform duration-200 ${mobileExpanded.labs ? 'rotate-180 text-[#1D4ED8] dark:text-[#93C5FD]' : ''
+                          }`}
+                      />
+                    </button>
+
+                    {mobileExpanded.labs && (
+                      <div className="px-2 pb-2.5 pt-1 space-y-1.5 border-t border-[#E2E8F0] dark:border-[#334155] animate-fade-in">
+                        {labItems.map((lab) => {
+                          const isExpanded = !!mobileExpandedLabs[lab.id];
+                          return (
+                            <div
+                              key={lab.id}
+                              className={`rounded-lg border transition-all overflow-hidden ${isExpanded
+                                  ? 'bg-blue-50/50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-900/60'
+                                  : 'bg-white dark:bg-[#1E293B] border-slate-200/80 dark:border-slate-700/60'
+                                }`}
+                            >
+                              <div className="flex items-center justify-between p-2 gap-1">
+                                <Link
+                                  to={lab.path}
+                                  onClick={() => setMenuOpen(false)}
+                                  className="flex items-center gap-2 min-w-0 flex-1 text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#1D4ED8] dark:hover:text-[#93C5FD]"
+                                >
+                                  <Building2 className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#60A5FA] shrink-0" />
+                                  <div className="min-w-0 text-start">
+                                    <p className="truncate">{lab.name}</p>
+                                    <p className="text-[10px] text-[#64748B] dark:text-[#94A3B8] font-normal truncate">
+                                      {lab.region} • {lab.branches.length}{' '}
+                                      {lang === 'ar'
+                                        ? lab.branches.length > 1
+                                          ? 'فروع'
+                                          : 'فرع'
+                                        : lab.branches.length > 1
+                                          ? 'branches'
+                                          : 'branch'}
+                                    </p>
+                                  </div>
+                                </Link>
+
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    toggleMobileLabBranches(lab.id);
+                                  }}
+                                  aria-expanded={isExpanded}
+                                  aria-label={
+                                    isExpanded
+                                      ? lang === 'ar'
+                                        ? `إغلاق فروع ${lab.name}`
+                                        : `Hide branches of ${lab.name}`
+                                      : lang === 'ar'
+                                        ? `عرض فروع ${lab.name}`
+                                        : `Show branches of ${lab.name}`
+                                  }
+                                  className={`p-1.5 rounded-md border text-xs transition-colors shrink-0 ms-1 cursor-pointer ${isExpanded
+                                      ? 'bg-[#2563EB] text-white border-[#2563EB] shadow-2xs'
+                                      : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+                                    }`}
+                                >
+                                  <ChevronDown
+                                    className={`w-3.5 h-3.5 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''
+                                      }`}
+                                  />
+                                </button>
+                              </div>
+
+                              {isExpanded && (
+                                <div className="px-2 pb-2 pt-1 space-y-1 bg-slate-50/80 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800 animate-fade-in">
+                                  <div className="flex items-center justify-between px-1 py-0.5 text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                                    <span className="flex items-center gap-1">
+                                      <Network className="w-3 h-3 text-[#2563EB] dark:text-[#60A5FA]" />
+                                      <span>
+                                        {lang === 'ar'
+                                          ? 'الفروع التابعة:'
+                                          : lang === 'fr'
+                                            ? 'Agences rattachées :'
+                                            : 'Branches:'}
+                                      </span>
+                                    </span>
+                                    <Link
+                                      to={lab.path}
+                                      onClick={() => setMenuOpen(false)}
+                                      className="text-[#2563EB] dark:text-[#60A5FA] hover:underline"
+                                    >
+                                      {lang === 'ar' ? 'المختبر الرئيسي' : 'Central lab'}
+                                    </Link>
+                                  </div>
+                                  {lab.branches.map((branch) => (
+                                    <Link
+                                      key={branch.id}
+                                      to={branch.path}
+                                      onClick={() => setMenuOpen(false)}
+                                      className="flex items-center justify-between p-2 rounded-md bg-white dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-slate-200 hover:text-[#1D4ED8] dark:hover:text-[#93C5FD] transition-colors border border-slate-100 dark:border-slate-700/60"
+                                    >
+                                      <span className="flex items-center gap-1.5 min-w-0">
+                                        <Network className="w-3 h-3 text-[#2563EB] dark:text-[#60A5FA] shrink-0" />
+                                        <span className="truncate">{branch.fullName}</span>
+                                      </span>
+                                      <Arrow className="w-3 h-3 text-slate-400 shrink-0" />
+                                    </Link>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+
+                        <Link
+                          to="/laboratories"
+                          onClick={() => setMenuOpen(false)}
+                          className="flex items-center justify-between p-2 mt-1 rounded-lg text-xs font-semibold text-[#1E3A5F] dark:text-[#93C5FD] bg-white dark:bg-[#1E293B] hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors"
+                        >
+                          <span>{t('nav.allLabs')}</span>
+                          <Arrow aria-hidden="true" className="w-3.5 h-3.5" />
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* LABORATORY SERVICES ACCORDION */}
+                  <div className="rounded-xl bg-slate-50/80 dark:bg-[#151D2F] border border-[#E2E8F0] dark:border-[#334155] overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => toggleMobileSection('services')}
+                      aria-expanded={mobileExpanded.services}
+                      className="w-full flex items-center justify-between p-2.5 text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC] hover:bg-blue-50/60 dark:hover:bg-[#1E293B] transition-colors cursor-pointer"
+                    >
+                      <span className="flex items-center gap-2">
+                        <FlaskConical aria-hidden="true" className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#60A5FA]" />
+                        <span>
+                          {lang === 'ar'
+                            ? 'الخدمات المخبرية'
+                            : lang === 'fr'
+                              ? 'Services de Laboratoire'
+                              : 'Laboratory Services'}
+                        </span>
+                      </span>
+                      <ChevronDown
+                        aria-hidden="true"
+                        className={`w-3.5 h-3.5 text-current transition-transform duration-200 ${mobileExpanded.services ? 'rotate-180 text-[#1D4ED8] dark:text-[#93C5FD]' : ''
+                          }`}
+                      />
+                    </button>
+
+                    {mobileExpanded.services && (
+                      <div className="px-2.5 pb-2.5 pt-1 space-y-1 border-t border-[#E2E8F0] dark:border-[#334155] animate-fade-in">
+                        {serviceItems.map((svc) => {
+                          const Icon = svc.icon;
+                          return (
+                            <Link
+                              key={svc.key}
+                              to={svc.path}
+                              onClick={() => setMenuOpen(false)}
+                              className="flex items-center justify-between p-2 rounded-lg text-xs font-medium text-[#0F172A] dark:text-[#F8FAFC] hover:bg-white dark:hover:bg-[#1E293B] transition-colors"
+                            >
+                              <span className="flex items-center gap-2 min-w-0">
+                                <Icon className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#60A5FA] shrink-0" />
+                                <span className="truncate">{svc.title}</span>
+                              </span>
+                              <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-950/60 text-[#2563EB] dark:text-[#60A5FA] shrink-0 ms-2">
+                                {svc.badge}
+                              </span>
+                            </Link>
+                          );
+                        })}
+
+                        <Link
+                          to="/services"
+                          onClick={() => setMenuOpen(false)}
+                          className="flex items-center justify-between p-2 mt-1 rounded-lg text-xs font-semibold text-[#1E3A5F] dark:text-[#93C5FD] bg-white dark:bg-[#1E293B] hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors"
+                        >
+                          <span>{t('nav.allServices')}</span>
+                          <Arrow aria-hidden="true" className="w-3.5 h-3.5" />
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* MOBILE LAB UNITS ACCORDION */}
+                  <div className="rounded-xl bg-slate-50/80 dark:bg-[#151D2F] border border-[#E2E8F0] dark:border-[#334155] overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => toggleMobileSection('mobile')}
+                      aria-expanded={mobileExpanded.mobile}
+                      className="w-full flex items-center justify-between p-2.5 text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC] hover:bg-blue-50/60 dark:hover:bg-[#1E293B] transition-colors cursor-pointer"
+                    >
+                      <span className="flex items-center gap-2">
+                        <Truck aria-hidden="true" className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#60A5FA] rtl:-scale-x-100" />
+                        <span>{t('nav.mobileLabs')}</span>
+                      </span>
+                      <ChevronDown
+                        aria-hidden="true"
+                        className={`w-3.5 h-3.5 text-current transition-transform duration-200 ${mobileExpanded.mobile ? 'rotate-180 text-[#1D4ED8] dark:text-[#93C5FD]' : ''
+                          }`}
+                      />
+                    </button>
+
+                    {mobileExpanded.mobile && (
+                      <div className="px-2.5 pb-2.5 pt-1 space-y-1 border-t border-[#E2E8F0] dark:border-[#334155] animate-fade-in">
+                        {mobileUnitItems.map((unit) => (
+                          <Link
+                            key={unit.id}
+                            to={unit.path}
+                            onClick={() => setMenuOpen(false)}
+                            className="flex items-center justify-between p-2 rounded-lg text-xs font-medium text-[#0F172A] dark:text-[#F8FAFC] hover:bg-white dark:hover:bg-[#1E293B] transition-colors"
+                          >
+                            <span className="truncate">{unit.name}</span>
+                            <span className="text-[10px] text-[#64748B] dark:text-[#94A3B8] shrink-0 ms-2">
+                              {unit.region}
+                            </span>
+                          </Link>
+                        ))}
+
+                        <Link
+                          to="/mobile-laboratories"
+                          onClick={() => setMenuOpen(false)}
+                          className="flex items-center justify-between p-2 mt-1 rounded-lg text-xs font-semibold text-[#1E3A5F] dark:text-[#93C5FD] bg-white dark:bg-[#1E293B] hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors"
+                        >
+                          <span className="flex items-center gap-1.5">
+                            <Truck className="w-3.5 h-3.5 rtl:-scale-x-100" />
+                            <span>
+                              {lang === 'ar'
+                                ? 'كافة الوحدات المتنقلة'
+                                : lang === 'fr'
+                                  ? 'Toutes les unités mobiles'
+                                  : 'All Mobile Units'}
+                            </span>
+                          </span>
+                          <Arrow aria-hidden="true" className="w-3.5 h-3.5" />
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* VISITOR REGISTRATION */}
+                  <Link
+                    to="/register"
+                    aria-current={isActive('/register') ? 'page' : undefined}
+                    onClick={() => setMenuOpen(false)}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${isActive('/register')
+                        ? 'bg-blue-50 dark:bg-blue-950/40 text-[#1D4ED8] dark:text-[#93C5FD]'
+                        : 'text-[#0F172A] dark:text-[#F8FAFC] hover:bg-slate-50 dark:hover:bg-[#151D2F]'
+                      }`}
+                  >
+                    <UserPlus className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#60A5FA]" />
+                    <span>
+                      {lang === 'ar'
+                        ? 'تسجيل الزوار'
+                        : lang === 'fr'
+                          ? 'Enregistrement des Visiteurs'
+                          : 'Visitor Registration'}
+                    </span>
+                  </Link>
+
+                  {/* CUSTOMER SATISFACTION SURVEY */}
+                  <Link
+                    to="/survey"
+                    aria-current={isActive('/survey') ? 'page' : undefined}
+                    onClick={() => setMenuOpen(false)}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${isActive('/survey')
+                        ? 'bg-blue-50 dark:bg-blue-950/40 text-[#1D4ED8] dark:text-[#93C5FD]'
+                        : 'text-[#0F172A] dark:text-[#F8FAFC] hover:bg-slate-50 dark:hover:bg-[#151D2F]'
+                      }`}
+                  >
+                    <FileText className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#60A5FA]" />
+                    <span>
+                      {lang === 'ar'
+                        ? 'استبيان رضا المستفيدين'
+                        : lang === 'fr'
+                          ? 'Enquête de Satisfaction'
+                          : 'Customer Satisfaction Survey'}
+                    </span>
+                  </Link>
+
+                  {/* SEND AN ENQUIRY */}
+                  <Link
+                    to="/enquiry"
+                    aria-current={isActive('/enquiry') ? 'page' : undefined}
+                    onClick={() => setMenuOpen(false)}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${isActive('/enquiry')
+                        ? 'bg-blue-50 dark:bg-blue-950/40 text-[#1D4ED8] dark:text-[#93C5FD]'
+                        : 'text-[#0F172A] dark:text-[#F8FAFC] hover:bg-slate-50 dark:hover:bg-[#151D2F]'
+                      }`}
+                  >
+                    <MessageSquare className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#60A5FA]" />
+                    <span>
+                      {lang === 'ar'
+                        ? 'إرسال استفسار'
+                        : lang === 'fr'
+                          ? 'Envoyer une Demande'
+                          : 'Send an Enquiry'}
+                    </span>
+                  </Link>
+
+                  {/* CONTACT */}
+                  <Link
+                    to="/contact"
+                    aria-current={isActive('/contact') ? 'page' : undefined}
+                    onClick={() => setMenuOpen(false)}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${isActive('/contact')
+                        ? 'bg-blue-50 dark:bg-blue-950/40 text-[#1D4ED8] dark:text-[#93C5FD]'
+                        : 'text-[#0F172A] dark:text-[#F8FAFC] hover:bg-slate-50 dark:hover:bg-[#151D2F]'
+                      }`}
+                  >
+                    <span>{t('nav.contact')}</span>
+                  </Link>
+
+                  {/* NEWS */}
+                  <Link
+                    to="/news"
+                    aria-current={isActive('/news') ? 'page' : undefined}
+                    onClick={() => setMenuOpen(false)}
+                    className={`px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${isActive('/news')
+                        ? 'bg-blue-50 dark:bg-blue-950/40 text-[#1D4ED8] dark:text-[#93C5FD]'
+                        : 'text-[#0F172A] dark:text-[#F8FAFC] hover:bg-slate-50 dark:hover:bg-[#151D2F]'
+                      }`}
+                  >
+                    {t('nav.news')}
+                  </Link>
+
+                  {/* ABOUT */}
+                  <Link
+                    to="/about"
+                    aria-current={isActive('/about') ? 'page' : undefined}
+                    onClick={() => setMenuOpen(false)}
+                    className={`px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${isActive('/about')
+                        ? 'bg-blue-50 dark:bg-blue-950/40 text-[#1D4ED8] dark:text-[#93C5FD]'
+                        : 'text-[#0F172A] dark:text-[#F8FAFC] hover:bg-slate-50 dark:hover:bg-[#151D2F]'
+                      }`}
+                  >
+                    {t('nav.about')}
+                  </Link>
+                </nav>
+              </div>
+            )}
+          </div>
+        </div>
+
+
+        {/* ====================================================
+            BOTTOM BAR: MAIN SERVICES NAVIGATION (DESKTOP)
+        ==================================================== */}
+        <div className="hidden xl:block relative z-10 bg-[#F8FAFC] dark:bg-[#0A1120] border-b border-[#E2E8F0] dark:border-[#1E293B] shadow-2xs">
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-9 flex items-center justify-between text-xs">
+            {/* Primary Services Navigation */}
             <nav
               aria-label={
                 lang === 'ar'
-                  ? 'القائمة الرئيسية للموقع'
+                  ? 'شريط الخدمات والتنقل الرئيسي'
                   : lang === 'fr'
-                    ? 'Navigation principale'
-                    : 'Main navigation'
+                    ? 'Navigation des services'
+                    : 'Services navigation'
               }
-              className={`hidden xl:flex items-center justify-center min-w-0 flex-1 py-1 ${navTextClasses} ${
-                lang === 'ar'
-                  ? 'gap-0.5 xl:gap-1 2xl:gap-1.5'
-                  : lang === 'fr'
-                    ? 'gap-0.5 xl:gap-0.5 2xl:gap-1.5'
-                    : 'gap-0.5 xl:gap-1 2xl:gap-1.5'
-              }`}
+              className={`flex items-center gap-1 xl:gap-1.5 2xl:gap-2 ${navTextClasses}`}
             >
               {/* 1. HOME */}
               <Link
@@ -730,42 +1415,15 @@ export default function Header() {
                   isActive('/') && location.pathname === '/' ? 'page' : undefined
                 }
                 onClick={() => setOpenDropdown(null)}
-                className={`relative px-2 xl:px-2.5 py-1.5 rounded-lg transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap shrink-0 ${
-                  isActive('/') && location.pathname === '/'
-                    ? 'text-[#1D4ED8] dark:text-[#93C5FD] bg-blue-50/80 dark:bg-blue-950/40 font-semibold'
-                    : 'text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#1D4ED8] dark:hover:text-[#93C5FD] hover:bg-slate-100/70 dark:hover:bg-slate-800/60'
-                }`}
+                className={`relative px-2.5 py-1 rounded-md transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap shrink-0 ${isActive('/') && location.pathname === '/'
+                    ? 'text-[#1E3A5F] dark:text-[#93C5FD] bg-white dark:bg-[#1E293B] shadow-2xs font-bold border border-slate-200/60 dark:border-slate-700/60'
+                    : 'text-[#334155] dark:text-[#CBD5E1] hover:text-[#1E3A5F] dark:hover:text-white hover:bg-white/80 dark:hover:bg-slate-800/60'
+                  }`}
               >
                 <span>{t('nav.home')}</span>
-                {isActive('/') && location.pathname === '/' && (
-                  <span
-                    aria-hidden="true"
-                    className="absolute bottom-0 inset-x-2 h-[2.5px] bg-[#2563EB] dark:bg-[#60A5FA] rounded-full animate-fade-in"
-                  />
-                )}
               </Link>
 
-              {/* 2. ABOUT */}
-              <Link
-                to="/about"
-                aria-current={isActive('/about') ? 'page' : undefined}
-                onClick={() => setOpenDropdown(null)}
-                className={`relative px-2 xl:px-2.5 py-1.5 rounded-lg transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap shrink-0 ${
-                  isActive('/about')
-                    ? 'text-[#1D4ED8] dark:text-[#93C5FD] bg-blue-50/80 dark:bg-blue-950/40 font-semibold'
-                    : 'text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#1D4ED8] dark:hover:text-[#93C5FD] hover:bg-slate-100/70 dark:hover:bg-slate-800/60'
-                }`}
-              >
-                <span>{t('nav.about')}</span>
-                {isActive('/about') && (
-                  <span
-                    aria-hidden="true"
-                    className="absolute bottom-0 inset-x-2 h-[2.5px] bg-[#2563EB] dark:bg-[#60A5FA] rounded-full animate-fade-in"
-                  />
-                )}
-              </Link>
-
-              {/* 3. LABORATORIES DROPDOWN */}
+              {/* 2. LABORATORIES DROPDOWN */}
               <div
                 ref={labsRef}
                 className="relative shrink-0"
@@ -780,29 +1438,21 @@ export default function Header() {
                   aria-controls="nav-labs-menu"
                   onClick={(e) => handleButtonClick(e, 'labs')}
                   onKeyDown={(e) => handleDropdownKeyDown(e, 'labs')}
-                  className={`relative flex items-center gap-1.5 px-2 xl:px-2.5 py-1.5 rounded-lg transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap cursor-pointer group ${
-                    isActive('/laboratories') || openDropdown === 'labs'
-                      ? 'text-[#1D4ED8] dark:text-[#93C5FD] bg-blue-50/80 dark:bg-blue-950/40 font-semibold'
-                      : 'text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#1D4ED8] dark:hover:text-[#93C5FD] hover:bg-slate-100/70 dark:hover:bg-slate-800/60'
-                  }`}
+                  className={`relative flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap cursor-pointer group ${isActive('/laboratories') || openDropdown === 'labs'
+                      ? 'text-[#1E3A5F] dark:text-[#93C5FD] bg-white dark:bg-[#1E293B] shadow-2xs font-bold border border-slate-200/60 dark:border-slate-700/60'
+                      : 'text-[#334155] dark:text-[#CBD5E1] hover:text-[#1E3A5F] dark:hover:text-white hover:bg-white/80 dark:hover:bg-slate-800/60'
+                    }`}
                 >
                   <Building2
                     aria-hidden="true"
-                    className="w-3.5 h-3.5 xl:w-4 xl:h-4 shrink-0 text-current opacity-90"
+                    className="w-3.5 h-3.5 shrink-0 text-current opacity-85"
                   />
                   <span>{t('nav.labs')}</span>
                   <ChevronDown
                     aria-hidden="true"
-                    className={`w-3.5 h-3.5 transition-transform duration-200 text-current opacity-75 group-hover:opacity-100 ${
-                      openDropdown === 'labs' ? 'rotate-180 text-[#1D4ED8] dark:text-[#93C5FD]' : ''
-                    }`}
+                    className={`w-3 h-3 transition-transform duration-200 text-current opacity-70 group-hover:opacity-100 ${openDropdown === 'labs' ? 'rotate-180 text-[#1E3A5F] dark:text-[#93C5FD]' : ''
+                      }`}
                   />
-                  {isActive('/laboratories') && (
-                    <span
-                      aria-hidden="true"
-                      className="absolute bottom-0 inset-x-2 h-[2.5px] bg-[#2563EB] dark:bg-[#60A5FA] rounded-full animate-fade-in"
-                    />
-                  )}
                 </button>
 
                 {openDropdown === 'labs' && (
@@ -810,10 +1460,9 @@ export default function Header() {
                     id="nav-labs-menu"
                     role="menu"
                     aria-labelledby="nav-labs-button"
-                    className="absolute start-0 top-full mt-2 w-80 sm:w-[360px] md:w-[390px] max-w-[94vw] z-50 animate-fade-in focus:outline-none pointer-events-auto"
+                    className="absolute start-0 top-full mt-1.5 w-80 sm:w-[360px] md:w-[390px] max-w-[94vw] z-50 animate-fade-in focus:outline-none pointer-events-auto"
                   >
                     <div className="bg-white dark:bg-[#151D2F] rounded-2xl shadow-2xl border border-[#E2E8F0] dark:border-[#334155] p-2.5 backdrop-blur-xl max-h-[82vh] overflow-y-auto">
-                      {/* Dropdown Header */}
                       <div className="flex items-center justify-between px-2.5 py-2 border-b border-[#E2E8F0] dark:border-[#334155] mb-1.5">
                         <p className="text-[11px] font-bold text-[#1E3A5F] dark:text-[#93C5FD] uppercase tracking-wider flex items-center gap-1.5">
                           <Building2 className="w-3.5 h-3.5" />
@@ -836,14 +1485,12 @@ export default function Header() {
                           return (
                             <div
                               key={lab.id}
-                              className={`rounded-xl border transition-all overflow-hidden ${
-                                isExpanded
+                              className={`rounded-xl border transition-all overflow-hidden ${isExpanded
                                   ? 'bg-blue-50/40 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900/60 shadow-xs'
                                   : 'bg-transparent hover:bg-slate-50 dark:hover:bg-slate-800/40 border-transparent hover:border-slate-200/80 dark:hover:border-slate-700/60'
-                              }`}
+                                }`}
                             >
                               <div className="flex items-center justify-between p-1.5 sm:p-2 gap-1.5">
-                                {/* Link to Central Lab */}
                                 <Link
                                   to={lab.path}
                                   role="menuitem"
@@ -877,7 +1524,6 @@ export default function Header() {
                                   </div>
                                 </Link>
 
-                                {/* Arrow Button that toggles branches */}
                                 <button
                                   type="button"
                                   onClick={(e) => {
@@ -909,22 +1555,19 @@ export default function Header() {
                                         ? 'عرض الفروع التابعة'
                                         : 'Show branches'
                                   }
-                                  className={`p-1.5 sm:p-2 rounded-lg border transition-all cursor-pointer shrink-0 ms-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 flex items-center justify-center ${
-                                    isExpanded
+                                  className={`p-1.5 sm:p-2 rounded-lg border transition-all cursor-pointer shrink-0 ms-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 flex items-center justify-center ${isExpanded
                                       ? 'bg-[#2563EB] text-white border-[#2563EB] shadow-2xs'
                                       : 'bg-white dark:bg-[#1E293B] text-slate-500 dark:text-slate-400 hover:text-[#1D4ED8] dark:hover:text-[#93C5FD] hover:bg-blue-50 dark:hover:bg-blue-950/60 border-[#E2E8F0] dark:border-[#334155] shadow-2xs'
-                                  }`}
+                                    }`}
                                 >
                                   <ChevronDown
                                     aria-hidden="true"
-                                    className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                                      isExpanded ? 'rotate-180' : ''
-                                    }`}
+                                    className={`w-3.5 h-3.5 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''
+                                      }`}
                                   />
                                 </button>
                               </div>
 
-                              {/* Branches Submenu */}
                               {isExpanded && (
                                 <div
                                   id={`nav-branches-${lab.id}`}
@@ -1012,7 +1655,7 @@ export default function Header() {
                 )}
               </div>
 
-              {/* 4. SERVICES DROPDOWN - FULLY REORGANIZED & BALANCED */}
+              {/* 3. LABORATORY SERVICES DROPDOWN */}
               <div
                 ref={servicesRef}
                 className="relative shrink-0"
@@ -1027,29 +1670,27 @@ export default function Header() {
                   aria-controls="nav-services-menu"
                   onClick={(e) => handleButtonClick(e, 'services')}
                   onKeyDown={(e) => handleDropdownKeyDown(e, 'services')}
-                  className={`relative flex items-center gap-1.5 px-2 xl:px-2.5 py-1.5 rounded-lg transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap cursor-pointer group ${
-                    isActive('/services') || openDropdown === 'services'
-                      ? 'text-[#1D4ED8] dark:text-[#93C5FD] bg-blue-50/80 dark:bg-blue-950/40 font-semibold'
-                      : 'text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#1D4ED8] dark:hover:text-[#93C5FD] hover:bg-slate-100/70 dark:hover:bg-slate-800/60'
-                  }`}
+                  className={`relative flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap cursor-pointer group ${isActive('/services') || openDropdown === 'services'
+                      ? 'text-[#1E3A5F] dark:text-[#93C5FD] bg-white dark:bg-[#1E293B] shadow-2xs font-bold border border-slate-200/60 dark:border-slate-700/60'
+                      : 'text-[#334155] dark:text-[#CBD5E1] hover:text-[#1E3A5F] dark:hover:text-white hover:bg-white/80 dark:hover:bg-slate-800/60'
+                    }`}
                 >
                   <FlaskConical
                     aria-hidden="true"
-                    className="w-3.5 h-3.5 xl:w-4 xl:h-4 shrink-0 text-current opacity-90"
+                    className="w-3.5 h-3.5 shrink-0 text-current opacity-85"
                   />
-                  <span>{t('nav.services')}</span>
+                  <span>
+                    {lang === 'ar'
+                      ? 'الخدمات المخبرية'
+                      : lang === 'fr'
+                        ? 'Services de Laboratoire'
+                        : 'Laboratory Services'}
+                  </span>
                   <ChevronDown
                     aria-hidden="true"
-                    className={`w-3.5 h-3.5 transition-transform duration-200 text-current opacity-75 group-hover:opacity-100 ${
-                      openDropdown === 'services' ? 'rotate-180 text-[#1D4ED8] dark:text-[#93C5FD]' : ''
-                    }`}
+                    className={`w-3 h-3 transition-transform duration-200 text-current opacity-70 group-hover:opacity-100 ${openDropdown === 'services' ? 'rotate-180 text-[#1E3A5F] dark:text-[#93C5FD]' : ''
+                      }`}
                   />
-                  {isActive('/services') && (
-                    <span
-                      aria-hidden="true"
-                      className="absolute bottom-0 inset-x-2 h-[2.5px] bg-[#2563EB] dark:bg-[#60A5FA] rounded-full animate-fade-in"
-                    />
-                  )}
                 </button>
 
                 {openDropdown === 'services' && (
@@ -1057,10 +1698,9 @@ export default function Header() {
                     id="nav-services-menu"
                     role="menu"
                     aria-labelledby="nav-services-button"
-                    className="absolute start-0 top-full mt-2 w-[540px] sm:w-[580px] xl:w-[620px] max-w-[90vw] z-50 animate-fade-in focus:outline-none pointer-events-auto"
+                    className="absolute start-0 top-full mt-1.5 w-[540px] sm:w-[580px] xl:w-[620px] max-w-[90vw] z-50 animate-fade-in focus:outline-none pointer-events-auto"
                   >
                     <div className="bg-white dark:bg-[#151D2F] rounded-2xl shadow-2xl border border-[#E2E8F0] dark:border-[#334155] p-3 sm:p-3.5 backdrop-blur-xl">
-                      {/* Header bar */}
                       <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-[#E2E8F0] dark:border-[#334155]">
                         <div className="flex items-center gap-2">
                           <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/60 flex items-center justify-center text-[#2563EB] dark:text-[#60A5FA]">
@@ -1092,7 +1732,6 @@ export default function Header() {
                         </span>
                       </div>
 
-                      {/* 2-Column Balanced Service Grid */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2" role="none">
                         {serviceItems
                           .filter((s) => !s.featured)
@@ -1129,7 +1768,6 @@ export default function Header() {
                           })}
                       </div>
 
-                      {/* Featured Full-Width Monitoring Service */}
                       {serviceItems.find((s) => s.featured) && (
                         <div className="mt-2 pt-2 border-t border-[#E2E8F0] dark:border-[#334155]">
                           {(() => {
@@ -1170,7 +1808,6 @@ export default function Header() {
                         </div>
                       )}
 
-                      {/* Footer Link */}
                       <div className="mt-2 pt-2 border-t border-[#E2E8F0] dark:border-[#334155]" role="none">
                         <Link
                           to="/services"
@@ -1187,7 +1824,7 @@ export default function Header() {
                 )}
               </div>
 
-              {/* 5. MOBILE LABORATORY UNITS DROPDOWN */}
+              {/* 4. MOBILE LABORATORIES DROPDOWN */}
               <div
                 ref={mobileRef}
                 className="relative shrink-0"
@@ -1202,29 +1839,21 @@ export default function Header() {
                   aria-controls="nav-mobile-laboratories-menu"
                   onClick={(e) => handleButtonClick(e, 'mobile')}
                   onKeyDown={(e) => handleDropdownKeyDown(e, 'mobile')}
-                  className={`relative flex items-center gap-1.5 px-2 xl:px-2.5 py-1.5 rounded-lg transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap cursor-pointer group ${
-                    isActive('/mobile-laboratories') || openDropdown === 'mobile'
-                      ? 'text-[#1D4ED8] dark:text-[#93C5FD] bg-blue-50/80 dark:bg-blue-950/40 font-semibold'
-                      : 'text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#1D4ED8] dark:hover:text-[#93C5FD] hover:bg-slate-100/70 dark:hover:bg-slate-800/60'
-                  }`}
+                  className={`relative flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap cursor-pointer group ${isActive('/mobile-laboratories') || openDropdown === 'mobile'
+                      ? 'text-[#1E3A5F] dark:text-[#93C5FD] bg-white dark:bg-[#1E293B] shadow-2xs font-bold border border-slate-200/60 dark:border-slate-700/60'
+                      : 'text-[#334155] dark:text-[#CBD5E1] hover:text-[#1E3A5F] dark:hover:text-white hover:bg-white/80 dark:hover:bg-slate-800/60'
+                    }`}
                 >
                   <Truck
                     aria-hidden="true"
-                    className="w-3.5 h-3.5 xl:w-4 xl:h-4 shrink-0 text-current opacity-90 rtl:-scale-x-100"
+                    className="w-3.5 h-3.5 shrink-0 text-current opacity-85 rtl:-scale-x-100"
                   />
                   <span>{t('nav.mobileLabs')}</span>
                   <ChevronDown
                     aria-hidden="true"
-                    className={`w-3.5 h-3.5 transition-transform duration-200 text-current opacity-75 group-hover:opacity-100 ${
-                      openDropdown === 'mobile' ? 'rotate-180 text-[#1D4ED8] dark:text-[#93C5FD]' : ''
-                    }`}
+                    className={`w-3 h-3 transition-transform duration-200 text-current opacity-70 group-hover:opacity-100 ${openDropdown === 'mobile' ? 'rotate-180 text-[#1E3A5F] dark:text-[#93C5FD]' : ''
+                      }`}
                   />
-                  {isActive('/mobile-laboratories') && (
-                    <span
-                      aria-hidden="true"
-                      className="absolute bottom-0 inset-x-2 h-[2.5px] bg-[#2563EB] dark:bg-[#60A5FA] rounded-full animate-fade-in"
-                    />
-                  )}
                 </button>
 
                 {openDropdown === 'mobile' && (
@@ -1232,10 +1861,9 @@ export default function Header() {
                     id="nav-mobile-laboratories-menu"
                     role="menu"
                     aria-labelledby="nav-mobile-laboratories-button"
-                    className="absolute start-0 top-full mt-2 w-80 sm:w-88 z-50 animate-fade-in focus:outline-none pointer-events-auto"
+                    className="absolute start-0 top-full mt-1.5 w-80 sm:w-88 z-50 animate-fade-in focus:outline-none pointer-events-auto"
                   >
                     <div className="bg-white dark:bg-[#151D2F] rounded-2xl shadow-2xl border border-[#E2E8F0] dark:border-[#334155] p-2.5 backdrop-blur-xl">
-                      {/* Header */}
                       <div className="flex items-center justify-between px-2.5 py-2 border-b border-[#E2E8F0] dark:border-[#334155] mb-1.5">
                         <p className="text-[11px] font-bold text-[#1E3A5F] dark:text-[#93C5FD] uppercase tracking-wider flex items-center gap-1.5">
                           <Truck className="w-3.5 h-3.5 rtl:-scale-x-100" />
@@ -1310,118 +1938,61 @@ export default function Header() {
                 )}
               </div>
 
-              {/* 6. CUSTOMER SERVICES DROPDOWN */}
-              <div
-                ref={csRef}
-                className="relative shrink-0"
-                onMouseEnter={() => handleMouseEnter('cs')}
-                onMouseLeave={handleMouseLeave}
-              >
-                <button
-                  type="button"
-                  id="nav-cs-button"
-                  aria-haspopup="true"
-                  aria-expanded={openDropdown === 'cs'}
-                  aria-controls="nav-cs-menu"
-                  onClick={(e) => handleButtonClick(e, 'cs')}
-                  onKeyDown={(e) => handleDropdownKeyDown(e, 'cs')}
-                  className={`relative flex items-center gap-1.5 px-2 xl:px-2.5 py-1.5 rounded-lg transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap cursor-pointer group ${
-                    isActive('/register') ||
-                    isActive('/survey') ||
-                    isActive('/enquiry') ||
-                    openDropdown === 'cs'
-                      ? 'text-[#1D4ED8] dark:text-[#93C5FD] bg-blue-50/80 dark:bg-blue-950/40 font-semibold'
-                      : 'text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#1D4ED8] dark:hover:text-[#93C5FD] hover:bg-slate-100/70 dark:hover:bg-slate-800/60'
-                  }`}
-                >
-                  <Users
-                    aria-hidden="true"
-                    className="w-3.5 h-3.5 xl:w-4 xl:h-4 shrink-0 text-current opacity-90"
-                  />
-                  <span>{t('cs.title')}</span>
-                  <ChevronDown
-                    aria-hidden="true"
-                    className={`w-3.5 h-3.5 transition-transform duration-200 text-current opacity-75 group-hover:opacity-100 ${
-                      openDropdown === 'cs' ? 'rotate-180 text-[#1D4ED8] dark:text-[#93C5FD]' : ''
-                    }`}
-                  />
-                  {(isActive('/register') ||
-                    isActive('/survey') ||
-                    isActive('/enquiry')) && (
-                    <span
-                      aria-hidden="true"
-                      className="absolute bottom-0 inset-x-2 h-[2.5px] bg-[#2563EB] dark:bg-[#60A5FA] rounded-full animate-fade-in"
-                    />
-                  )}
-                </button>
-
-                {openDropdown === 'cs' && (
-                  <div
-                    id="nav-cs-menu"
-                    role="menu"
-                    aria-labelledby="nav-cs-button"
-                    className="absolute start-0 top-full mt-2 w-[380px] sm:w-[420px] z-50 animate-fade-in focus:outline-none pointer-events-auto"
-                  >
-                    <div className="bg-white dark:bg-[#151D2F] rounded-2xl shadow-2xl border border-[#E2E8F0] dark:border-[#334155] p-2.5 backdrop-blur-xl">
-                      <div className="px-2.5 py-2 border-b border-[#E2E8F0] dark:border-[#334155] mb-1.5 text-start">
-                        <p className="text-[11px] font-bold text-[#1E3A5F] dark:text-[#93C5FD] uppercase tracking-wider flex items-center gap-1.5">
-                          <Users className="w-3.5 h-3.5" />
-                          <span>{t('cs.title')}</span>
-                        </p>
-                      </div>
-
-                      <div className="space-y-1.5" role="none">
-                        {customerServices.map((svc) => {
-                          const Icon = svc.icon;
-                          return (
-                            <Link
-                              key={svc.to}
-                              to={svc.to}
-                              role="menuitem"
-                              onClick={() => setOpenDropdown(null)}
-                              className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-blue-50/80 dark:hover:bg-blue-950/40 transition-all group focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 text-start"
-                            >
-                              <div
-                                className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/50 flex items-center justify-center text-[#2563EB] dark:text-[#60A5FA] group-hover:bg-[#2563EB] group-hover:text-white transition-all shrink-0 mt-0.5 shadow-2xs"
-                                aria-hidden="true"
-                              >
-                                <Icon className="w-4 h-4" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC] group-hover:text-[#1D4ED8] dark:group-hover:text-[#93C5FD] whitespace-nowrap">
-                                  {svc.label}
-                                </p>
-                                <p className="text-[11px] text-[#64748B] dark:text-[#94A3B8] mt-0.5 leading-relaxed font-normal">
-                                  {svc.desc}
-                                </p>
-                              </div>
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* 7. NEWS */}
+              {/* 5. VISITOR REGISTRATION */}
               <Link
-                to="/news"
-                aria-current={isActive('/news') ? 'page' : undefined}
+                to="/register"
+                aria-current={isActive('/register') ? 'page' : undefined}
                 onClick={() => setOpenDropdown(null)}
-                className={`relative px-2 xl:px-2.5 py-1.5 rounded-lg transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap shrink-0 ${
-                  isActive('/news')
-                    ? 'text-[#1D4ED8] dark:text-[#93C5FD] bg-blue-50/80 dark:bg-blue-950/40 font-semibold'
-                    : 'text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#1D4ED8] dark:hover:text-[#93C5FD] hover:bg-slate-100/70 dark:hover:bg-slate-800/60'
-                }`}
+                className={`relative px-2.5 py-1 rounded-md transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap shrink-0 ${isActive('/register')
+                    ? 'text-[#1E3A5F] dark:text-[#93C5FD] bg-white dark:bg-[#1E293B] shadow-2xs font-bold border border-slate-200/60 dark:border-slate-700/60'
+                    : 'text-[#334155] dark:text-[#CBD5E1] hover:text-[#1E3A5F] dark:hover:text-white hover:bg-white/80 dark:hover:bg-slate-800/60'
+                  }`}
               >
-                <span>{t('nav.news')}</span>
-                {isActive('/news') && (
-                  <span
-                    aria-hidden="true"
-                    className="absolute bottom-0 inset-x-2 h-[2.5px] bg-[#2563EB] dark:bg-[#60A5FA] rounded-full animate-fade-in"
-                  />
-                )}
+                <span>
+                  {lang === 'ar'
+                    ? 'تسجيل الزوار'
+                    : lang === 'fr'
+                      ? 'Enregistrement des Visiteurs'
+                      : 'Visitor Registration'}
+                </span>
+              </Link>
+
+              {/* 6. CUSTOMER SATISFACTION SURVEY */}
+              <Link
+                to="/survey"
+                aria-current={isActive('/survey') ? 'page' : undefined}
+                onClick={() => setOpenDropdown(null)}
+                className={`relative px-2.5 py-1 rounded-md transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap shrink-0 ${isActive('/survey')
+                    ? 'text-[#1E3A5F] dark:text-[#93C5FD] bg-white dark:bg-[#1E293B] shadow-2xs font-bold border border-slate-200/60 dark:border-slate-700/60'
+                    : 'text-[#334155] dark:text-[#CBD5E1] hover:text-[#1E3A5F] dark:hover:text-white hover:bg-white/80 dark:hover:bg-slate-800/60'
+                  }`}
+              >
+                <span>
+                  {lang === 'ar'
+                    ? 'استبيان رضا المستفيدين'
+                    : lang === 'fr'
+                      ? 'Enquête de Satisfaction'
+                      : 'Satisfaction Survey'}
+                </span>
+              </Link>
+
+              {/* 7. SEND AN ENQUIRY */}
+              <Link
+                to="/enquiry"
+                aria-current={isActive('/enquiry') ? 'page' : undefined}
+                onClick={() => setOpenDropdown(null)}
+                className={`relative px-2.5 py-1 rounded-md transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap shrink-0 ${isActive('/enquiry')
+                    ? 'text-[#1E3A5F] dark:text-[#93C5FD] bg-white dark:bg-[#1E293B] shadow-2xs font-bold border border-slate-200/60 dark:border-slate-700/60'
+                    : 'text-[#334155] dark:text-[#CBD5E1] hover:text-[#1E3A5F] dark:hover:text-white hover:bg-white/80 dark:hover:bg-slate-800/60'
+                  }`}
+              >
+                <span>
+                  {lang === 'ar'
+                    ? 'إرسال استفسار'
+                    : lang === 'fr'
+                      ? 'Envoyer une Demande'
+                      : 'Send an Enquiry'}
+                </span>
               </Link>
 
               {/* 8. CONTACT */}
@@ -1429,724 +2000,62 @@ export default function Header() {
                 to="/contact"
                 aria-current={isActive('/contact') ? 'page' : undefined}
                 onClick={() => setOpenDropdown(null)}
-                className={`relative px-2 xl:px-2.5 py-1.5 rounded-lg transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap shrink-0 ${
-                  isActive('/contact')
-                    ? 'text-[#1D4ED8] dark:text-[#93C5FD] bg-blue-50/80 dark:bg-blue-950/40 font-semibold'
-                    : 'text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#1D4ED8] dark:hover:text-[#93C5FD] hover:bg-slate-100/70 dark:hover:bg-slate-800/60'
-                }`}
+                className={`relative px-2.5 py-1 rounded-md transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap shrink-0 ${isActive('/contact')
+                    ? 'text-[#1E3A5F] dark:text-[#93C5FD] bg-white dark:bg-[#1E293B] shadow-2xs font-bold border border-slate-200/60 dark:border-slate-700/60'
+                    : 'text-[#334155] dark:text-[#CBD5E1] hover:text-[#1E3A5F] dark:hover:text-white hover:bg-white/80 dark:hover:bg-slate-800/60'
+                  }`}
               >
                 <span>{t('nav.contact')}</span>
-                {isActive('/contact') && (
-                  <span
-                    aria-hidden="true"
-                    className="absolute bottom-0 inset-x-2 h-[2.5px] bg-[#2563EB] dark:bg-[#60A5FA] rounded-full animate-fade-in"
-                  />
-                )}
               </Link>
             </nav>
 
-            {/* ==================================================
-                ZONE 3 - DESKTOP CONTROLS
-            ================================================== */}
-            <div className="hidden xl:flex items-center gap-1.5 xl:gap-2 shrink-0 ms-1 xl:ms-2">
-              {/* SEARCH */}
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchOpen(true);
-                  setMenuOpen(false);
-                  setOpenDropdown(null);
-                }}
-                aria-label={
-                  lang === 'ar'
-                    ? 'البحث في الموقع'
-                    : lang === 'fr'
-                      ? 'Rechercher sur le site'
-                      : 'Search the site'
-                }
-                title={
-                  lang === 'ar'
-                    ? 'البحث'
-                    : lang === 'fr'
-                      ? 'Rechercher'
-                      : 'Search'
-                }
-                className="flex items-center justify-center w-8 h-8 rounded-lg text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#1D4ED8] dark:hover:text-[#93C5FD] hover:bg-blue-50 dark:hover:bg-[#1E293B] border border-[#CBD5E1] dark:border-[#334155] bg-white dark:bg-[#151D2F] transition-all duration-150 active:scale-95 focus:outline-none focus-visible:ring-2 focus:ring-blue-600 shadow-2xs cursor-pointer"
-              >
-                <Search aria-hidden="true" className="w-3.5 h-3.5" />
-              </button>
-
-              {/* LANGUAGE SELECTOR */}
-              <div
-                ref={langRef}
-                className="relative shrink-0"
-                onMouseEnter={() => handleMouseEnter('lang')}
-                onMouseLeave={handleMouseLeave}
-              >
-                <button
-                  type="button"
-                  id="lang-selector-button"
-                  aria-haspopup="listbox"
-                  aria-expanded={openDropdown === 'lang'}
-                  aria-controls="lang-selector-listbox"
-                  aria-label={`Language: ${currentLangObj.label}`}
-                  onClick={(e) => handleButtonClick(e, 'lang')}
-                  onKeyDown={(e) => handleDropdownKeyDown(e, 'lang')}
-                  className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#1D4ED8] dark:hover:text-[#93C5FD] hover:bg-blue-50 dark:hover:bg-[#1E293B] border border-[#CBD5E1] dark:border-[#334155] bg-white dark:bg-[#151D2F] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 whitespace-nowrap shadow-2xs cursor-pointer"
-                >
-                  <Globe aria-hidden="true" className="w-3.5 h-3.5 text-current shrink-0 opacity-80" />
-                  <span>{currentLangObj.label}</span>
-                  <ChevronDown
-                    aria-hidden="true"
-                    className={`w-3 h-3 transition-transform duration-200 text-current opacity-70 ${
-                      openDropdown === 'lang' ? 'rotate-180 text-[#1D4ED8] dark:text-[#60A5FA]' : ''
-                    }`}
-                  />
-                </button>
-
-                {openDropdown === 'lang' && (
-                  <div
-                    id="lang-selector-listbox"
-                    role="listbox"
-                    aria-labelledby="lang-selector-button"
-                    className="absolute end-0 mt-2 w-36 bg-white dark:bg-[#151D2F] rounded-xl shadow-xl border border-[#E2E8F0] dark:border-[#334155] py-1 z-50 animate-fade-in focus:outline-none pointer-events-auto"
-                  >
-                    {languages.map((l) => (
-                      <button
-                        key={l.code}
-                        type="button"
-                        role="option"
-                        aria-selected={lang === l.code}
-                        onClick={() => {
-                          setLang(l.code);
-                          setOpenDropdown(null);
-                        }}
-                        className={`w-full flex items-center justify-between px-3 py-1.5 text-xs text-start transition-colors focus:outline-none cursor-pointer ${
-                          lang === l.code
-                            ? 'bg-blue-50 dark:bg-blue-950/60 text-[#1D4ED8] dark:text-[#93C5FD] font-semibold'
-                            : 'text-[#0F172A] dark:text-[#F8FAFC] hover:bg-slate-50 dark:hover:bg-slate-800/60'
-                        }`}
-                      >
-                        <span className="flex items-center gap-2">
-                          <Globe aria-hidden="true" className="w-3 h-3 text-current opacity-70" />
-                          <span>{l.label}</span>
-                        </span>
-                        {lang === l.code && (
-                          <Check aria-hidden="true" className="w-3.5 h-3.5 text-[#1D4ED8] dark:text-[#93C5FD]" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* THEME TOGGLE */}
-              <button
-                type="button"
-                onClick={toggleTheme}
-                aria-label={
-                  theme === 'dark'
-                    ? lang === 'ar'
-                      ? 'التبديل إلى الوضع النهاري'
-                      : lang === 'fr'
-                        ? 'Passer au mode clair'
-                        : 'Switch to light mode'
-                    : lang === 'ar'
-                      ? 'التبديل إلى الوضع الليلي'
-                      : lang === 'fr'
-                        ? 'Passer au mode sombre'
-                        : 'Switch to dark mode'
-                }
-                title={
-                  theme === 'dark'
-                    ? lang === 'ar'
-                      ? 'الوضع النهاري'
-                      : 'Light Mode'
-                    : lang === 'ar'
-                      ? 'الوضع الليلي'
-                      : 'Dark Mode'
-                }
-                className="flex items-center justify-center w-8 h-8 rounded-lg text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#1D4ED8] dark:hover:text-[#93C5FD] hover:bg-blue-50 dark:hover:bg-[#1E293B] border border-[#CBD5E1] dark:border-[#334155] bg-white dark:bg-[#151D2F] transition-all duration-150 active:scale-95 focus:outline-none focus-visible:ring-2 focus:ring-blue-600 shadow-2xs cursor-pointer group"
-              >
-                {theme === 'dark' ? (
-                  <Sun aria-hidden="true" className="w-3.5 h-3.5 text-amber-400 group-hover:rotate-12 transition-transform" />
-                ) : (
-                  <Moon aria-hidden="true" className="w-3.5 h-3.5 text-current group-hover:-rotate-12 transition-transform" />
-                )}
-              </button>
-
-              {/* ADMIN / PORTAL */}
+            {/* Upper Trailing Controls: Quick Links to Portal, News, About */}
+            <div className="flex items-center gap-1.5 xl:gap-2 text-[11px] shrink-0">
               <Link
-                to="/admin"
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 shadow-2xs border border-[#CBD5E1] dark:border-[#334155] bg-white dark:bg-[#151D2F] hover:border-blue-400 active:scale-95 shrink-0 ${
-                  isActive('/admin')
-                    ? 'text-[#1D4ED8] dark:text-[#93C5FD] bg-blue-50 dark:bg-blue-950/60 border-blue-600'
-                    : 'text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#1D4ED8] dark:hover:text-[#93C5FD] hover:bg-blue-50 dark:hover:bg-slate-800/60'
-                }`}
+                to="/about"
+                onClick={() => setOpenDropdown(null)}
+                className={`px-2 py-0.5 rounded transition-colors ${isActive('/about')
+                    ? 'font-bold text-[#1E3A5F] dark:text-[#93C5FD]'
+                    : 'text-[#64748B] dark:text-[#94A3B8] hover:text-[#1E3A5F] dark:hover:text-white'
+                  }`}
               >
-                <LogIn aria-hidden="true" className="w-3.5 h-3.5 text-current shrink-0 opacity-80" />
-                <span>{t('nav.admin')}</span>
+                <span>{t('nav.about')}</span>
+              </Link>
+
+              <span className="text-slate-300 dark:text-slate-700">|</span>
+
+              <Link
+                to="/news"
+                onClick={() => setOpenDropdown(null)}
+                className={`px-2 py-0.5 rounded transition-colors ${isActive('/news')
+                    ? 'font-bold text-[#1E3A5F] dark:text-[#93C5FD]'
+                    : 'text-[#64748B] dark:text-[#94A3B8] hover:text-[#1E3A5F] dark:hover:text-white'
+                  }`}
+              >
+                <span>{t('nav.news')}</span>
+              </Link>
+
+              <span className="text-slate-300 dark:text-slate-700">|</span>
+
+              <Link
+                to="/portal"
+                onClick={() => setOpenDropdown(null)}
+                className={`flex items-center gap-1 px-2.5 py-0.5 rounded-full font-semibold transition-all border ${isActive('/portal') || isActive('/visitor-dashboard')
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-2xs'
+                    : 'bg-blue-50/80 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200/70 dark:border-blue-900/60 hover:bg-blue-100/80 dark:hover:bg-blue-900/40'
+                  }`}
+              >
+                <FileCheck className="w-3 h-3 shrink-0" />
+                <span>
+                  {lang === 'ar'
+                    ? 'بوابة الزوار والتقارير'
+                    : lang === 'fr'
+                      ? 'Portail Visiteurs'
+                      : 'Visitor Portal'}
+                </span>
               </Link>
             </div>
-
-            {/* ==================================================
-                MOBILE HEADER CONTROLS (< xl)
-            ================================================== */}
-            <div className="flex xl:hidden items-center gap-1.5">
-              {/* SEARCH */}
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchOpen(true);
-                  setMenuOpen(false);
-                  setOpenDropdown(null);
-                }}
-                aria-label={
-                  lang === 'ar'
-                    ? 'البحث في الموقع'
-                    : lang === 'fr'
-                      ? 'Rechercher sur le site'
-                      : 'Search the site'
-                }
-                className="flex items-center justify-center w-8 h-8 rounded-lg text-[#334155] dark:text-[#F8FAFC] bg-white dark:bg-[#151D2F] border border-[#E2E8F0] dark:border-[#334155] transition-all duration-150 active:scale-95 cursor-pointer shadow-2xs focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
-              >
-                <Search aria-hidden="true" className="w-3.5 h-3.5" />
-              </button>
-
-              {/* THEME */}
-              <button
-                type="button"
-                onClick={toggleTheme}
-                aria-label="Toggle Theme"
-                className="flex items-center justify-center w-8 h-8 rounded-lg text-[#334155] dark:text-[#F8FAFC] bg-white dark:bg-[#151D2F] border border-[#E2E8F0] dark:border-[#334155] transition-all duration-150 active:scale-95 cursor-pointer shadow-2xs"
-              >
-                {theme === 'dark' ? (
-                  <Sun aria-hidden="true" className="w-3.5 h-3.5 text-amber-400" />
-                ) : (
-                  <Moon aria-hidden="true" className="w-3.5 h-3.5 text-[#334155]" />
-                )}
-              </button>
-
-              {/* MOBILE LANGUAGE */}
-              <div ref={mobileLangRef} className="relative">
-                <button
-                  type="button"
-                  id="mobile-lang-btn"
-                  aria-haspopup="listbox"
-                  aria-expanded={openDropdown === 'lang'}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setOpenDropdown(openDropdown === 'lang' ? null : 'lang');
-                  }}
-                  className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-semibold text-[#334155] dark:text-[#F8FAFC] bg-white dark:bg-[#151D2F] border border-[#E2E8F0] dark:border-[#334155] cursor-pointer shadow-2xs"
-                >
-                  <Globe aria-hidden="true" className="w-3 h-3 text-[#0F4C81] dark:text-[#60A5FA]" />
-                  <span>{lang.toUpperCase()}</span>
-                  <ChevronDown aria-hidden="true" className="w-2.5 h-2.5 text-slate-400" />
-                </button>
-
-                {openDropdown === 'lang' && (
-                  <div className="absolute end-0 mt-2 w-32 bg-white dark:bg-[#151D2F] rounded-xl shadow-xl border border-[#E2E8F0] dark:border-[#334155] py-1 z-50 animate-fade-in">
-                    {languages.map((l) => (
-                      <button
-                        key={l.code}
-                        type="button"
-                        onClick={() => {
-                          setLang(l.code);
-                          setOpenDropdown(null);
-                        }}
-                        className={`w-full text-xs text-start px-2.5 py-1.5 flex items-center justify-between cursor-pointer ${
-                          lang === l.code
-                            ? 'font-semibold text-[#0F4C81] dark:text-[#93C5FD] bg-blue-50 dark:bg-blue-950/60'
-                            : 'text-[#334155] dark:text-[#F8FAFC] hover:bg-slate-50 dark:hover:bg-slate-800/60'
-                        }`}
-                      >
-                        <span>{l.label}</span>
-                        {lang === l.code && (
-                          <Check className="w-3.5 h-3.5 text-[#0F4C81] dark:text-[#93C5FD]" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* HAMBURGER TOGGLE */}
-              <button
-                ref={mobileToggleRef}
-                type="button"
-                id="mobile-menu-button"
-                aria-haspopup="true"
-                aria-expanded={menuOpen}
-                aria-controls="mobile-navigation-drawer"
-                aria-label={
-                  menuOpen
-                    ? lang === 'ar'
-                      ? 'إغلاق القائمة الرئيسية'
-                      : 'Fermer le menu'
-                    : lang === 'ar'
-                      ? 'فتح القائمة الرئيسية'
-                      : 'Ouvrir le menu'
-                }
-                onClick={() => {
-                  setOpenDropdown(null);
-                  setMenuOpen(!menuOpen);
-                }}
-                className="p-1.5 rounded-lg text-[#1E293B] dark:text-[#F8FAFC] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 cursor-pointer"
-              >
-                {menuOpen ? (
-                  <X aria-hidden="true" className="w-5 h-5" />
-                ) : (
-                  <Menu aria-hidden="true" className="w-5 h-5" />
-                )}
-              </button>
-            </div>
           </div>
-
-          {/* ====================================================
-              MOBILE NAVIGATION DRAWER (< xl)
-          ==================================================== */}
-          {menuOpen && (
-            <div
-              ref={mobileMenuRef}
-              id="mobile-navigation-drawer"
-              role="dialog"
-              aria-modal="true"
-              dir={dir}
-              aria-label={
-                lang === 'ar'
-                  ? 'قائمة التنقل للأجهزة الذكية'
-                  : 'Menu de navigation mobile'
-              }
-              className="xl:hidden mt-2 pb-6 border-t border-[#E2E8F0] dark:border-[#334155] pt-3 flex flex-col gap-2 animate-fade-in max-h-[82vh] overflow-y-auto"
-            >
-              {/* THEME & LANGUAGE CONTROLS */}
-              <div className="p-2.5 bg-slate-50 dark:bg-[#151D2F] rounded-xl border border-[#E2E8F0] dark:border-[#334155]">
-                <div className="flex items-center justify-between pb-2 border-b border-[#E2E8F0] dark:border-[#334155] mb-2">
-                  <span className="text-[11px] font-semibold text-[#64748B] dark:text-[#94A3B8]">
-                    {lang === 'ar' ? 'المظهر' : lang === 'fr' ? 'Thème' : 'Theme'}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={toggleTheme}
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold text-[#1E293B] dark:text-[#F8FAFC] bg-white dark:bg-[#1E293B] border border-[#E2E8F0] dark:border-[#334155] shadow-2xs cursor-pointer"
-                  >
-                    {theme === 'dark' ? (
-                      <Sun className="w-3.5 h-3.5 text-amber-400" />
-                    ) : (
-                      <Moon className="w-3.5 h-3.5 text-slate-700" />
-                    )}
-                    <span>
-                      {theme === 'dark'
-                        ? lang === 'ar'
-                          ? 'داكن'
-                          : 'Sombre'
-                        : lang === 'ar'
-                          ? 'نهاري'
-                          : 'Clair'}
-                    </span>
-                  </button>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-semibold text-[#64748B] dark:text-[#94A3B8] flex items-center gap-1.5">
-                    <Globe className="w-3 h-3 text-[#0F4C81] dark:text-[#60A5FA]" />
-                    <span>{lang === 'ar' ? 'اللغة' : lang === 'fr' ? 'Langue' : 'Language'}</span>
-                  </span>
-                  <div role="group" className="grid grid-cols-3 gap-1">
-                    {languages.map((l) => (
-                      <button
-                        key={l.code}
-                        type="button"
-                        aria-pressed={lang === l.code}
-                        onClick={() => setLang(l.code)}
-                        className={`py-1 px-2 text-[11px] font-semibold rounded-md text-center transition-colors flex items-center justify-center gap-1 cursor-pointer ${
-                          lang === l.code
-                            ? 'bg-[#0F4C81] dark:bg-[#2563EB] text-white shadow-2xs'
-                            : 'bg-white dark:bg-[#1E293B] text-[#1E293B] dark:text-[#F8FAFC] border border-[#E2E8F0] dark:border-[#334155]'
-                        }`}
-                      >
-                        <span>{l.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* MOBILE NAV LINKS */}
-              <nav
-                aria-label="Mobile Navigation"
-                className="flex flex-col gap-1 text-start"
-              >
-                {/* HOME */}
-                <Link
-                  to="/"
-                  aria-current={isActive('/') && location.pathname === '/' ? 'page' : undefined}
-                  onClick={() => setMenuOpen(false)}
-                  className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${
-                    isActive('/') && location.pathname === '/'
-                      ? 'bg-blue-50 dark:bg-blue-950/40 text-[#1D4ED8] dark:text-[#93C5FD]'
-                      : 'text-[#0F172A] dark:text-[#F8FAFC] hover:bg-slate-50 dark:hover:bg-[#151D2F]'
-                  }`}
-                >
-                  {t('nav.home')}
-                </Link>
-
-                {/* ABOUT */}
-                <Link
-                  to="/about"
-                  aria-current={isActive('/about') ? 'page' : undefined}
-                  onClick={() => setMenuOpen(false)}
-                  className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${
-                    isActive('/about')
-                      ? 'bg-blue-50 dark:bg-blue-950/40 text-[#1D4ED8] dark:text-[#93C5FD]'
-                      : 'text-[#0F172A] dark:text-[#F8FAFC] hover:bg-slate-50 dark:hover:bg-[#151D2F]'
-                  }`}
-                >
-                  {t('nav.about')}
-                </Link>
-
-                {/* LABORATORIES ACCORDION */}
-                <div className="rounded-xl bg-slate-50/80 dark:bg-[#151D2F] border border-[#E2E8F0] dark:border-[#334155] overflow-hidden">
-                  <button
-                    type="button"
-                    onClick={() => toggleMobileSection('labs')}
-                    aria-expanded={mobileExpanded.labs}
-                    className="w-full flex items-center justify-between p-2.5 text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC] hover:bg-blue-50/60 dark:hover:bg-[#1E293B] transition-colors cursor-pointer"
-                  >
-                    <span className="flex items-center gap-2">
-                      <Building2 aria-hidden="true" className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#60A5FA]" />
-                      <span>{t('nav.labs')}</span>
-                    </span>
-                    <ChevronDown
-                      aria-hidden="true"
-                      className={`w-3.5 h-3.5 text-current transition-transform duration-200 ${
-                        mobileExpanded.labs ? 'rotate-180 text-[#1D4ED8] dark:text-[#93C5FD]' : ''
-                      }`}
-                    />
-                  </button>
-
-                  {mobileExpanded.labs && (
-                    <div className="px-2 pb-2.5 pt-1 space-y-1.5 border-t border-[#E2E8F0] dark:border-[#334155] animate-fade-in">
-                      {labItems.map((lab) => {
-                        const isExpanded = !!mobileExpandedLabs[lab.id];
-                        return (
-                          <div
-                            key={lab.id}
-                            className={`rounded-lg border transition-all overflow-hidden ${
-                              isExpanded
-                                ? 'bg-blue-50/50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-900/60'
-                                : 'bg-white dark:bg-[#1E293B] border-slate-200/80 dark:border-slate-700/60'
-                            }`}
-                          >
-                            <div className="flex items-center justify-between p-2 gap-1">
-                              <Link
-                                to={lab.path}
-                                onClick={() => setMenuOpen(false)}
-                                className="flex items-center gap-2 min-w-0 flex-1 text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC] hover:text-[#1D4ED8] dark:hover:text-[#93C5FD]"
-                              >
-                                <Building2 className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#60A5FA] shrink-0" />
-                                <div className="min-w-0 text-start">
-                                  <p className="truncate">{lab.name}</p>
-                                  <p className="text-[10px] text-[#64748B] dark:text-[#94A3B8] font-normal truncate">
-                                    {lab.region} • {lab.branches.length}{' '}
-                                    {lang === 'ar'
-                                      ? lab.branches.length > 1
-                                        ? 'فروع'
-                                        : 'فرع'
-                                      : lab.branches.length > 1
-                                        ? 'branches'
-                                        : 'branch'}
-                                  </p>
-                                </div>
-                              </Link>
-
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  toggleMobileLabBranches(lab.id);
-                                }}
-                                aria-expanded={isExpanded}
-                                aria-label={
-                                  isExpanded
-                                    ? lang === 'ar'
-                                      ? `إغلاق فروع ${lab.name}`
-                                      : `Hide branches of ${lab.name}`
-                                    : lang === 'ar'
-                                      ? `عرض فروع ${lab.name}`
-                                      : `Show branches of ${lab.name}`
-                                }
-                                className={`p-1.5 rounded-md border text-xs transition-colors shrink-0 ms-1 cursor-pointer ${
-                                  isExpanded
-                                    ? 'bg-[#2563EB] text-white border-[#2563EB] shadow-2xs'
-                                    : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700'
-                                }`}
-                              >
-                                <ChevronDown
-                                  className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                                    isExpanded ? 'rotate-180' : ''
-                                  }`}
-                                />
-                              </button>
-                            </div>
-
-                            {isExpanded && (
-                              <div className="px-2 pb-2 pt-1 space-y-1 bg-slate-50/80 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800 animate-fade-in">
-                                <div className="flex items-center justify-between px-1 py-0.5 text-[10px] font-semibold text-slate-500 dark:text-slate-400">
-                                  <span className="flex items-center gap-1">
-                                    <Network className="w-3 h-3 text-[#2563EB] dark:text-[#60A5FA]" />
-                                    <span>
-                                      {lang === 'ar'
-                                        ? 'الفروع التابعة:'
-                                        : lang === 'fr'
-                                          ? 'Agences rattachées :'
-                                          : 'Branches:'}
-                                    </span>
-                                  </span>
-                                  <Link
-                                    to={lab.path}
-                                    onClick={() => setMenuOpen(false)}
-                                    className="text-[#2563EB] dark:text-[#60A5FA] hover:underline"
-                                  >
-                                    {lang === 'ar' ? 'المختبر الرئيسي' : 'Central lab'}
-                                  </Link>
-                                </div>
-                                {lab.branches.map((branch) => (
-                                  <Link
-                                    key={branch.id}
-                                    to={branch.path}
-                                    onClick={() => setMenuOpen(false)}
-                                    className="flex items-center justify-between p-2 rounded-md bg-white dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-slate-200 hover:text-[#1D4ED8] dark:hover:text-[#93C5FD] transition-colors border border-slate-100 dark:border-slate-700/60"
-                                  >
-                                    <span className="flex items-center gap-1.5 min-w-0">
-                                      <Network className="w-3 h-3 text-[#2563EB] dark:text-[#60A5FA] shrink-0" />
-                                      <span className="truncate">{branch.fullName}</span>
-                                    </span>
-                                    <Arrow className="w-3 h-3 text-slate-400 shrink-0" />
-                                  </Link>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-
-                      <Link
-                        to="/laboratories"
-                        onClick={() => setMenuOpen(false)}
-                        className="flex items-center justify-between p-2 mt-1 rounded-lg text-xs font-semibold text-[#1E3A5F] dark:text-[#93C5FD] bg-white dark:bg-[#1E293B] hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors"
-                      >
-                        <span>{t('nav.allLabs')}</span>
-                        <Arrow aria-hidden="true" className="w-3.5 h-3.5" />
-                      </Link>
-                    </div>
-                  )}
-                </div>
-
-                {/* SERVICES ACCORDION - CLEAN REORGANIZED */}
-                <div className="rounded-xl bg-slate-50/80 dark:bg-[#151D2F] border border-[#E2E8F0] dark:border-[#334155] overflow-hidden">
-                  <button
-                    type="button"
-                    onClick={() => toggleMobileSection('services')}
-                    aria-expanded={mobileExpanded.services}
-                    className="w-full flex items-center justify-between p-2.5 text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC] hover:bg-blue-50/60 dark:hover:bg-[#1E293B] transition-colors cursor-pointer"
-                  >
-                    <span className="flex items-center gap-2">
-                      <FlaskConical aria-hidden="true" className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#60A5FA]" />
-                      <span>{t('nav.services')}</span>
-                    </span>
-                    <ChevronDown
-                      aria-hidden="true"
-                      className={`w-3.5 h-3.5 text-current transition-transform duration-200 ${
-                        mobileExpanded.services ? 'rotate-180 text-[#1D4ED8] dark:text-[#93C5FD]' : ''
-                      }`}
-                    />
-                  </button>
-
-                  {mobileExpanded.services && (
-                    <div className="px-2.5 pb-2.5 pt-1 space-y-1 border-t border-[#E2E8F0] dark:border-[#334155] animate-fade-in">
-                      {serviceItems.map((svc) => {
-                        const Icon = svc.icon;
-                        return (
-                          <Link
-                            key={svc.key}
-                            to={svc.path}
-                            onClick={() => setMenuOpen(false)}
-                            className="flex items-center justify-between p-2 rounded-lg text-xs font-medium text-[#0F172A] dark:text-[#F8FAFC] hover:bg-white dark:hover:bg-[#1E293B] transition-colors"
-                          >
-                            <span className="flex items-center gap-2 min-w-0">
-                              <Icon className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#60A5FA] shrink-0" />
-                              <span className="truncate">{svc.title}</span>
-                            </span>
-                            <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-950/60 text-[#2563EB] dark:text-[#60A5FA] shrink-0 ms-2">
-                              {svc.badge}
-                            </span>
-                          </Link>
-                        );
-                      })}
-
-                      <Link
-                        to="/services"
-                        onClick={() => setMenuOpen(false)}
-                        className="flex items-center justify-between p-2 mt-1 rounded-lg text-xs font-semibold text-[#1E3A5F] dark:text-[#93C5FD] bg-white dark:bg-[#1E293B] hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors"
-                      >
-                        <span>{t('nav.allServices')}</span>
-                        <Arrow aria-hidden="true" className="w-3.5 h-3.5" />
-                      </Link>
-                    </div>
-                  )}
-                </div>
-
-                {/* MOBILE LAB UNITS ACCORDION */}
-                <div className="rounded-xl bg-slate-50/80 dark:bg-[#151D2F] border border-[#E2E8F0] dark:border-[#334155] overflow-hidden">
-                  <button
-                    type="button"
-                    onClick={() => toggleMobileSection('mobile')}
-                    aria-expanded={mobileExpanded.mobile}
-                    className="w-full flex items-center justify-between p-2.5 text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC] hover:bg-blue-50/60 dark:hover:bg-[#1E293B] transition-colors cursor-pointer"
-                  >
-                    <span className="flex items-center gap-2">
-                      <Truck aria-hidden="true" className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#60A5FA] rtl:-scale-x-100" />
-                      <span>{t('nav.mobileLabs')}</span>
-                    </span>
-                    <ChevronDown
-                      aria-hidden="true"
-                      className={`w-3.5 h-3.5 text-current transition-transform duration-200 ${
-                        mobileExpanded.mobile ? 'rotate-180 text-[#1D4ED8] dark:text-[#93C5FD]' : ''
-                      }`}
-                    />
-                  </button>
-
-                  {mobileExpanded.mobile && (
-                    <div className="px-2.5 pb-2.5 pt-1 space-y-1 border-t border-[#E2E8F0] dark:border-[#334155] animate-fade-in">
-                      {mobileUnitItems.map((unit) => (
-                        <Link
-                          key={unit.id}
-                          to={unit.path}
-                          onClick={() => setMenuOpen(false)}
-                          className="flex items-center justify-between p-2 rounded-lg text-xs font-medium text-[#0F172A] dark:text-[#F8FAFC] hover:bg-white dark:hover:bg-[#1E293B] transition-colors"
-                        >
-                          <span className="truncate">{unit.name}</span>
-                          <span className="text-[10px] text-[#64748B] dark:text-[#94A3B8] shrink-0 ms-2">
-                            {unit.region}
-                          </span>
-                        </Link>
-                      ))}
-
-                      <Link
-                        to="/mobile-laboratories"
-                        onClick={() => setMenuOpen(false)}
-                        className="flex items-center justify-between p-2 mt-1 rounded-lg text-xs font-semibold text-[#1E3A5F] dark:text-[#93C5FD] bg-white dark:bg-[#1E293B] hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors"
-                      >
-                        <span className="flex items-center gap-1.5">
-                          <Truck className="w-3.5 h-3.5 rtl:-scale-x-100" />
-                          <span>
-                            {lang === 'ar'
-                              ? 'كافة الوحدات المتنقلة'
-                              : lang === 'fr'
-                                ? 'Toutes les unités mobiles'
-                                : 'All Mobile Units'}
-                          </span>
-                        </span>
-                        <Arrow aria-hidden="true" className="w-3.5 h-3.5" />
-                      </Link>
-                    </div>
-                  )}
-                </div>
-
-                {/* CUSTOMER SERVICES ACCORDION */}
-                <div className="rounded-xl bg-slate-50/80 dark:bg-[#151D2F] border border-[#E2E8F0] dark:border-[#334155] overflow-hidden">
-                  <button
-                    type="button"
-                    onClick={() => toggleMobileSection('cs')}
-                    aria-expanded={mobileExpanded.cs}
-                    className="w-full flex items-center justify-between p-2.5 text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC] hover:bg-blue-50/60 dark:hover:bg-[#1E293B] transition-colors cursor-pointer"
-                  >
-                    <span className="flex items-center gap-2">
-                      <Users aria-hidden="true" className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#60A5FA]" />
-                      <span>{t('cs.title')}</span>
-                    </span>
-                    <ChevronDown
-                      aria-hidden="true"
-                      className={`w-3.5 h-3.5 text-current transition-transform duration-200 ${
-                        mobileExpanded.cs ? 'rotate-180 text-[#1D4ED8] dark:text-[#93C5FD]' : ''
-                      }`}
-                    />
-                  </button>
-
-                  {mobileExpanded.cs && (
-                    <div className="px-2.5 pb-2.5 pt-1 space-y-1.5 border-t border-[#E2E8F0] dark:border-[#334155] animate-fade-in">
-                      {customerServices.map((svc) => {
-                        const Icon = svc.icon;
-                        return (
-                          <Link
-                            key={svc.to}
-                            to={svc.to}
-                            onClick={() => setMenuOpen(false)}
-                            className="flex items-start gap-2.5 p-2 rounded-lg text-[#0F172A] dark:text-[#F8FAFC] hover:bg-white dark:hover:bg-[#1E293B] transition-colors"
-                          >
-                            <div className="w-7 h-7 rounded-md bg-blue-50 dark:bg-blue-950/60 flex items-center justify-center text-[#2563EB] dark:text-[#60A5FA] shrink-0 mt-0.5">
-                              <Icon className="w-3.5 h-3.5" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs font-semibold text-[#0F172A] dark:text-[#F8FAFC]">
-                                {svc.label}
-                              </p>
-                              <p className="text-[10px] text-[#64748B] dark:text-[#94A3B8] mt-0.5 leading-relaxed">
-                                {svc.desc}
-                              </p>
-                            </div>
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-
-                {/* NEWS */}
-                <Link
-                  to="/news"
-                  aria-current={isActive('/news') ? 'page' : undefined}
-                  onClick={() => setMenuOpen(false)}
-                  className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${
-                    isActive('/news')
-                      ? 'bg-blue-50 dark:bg-blue-950/40 text-[#1D4ED8] dark:text-[#93C5FD]'
-                      : 'text-[#0F172A] dark:text-[#F8FAFC] hover:bg-slate-50 dark:hover:bg-[#151D2F]'
-                  }`}
-                >
-                  {t('nav.news')}
-                </Link>
-
-                {/* CONTACT */}
-                <Link
-                  to="/contact"
-                  aria-current={isActive('/contact') ? 'page' : undefined}
-                  onClick={() => setMenuOpen(false)}
-                  className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${
-                    isActive('/contact')
-                      ? 'bg-blue-50 dark:bg-blue-950/40 text-[#1D4ED8] dark:text-[#93C5FD]'
-                      : 'text-[#0F172A] dark:text-[#F8FAFC] hover:bg-slate-50 dark:hover:bg-[#151D2F]'
-                  }`}
-                >
-                  {t('nav.contact')}
-                </Link>
-
-                {/* ADMIN / PORTAL */}
-                <div className="pt-2 mt-1 border-t border-[#E2E8F0] dark:border-[#334155]">
-                  <Link
-                    to="/admin"
-                    onClick={() => setMenuOpen(false)}
-                    className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#0F4C81] hover:bg-[#0C3D68] dark:bg-[#2563EB] dark:hover:bg-[#1D4ED8] transition-colors shadow-xs"
-                  >
-                    <LogIn aria-hidden="true" className="w-4 h-4 text-white" />
-                    <span>{t('nav.admin')}</span>
-                  </Link>
-                </div>
-              </nav>
-            </div>
-          )}
         </div>
       </header>
 

@@ -301,6 +301,13 @@ export default function VisitorDetail() {
           )}
 
           <div className="mt-6 flex flex-col sm:flex-row gap-3">
+            <Link
+              to={`/portal?visitor_id=${encodeURIComponent(displayRefId)}`}
+              className="flex items-center justify-center gap-2 px-5 py-3 rounded-lg bg-blue-600 text-white font-bold text-sm hover:bg-blue-500 transition-colors flex-1 shadow-sm"
+            >
+              <FileText className="w-4 h-4" />
+              <span>{lang === 'ar' ? 'لوحة تحكم الزائر ومتابعة التقارير' : 'Go to Visitor Dashboard'}</span>
+            </Link>
             <button
               onClick={() => setShowBadge(!showBadge)}
               className="flex items-center justify-center gap-2 px-5 py-3 rounded-lg bg-navy-800 text-white font-bold text-sm hover:bg-navy-700 transition-colors flex-1 shadow-sm"

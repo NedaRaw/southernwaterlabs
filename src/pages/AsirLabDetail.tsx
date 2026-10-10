@@ -33,13 +33,13 @@ import { useLang } from '@/lib/i18n';
 import Breadcrumb from '@/components/Breadcrumb';
 import nwcLogo from '@/assets/images/nwc-logo.png';
 
-import labAsirBuilding from '@/assets/images/lab_asir_central_1790236943444.jpg';
+import labAsirBuilding from '@/assets/images/asir-waterlab3.jpg';
 import asirWaterLabFacility from '@/assets/images/asir_water_lab_facility_1790161189942.jpg';
 import asirMobileVan from '@/assets/images/asir-lab-van5.jpg';
 
 import asirWaterLab1 from '@/assets/images/asir-waterlab1.jpg';
 import asirWaterLab2 from '@/assets/images/asir-waterlab2.jpg';
-import asirWaterLab3 from '@/assets/images/asir-waterlab3.jpg';
+import asirWaterLab3 from '@/assets/images/lab_asir_central_1790236943444.jpg';
 import asirWaterLab4 from '@/assets/images/asir-waterlab4.jpg';
 
 import cadeauAsir from '@/assets/images/cadeau-asir.jpg';
