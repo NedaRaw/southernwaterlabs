@@ -1580,7 +1580,7 @@ export default function Admin() {
 
   return (
     <div
-      className="min-h-screen bg-slate-100 text-slate-900 flex flex-col pt-[52px] lg:pt-[54px]"
+      className="min-h-screen bg-slate-100 text-slate-900 flex flex-col pt-[100px]"
       dir={dir}
     >
       {/* ======================================================
@@ -1591,7 +1591,7 @@ export default function Admin() {
           RIGHT: User Badge, Website Quick-Link, Refined Pro Logout
       ======================================================= */}
 
-      <header className="bg-[#0B132B]/95 backdrop-blur-md text-white sticky top-[52px] lg:top-[54px] z-40 border-b border-slate-800/80 shadow-sm shadow-black/20">
+      <header className="bg-[#0B132B]/95 backdrop-blur-md text-white sticky top-[100px] z-40 border-b border-slate-800/80 shadow-sm shadow-black/20">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="min-h-[60px] py-2 flex items-center justify-between gap-3 lg:gap-6">
             {/* LEFT: Sleek Portal Badge & Title (No redundant logo) */}
