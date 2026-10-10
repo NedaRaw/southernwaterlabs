@@ -406,59 +406,28 @@ const album: ImageItem[] = [
     },
   },
   {
-    src: asirWaterLabFacility,
+    src: asirWaterLab2,
     title: {
-      ar: 'المنشأة المخبرية ومحطات المعالجة المائية بعسير',
-      en: 'Laboratory Facility & Water Processing Units in Asir',
-      fr: 'Installation du laboratoire et unités de traitement des eaux d’Asir',
-    },
-  },
-  {
-    src: asirMobileVan,
-    title: {
-      ar: 'مركبة المختبر المركزي المتنقل بعسير',
-      en: 'Asir Central Mobile Laboratory Vehicle',
-      fr: 'Véhicule du laboratoire mobile central d’Asir',
+      ar: 'المدخل الرئيسي والواجهة الزجاجية للمختبر المركزي بعسير',
+      en: 'Main Entrance & Glass Façade of Asir Central Laboratory Facility',
+      fr: 'Entrée principale et façade vitrée du Laboratoire central d’Asir',
     },
   },
   {
     src: asirWaterLab1,
     title: {
-      ar: 'منصة الفحوصات والتحاليل المخبرية المعتمدة بعسير',
-      en: 'Accredited Analytical Testing Station at Asir Central Lab',
-      fr: 'Poste d’analyses et de contrôles accrédités au Laboratoire d’Asir',
+      ar: 'المبنى الرئيسي واللوحة الرسمية للمختبر المركزي بعسير',
+      en: 'Main Entrance & Official Signboard of Asir Central Laboratory',
+      fr: 'Façade principale et enseigne officielle du Laboratoire central d’Asir',
     },
   },
-  {
-    src: asirWaterLab2,
-    title: {
-      ar: 'محطة التحاليل الدقيقة والأدوات الزجاجية والمحاليل المعايرة',
-      en: 'Precision Analytical Glassware & Calibrated Chemical Solutions Station',
-      fr: 'Station de verrerie étalonnée et solutions d’analyse de précision',
-    },
-  },
-  {
-    src: asirWaterLab3,
-    title: {
-      ar: 'أجهزة القياس والتحليل الطيفي لمراقبة جودة مياه الشرب',
-      en: 'Spectrophotometers & Water Quality Testing Equipment',
-      fr: 'Appareils de spectrophotométrie et mesure de qualité de l’eau',
-    },
-  },
+
   {
     src: asirWaterLab4,
     title: {
-      ar: 'محطة مراقبة الجودة وضبط المعايير المخبرية بعسير',
-      en: 'Quality Assurance & Specimen Evaluation Bench at Asir Lab',
-      fr: 'Banc de contrôle qualité et évaluation des échantillons d’Asir',
-    },
-  },
-  {
-    src: cadeauAsir,
-    title: {
-      ar: 'درع شكر وتقدير تذكاري من متوسطة الإحسان بأبها للمختبر المركزي',
-      en: 'Commemorative Appreciation Plaque from Al-Ihsan School to Asir Central Lab',
-      fr: 'Bouclier de reconnaissance de l’école Al-Ihsan au Laboratoire Central d’Asir',
+      ar: 'الإضاءة الليلية لمبنى المختبر المركزي بعسير',
+      en: 'Night View of Asir Central Water Laboratory Building',
+      fr: 'Vue nocturne du bâtiment du Laboratoire central d’Asir',
     },
   },
   {
@@ -470,11 +439,45 @@ const album: ImageItem[] = [
     },
   },
   {
+    src: asirWaterLabFacility,
+    title: {
+      ar: 'المنشأة المخبرية ومحطات المعالجة المائية بعسير',
+      en: 'Laboratory Facility & Water Processing Units in Asir',
+      fr: 'Installation du laboratoire et unités de traitement des eaux d’Asir',
+    },
+  },
+  {
+    src: asirWaterLab3,
+    title: {
+      ar: 'أجهزة القياس والتحليل الطيفي لمراقبة جودة مياه الشرب',
+      en: 'Spectrophotometers & Water Quality Testing Equipment',
+      fr: 'Appareils de spectrophotométrie et mesure de qualité de l’eau',
+    },
+  },
+  {
     src: laboAsir,
     title: {
       ar: 'قاعة التحاليل والفحوصات المخبرية الرئيسية بمختبر عسير',
       en: 'Main Analytical Testing Laboratory Hall at Asir Central Lab',
       fr: 'Salle principale des analyses et examens du Laboratoire Central d’Asir',
+    },
+  },
+  {
+    src: asirMobileVan,
+    title: {
+      ar: 'مركبة المختبر المركزي المتنقل بعسير',
+      en: 'Asir Central Mobile Laboratory Vehicle',
+      fr: 'Véhicule du laboratoire mobile central d’Asir',
+    },
+  },
+
+
+  {
+    src: cadeauAsir,
+    title: {
+      ar: 'درع شكر وتقدير تذكاري من متوسطة الإحسان بأبها للمختبر المركزي',
+      en: 'Commemorative Appreciation Plaque from Al-Ihsan School to Asir Central Lab',
+      fr: 'Bouclier de reconnaissance de l’école Al-Ihsan au Laboratoire Central d’Asir',
     },
   },
 ];
@@ -861,11 +864,10 @@ export default function AsirLabDetail() {
                       key={item.src}
                       type="button"
                       onClick={() => setCurrentImage(index)}
-                      className={`relative h-16 w-24 shrink-0 overflow-hidden rounded-lg ${
-                        index === currentImage
-                          ? 'ring-2 ring-blue-600'
-                          : 'opacity-60 hover:opacity-100'
-                      }`}
+                      className={`relative h-16 w-24 shrink-0 overflow-hidden rounded-lg ${index === currentImage
+                        ? 'ring-2 ring-blue-600'
+                        : 'opacity-60 hover:opacity-100'
+                        }`}
                     >
                       <img
                         src={item.src}
