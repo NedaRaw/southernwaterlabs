@@ -549,19 +549,29 @@ export default function Register() {
                 {errors.visit_date && <p className="text-red-500 text-xs mt-1">{errors.visit_date}</p>}
               </div>
 
+
               {/* Expected Arrival Time */}
               <div>
-                <label className={labelClass}>{t('register.arrivalTime')} {req}</label>
+                <label className={labelClass}>
+                  {t('register.arrivalTime')} {req}
+                </label>
+
                 <div className="relative">
                   <input
                     type="time"
                     value={formData.arrival_time}
                     onChange={(e) => handleChange('arrival_time', e.target.value)}
-                    className={inputClass('arrival_time')}
+                    className={`${inputClass('arrival_time')} pe-10`}
                   />
+
                   <Clock className="w-4 h-4 text-slate-400 absolute end-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                 </div>
-                {errors.arrival_time && <p className="text-red-500 text-xs mt-1">{errors.arrival_time}</p>}
+
+                {errors.arrival_time && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.arrival_time}
+                  </p>
+                )}
               </div>
 
               {/* Additional Notes */}
