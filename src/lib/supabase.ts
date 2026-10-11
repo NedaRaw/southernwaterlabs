@@ -381,6 +381,88 @@ function createMockSupabaseClient() {
           return { data: null, error: null };
         }
 
+        case 'login_user': {
+          const { p_username, p_password } = args as { p_username?: string; p_password?: string };
+          const match = users.find(
+            u => u.username === p_username && u.password === p_password
+          );
+          if (match) {
+            return {
+              data: {
+                success: true,
+                session_token: `mock-token-${Date.now()}`,
+                user: {
+                  id: match.id,
+                  username: match.username,
+                  full_name: match.full_name,
+                  role: match.role,
+                  active: true,
+                  is_primary: match.username === 'admin',
+                },
+              },
+              error: null,
+            };
+          }
+          return {
+            data: { success: false, message: 'Invalid username or password' },
+            error: null,
+          };
+        }
+
+        case 'logout_user': {
+          return { data: { success: true }, error: null };
+        }
+
+        case 'require_admin': {
+          return { data: { success: true }, error: null };
+        }
+
+        case 'list_users': {
+          const safeUsers = users.map(u => ({
+            id: u.id,
+            username: u.username,
+            full_name: u.full_name,
+            role: u.role,
+            active: true,
+            is_primary: u.username === 'admin',
+          }));
+          return { data: safeUsers, error: null };
+        }
+
+        case 'delete_user': {
+          const { p_id } = args as { p_id: string };
+          const filtered = users.filter(u => u.id !== p_id);
+          saveData(STORAGE_KEYS.ADMIN_USERS, filtered);
+          return { data: { success: true }, error: null };
+        }
+
+        case 'get_admin_surveys':
+        case 'admin_list_surveys': {
+          const surveys = loadData<SurveyDataRecord[]>(STORAGE_KEYS.SURVEYS, defaultSurveys);
+          return { data: surveys, error: null };
+        }
+
+        case 'admin_delete_survey': {
+          const { p_id } = args as { p_id: string };
+          const surveys = loadData<SurveyDataRecord[]>(STORAGE_KEYS.SURVEYS, defaultSurveys);
+          const filtered = surveys.filter(s => s.id !== p_id);
+          saveData(STORAGE_KEYS.SURVEYS, filtered);
+          return { data: { success: true }, error: null };
+        }
+
+        case 'admin_list_enquiries': {
+          const enquiries = loadData<EnquiryDataRecord[]>(STORAGE_KEYS.ENQUIRIES, defaultEnquiries);
+          return { data: enquiries, error: null };
+        }
+
+        case 'admin_delete_enquiry': {
+          const { p_id } = args as { p_id: string };
+          const enquiries = loadData<EnquiryDataRecord[]>(STORAGE_KEYS.ENQUIRIES, defaultEnquiries);
+          const filtered = enquiries.filter(e => e.id !== p_id);
+          saveData(STORAGE_KEYS.ENQUIRIES, filtered);
+          return { data: { success: true }, error: null };
+        }
+
         default:
           return { data: null, error: { message: `Unknown function ${fnName}` } };
       }

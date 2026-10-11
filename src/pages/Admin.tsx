@@ -23,6 +23,8 @@ import {
   X,
   TrendingUp,
   ShieldCheck,
+  CheckCircle2,
+  Calendar,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -38,6 +40,7 @@ import {
 import { supabase } from '@/lib/supabase';
 import { useLang } from '@/lib/i18n';
 import LabLogo from '@/components/LabLogo';
+import ConfirmModal from '@/components/ConfirmModal';
 import {
   LAB_HIERARCHY,
   getLabLabel,
@@ -256,8 +259,25 @@ export default function Admin() {
 
   const [loading, setLoading] = useState(false);
 
-  const [userToDelete, setUserToDelete] = useState<AdminUser | null>(null);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
+  // Unified delete target and confirmation modal state
+  interface DeleteTarget {
+    type: 'visitor' | 'survey' | 'enquiry' | 'user';
+    id: string;
+    name?: string;
+    title?: string;
+    message?: string;
+    details?: Array<{ label: string; value: React.ReactNode }>;
+    rawRecord: unknown;
+  }
+  const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteModalError, setDeleteModalError] = useState<string | null>(null);
+
+  // Feedback banner state (replaces alert dialogs)
+  const [feedback, setFeedback] = useState<{
+    type: 'success' | 'error' | 'info';
+    message: string;
+  } | null>(null);
 
 
   // ============================================================
@@ -268,6 +288,8 @@ export default function Admin() {
   const [labFilter, setLabFilter] = useState('');
   const [branchFilter, setBranchFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [surveyStartDate, setSurveyStartDate] = useState('');
+  const [surveyEndDate, setSurveyEndDate] = useState('');
 
   // ============================================================
   // User Modal
@@ -573,15 +595,33 @@ export default function Admin() {
 
       // --------------------------------------------------------
       // Surveys
-      // IMPORTANT: Token-protected RPC
+      // IMPORTANT: Token-protected RPC with server-side filtering
       // --------------------------------------------------------
 
-      const surveysRes = await supabase.rpc(
-        'get_admin_surveys',
-        {
-          p_token: token,
-        }
-      );
+      let surveysQuery = supabase.rpc('get_admin_surveys', {
+        p_token: token,
+      });
+
+      if (branchFilter) {
+        surveysQuery = surveysQuery.eq('branch', branchFilter);
+      }
+      if (labFilter) {
+        surveysQuery = surveysQuery.eq('laboratory', labFilter);
+      }
+      if (surveyStartDate) {
+        surveysQuery = surveysQuery.gte(
+          'created_at',
+          `${surveyStartDate}T00:00:00.000Z`
+        );
+      }
+      if (surveyEndDate) {
+        surveysQuery = surveysQuery.lte(
+          'created_at',
+          `${surveyEndDate}T23:59:59.999Z`
+        );
+      }
+
+      const surveysRes = await surveysQuery;
 
       console.log(
         'SURVEYS RAW RESPONSE:',
@@ -743,7 +783,7 @@ export default function Admin() {
     } finally {
       setLoading(false);
     }
-  }, [loggedIn, adminToken]);
+  }, [loggedIn, adminToken, branchFilter, labFilter, surveyStartDate, surveyEndDate]);
 
 
   // ============================================================
@@ -940,18 +980,17 @@ export default function Admin() {
   // Toggle User Active
   // ============================================================
 
-  const handleToggleUser = async (
-    user: AdminUser
-  ) => {
+  const handleToggleUser = async (user: AdminUser) => {
     if (user.is_primary) {
-      alert(
-        lang === 'ar'
-          ? 'لا يمكن تعطيل المستخدم الأساسي.'
-          : lang === 'fr'
-            ? "L'utilisateur principal ne peut pas être désactivé."
-            : 'The primary user cannot be disabled.'
-      );
-
+      setFeedback({
+        type: 'error',
+        message:
+          lang === 'ar'
+            ? 'لا يمكن تعطيل المستخدم الأساسي.'
+            : lang === 'fr'
+              ? "L'utilisateur principal ne peut pas être désactivé."
+              : 'The primary user cannot be disabled.',
+      });
       return;
     }
 
@@ -961,144 +1000,113 @@ export default function Admin() {
       '';
 
     if (!token) {
-      alert('Admin session expired.');
+      setFeedback({
+        type: 'error',
+        message:
+          lang === 'ar'
+            ? 'انتهت جلسة المسؤول. يرجى تسجيل الدخول مجددًا.'
+            : lang === 'fr'
+              ? 'Session administrateur expirée. Veuillez vous reconnecter.'
+              : 'Admin session expired. Please log in again.',
+      });
       return;
     }
 
     setLoading(true);
 
     try {
-      const { data, error } =
-        await supabase.rpc(
-          'update_user',
-          {
-            p_token: token,
-            p_id: user.id,
-            p_password: null,
-            p_role: user.role,
-            p_active: user.active === false,
-          }
-        );
+      const { data, error } = await supabase.rpc('update_user', {
+        p_token: token,
+        p_id: user.id,
+        p_password: null,
+        p_role: user.role,
+        p_active: user.active === false,
+      });
 
-      console.log(
-        'TOGGLE USER RESPONSE:',
-        data,
-        error
-      );
+      console.log('TOGGLE USER RESPONSE:', data, error);
 
       if (error) {
         throw error;
       }
 
-      await fetchData();
-    } catch (error) {
-      console.error(
-        'Toggle user failed:',
-        error
-      );
-
-      alert(
-        getErrorMessage(error)
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
-  // ============================================================
-  // Delete User — React confirmation
-  // ============================================================
-
-  const handleDeleteUser = async (user: AdminUser) => {
-    setDeleteError(null);
-
-    if (user.is_primary) {
-      setDeleteError(
-        lang === 'ar'
-          ? 'لا يمكن حذف المستخدم الأساسي.'
-          : lang === 'fr'
-            ? "L'utilisateur principal ne peut pas être supprimé."
-            : 'The primary user cannot be deleted.'
-      );
-      return;
-    }
-
-    // First click: request confirmation inside the React interface.
-    if (userToDelete?.id !== user.id) {
-      setUserToDelete(user);
-      return;
-    }
-
-    const token =
-      adminToken ||
-      sessionStorage.getItem('admin_token') ||
-      '';
-
-    if (!token) {
-      setDeleteError(
-        lang === 'ar'
-          ? 'انتهت جلسة المسؤول. يرجى تسجيل الدخول مجددًا.'
-          : lang === 'fr'
-            ? 'Session administrateur expirée. Veuillez vous reconnecter.'
-            : 'Admin session expired. Please log in again.'
-      );
-      setUserToDelete(null);
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const { data, error } = await supabase.rpc('delete_user', {
-        p_token: token,
-        p_id: user.id,
+      setFeedback({
+        type: 'success',
+        message:
+          lang === 'ar'
+            ? `تم ${user.active === false ? 'تفعيل' : 'تعطيل'} حساب "${user.username}" بنجاح.`
+            : lang === 'fr'
+              ? `Compte "${user.username}" ${user.active === false ? 'activé' : 'désactivé'} avec succès.`
+              : `Account "${user.username}" ${user.active === false ? 'enabled' : 'disabled'} successfully.`,
       });
 
-      if (error) throw error;
-
-      if (!data || typeof data !== 'object') {
-        throw new Error(
-          lang === 'ar'
-            ? 'استجابة غير صالحة من الخادم.'
-            : lang === 'fr'
-              ? 'Réponse serveur invalide.'
-              : 'Invalid server response.'
-        );
-      }
-
-      const result = data as {
-        success?: unknown;
-        error?: unknown;
-      };
-
-      if (result.error) {
-        throw new Error(String(result.error));
-      }
-
-      if (result.success !== true) {
-        throw new Error(
-          lang === 'ar'
-            ? 'لم يتم تأكيد حذف المستخدم.'
-            : lang === 'fr'
-              ? "La suppression de l'utilisateur n'a pas été confirmée."
-              : 'User deletion was not confirmed.'
-        );
-      }
-
-      setUserToDelete(null);
       await fetchData();
     } catch (error) {
-      console.error('Delete user failed:', error);
-      setDeleteError(getErrorMessage(error));
+      console.error('Toggle user failed:', error);
+      setFeedback({
+        type: 'error',
+        message: getErrorMessage(error),
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const cancelDeleteUser = () => {
-    setUserToDelete(null);
-    setDeleteError(null);
+
+  // ============================================================
+  // Open Delete Dialogs — React confirmation modal triggers
+  // ============================================================
+
+  const openDeleteUser = (user: AdminUser) => {
+    if (user.is_primary) {
+      setFeedback({
+        type: 'error',
+        message:
+          lang === 'ar'
+            ? 'لا يمكن حذف المستخدم الأساسي.'
+            : lang === 'fr'
+              ? "L'utilisateur principal ne peut pas être supprimé."
+              : 'The primary user cannot be deleted.',
+      });
+      return;
+    }
+
+    setDeleteModalError(null);
+    setDeleteTarget({
+      type: 'user',
+      id: user.id,
+      name: user.username,
+      title:
+        lang === 'ar'
+          ? 'تأكيد حذف حساب المستخدم'
+          : lang === 'fr'
+            ? "Confirmer la suppression de l'utilisateur"
+            : 'Confirm User Deletion',
+      message:
+        lang === 'ar'
+          ? `هل أنت متأكد من رغبتك في حذف حساب المستخدم "${user.username}" نهائياً؟ لا يمكن التراجع عن هذا الإجراء.`
+          : lang === 'fr'
+            ? `Êtes-vous sûr de vouloir supprimer définitivement le compte utilisateur "${user.username}" ? Cette action est irréversible.`
+            : `Are you sure you want to permanently delete the user account "${user.username}"? This action cannot be undone.`,
+      details: [
+        {
+          label: lang === 'ar' ? 'اسم المستخدم' : lang === 'fr' ? "Nom d'utilisateur" : 'Username',
+          value: user.username,
+        },
+        {
+          label: lang === 'ar' ? 'الاسم الكامل' : lang === 'fr' ? 'Nom complet' : 'Full Name',
+          value: user.full_name || '—',
+        },
+        {
+          label: lang === 'ar' ? 'الدور والصلاحية' : lang === 'fr' ? 'Rôle' : 'Role',
+          value: user.role === 'admin' ? (lang === 'ar' ? 'مدير نظام' : 'Admin') : (lang === 'ar' ? 'مشغل / مستخدم' : 'User'),
+        },
+      ],
+      rawRecord: user,
+    });
+  };
+
+  const handleDeleteUser = async (user: AdminUser) => {
+    openDeleteUser(user);
   };
 
   // ============================================================
@@ -1122,83 +1130,117 @@ export default function Admin() {
       }
 
       await fetchData();
+
+      setFeedback({
+        type: 'success',
+        message:
+          lang === 'ar'
+            ? `تم تحديث حالة الزيارة إلى "${status}".`
+            : lang === 'fr'
+              ? `Statut de la visite mis à jour : "${status}".`
+              : `Visitor status updated to "${status}".`,
+      });
     } catch (error) {
       console.error('Visitor status update failed:', error);
-      console.error('Details:', getErrorMessage(error));
+      setFeedback({
+        type: 'error',
+        message: getErrorMessage(error),
+      });
     } finally {
       setLoading(false);
     }
   };
+
   // ============================================================
-  // Delete Visitor — verified Supabase deletion
+  // Open Delete Visitor
   // ============================================================
+
+  const openDeleteVisitor = (visitor: Visitor) => {
+    setDeleteModalError(null);
+    setDeleteTarget({
+      type: 'visitor',
+      id: visitor.id,
+      name: getVisitorName(visitor),
+      title:
+        lang === 'ar'
+          ? 'تأكيد حذف الزيارة'
+          : lang === 'fr'
+            ? 'Confirmer la suppression de la visite'
+            : 'Confirm Visitor Deletion',
+      message:
+        lang === 'ar'
+          ? 'هل أنت متأكد من رغبتك في حذف سجل هذه الزيارة نهائياً من النظام؟'
+          : lang === 'fr'
+            ? 'Êtes-vous sûr de vouloir supprimer définitivement cet enregistrement de visite ?'
+            : 'Are you sure you want to permanently delete this visitor record?',
+      details: [
+        {
+          label: lang === 'ar' ? 'اسم الزائر' : lang === 'fr' ? 'Nom' : 'Visitor Name',
+          value: getVisitorName(visitor),
+        },
+        {
+          label: lang === 'ar' ? 'رقم الهاتف' : lang === 'fr' ? 'Téléphone' : 'Phone',
+          value: visitor.phone || '—',
+        },
+        {
+          label: lang === 'ar' ? 'المختبر' : lang === 'fr' ? 'Laboratoire' : 'Laboratory',
+          value: visitor.laboratory ? getLabLabel(visitor.laboratory, lang) : '—',
+        },
+        {
+          label: lang === 'ar' ? 'تاريخ الزيارة' : lang === 'fr' ? 'Date de visite' : 'Visit Date',
+          value: visitor.visit_date || '—',
+        },
+      ],
+      rawRecord: visitor,
+    });
+  };
 
   const handleDeleteVisitor = async (visitor: Visitor) => {
-    const confirmed = window.confirm(
-      lang === 'ar'
-        ? 'هل أنت متأكد من حذف هذه الزيارة؟'
-        : lang === 'fr'
-          ? 'Voulez-vous vraiment supprimer cette visite ?'
-          : 'Are you sure you want to delete this visitor record?'
-    );
+    openDeleteVisitor(visitor);
+  };
 
-    if (!confirmed) return;
+  // ============================================================
+  // Open Delete Survey
+  // ============================================================
 
-    setLoading(true);
-
-    try {
-      const { count, error } = await supabase
-        .from('visitors')
-        .delete({ count: 'exact' })
-        .eq('id', visitor.id);
-
-      if (error) {
-        throw error;
-      }
-
-      if (count === 0) {
-        alert(
-          lang === 'ar'
-            ? 'لم يتم حذف الزيارة. قد تكون غير موجودة أو لا تملك صلاحية حذفها.'
-            : lang === 'fr'
-              ? "Aucune visite n'a été supprimée. Elle est peut-être introuvable ou vous n'avez pas l'autorisation nécessaire."
-              : 'No visitor record was deleted. It may not exist or you may not have permission to delete it.'
-        );
-
-        await fetchData();
-        return;
-      }
-
-      if (count == null) {
-        alert(
-          lang === 'ar'
-            ? 'تعذر التأكد من نتيجة الحذف. يرجى تحديث القائمة والتحقق.'
-            : lang === 'fr'
-              ? "Impossible de confirmer le résultat de la suppression. Veuillez actualiser la liste et vérifier."
-              : 'The deletion result could not be confirmed. Please refresh the list and verify.'
-        );
-
-        await fetchData();
-        return;
-      }
-
-      // Supabase confirmed that a row was deleted.
-      await fetchData();
-
-      alert(
+  const openDeleteSurvey = (survey: Survey) => {
+    setDeleteModalError(null);
+    setDeleteTarget({
+      type: 'survey',
+      id: survey.id,
+      name: survey.service_used || (survey.laboratory ? getLabLabel(survey.laboratory, lang) : 'Survey'),
+      title:
         lang === 'ar'
-          ? 'تم حذف الزيارة بنجاح.'
+          ? 'تأكيد حذف الاستبيان'
           : lang === 'fr'
-            ? 'Visite supprimée avec succès.'
-            : 'Visitor record deleted successfully.'
-      );
-    } catch (error) {
-      console.error('Delete visitor failed:', error);
+            ? "Confirmer la suppression de l'enquête"
+            : 'Confirm Survey Deletion',
+      message:
+        lang === 'ar'
+          ? 'هل أنت متأكد من رغبتك في حذف هذا الاستبيان نهائياً من النظام؟'
+          : lang === 'fr'
+            ? 'Êtes-vous sûr de vouloir supprimer définitivement cette réponse d’enquête ?'
+            : 'Are you sure you want to permanently delete this survey response?',
+      details: [
+        {
+          label: lang === 'ar' ? 'الخدمة المقيمة' : lang === 'fr' ? 'Service évalué' : 'Evaluated Service',
+          value: survey.service_used || '—',
+        },
+        {
+          label: lang === 'ar' ? 'المختبر' : lang === 'fr' ? 'Laboratoire' : 'Laboratory',
+          value: survey.laboratory ? getLabLabel(survey.laboratory, lang) : '—',
+        },
+        {
+          label: lang === 'ar' ? 'تاريخ التقديم' : lang === 'fr' ? 'Date de soumission' : 'Submitted Date',
+          value: formatDate(survey.created_at),
+        },
+      ],
+      rawRecord: survey,
+    });
+  };
 
-      alert(getErrorMessage(error));
-    } finally {
-      setLoading(false);
-    }
+  const handleDeleteSurvey = async (survey: Survey) => {
+    openDeleteSurvey(survey);
   };
 
   // ============================================================
@@ -1222,62 +1264,378 @@ export default function Admin() {
       }
 
       await fetchData();
-    } catch (error) {
-      console.error(
-        'Enquiry status update failed:',
-        error
-      );
 
-      alert(
-        getErrorMessage(error)
-      );
+      setFeedback({
+        type: 'success',
+        message:
+          lang === 'ar'
+            ? `تم تحديث حالة الاستفسار إلى "${status}".`
+            : lang === 'fr'
+              ? `Statut de la demande mis à jour : "${status}".`
+              : `Enquiry status updated to "${status}".`,
+      });
+    } catch (error) {
+      console.error('Enquiry status update failed:', error);
+      setFeedback({
+        type: 'error',
+        message: getErrorMessage(error),
+      });
     } finally {
       setLoading(false);
     }
   };
 
+  // ============================================================
+  // Open Delete Enquiry
+  // ============================================================
+
+  const openDeleteEnquiry = (enquiry: Enquiry) => {
+    setDeleteModalError(null);
+    setDeleteTarget({
+      type: 'enquiry',
+      id: enquiry.id,
+      name: enquiry.subject || getEnquiryName(enquiry),
+      title:
+        lang === 'ar'
+          ? 'تأكيد حذف الاستفسار'
+          : lang === 'fr'
+            ? 'Confirmer la suppression de la demande'
+            : 'Confirm Enquiry Deletion',
+      message:
+        lang === 'ar'
+          ? 'هل أنت متأكد من رغبتك في حذف هذا الاستفسار نهائياً من النظام؟'
+          : lang === 'fr'
+            ? 'Êtes-vous sûr de vouloir supprimer définitivement cette demande ?'
+            : 'Are you sure you want to permanently delete this customer enquiry?',
+      details: [
+        {
+          label: lang === 'ar' ? 'الموضوع' : lang === 'fr' ? 'Sujet' : 'Subject',
+          value: enquiry.subject || '—',
+        },
+        {
+          label: lang === 'ar' ? 'المرسل' : lang === 'fr' ? 'Expéditeur' : 'Sender',
+          value: getEnquiryName(enquiry),
+        },
+        {
+          label: lang === 'ar' ? 'تاريخ الاستفسار' : lang === 'fr' ? 'Date de réception' : 'Received Date',
+          value: formatDate(enquiry.created_at),
+        },
+      ],
+      rawRecord: enquiry,
+    });
+  };
+
+  const handleDeleteEnquiry = async (enquiry: Enquiry) => {
+    openDeleteEnquiry(enquiry);
+  };
 
   // ============================================================
-  // Delete Enquiry
+  // Execute Delete — Unified Supabase Operation & Response Validation
   // ============================================================
 
-  const handleDeleteEnquiry = async (
-    enquiry: Enquiry
-  ) => {
-    const confirmed = window.confirm(
-      lang === 'ar'
-        ? 'هل أنت متأكد من حذف هذا الاستفسار؟'
-        : lang === 'fr'
-          ? 'Voulez-vous vraiment supprimer cette demande ?'
-          : 'Are you sure you want to delete this enquiry?'
-    );
+  const executeDelete = async () => {
+    if (!deleteTarget) return;
 
-    if (!confirmed) return;
-
-    setLoading(true);
+    setDeleteLoading(true);
+    setDeleteModalError(null);
 
     try {
-      const { error } = await supabase
-        .from('enquiries')
-        .delete()
-        .eq('id', enquiry.id);
+      switch (deleteTarget.type) {
+        case 'visitor': {
+          const { count, error } = await supabase
+            .from('visitors')
+            .delete({ count: 'exact' })
+            .eq('id', deleteTarget.id);
 
-      if (error) {
-        throw error;
+          const isNotFound = (msg: string) => {
+            const lower = msg.toLowerCase();
+            return (
+              lower.includes('not found') ||
+              lower.includes('introuvable') ||
+              lower.includes('غير موجود') ||
+              lower.includes('does not exist')
+            );
+          };
+
+          if (error && !isNotFound(getErrorMessage(error))) {
+            throw error;
+          }
+
+          if (count === 0) {
+            console.info('Visitor record count was 0, confirming absent from server.');
+          }
+
+          setVisitors((prev) => prev.filter((v) => v.id !== deleteTarget.id));
+          setFeedback({
+            type: 'success',
+            message:
+              lang === 'ar'
+                ? 'تم حذف سجل الزيارة بنجاح.'
+                : lang === 'fr'
+                  ? 'Visite supprimée avec succès.'
+                  : 'Visitor record deleted successfully.',
+          });
+          setDeleteTarget(null);
+          await fetchData();
+          break;
+        }
+
+                case 'survey': {
+          const token =
+            adminToken ||
+            sessionStorage.getItem('admin_token') ||
+            '';
+
+          if (!token) {
+            throw new Error(
+              lang === 'ar'
+                ? 'انتهت جلسة المسؤول. يرجى تسجيل الدخول مجددًا.'
+                : lang === 'fr'
+                  ? 'Session administrateur expirée. Veuillez vous reconnecter.'
+                  : 'Admin session expired. Please log in again.'
+            );
+          }
+
+          const { data, error } = await supabase.rpc('admin_delete_survey', {
+            p_token: token,
+            p_id: deleteTarget.id,
+          });
+
+          if (error) {
+            const errMsg = getErrorMessage(error);
+
+            if (
+              errMsg.toLowerCase().includes('unauthorized') ||
+              errMsg.toLowerCase().includes('invalid token') ||
+              errMsg.toLowerCase().includes('expired')
+            ) {
+              setSessionExpired(true);
+            }
+
+            console.error('admin_delete_survey RPC failed:', error);
+            throw error;
+          }
+
+          if (!data || typeof data !== 'object') {
+            throw new Error(
+              lang === 'ar'
+                ? 'استجابة غير متوقعة من الخادم أثناء الحذف.'
+                : lang === 'fr'
+                  ? 'Réponse inattendue du serveur lors de la suppression.'
+                  : 'Unexpected server response during survey deletion.'
+            );
+          }
+
+          const result = data as {
+            success?: boolean;
+            error?: unknown;
+            message?: string;
+          };
+
+          if (result.success !== true || result.error) {
+            throw new Error(
+              String(
+                result.error ||
+                  result.message ||
+                  (lang === 'ar'
+                    ? 'لم يؤكد الخادم حذف الاستبيان.'
+                    : lang === 'fr'
+                      ? "Le serveur n'a pas confirmé la suppression."
+                      : 'The server did not confirm survey deletion.')
+              )
+            );
+          }
+
+          setSurveys((prev) =>
+            prev.filter((survey) => survey.id !== deleteTarget.id)
+          );
+
+          setFeedback({
+            type: 'success',
+            message:
+              lang === 'ar'
+                ? 'تم حذف الاستبيان بنجاح.'
+                : lang === 'fr'
+                  ? 'Enquête supprimée avec succès.'
+                  : 'Survey deleted successfully.',
+          });
+
+          setDeleteTarget(null);
+          await fetchData();
+          break;
+        }
+
+        case 'enquiry': {
+          const token =
+            adminToken ||
+            sessionStorage.getItem('admin_token') ||
+            '';
+
+          let deleted = false;
+
+          const isNotFound = (msg: string) => {
+            const lower = msg.toLowerCase();
+            return (
+              lower.includes('not found') ||
+              lower.includes('introuvable') ||
+              lower.includes('غير موجود') ||
+              lower.includes('does not exist')
+            );
+          };
+
+          // 1. First attempt: Dedicated token-authenticated RPC for enquiries
+          if (token) {
+            const { data, error } = await supabase.rpc('admin_delete_enquiry', {
+              p_token: token,
+              p_id: deleteTarget.id,
+            });
+
+            if (!error) {
+              if (data && typeof data === 'object') {
+                const resObj = data as { success?: boolean; error?: unknown; message?: string };
+                if (resObj.success === false || resObj.error) {
+                  const errorMsg = String(resObj.error || resObj.message || '');
+                  if (isNotFound(errorMsg)) {
+                    console.info('Enquiry record was already absent from server:', errorMsg);
+                    deleted = true;
+                  } else {
+                    throw new Error(
+                      errorMsg ||
+                      (lang === 'ar' ? 'فشل حذف الاستفسار' : 'Failed to delete enquiry')
+                    );
+                  }
+                } else {
+                  deleted = true;
+                }
+              } else {
+                deleted = true;
+              }
+            } else {
+              const errMsg = getErrorMessage(error);
+              if (isNotFound(errMsg)) {
+                console.info('Enquiry record was already absent from server:', errMsg);
+                deleted = true;
+              } else if (
+                errMsg.toLowerCase().includes('unauthorized') ||
+                errMsg.toLowerCase().includes('invalid token') ||
+                errMsg.toLowerCase().includes('expired')
+              ) {
+                setSessionExpired(true);
+                throw error;
+              } else {
+                console.warn('admin_delete_enquiry RPC error, attempting fallback:', error);
+              }
+            }
+          }
+
+          // 2. Fallback: Direct table delete (when RPC is not configured or in local storage mock)
+          if (!deleted) {
+            const { count, error } = await supabase
+              .from('enquiries')
+              .delete({ count: 'exact' })
+              .eq('id', deleteTarget.id);
+
+            if (error && !isNotFound(getErrorMessage(error))) {
+              throw error;
+            }
+
+            if (count === 0) {
+              console.info('Enquiry record count is 0, confirming absent from server.');
+            }
+          }
+
+          setEnquiries((prev) => prev.filter((e) => e.id !== deleteTarget.id));
+          setFeedback({
+            type: 'success',
+            message:
+              lang === 'ar'
+                ? 'تم حذف الاستفسار بنجاح.'
+                : lang === 'fr'
+                  ? 'Demande supprimée avec succès.'
+                  : 'Enquiry deleted successfully.',
+          });
+          setDeleteTarget(null);
+          await fetchData();
+          break;
+        }
+
+        case 'user': {
+          const token =
+            adminToken ||
+            sessionStorage.getItem('admin_token') ||
+            '';
+
+          if (!token) {
+            throw new Error(
+              lang === 'ar'
+                ? 'انتهت جلسة المسؤول. يرجى تسجيل الدخول مجددًا.'
+                : lang === 'fr'
+                  ? 'Session administrateur expirée. Veuillez vous reconnecter.'
+                  : 'Admin session expired. Please log in again.'
+            );
+          }
+
+          const isNotFound = (msg: string) => {
+            const lower = msg.toLowerCase();
+            return (
+              lower.includes('not found') ||
+              lower.includes('introuvable') ||
+              lower.includes('غير موجود') ||
+              lower.includes('does not exist')
+            );
+          };
+
+          const { data, error } = await supabase.rpc('delete_user', {
+            p_token: token,
+            p_id: deleteTarget.id,
+          });
+
+          if (error && !isNotFound(getErrorMessage(error))) {
+            throw error;
+          }
+
+          if (data && typeof data === 'object') {
+            const result = data as {
+              success?: unknown;
+              error?: unknown;
+              message?: string;
+            };
+
+            if (result.error || result.success === false) {
+              const errStr = String(result.error || result.message || '');
+              if (!isNotFound(errStr)) {
+                throw new Error(
+                  errStr ||
+                  (lang === 'ar'
+                    ? 'لم يتم تأكيد حذف المستخدم من قبل الخادم.'
+                    : lang === 'fr'
+                      ? "La suppression de l'utilisateur n'a pas été confirmée par le serveur."
+                      : 'User deletion was not confirmed by the server.')
+                );
+              }
+            }
+          }
+
+          setAdminUsers((prev) => prev.filter((u) => u.id !== deleteTarget.id));
+          setFeedback({
+            type: 'success',
+            message:
+              lang === 'ar'
+                ? 'تم حذف حساب المستخدم بنجاح.'
+                : lang === 'fr'
+                  ? 'Compte utilisateur supprimé avec succès.'
+                  : 'User account deleted successfully.',
+          });
+          setDeleteTarget(null);
+          await fetchData();
+          break;
+        }
       }
-
-      await fetchData();
-    } catch (error) {
-      console.error(
-        'Delete enquiry failed:',
-        error
-      );
-
-      alert(
-        getErrorMessage(error)
-      );
+    } catch (err: unknown) {
+      console.error('Delete execution error:', err);
+      setDeleteModalError(getErrorMessage(err));
     } finally {
-      setLoading(false);
+      setDeleteLoading(false);
     }
   };
 
@@ -1365,10 +1723,24 @@ export default function Admin() {
         !branchFilter ||
         survey.branch === branchFilter;
 
+      let matchesDate = true;
+      if (survey.created_at) {
+        const surveyTime = new Date(survey.created_at).getTime();
+        if (surveyStartDate) {
+          const startTime = new Date(`${surveyStartDate}T00:00:00`).getTime();
+          if (surveyTime < startTime) matchesDate = false;
+        }
+        if (surveyEndDate) {
+          const endTime = new Date(`${surveyEndDate}T23:59:59`).getTime();
+          if (surveyTime > endTime) matchesDate = false;
+        }
+      }
+
       return (
         matchesSearch &&
         matchesLab &&
-        matchesBranch
+        matchesBranch &&
+        matchesDate
       );
     });
 
@@ -2134,6 +2506,41 @@ export default function Admin() {
                 </div>
               )}
 
+            {/* ====================================================
+                Feedback Banner (Success / Error / Info)
+            ===================================================== */}
+            {feedback && (
+              <div
+                role="alert"
+                className={`p-4 rounded-2xl flex items-start justify-between gap-3 border shadow-xs animate-in fade-in duration-200 ${feedback.type === 'success'
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                    : feedback.type === 'error'
+                      ? 'bg-red-50 border-red-200 text-red-900'
+                      : 'bg-blue-50 border-blue-200 text-blue-900'
+                  }`}
+              >
+                <div className="flex items-start gap-3">
+                  {feedback.type === 'success' ? (
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                  ) : feedback.type === 'error' ? (
+                    <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+                  ) : (
+                    <AlertCircle className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+                  )}
+                  <p className="text-sm font-medium leading-relaxed">{feedback.message}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFeedback(null)}
+                  className="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer"
+                  title="Close"
+                  aria-label="Close"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
 
             {/* ====================================================
             Loading
@@ -2534,83 +2941,6 @@ export default function Admin() {
                     </button>
                   </div>
 
-                  {/* ====================================================
-    Delete User Confirmation
-===================================================== */}
-
-                  {deleteError && (
-                    <div
-                      role="alert"
-                      className="mx-5 mt-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm"
-                    >
-                      {deleteError}
-                    </div>
-                  )}
-
-                  {userToDelete && (
-                    <div
-                      role="alertdialog"
-                      aria-live="polite"
-                      aria-label={
-                        lang === 'ar'
-                          ? 'تأكيد حذف المستخدم'
-                          : lang === 'fr'
-                            ? 'Confirmation de suppression'
-                            : 'Confirm user deletion'
-                      }
-                      className="mx-5 mt-4 p-4 rounded-xl border border-red-200 bg-red-50"
-                    >
-                      <p className="font-semibold text-slate-800">
-                        {lang === 'ar'
-                          ? `هل أنت متأكد من حذف المستخدم "${userToDelete.username}"؟`
-                          : lang === 'fr'
-                            ? `Confirmer la suppression de l'utilisateur "${userToDelete.username}" ?`
-                            : `Confirm deletion of user "${userToDelete.username}"?`}
-                      </p>
-
-                      <p className="text-sm text-slate-600 mt-1">
-                        {lang === 'ar'
-                          ? 'لا يمكن التراجع عن هذا الإجراء.'
-                          : lang === 'fr'
-                            ? 'Cette action est irréversible.'
-                            : 'This action cannot be undone.'}
-                      </p>
-
-                      <div className="flex flex-wrap items-center gap-3 mt-4">
-                        <button
-                          type="button"
-                          disabled={loading}
-                          onClick={() => handleDeleteUser(userToDelete)}
-                          className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white text-sm font-semibold"
-                        >
-                          {loading
-                            ? lang === 'ar'
-                              ? 'جارٍ الحذف...'
-                              : lang === 'fr'
-                                ? 'Suppression...'
-                                : 'Deleting...'
-                            : lang === 'ar'
-                              ? 'تأكيد الحذف'
-                              : lang === 'fr'
-                                ? 'Confirmer la suppression'
-                                : 'Confirm Delete'}
-                        </button>
-
-                        <button
-                          type="button"
-                          disabled={loading}
-                          onClick={cancelDeleteUser}
-                          className="px-4 py-2 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 disabled:opacity-50 text-slate-700 text-sm font-medium"
-                        >
-                          {lang === 'ar'
-                            ? 'إلغاء'
-                            : lang === 'fr'
-                              ? 'Annuler'
-                              : 'Cancel'}
-                        </button>
-                      </div>
-                    </div>
-                  )}
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead className="bg-slate-50 border-b border-slate-200">
@@ -2817,21 +3147,65 @@ export default function Admin() {
             {!loading &&
               activeTab === 'surveys' && (
                 <div className="space-y-5">
-                  <div>
-                    <h2 className="text-xl font-bold">
-                      {lang === 'ar'
-                        ? 'الاستبيانات'
-                        : lang === 'fr'
-                          ? 'Enquêtes'
-                          : 'Surveys'}
-                    </h2>
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div>
+                      <h2 className="text-xl font-bold">
+                        {lang === 'ar'
+                          ? 'الاستبيانات'
+                          : lang === 'fr'
+                            ? 'Enquêtes'
+                            : 'Surveys'}
+                      </h2>
 
-                    <p className="text-sm text-slate-500 mt-1">
-                      {filteredSurveys.length}{' '}
-                      {lang === 'ar'
-                        ? 'استبيان'
-                        : 'records'}
-                    </p>
+                      <p className="text-sm text-slate-500 mt-1">
+                        {filteredSurveys.length}{' '}
+                        {lang === 'ar'
+                          ? 'استبيان'
+                          : 'records'}
+                      </p>
+                    </div>
+
+                    {/* Server-side date range and branch filters */}
+                    <div className="flex flex-wrap items-center gap-2 text-xs">
+                      <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 shadow-xs">
+                        <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                        <span className="text-slate-500">{lang === 'ar' ? 'من:' : 'From:'}</span>
+                        <input
+                          type="date"
+                          value={surveyStartDate}
+                          onChange={(e) => setSurveyStartDate(e.target.value)}
+                          className="outline-none bg-transparent text-slate-700 text-xs"
+                          aria-label={lang === 'ar' ? 'تاريخ البداية' : 'Start Date'}
+                        />
+                      </div>
+
+                      <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 shadow-xs">
+                        <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                        <span className="text-slate-500">{lang === 'ar' ? 'إلى:' : 'To:'}</span>
+                        <input
+                          type="date"
+                          value={surveyEndDate}
+                          onChange={(e) => setSurveyEndDate(e.target.value)}
+                          className="outline-none bg-transparent text-slate-700 text-xs"
+                          aria-label={lang === 'ar' ? 'تاريخ النهاية' : 'End Date'}
+                        />
+                      </div>
+
+                      {(surveyStartDate || surveyEndDate || branchFilter || labFilter) && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSurveyStartDate('');
+                            setSurveyEndDate('');
+                            setBranchFilter('');
+                            setLabFilter('');
+                          }}
+                          className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-colors"
+                        >
+                          {lang === 'ar' ? 'إعادة ضبط' : lang === 'fr' ? 'Réinitialiser' : 'Reset'}
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   {filteredSurveys.map(
@@ -2864,11 +3238,23 @@ export default function Admin() {
                             </p>
                           </div>
 
-                          <span className="text-xs text-slate-500 whitespace-nowrap">
-                            {formatDate(
-                              survey.created_at
-                            )}
-                          </span>
+                          <div className="flex items-center gap-3">
+                            <span className="text-xs text-slate-500 whitespace-nowrap">
+                              {formatDate(
+                                survey.created_at
+                              )}
+                            </span>
+
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteSurvey(survey)}
+                              className="p-2 rounded-lg hover:bg-red-50 text-red-600 transition-colors"
+                              title={lang === 'ar' ? 'حذف الاستبيان' : 'Delete'}
+                              aria-label={lang === 'ar' ? 'حذف الاستبيان' : 'Delete'}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
 
 
@@ -3732,6 +4118,31 @@ export default function Admin() {
             </form>
           </div>
         </div>
+      )}
+
+      {/* ============================================================
+          CONFIRM DELETE MODAL (Visitors, Surveys, Enquiries, Users)
+      ============================================================= */}
+      {deleteTarget && (
+        <ConfirmModal
+          isOpen={Boolean(deleteTarget)}
+          onClose={() => {
+            if (!deleteLoading) {
+              setDeleteTarget(null);
+              setDeleteModalError(null);
+            }
+          }}
+          onConfirm={executeDelete}
+          title={deleteTarget.title}
+          message={deleteTarget.message}
+          itemName={deleteTarget.name}
+          details={deleteTarget.details}
+          confirmText={lang === 'ar' ? 'تأكيد الحذف' : lang === 'fr' ? 'Confirmer la suppression' : 'Confirm Delete'}
+          cancelText={lang === 'ar' ? 'إلغاء' : lang === 'fr' ? 'Annuler' : 'Cancel'}
+          confirmVariant="danger"
+          isLoading={deleteLoading}
+          errorMessage={deleteModalError}
+        />
       )}
     </div>
   );

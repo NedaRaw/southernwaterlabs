@@ -93,8 +93,7 @@ export default function Register() {
 
 
   const getLocalizedPurpose = (
-    purpose: string | null | undefined,
-    lang: 'ar' | 'en' | 'fr'
+    purpose: string | null | undefined
   ): string => {
     const purposeKeys: Record<string, string> = {
       'Business Meeting': 'purpose.meeting',
@@ -128,39 +127,39 @@ export default function Register() {
   const purposeOptions = [
     {
       value: 'Business Meeting',
-      label: getLocalizedPurpose('Business Meeting', lang),
+      label: getLocalizedPurpose('Business Meeting'),
     },
     {
       value: 'Equipment Service / Maintenance',
-      label: getLocalizedPurpose('Equipment Service / Maintenance', lang),
+      label: getLocalizedPurpose('Equipment Service / Maintenance'),
     },
     {
       value: 'Sample Delivery',
-      label: getLocalizedPurpose('Sample Delivery', lang),
+      label: getLocalizedPurpose('Sample Delivery'),
     },
     {
       value: 'Audit / Inspection',
-      label: getLocalizedPurpose('Audit / Inspection', lang),
+      label: getLocalizedPurpose('Audit / Inspection'),
     },
     {
       value: 'Training',
-      label: getLocalizedPurpose('Training', lang),
+      label: getLocalizedPurpose('Training'),
     },
     {
       value: 'Job Interview',
-      label: getLocalizedPurpose('Job Interview', lang),
+      label: getLocalizedPurpose('Job Interview'),
     },
     {
       value: 'Vendor Presentation',
-      label: getLocalizedPurpose('Vendor Presentation', lang),
+      label: getLocalizedPurpose('Vendor Presentation'),
     },
     {
       value: 'Research Collaboration',
-      label: getLocalizedPurpose('Research Collaboration', lang),
+      label: getLocalizedPurpose('Research Collaboration'),
     },
     {
       value: 'Other',
-      label: getLocalizedPurpose('Other', lang),
+      label: getLocalizedPurpose('Other'),
     },
   ];
 
