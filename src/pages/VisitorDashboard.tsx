@@ -73,7 +73,66 @@ export default function VisitorDashboard() {
   const [reportsSearch, setReportsSearch] = useState<string>('');
 
   const Arrow = dir === 'rtl' ? ChevronLeft : ChevronRight;
+  // Translate visitor purpose according to the selected website language
+  const getLocalizedPurpose = (
+    purpose: string | null | undefined
+  ): string => {
+    const purposeTranslations: Record<string, { ar: string; en: string; fr: string }> = {
+      'Business Meeting': {
+        ar: 'اجتماع عمل رسمي',
+        en: 'Business Meeting',
+        fr: 'Réunion de travail',
+      },
+      'Equipment Service / Maintenance': {
+        ar: 'صيانة ومعايرة الأجهزة',
+        en: 'Equipment Service / Maintenance',
+        fr: 'Maintenance et entretien',
+      },
+      'Sample Delivery': {
+        ar: 'تسليم واستلام عينات مياه',
+        en: 'Sample Delivery',
+        fr: "Dépôt d'échantillons",
+      },
+      'Audit / Inspection': {
+        ar: 'تدقيق وتفتيش بيئي / جودة',
+        en: 'Audit / Inspection',
+        fr: 'Audit et inspection',
+      },
+      Training: {
+        ar: 'تدريب وتأهيل فني',
+        en: 'Training',
+        fr: 'Formation technique',
+      },
+      'Job Interview': {
+        ar: 'مقابلة توظيف',
+        en: 'Job Interview',
+        fr: "Entretien d'embauche",
+      },
+      'Vendor Presentation': {
+        ar: 'عرض شركات وموردين',
+        en: 'Vendor Presentation',
+        fr: 'Présentation fournisseur',
+      },
+      'Research Collaboration': {
+        ar: 'تعاون بحثي وأكاديمي',
+        en: 'Research Collaboration',
+        fr: 'Collaboration de recherche',
+      },
+      Other: {
+        ar: 'أخرى (حدد في الملاحظات)',
+        en: 'Other',
+        fr: 'Autre',
+      },
+    };
 
+    if (!purpose) return '—';
+
+    const translation = purposeTranslations[purpose];
+
+    if (!translation) return purpose;
+
+    return translation[lang] || translation.en;
+  };
   // Load visits and reports for active visitor
   const loadVisitorData = useCallback(async (visitor: VisitorProfile) => {
     setDataLoading(true);
@@ -825,7 +884,7 @@ export default function VisitorDashboard() {
 
                             <div>
                               <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">
-                                {appt.purpose}
+                                {getLocalizedPurpose(appt.purpose)}
                               </h3>
                               <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs text-slate-600 dark:text-slate-300">
                                 <span className="flex items-center gap-1.5 font-medium text-blue-700 dark:text-blue-400">
@@ -980,7 +1039,7 @@ export default function VisitorDashboard() {
                               </div>
 
                               <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                                {visit.purpose}
+                                {getLocalizedPurpose(visit.purpose)}
                               </p>
 
                               <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500">
@@ -1237,7 +1296,7 @@ export default function VisitorDashboard() {
                 <div className="flex justify-between">
                   <span className="text-slate-500">{lang === 'ar' ? 'الغرض:' : 'Purpose:'}</span>
                   <span className="text-slate-800 dark:text-slate-200 truncate max-w-[200px]">
-                    {badgeModalAppt.purpose}
+                    {getLocalizedPurpose(badgeModalAppt.purpose)}
                   </span>
                 </div>
               </div>
