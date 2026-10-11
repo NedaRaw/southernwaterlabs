@@ -36,6 +36,7 @@ import Breadcrumb from '@/components/Breadcrumb';
 // Official Najran Images
 import najranLogo from '@/assets/images/nwc-logo.png';
 import najranBuilding from '@/assets/images/najran-building.jpg';
+import buildingNajranImg from '@/assets/images/Najran-new-building.jpeg';
 import najranChemist from '@/assets/images/najran_male_chemist_lab_1790161204485.jpg';
 import najranFlyer from '@/assets/images/najran_flyer_labo.png';
 import mobileLabCar from '@/assets/images/lab-car-najran.png';
@@ -213,17 +214,17 @@ export default function NajranLabDetail() {
       fr: 'L\'organigramme officiel et la hiérarchie organisationnelle du Laboratoire Central de Najran',
     }[lang],
     viewChartBtn: { ar: 'تكبير المخطط التنظيمي', en: 'Enlarge Organization Chart', fr: 'Agrandir l\'Organigramme' }[lang],
-    
+
     functionalStructureTitle: {
-    ar: 'الهيكل الوظيفي لمختبر نجران المركزي وفرع شرورة',
-    en: 'Najran Central Laboratory & Sharorah Branch Functional Structure',
-    fr: 'Structure fonctionnelle du Laboratoire central de Najran et de la branche de Sharorah',
+      ar: 'الهيكل الوظيفي لمختبر نجران المركزي وفرع شرورة',
+      en: 'Najran Central Laboratory & Sharorah Branch Functional Structure',
+      fr: 'Structure fonctionnelle du Laboratoire central de Najran et de la branche de Sharorah',
     }[lang],
 
     viewFunctionalStructureBtn: {
-    ar: 'عرض الهيكل الوظيفي',
-    en: 'View Functional Structure',
-    fr: 'Voir la structure fonctionnelle',
+      ar: 'عرض الهيكل الوظيفي',
+      en: 'View Functional Structure',
+      fr: 'Voir la structure fonctionnelle',
     }[lang],
 
     // Sharurah Branch Link
@@ -459,52 +460,52 @@ export default function NajranLabDetail() {
             </div>
 
             {/* Logo Emblem Container */}
-<div className="lg:col-span-4 flex justify-center">
-  <div className="relative p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700/80 shadow-lg max-w-xs w-full text-center">
+            <div className="lg:col-span-4 flex justify-center">
+              <div className="relative p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700/80 shadow-lg max-w-xs w-full text-center">
 
-    {/* Institutional circular emblem frame */}
-    <div className="relative w-40 h-40 sm:w-48 sm:h-48 mx-auto flex items-center justify-center">
+                {/* Institutional circular emblem frame */}
+                <div className="relative w-40 h-40 sm:w-48 sm:h-48 mx-auto flex items-center justify-center">
 
-      {/* Outer institutional ring */}
-      <div className="absolute inset-0 rounded-full border border-blue-700/25 dark:border-blue-400/25" />
+                  {/* Outer institutional ring */}
+                  <div className="absolute inset-0 rounded-full border border-blue-700/25 dark:border-blue-400/25" />
 
-      {/* Inner accreditation ring */}
-      <div className="absolute inset-2 rounded-full border border-amber-500/35 dark:border-amber-400/30" />
+                  {/* Inner accreditation ring */}
+                  <div className="absolute inset-2 rounded-full border border-amber-500/35 dark:border-amber-400/30" />
 
-      {/* Subtle inner white field */}
-      <div className="absolute inset-4 rounded-full bg-white dark:bg-slate-900 shadow-sm" />
+                  {/* Subtle inner white field */}
+                  <div className="absolute inset-4 rounded-full bg-white dark:bg-slate-900 shadow-sm" />
 
-      {/* Official NWC Logo */}
-      <div className="relative z-10 w-36 h-36 sm:w-40 sm:h-40 flex items-center justify-center p-2">
-        <img
-          src={najranLogo}
-          alt={tText.officialTitle}
-          className="max-h-full max-w-full object-contain"
-        />
-      </div>
-    </div>
+                  {/* Official NWC Logo */}
+                  <div className="relative z-10 w-36 h-36 sm:w-40 sm:h-40 flex items-center justify-center p-2">
+                    <img
+                      src={najranLogo}
+                      alt={tText.officialTitle}
+                      className="max-h-full max-w-full object-contain"
+                    />
+                  </div>
+                </div>
 
-    {/* Institutional identification */}
-    <div className="mt-5 pt-4 border-t border-slate-200 dark:border-slate-700 text-center">
+                {/* Institutional identification */}
+                <div className="mt-5 pt-4 border-t border-slate-200 dark:border-slate-700 text-center">
 
-      <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 block tracking-wide leading-snug">
-        {tText.shortTitle}
-      </span>
+                  <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 block tracking-wide leading-snug">
+                    {tText.shortTitle}
+                  </span>
 
-      {/* Accreditation */}
-      <div className="mt-2 flex items-center justify-center gap-2">
-        <span className="h-px w-5 bg-amber-500/50" />
+                  {/* Accreditation */}
+                  <div className="mt-2 flex items-center justify-center gap-2">
+                    <span className="h-px w-5 bg-amber-500/50" />
 
-        <span className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-400 tracking-[0.12em]">
-          ISO/IEC 17025:2017 &bull; SAC
-        </span>
+                    <span className="text-[10px] sm:text-[11px] font-semibold text-slate-600 dark:text-slate-400 tracking-[0.12em]">
+                      ISO/IEC 17025:2017 &bull; SAC
+                    </span>
 
-        <span className="h-px w-5 bg-amber-500/50" />
-      </div>
+                    <span className="h-px w-5 bg-amber-500/50" />
+                  </div>
 
-    </div>
-  </div>
-</div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -601,37 +602,93 @@ export default function NajranLabDetail() {
               </div>
             </div>
 
-            {/* Building Photo */}
+            {/* Building Photos */}
             <div className="lg:col-span-5">
-              <div
-                className="group relative rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-700 cursor-pointer"
-                onClick={() => {
-                  setSelectedImage(najranBuilding);
-                  setSelectedImageTitle(tText.buildingBadge);
-                }}
-              >
-                <img
-                  src={najranBuilding}
-                  alt={tText.buildingBadge}
-                  className="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex items-end p-4">
-                  <div className="text-white">
-                    <span className="text-xs font-semibold bg-blue-600 px-2 py-0.5 rounded-full inline-flex items-center gap-1 mb-1">
-                      <Eye className="w-3 h-3" />
-                      {tText.buildingBadge}
-                    </span>
-                    <p className="text-xs text-slate-200">
-                      {lang === 'ar'
-                        ? 'المقر الإداري والمخبري الرئيسي - نجران'
-                        : lang === 'fr'
-                          ? 'Siège administratif et laboratoire principal - Najran'
-                          : 'Main Laboratory Facility - Najran'}
-                    </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                {/* First Building Photo */}
+                <div
+                  className="group relative rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-700 cursor-pointer"
+                  onClick={() => {
+                    setSelectedImage(najranBuilding);
+                    setSelectedImageTitle(tText.buildingBadge);
+                  }}
+                >
+                  <img
+                    src={najranBuilding}
+                    alt={tText.buildingBadge}
+                    className="w-full h-64 sm:h-80 object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex items-end p-4">
+                    <div className="text-white">
+                      <span className="text-xs font-semibold bg-blue-600 px-2 py-1 rounded-full inline-flex items-center gap-1 mb-2">
+                        <Eye className="w-3 h-3" />
+                        {tText.buildingBadge}
+                      </span>
+
+                      <p className="text-xs text-slate-200">
+                        {lang === 'ar'
+                          ? 'المقر الإداري والمخبري الرئيسي - نجران'
+                          : lang === 'fr'
+                            ? 'Siège administratif et laboratoire principal - Najran'
+                            : 'Main Laboratory Facility - Najran'}
+                      </p>
+                    </div>
                   </div>
                 </div>
+
+                {/* Second Building Photo */}
+                <div
+                  className="group relative rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-700 cursor-pointer"
+                  onClick={() => {
+                    setSelectedImage(buildingNajranImg);
+                    setSelectedImageTitle(
+                      lang === 'ar'
+                        ? 'المبنى الجديد للمختبر المركزي بنجران'
+                        : lang === 'fr'
+                          ? 'Nouveau bâtiment du laboratoire central de Najran'
+                          : 'New Najran Central Laboratory Building'
+                    );
+                  }}
+                >
+                  <img
+                    src={buildingNajranImg}
+                    alt={
+                      lang === 'ar'
+                        ? 'المبنى الجديد للمختبر المركزي بنجران'
+                        : lang === 'fr'
+                          ? 'Nouveau bâtiment du laboratoire central de Najran'
+                          : 'New Najran Central Laboratory Building'
+                    }
+                    className="w-full h-64 sm:h-80 object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex items-end p-4">
+                    <div className="text-white">
+                      <span className="text-xs font-semibold bg-teal-600 px-2 py-1 rounded-full inline-flex items-center gap-1 mb-2">
+                        <Eye className="w-3 h-3" />
+                        {lang === 'ar'
+                          ? 'المبنى الجديد'
+                          : lang === 'fr'
+                            ? 'Nouveau bâtiment'
+                            : 'New Building'}
+                      </span>
+
+                      <p className="text-xs text-slate-200">
+                        {lang === 'ar'
+                          ? 'صورة إضافية للمبنى والمرافق - نجران'
+                          : lang === 'fr'
+                            ? 'Vue complémentaire du bâtiment et des installations - Najran'
+                            : 'Additional View of the Building and Facilities - Najran'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
               </div>
             </div>
+
           </div>
         </section>
 
@@ -842,193 +899,193 @@ export default function NajranLabDetail() {
             </div>
 
             {/* Mobile Laboratory Authentic Photo Album */}
-<div className="lg:col-span-5">
+            <div className="lg:col-span-5">
 
-  <div className="rounded-2xl overflow-hidden border border-white/20 bg-black/20 shadow-2xl">
+              <div className="rounded-2xl overflow-hidden border border-white/20 bg-black/20 shadow-2xl">
 
-    {/* Main Mobile Laboratory Image */}
-    <div
-      className="group relative h-56 overflow-hidden cursor-pointer"
-      onClick={() => {
-        setSelectedImage(mobileLabCar);
-        setSelectedImageTitle(
-          lang === 'ar'
-            ? 'المختبر المتنقل الرسمي - نجران'
-            : lang === 'fr'
-            ? 'Laboratoire mobile officiel - Najran'
-            : 'Official Mobile Laboratory - Najran'
-        );
-      }}
-    >
-      <img
-        src={mobileLabCar}
-        alt={
-          lang === 'ar'
-            ? 'المختبر المتنقل الرسمي - نجران'
-            : lang === 'fr'
-            ? 'Laboratoire mobile officiel - Najran'
-            : 'Official Mobile Laboratory - Najran'
-        }
-        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-      />
+                {/* Main Mobile Laboratory Image */}
+                <div
+                  className="group relative h-56 overflow-hidden cursor-pointer"
+                  onClick={() => {
+                    setSelectedImage(mobileLabCar);
+                    setSelectedImageTitle(
+                      lang === 'ar'
+                        ? 'المختبر المتنقل الرسمي - نجران'
+                        : lang === 'fr'
+                          ? 'Laboratoire mobile officiel - Najran'
+                          : 'Official Mobile Laboratory - Najran'
+                    );
+                  }}
+                >
+                  <img
+                    src={mobileLabCar}
+                    alt={
+                      lang === 'ar'
+                        ? 'المختبر المتنقل الرسمي - نجران'
+                        : lang === 'fr'
+                          ? 'Laboratoire mobile officiel - Najran'
+                          : 'Official Mobile Laboratory - Najran'
+                    }
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
 
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent flex items-end p-4">
-        <div className="text-white">
-          <span className="text-xs font-bold bg-blue-600 px-2.5 py-1 rounded-full inline-flex items-center gap-1.5 mb-1.5">
-            <Truck className="w-3.5 h-3.5" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent flex items-end p-4">
+                    <div className="text-white">
+                      <span className="text-xs font-bold bg-blue-600 px-2.5 py-1 rounded-full inline-flex items-center gap-1.5 mb-1.5">
+                        <Truck className="w-3.5 h-3.5" />
 
-            {lang === 'ar'
-              ? 'المركبة الرسمية للمختبر المتنقل'
-              : lang === 'fr'
-              ? 'Véhicule officiel du laboratoire mobile'
-              : 'Official Mobile Laboratory Vehicle'}
-          </span>
+                        {lang === 'ar'
+                          ? 'المركبة الرسمية للمختبر المتنقل'
+                          : lang === 'fr'
+                            ? 'Véhicule officiel du laboratoire mobile'
+                            : 'Official Mobile Laboratory Vehicle'}
+                      </span>
 
-          <p className="text-xs text-slate-300">
-            {lang === 'ar'
-              ? 'مختبر نجران المركزي'
-              : lang === 'fr'
-              ? 'Laboratoire central de Najran'
-              : 'Najran Central Laboratory'}
-          </p>
-        </div>
-      </div>
-    </div>
+                      <p className="text-xs text-slate-300">
+                        {lang === 'ar'
+                          ? 'مختبر نجران المركزي'
+                          : lang === 'fr'
+                            ? 'Laboratoire central de Najran'
+                            : 'Najran Central Laboratory'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
 
-    {/* Unified Mobile Laboratory Album */}
-    <div className="p-3 sm:p-4 bg-slate-950/60">
+                {/* Unified Mobile Laboratory Album */}
+                <div className="p-3 sm:p-4 bg-slate-950/60">
 
-      <div className="flex items-center justify-between mb-3">
-        <div>
-          <h3 className="text-sm font-semibold text-white">
-            {lang === 'ar'
-              ? 'ألبوم المختبر المتنقل'
-              : lang === 'fr'
-              ? 'Album du laboratoire mobile'
-              : 'Mobile Laboratory Album'}
-          </h3>
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <h3 className="text-sm font-semibold text-white">
+                        {lang === 'ar'
+                          ? 'ألبوم المختبر المتنقل'
+                          : lang === 'fr'
+                            ? 'Album du laboratoire mobile'
+                            : 'Mobile Laboratory Album'}
+                      </h3>
 
-          <p className="text-[11px] text-slate-400 mt-0.5">
-            {lang === 'ar'
-              ? 'صور حقيقية للمركبة والتجهيزات والعمليات الميدانية'
-              : lang === 'fr'
-              ? 'Photos réelles du véhicule, des équipements et des opérations de terrain'
-              : 'Authentic photos of the vehicle, equipment and field operations'}
-          </p>
-        </div>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        {lang === 'ar'
+                          ? 'صور حقيقية للمركبة والتجهيزات والعمليات الميدانية'
+                          : lang === 'fr'
+                            ? 'Photos réelles du véhicule, des équipements et des opérations de terrain'
+                            : 'Authentic photos of the vehicle, equipment and field operations'}
+                      </p>
+                    </div>
 
-        <span className="text-[10px] px-2 py-1 rounded-full bg-white/10 text-slate-300">
-          8 {lang === 'ar' ? 'صور' : lang === 'fr' ? 'photos' : 'photos'}
-        </span>
-      </div>
+                    <span className="text-[10px] px-2 py-1 rounded-full bg-white/10 text-slate-300">
+                      8 {lang === 'ar' ? 'صور' : lang === 'fr' ? 'photos' : 'photos'}
+                    </span>
+                  </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
 
-        {[
-          {
-            img: mobileLabCar,
-            label:
-              lang === 'ar'
-                ? 'مركبة المختبر المركزي المتنقل بنجران (الهيكل الخارجي)'
-                : lang === 'fr'
-                ? 'Véhicule du laboratoire mobile central de Najran (Vue extérieure)'
-                : 'Najran Central Mobile Laboratory Vehicle (Exterior View)',
-          },
-          {
-            img: mobileFieldWork,
-            label:
-              lang === 'ar'
-                ? 'بيئة العمل المخبرية ومحطة الإرشادات الفنية بمختبر نجران'
-                : lang === 'fr'
-                ? 'Environnement de travail et poste d’instructions techniques'
-                : 'Laboratory Interior & Technical Instructions Station',
-          },
-          {
-            img: labGallery1,
-            label:
-              lang === 'ar'
-                ? 'لوحة تصنيف وتحديد المخاطر الكيميائية (معيار NFPA 704) بالمعمل'
-                : lang === 'fr'
-                ? 'Tableau de classification des risques chimiques (NFPA 704)'
-                : 'NFPA 704 Chemical Hazard Identification Chart in Lab',
-          },
-          {
-            img: labGallery2,
-            label:
-              lang === 'ar'
-                ? 'منضدة التحاليل المخبرية والأدوات الزجاجية ومحاليل الفحص'
-                : lang === 'fr'
-                ? 'Paillasse d’analyse, verrerie étalonnée et solutions de contrôle'
-                : 'Analytical Workbench with Calibrated Glassware & Reagents',
-          },
-          {
-            img: labGallery3,
-            label:
-              lang === 'ar'
-                ? 'أخصائي المختبر أثناء إجراء التحاليل المائية وفحص العينات'
-                : lang === 'fr'
-                ? 'Chimiste certifié effectuant des analyses sur des échantillons d’eau'
-                : 'Certified Chemist Conducting Water Sample Analysis',
-          },
-          {
-            img: labGallery4,
-            label:
-              lang === 'ar'
-                ? 'لوحة الجداول الإرشادية والمعايير الفنية لضبط جودة التحاليل'
-                : lang === 'fr'
-                ? 'Panneau des tables de référence et protocoles de contrôle qualité'
-                : 'Technical Reference Charts & Testing Protocol Guidelines',
-          },
-          {
-            img: labGallery5,
-            label:
-              lang === 'ar'
-                ? 'لوحة مهمات الوقاية الشخصية والسلامة المهنية (PPE) بالمعمل'
-                : lang === 'fr'
-                ? 'Affiche des équipements de protection individuelle (EPI) au laboratoire'
-                : 'Personal Protective Equipment (PPE) Safety Poster in Lab',
-          },
-          {
-            img: labGallery6,
-            label:
-              lang === 'ar'
-                ? 'الجدول الدوري للعناصر الكيميائية المعتمد بالمعمل'
-                : lang === 'fr'
-                ? 'Tableau périodique des éléments chimiques au laboratoire'
-                : 'Periodic Table of the Elements Chart in Laboratory',
-          },
-        ].map((item, idx) => (
-          <button
-            key={idx}
-            type="button"
-            className="group relative aspect-square overflow-hidden rounded-lg border border-white/10 bg-slate-800 cursor-pointer"
-            onClick={() => {
-              setSelectedImage(item.img);
-              setSelectedImageTitle(item.label);
-            }}
-            aria-label={item.label}
-          >
-            <img
-              src={item.img}
-              alt={item.label}
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-            />
+                    {[
+                      {
+                        img: mobileLabCar,
+                        label:
+                          lang === 'ar'
+                            ? 'مركبة المختبر المركزي المتنقل بنجران (الهيكل الخارجي)'
+                            : lang === 'fr'
+                              ? 'Véhicule du laboratoire mobile central de Najran (Vue extérieure)'
+                              : 'Najran Central Mobile Laboratory Vehicle (Exterior View)',
+                      },
+                      {
+                        img: mobileFieldWork,
+                        label:
+                          lang === 'ar'
+                            ? 'بيئة العمل المخبرية ومحطة الإرشادات الفنية بمختبر نجران'
+                            : lang === 'fr'
+                              ? 'Environnement de travail et poste d’instructions techniques'
+                              : 'Laboratory Interior & Technical Instructions Station',
+                      },
+                      {
+                        img: labGallery1,
+                        label:
+                          lang === 'ar'
+                            ? 'لوحة تصنيف وتحديد المخاطر الكيميائية (معيار NFPA 704) بالمعمل'
+                            : lang === 'fr'
+                              ? 'Tableau de classification des risques chimiques (NFPA 704)'
+                              : 'NFPA 704 Chemical Hazard Identification Chart in Lab',
+                      },
+                      {
+                        img: labGallery2,
+                        label:
+                          lang === 'ar'
+                            ? 'منضدة التحاليل المخبرية والأدوات الزجاجية ومحاليل الفحص'
+                            : lang === 'fr'
+                              ? 'Paillasse d’analyse, verrerie étalonnée et solutions de contrôle'
+                              : 'Analytical Workbench with Calibrated Glassware & Reagents',
+                      },
+                      {
+                        img: labGallery3,
+                        label:
+                          lang === 'ar'
+                            ? 'أخصائي المختبر أثناء إجراء التحاليل المائية وفحص العينات'
+                            : lang === 'fr'
+                              ? 'Chimiste certifié effectuant des analyses sur des échantillons d’eau'
+                              : 'Certified Chemist Conducting Water Sample Analysis',
+                      },
+                      {
+                        img: labGallery4,
+                        label:
+                          lang === 'ar'
+                            ? 'لوحة الجداول الإرشادية والمعايير الفنية لضبط جودة التحاليل'
+                            : lang === 'fr'
+                              ? 'Panneau des tables de référence et protocoles de contrôle qualité'
+                              : 'Technical Reference Charts & Testing Protocol Guidelines',
+                      },
+                      {
+                        img: labGallery5,
+                        label:
+                          lang === 'ar'
+                            ? 'لوحة مهمات الوقاية الشخصية والسلامة المهنية (PPE) بالمعمل'
+                            : lang === 'fr'
+                              ? 'Affiche des équipements de protection individuelle (EPI) au laboratoire'
+                              : 'Personal Protective Equipment (PPE) Safety Poster in Lab',
+                      },
+                      {
+                        img: labGallery6,
+                        label:
+                          lang === 'ar'
+                            ? 'الجدول الدوري للعناصر الكيميائية المعتمد بالمعمل'
+                            : lang === 'fr'
+                              ? 'Tableau périodique des éléments chimiques au laboratoire'
+                              : 'Periodic Table of the Elements Chart in Laboratory',
+                      },
+                    ].map((item, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        className="group relative aspect-square overflow-hidden rounded-lg border border-white/10 bg-slate-800 cursor-pointer"
+                        onClick={() => {
+                          setSelectedImage(item.img);
+                          setSelectedImageTitle(item.label);
+                        }}
+                        aria-label={item.label}
+                      >
+                        <img
+                          src={item.img}
+                          alt={item.label}
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                        />
 
-            <div className="absolute inset-0 bg-black/55 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2">
-              <div className="text-white text-[10px] sm:text-[11px] font-semibold text-center flex flex-col items-center gap-1">
-                <Eye className="w-4 h-4" />
-                <span>{item.label}</span>
+                        <div className="absolute inset-0 bg-black/55 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2">
+                          <div className="text-white text-[10px] sm:text-[11px] font-semibold text-center flex flex-col items-center gap-1">
+                            <Eye className="w-4 h-4" />
+                            <span>{item.label}</span>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+
+                  </div>
+                </div>
+
               </div>
+
             </div>
-          </button>
-        ))}
-
-      </div>
-    </div>
-
-  </div>
-
-</div>
           </div>
         </section>
 

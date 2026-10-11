@@ -11,6 +11,7 @@ import orgStructureCentImg from '@/assets/images/Central Laboratory- branch func
 import mobileLabCarImg from '@/assets/images/lab-car-najran.jpg';
 import labAsirImg from '@/assets/images/lab_asir_central_1790236943444.jpg';
 import labNajranImg from '@/assets/images/najran-building.jpg';
+import buildingNajranImg from '@/assets/images/Najran-new-building.jpeg';
 import labNajranImg1 from '@/assets/images/lab_najran_central_1790236956545.jpg';
 import labJazanImg from '@/assets/images/lab_jazan_central_1790236972538.jpg';
 import labBahaImg from '@/assets/images/lab_baha_water_lab_1790238427592.jpg';
