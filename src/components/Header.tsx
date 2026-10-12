@@ -122,6 +122,20 @@ export default function Header() {
   }, [location.pathname, location.hash]);
 
   // ============================================================
+  // PREVENT BACKGROUND BODY SCROLL WHEN MOBILE DRAWER IS OPEN
+  // ============================================================
+
+  useEffect(() => {
+    if (menuOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [menuOpen]);
+
+  // ============================================================
   // CLICK OUTSIDE DETECTION
   // ============================================================
 
@@ -669,7 +683,7 @@ export default function Header() {
               {/* 1. OFFICIAL INSTITUTIONAL IDENTITY & LOGO */}
               <Link
                 to="/"
-                className="flex items-center gap-2.5 sm:gap-3 shrink-0 rounded-xl py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 transition-opacity hover:opacity-95 max-w-[280px] sm:max-w-[340px] md:max-w-[420px] lg:max-w-[460px]"
+                className="flex items-center gap-2 sm:gap-2.5 md:gap-3 flex-1 min-w-0 rounded-xl py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 transition-opacity hover:opacity-95 max-w-[calc(100%-150px)] sm:max-w-[340px] md:max-w-[420px] lg:max-w-[460px]"
                 aria-label={`${t('brand.name')} - ${t('nav.home')}`}
                 onClick={() => {
                   setOpenDropdown(null);
@@ -678,11 +692,11 @@ export default function Header() {
               >
                 {/* Official NWC Logo with preserved original proportions */}
                 <div className="shrink-0 flex items-center justify-center">
-                  <div className="bg-white px-2 py-1 rounded-xl border border-slate-200/90 dark:border-white/20 shadow-2xs flex items-center justify-center ring-1 ring-slate-100 dark:ring-white/10">
+                  <div className="bg-white px-1.5 py-1 sm:px-2 rounded-xl border border-slate-200/90 dark:border-white/20 shadow-2xs flex items-center justify-center ring-1 ring-slate-100 dark:ring-white/10">
                     <img
                       src={nwcLogo}
                       alt="National Water Company Logo"
-                      className="h-9 sm:h-10 md:h-11 w-auto object-contain drop-shadow-2xs transition-transform duration-200 hover:scale-[1.02]"
+                      className="h-8 sm:h-10 md:h-11 w-auto object-contain drop-shadow-2xs transition-transform duration-200 hover:scale-[1.02]"
                       loading="eager"
                     />
                   </div>
@@ -697,7 +711,7 @@ export default function Header() {
                         ? 'Société Nationale des Eaux | NWC'
                         : 'National Water Company | Water Quality Assurance'}
                   </span>
-                  <span className="text-[11.5px] sm:text-[12px] md:text-[12.5px] xl:text-[13px] font-bold text-[#1E3A5F] dark:text-[#F8FAFC] leading-snug tracking-tight">
+                  <span className="text-[11px] sm:text-[12px] md:text-[12.5px] xl:text-[13px] font-bold text-[#1E3A5F] dark:text-[#F8FAFC] leading-tight sm:leading-snug tracking-tight line-clamp-2 sm:line-clamp-none">
                     {lang === 'ar'
                       ? 'المختبرات المركزية لمياه الشرب والخدمات البيئية بالقطاع الجنوبي'
                       : lang === 'fr'
@@ -723,7 +737,7 @@ export default function Header() {
                       ? 'Rechercher sur le site'
                       : 'Search the site'
                 }
-                className="hidden md:flex items-center justify-between gap-3 px-3.5 py-1.5 xl:py-2 rounded-xl text-xs bg-slate-50 dark:bg-[#1E293B]/80 hover:bg-slate-100 dark:hover:bg-[#1E293B] border border-slate-200 dark:border-slate-700/80 hover:border-blue-400 dark:hover:border-blue-500/60 text-slate-500 dark:text-slate-400 transition-all shadow-2xs group cursor-pointer w-44 lg:w-72 xl:w-88 max-w-sm focus:outline-none focus:ring-2 focus:ring-blue-600/40 shrink"
+                className="hidden xl:flex items-center justify-between gap-3 px-3.5 py-1.5 xl:py-2 rounded-xl text-xs bg-slate-50 dark:bg-[#1E293B]/80 hover:bg-slate-100 dark:hover:bg-[#1E293B] border border-slate-200 dark:border-slate-700/80 hover:border-blue-400 dark:hover:border-blue-500/60 text-slate-500 dark:text-slate-400 transition-all shadow-2xs group cursor-pointer w-44 lg:w-72 xl:w-88 max-w-sm focus:outline-none focus:ring-2 focus:ring-blue-600/40 shrink"
               >
                 <div className="flex items-center gap-2 min-w-0">
                   <Search className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors shrink-0" />
@@ -913,7 +927,7 @@ export default function Header() {
                   </button>
 
                   {openDropdown === 'lang' && (
-                    <div className="absolute end-0 top-full mt-1.5 w-32 bg-white dark:bg-[#151D2F] rounded-xl shadow-xl border border-[#E2E8F0] dark:border-[#334155] py-1 z-50 animate-fade-in">
+                    <div className="absolute end-0 top-full mt-1.5 w-32 bg-white dark:bg-[#151D2F] rounded-xl shadow-xl border border-[#E2E8F0] dark:border-[#334155] py-1 z-[60] animate-fade-in">
                       {languages.map((l) => (
                         <button
                           key={l.code}
@@ -984,7 +998,7 @@ export default function Header() {
                     ? 'قائمة التنقل للأجهزة الذكية'
                     : 'Menu de navigation mobile'
                 }
-                className="xl:hidden mt-2 pb-6 border-t border-[#E2E8F0] dark:border-[#334155] pt-3 flex flex-col gap-2 animate-fade-in max-h-[82vh] overflow-y-auto"
+                className="fixed inset-x-0 top-[62px] bottom-0 z-[55] xl:hidden bg-white dark:bg-[#0F172A] px-3 pb-6 pt-3 border-t border-[#E2E8F0] dark:border-[#334155] flex flex-col gap-2 animate-fade-in overflow-y-auto overscroll-contain"
               >
                 {/* QUICK EMPLOYEE & VISITOR BUTTONS */}
                 <div className="grid grid-cols-2 gap-2 mb-1">
@@ -1145,7 +1159,7 @@ export default function Header() {
                                       key={branch.id}
                                       to={branch.path}
                                       onClick={() => setMenuOpen(false)}
-                                      className="flex items-center justify-between p-2 rounded-md bg-white dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-slate-200 hover:text-[#1D4ED8] dark:hover:text-[#93C5FD] transition-colors border border-slate-100 dark:border-slate-700/60"
+                                      className="flex items-center justify-between px-2.5 py-3 rounded-md bg-white dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-slate-200 hover:text-[#1D4ED8] dark:hover:text-[#93C5FD] transition-colors border border-slate-100 dark:border-slate-700/60 min-h-[44px]"
                                     >
                                       <span className="flex items-center gap-1.5 min-w-0">
                                         <Network className="w-3 h-3 text-[#2563EB] dark:text-[#60A5FA] shrink-0" />

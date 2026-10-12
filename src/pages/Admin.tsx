@@ -25,6 +25,7 @@ import {
   ShieldCheck,
   CheckCircle2,
   Calendar,
+  QrCode,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -41,6 +42,8 @@ import { supabase } from '@/lib/supabase';
 import { useLang } from '@/lib/i18n';
 import LabLogo from '@/components/LabLogo';
 import ConfirmModal from '@/components/ConfirmModal';
+import { QrCodesModule } from '@/components/admin/QrCodesModule';
+import { QR_REGISTRY } from '@/data/qrRegistry';
 import {
   LAB_HIERARCHY,
   getLabLabel,
@@ -133,7 +136,8 @@ type Tab =
   | 'visitors'
   | 'surveys'
   | 'enquiries'
-  | 'users';
+  | 'users'
+  | 'qrcodes';
 
 
 // ============================================================
@@ -1944,6 +1948,16 @@ export default function Admin() {
               : 'User Management',
         icon: UserCog,
       },
+      {
+        id: 'qrcodes',
+        label:
+          lang === 'ar'
+            ? 'رموز الاستجابة (QR)'
+            : lang === 'fr'
+              ? 'QR Codes'
+              : 'QR Codes',
+        icon: QrCode,
+      },
     ];
 
 
@@ -1988,12 +2002,22 @@ export default function Admin() {
       value: adminUsers.length,
       icon: UserCog,
     },
+    {
+      label:
+        lang === 'ar'
+          ? 'رموز QR'
+          : lang === 'fr'
+            ? 'QR Codes'
+            : 'QR Codes',
+      value: QR_REGISTRY.length,
+      icon: QrCode,
+    },
   ];
 
 
   return (
     <div
-      className="min-h-screen bg-slate-100 text-slate-900 flex flex-col pt-[100px]"
+      className="min-h-screen bg-slate-100 text-slate-900 flex flex-col pt-[62px] xl:pt-[100px]"
       dir={dir}
     >
       {/* ======================================================
@@ -2004,7 +2028,7 @@ export default function Admin() {
           RIGHT: User Badge, Website Quick-Link, Refined Pro Logout
       ======================================================= */}
 
-      <header className="bg-[#0B132B]/95 backdrop-blur-md text-white sticky top-[100px] z-40 border-b border-slate-800/80 shadow-sm shadow-black/20">
+      <header className="bg-[#0B132B]/95 backdrop-blur-md text-white sticky top-[62px] xl:top-[100px] z-40 border-b border-slate-800/80 shadow-sm shadow-black/20">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="min-h-[60px] py-2 flex items-center justify-between gap-3 lg:gap-6">
             {/* LEFT: Sleek Portal Badge & Title (No redundant logo) */}
@@ -2341,7 +2365,8 @@ export default function Admin() {
         ===================================================== */}
 
             {activeTab !== 'dashboard' &&
-              activeTab !== 'users' && (
+              activeTab !== 'users' &&
+              activeTab !== 'qrcodes' && (
                 <div className="bg-white rounded-2xl border border-slate-200 p-4 mb-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
 
@@ -3858,6 +3883,14 @@ export default function Admin() {
                   ) : null}
                 </div>
               )}
+
+            {/* ====================================================
+                QR Codes Module
+            ===================================================== */}
+
+            {!loading && activeTab === 'qrcodes' && (
+              <QrCodesModule />
+            )}
           </main>
         </>
       )}
