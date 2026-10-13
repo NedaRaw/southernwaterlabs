@@ -82,10 +82,14 @@ export default function VisitorDetail() {
     : '';
 
   const displayRefId = visitor?.visitor_id || visitor?.id || id || '';
-
+  console.log('Visitor data:', {
+    laboratory: visitor?.laboratory,
+    branch: visitor?.branch,
+    department: visitor?.department,
+  });
   const displayLab = visitor?.laboratory
     ? getLabLabel(visitor.laboratory, lang) +
-      (visitor.branch ? ` - ${getBranchLabel(visitor.laboratory, visitor.branch, lang)}` : '')
+    (visitor.branch ? ` - ${getBranchLabel(visitor.laboratory, visitor.branch, lang)}` : '')
     : visitor?.department || 'Southern Sector Water Laboratories';
 
   const displayPurpose = visitor?.purpose || visitor?.visit_purpose || '';
@@ -118,12 +122,63 @@ export default function VisitorDetail() {
     );
   }
 
+
   const getStatusLabel = (status: string) => {
-    if (status === 'pending' || status === 'Pending') return t('status.pending');
-    if (status === 'checked_in' || status === 'Approved') return t('status.checked_in');
-    if (status === 'checked_out') return t('status.checked_out');
-    return status;
+    if (status === 'pending' || status === 'Pending')
+      return t('status.pending');
+
+    if (status === 'checked_in' || status === 'Approved')
+      return t('status.checked_in');
+
+    if (status === 'checked_out')
+      return t('status.checked_out');
+
+    const labels: Record<string, { ar: string; en: string; fr: string }> = {
+      Pending: {
+        ar: 'قيد الانتظار',
+        en: 'Pending',
+        fr: 'En attente',
+      },
+      Approved: {
+        ar: 'تمت الموافقة',
+        en: 'Approved',
+        fr: 'Approuvé',
+      },
+      Completed: {
+        ar: 'مكتمل',
+        en: 'Completed',
+        fr: 'Terminé',
+      },
+      Cancelled: {
+        ar: 'ملغي',
+        en: 'Cancelled',
+        fr: 'Annulé',
+      },
+      New: {
+        ar: 'جديد',
+        en: 'New',
+        fr: 'Nouveau',
+      },
+      'In Progress': {
+        ar: 'قيد المعالجة',
+        en: 'In Progress',
+        fr: 'En cours',
+      },
+      Resolved: {
+        ar: 'تم الحل',
+        en: 'Resolved',
+        fr: 'Résolu',
+      },
+      Confirmed: {
+        ar: 'تم التأكيد',
+        en: 'Confirmed',
+        fr: 'Confirmé',
+      },
+    };
+
+    return labels[status]?.[lang] ?? status;
   };
+
 
   return (
     <div className="pt-28 pb-20" dir={dir}>
@@ -138,13 +193,12 @@ export default function VisitorDetail() {
                 <p className="text-xs font-mono text-slate-400 mt-0.5">{displayRefId}</p>
               </div>
               <span
-                className={`px-3 py-1 rounded-full text-xs font-bold ${
-                  visitor.status === 'pending' || visitor.status === 'Pending'
-                    ? 'bg-yellow-100 text-yellow-800'
-                    : visitor.status === 'checked_in' || visitor.status === 'Approved'
+                className={`px-3 py-1 rounded-full text-xs font-bold ${visitor.status === 'pending' || visitor.status === 'Pending'
+                  ? 'bg-yellow-100 text-yellow-800'
+                  : visitor.status === 'checked_in' || visitor.status === 'Approved'
                     ? 'bg-green-100 text-green-800'
                     : 'bg-slate-100 text-slate-600'
-                }`}
+                  }`}
               >
                 {getStatusLabel(visitor.status)}
               </span>

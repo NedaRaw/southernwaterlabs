@@ -50,6 +50,8 @@ import {
   getBranchLabel,
 } from '@/data/labServices';
 
+import { APPROVED_SERVICES } from '@/data/labServices';
+
 
 // ============================================================
 // Types
@@ -1384,7 +1386,7 @@ export default function Admin() {
           break;
         }
 
-                case 'survey': {
+        case 'survey': {
           const token =
             adminToken ||
             sessionStorage.getItem('admin_token') ||
@@ -1440,12 +1442,12 @@ export default function Admin() {
             throw new Error(
               String(
                 result.error ||
-                  result.message ||
-                  (lang === 'ar'
-                    ? 'لم يؤكد الخادم حذف الاستبيان.'
-                    : lang === 'fr'
-                      ? "Le serveur n'a pas confirmé la suppression."
-                      : 'The server did not confirm survey deletion.')
+                result.message ||
+                (lang === 'ar'
+                  ? 'لم يؤكد الخادم حذف الاستبيان.'
+                  : lang === 'fr'
+                    ? "Le serveur n'a pas confirmé la suppression."
+                    : 'The server did not confirm survey deletion.')
               )
             );
           }
@@ -2467,6 +2469,7 @@ export default function Admin() {
                                 value={branch.id}
                               >
                                 {getBranchLabel(
+                                  lab.id,
                                   branch.id,
                                   lang
                                 )}
@@ -2498,33 +2501,38 @@ export default function Admin() {
                                 : 'All Statuses'}
                           </option>
 
+
                           <option value="Pending">
-                            Pending
+                            {lang === 'ar' ? 'قيد الانتظار' : lang === 'fr' ? 'En attente' : 'Pending'}
                           </option>
 
                           <option value="Approved">
-                            Approved
+                            {lang === 'ar' ? 'تمت الموافقة' : lang === 'fr' ? 'Approuvé' : 'Approved'}
                           </option>
 
                           <option value="Completed">
-                            Completed
+                            {lang === 'ar' ? 'مكتمل' : lang === 'fr' ? 'Terminé' : 'Completed'}
                           </option>
 
                           <option value="Cancelled">
-                            Cancelled
+                            {lang === 'ar' ? 'ملغي' : lang === 'fr' ? 'Annulé' : 'Cancelled'}
                           </option>
 
                           <option value="New">
-                            New
+                            {lang === 'ar' ? 'جديد' : lang === 'fr' ? 'Nouveau' : 'New'}
                           </option>
 
                           <option value="In Progress">
-                            In Progress
+                            {lang === 'ar' ? 'قيد المعالجة' : lang === 'fr' ? 'En cours' : 'In Progress'}
                           </option>
 
                           <option value="Resolved">
-                            Resolved
+                            {lang === 'ar' ? 'تم الحل' : lang === 'fr' ? 'Résolu' : 'Resolved'}
                           </option>
+                          <option value="Confirmed">
+                            {lang === 'ar' ? 'تم التأكيد' : lang === 'fr' ? 'Confirmé' : 'Confirmed'}
+                          </option>
+
                         </select>
                       )}
                   </div>
@@ -2538,10 +2546,10 @@ export default function Admin() {
               <div
                 role="alert"
                 className={`p-4 rounded-2xl flex items-start justify-between gap-3 border shadow-xs animate-in fade-in duration-200 ${feedback.type === 'success'
-                    ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
-                    : feedback.type === 'error'
-                      ? 'bg-red-50 border-red-200 text-red-900'
-                      : 'bg-blue-50 border-blue-200 text-blue-900'
+                  ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                  : feedback.type === 'error'
+                    ? 'bg-red-50 border-red-200 text-red-900'
+                    : 'bg-blue-50 border-blue-200 text-blue-900'
                   }`}
               >
                 <div className="flex items-start gap-3">
@@ -3066,6 +3074,7 @@ export default function Admin() {
                                 {visitor.branch && (
                                   <div className="text-xs text-slate-500 mt-1">
                                     {getBranchLabel(
+                                      visitor.laboratory,
                                       visitor.branch,
                                       lang
                                     )}
@@ -3088,10 +3097,7 @@ export default function Admin() {
 
                               <td className="px-4 py-4">
                                 <select
-                                  value={
-                                    visitor.status ||
-                                    'Pending'
-                                  }
+                                  value={visitor.status || 'Pending'}
                                   onChange={(e) =>
                                     handleVisitorStatusChange(
                                       visitor,
@@ -3101,19 +3107,19 @@ export default function Admin() {
                                   className="rounded-lg border border-slate-300 px-2 py-1.5 text-xs"
                                 >
                                   <option value="Pending">
-                                    Pending
+                                    {lang === 'ar' ? 'قيد الانتظار' : lang === 'fr' ? 'En attente' : 'Pending'}
                                   </option>
 
                                   <option value="Approved">
-                                    Approved
+                                    {lang === 'ar' ? 'تمت الموافقة' : lang === 'fr' ? 'Approuvé' : 'Approved'}
                                   </option>
 
                                   <option value="Completed">
-                                    Completed
+                                    {lang === 'ar' ? 'مكتمل' : lang === 'fr' ? 'Terminé' : 'Completed'}
                                   </option>
 
                                   <option value="Cancelled">
-                                    Cancelled
+                                    {lang === 'ar' ? 'ملغي' : lang === 'fr' ? 'Annulé' : 'Cancelled'}
                                   </option>
                                 </select>
                               </td>
@@ -3256,6 +3262,7 @@ export default function Admin() {
 
                               {survey.branch
                                 ? ` • ${getBranchLabel(
+                                  survey.laboratory,
                                   survey.branch,
                                   lang
                                 )}`
@@ -3502,21 +3509,38 @@ export default function Admin() {
                               }
                               className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
                             >
-                              <option value="New">
-                                New
+                              <option value="Pending">
+                                {lang === 'ar' ? 'قيد الانتظار' : lang === 'fr' ? 'En attente' : 'Pending'}
                               </option>
 
-                              <option value="In Progress">
-                                In Progress
+                              <option value="Approved">
+                                {lang === 'ar' ? 'تمت الموافقة' : lang === 'fr' ? 'Approuvé' : 'Approved'}
                               </option>
 
-                              <option value="Resolved">
-                                Resolved
+                              <option value="Completed">
+                                {lang === 'ar' ? 'مكتمل' : lang === 'fr' ? 'Terminé' : 'Completed'}
                               </option>
 
                               <option value="Cancelled">
-                                Cancelled
+                                {lang === 'ar' ? 'ملغي' : lang === 'fr' ? 'Annulé' : 'Cancelled'}
                               </option>
+
+                              <option value="New">
+                                {lang === 'ar' ? 'جديد' : lang === 'fr' ? 'Nouveau' : 'New'}
+                              </option>
+
+                              <option value="In Progress">
+                                {lang === 'ar' ? 'قيد المعالجة' : lang === 'fr' ? 'En cours' : 'In Progress'}
+                              </option>
+
+                              <option value="Resolved">
+                                {lang === 'ar' ? 'تم الحل' : lang === 'fr' ? 'Résolu' : 'Resolved'}
+                              </option>
+
+                              <option value="Confirmed">
+                                {lang === 'ar' ? 'تم التأكيد' : lang === 'fr' ? 'Confirmé' : 'Confirmed'}
+                              </option>
+
                             </select>
 
                             <button
@@ -3562,6 +3586,7 @@ export default function Admin() {
                             <p className="font-medium mt-1">
                               {enquiry.branch
                                 ? getBranchLabel(
+                                  enquiry.laboratory,
                                   enquiry.branch,
                                   lang
                                 )
@@ -3569,18 +3594,29 @@ export default function Admin() {
                             </p>
                           </div>
 
+
                           <div>
                             <span className="text-slate-500">
                               {lang === 'ar'
                                 ? 'الخدمة المطلوبة'
-                                : 'Service'}
+                                : lang === 'fr'
+                                  ? 'Service demandé'
+                                  : 'Requested Service'}
                             </span>
 
                             <p className="font-medium mt-1">
-                              {enquiry.service_required ||
-                                '—'}
+                              {(() => {
+                                const service = APPROVED_SERVICES.find(
+                                  (item) => item.value === enquiry.service_required
+                                );
+
+                                return service
+                                  ? service[lang]
+                                  : enquiry.service_required || '—';
+                              })()}
                             </p>
                           </div>
+
                         </div>
 
 
