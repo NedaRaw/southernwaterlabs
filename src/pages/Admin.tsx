@@ -3087,39 +3087,63 @@ export default function Admin() {
                                   '—'}
                               </td>
 
+
                               <td className="px-4 py-4 max-w-xs">
                                 <span className="line-clamp-2">
-                                  {visitor.purpose ||
-                                    visitor.visit_purpose ||
-                                    '—'}
+                                  {(() => {
+                                    const purpose =
+                                      visitor.purpose || visitor.visit_purpose || '';
+
+                                    const translations: Record<
+                                      string,
+                                      { ar: string; en: string; fr: string }
+                                    > = {
+                                      'Job Interview': {
+                                        ar: 'مقابلة عمل',
+                                        en: 'Job Interview',
+                                        fr: "Entretien d'embauche",
+                                      },
+                                    };
+
+                                    return purpose
+                                      ? translations[purpose]?.[lang] ?? purpose
+                                      : '—';
+                                  })()}
                                 </span>
                               </td>
+
 
                               <td className="px-4 py-4">
                                 <select
                                   value={visitor.status || 'Pending'}
                                   onChange={(e) =>
-                                    handleVisitorStatusChange(
-                                      visitor,
-                                      e.target.value
-                                    )
+                                    handleVisitorStatusChange(visitor, e.target.value)
                                   }
                                   className="rounded-lg border border-slate-300 px-2 py-1.5 text-xs"
                                 >
                                   <option value="Pending">
                                     {lang === 'ar' ? 'قيد الانتظار' : lang === 'fr' ? 'En attente' : 'Pending'}
                                   </option>
-
                                   <option value="Approved">
                                     {lang === 'ar' ? 'تمت الموافقة' : lang === 'fr' ? 'Approuvé' : 'Approved'}
                                   </option>
-
                                   <option value="Completed">
                                     {lang === 'ar' ? 'مكتمل' : lang === 'fr' ? 'Terminé' : 'Completed'}
                                   </option>
-
                                   <option value="Cancelled">
                                     {lang === 'ar' ? 'ملغي' : lang === 'fr' ? 'Annulé' : 'Cancelled'}
+                                  </option>
+                                  <option value="New">
+                                    {lang === 'ar' ? 'جديد' : lang === 'fr' ? 'Nouveau' : 'New'}
+                                  </option>
+                                  <option value="In Progress">
+                                    {lang === 'ar' ? 'قيد المعالجة' : lang === 'fr' ? 'En cours' : 'In Progress'}
+                                  </option>
+                                  <option value="Resolved">
+                                    {lang === 'ar' ? 'تم الحل' : lang === 'fr' ? 'Résolu' : 'Resolved'}
+                                  </option>
+                                  <option value="Confirmed">
+                                    {lang === 'ar' ? 'تم التأكيد' : lang === 'fr' ? 'Confirmé' : 'Confirmed'}
                                   </option>
                                 </select>
                               </td>
