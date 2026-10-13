@@ -24,6 +24,10 @@ export interface AdminUserData {
   password?: string;
   full_name: string;
   role: string;
+  laboratory?: string | null;
+  branch?: string | null;
+  active?: boolean;
+  is_primary?: boolean;
 }
 
 export interface VisitorDataRecord {
@@ -100,8 +104,45 @@ const defaultAdminUsers: AdminUserData[] = [
     id: '1',
     username: 'admin',
     password: 'admin123',
-    full_name: 'مدير النظام',
-    role: 'admin',
+    full_name: 'مدير النظام العام',
+    role: 'super_admin',
+    laboratory: null,
+    branch: null,
+    active: true,
+    is_primary: true,
+  },
+  {
+    id: '2',
+    username: 'lab_asir',
+    password: 'admin123',
+    full_name: 'مدير مختبر عسير المركزي',
+    role: 'lab_admin',
+    laboratory: 'asir',
+    branch: null,
+    active: true,
+    is_primary: false,
+  },
+  {
+    id: '3',
+    username: 'local_bisha',
+    password: 'admin123',
+    full_name: 'مسؤول فرع بيشة',
+    role: 'local_admin',
+    laboratory: 'asir',
+    branch: 'bisha',
+    active: true,
+    is_primary: false,
+  },
+  {
+    id: '4',
+    username: 'user_analyst',
+    password: 'admin123',
+    full_name: 'محلل مخبري (مستخدم عادي)',
+    role: 'user',
+    laboratory: 'asir',
+    branch: null,
+    active: true,
+    is_primary: false,
   },
 ];
 
@@ -329,13 +370,16 @@ function createMockSupabaseClient() {
           return { data: safeUsers, error: null };
         }
 
+        case 'create_user':
         case 'create_admin_user': {
-          const { p_username, p_password, p_full_name, p_role } = args as {
+          const { p_username, p_password, p_role } = args as {
             p_username: string;
             p_password?: string;
-            p_full_name: string;
             p_role?: string;
           };
+          const p_full_name = (args.p_full_name as string) || (args.full_name as string) || p_username;
+          const p_laboratory = (args.p_laboratory as string) || (args.laboratory as string) || null;
+          const p_branch = (args.p_branch as string) || (args.branch as string) || null;
           if (users.some(u => u.username === p_username)) {
             return { data: null, error: { message: 'duplicate username' } };
           }
@@ -345,40 +389,50 @@ function createMockSupabaseClient() {
             password: p_password,
             full_name: p_full_name,
             role: p_role || 'user',
+            laboratory: p_laboratory,
+            branch: p_branch,
+            active: true,
+            is_primary: false,
           };
           saveData(STORAGE_KEYS.ADMIN_USERS, [...users, newUser]);
-          return { data: null, error: null };
+          return { data: { success: true, user: newUser }, error: null };
         }
 
+        case 'update_user':
         case 'update_admin_user': {
-          const { p_id, p_username, p_password, p_full_name, p_role } = args as {
+          const { p_id, p_password, p_role, p_active } = args as {
             p_id: string;
-            p_username?: string;
             p_password?: string;
-            p_full_name?: string;
             p_role?: string;
+            p_active?: boolean;
           };
+          const p_full_name = (args.p_full_name as string) || (args.full_name as string);
+          const p_laboratory = (args.p_laboratory as string) || (args.laboratory as string);
+          const p_branch = (args.p_branch as string) || (args.branch as string);
           const updated = users.map(u => {
             if (u.id === p_id) {
               return {
                 ...u,
-                username: p_username ?? u.username,
                 ...(p_password ? { password: p_password } : {}),
-                full_name: p_full_name ?? u.full_name,
-                role: p_role ?? u.role,
+                ...(p_full_name !== undefined ? { full_name: p_full_name } : {}),
+                ...(p_role !== undefined ? { role: p_role } : {}),
+                ...(p_laboratory !== undefined ? { laboratory: p_laboratory } : {}),
+                ...(p_branch !== undefined ? { branch: p_branch } : {}),
+                ...(p_active !== undefined ? { active: p_active } : {}),
               };
             }
             return u;
           });
           saveData(STORAGE_KEYS.ADMIN_USERS, updated);
-          return { data: null, error: null };
+          return { data: { success: true }, error: null };
         }
 
-        case 'delete_admin_user': {
+        case 'delete_admin_user':
+        case 'delete_user': {
           const { p_id } = args as { p_id: string };
           const filtered = users.filter(u => u.id !== p_id);
           saveData(STORAGE_KEYS.ADMIN_USERS, filtered);
-          return { data: null, error: null };
+          return { data: { success: true }, error: null };
         }
 
         case 'login_user': {
@@ -396,8 +450,10 @@ function createMockSupabaseClient() {
                   username: match.username,
                   full_name: match.full_name,
                   role: match.role,
-                  active: true,
-                  is_primary: match.username === 'admin',
+                  laboratory: match.laboratory || null,
+                  branch: match.branch || null,
+                  active: match.active !== false,
+                  is_primary: match.is_primary || match.username === 'admin',
                 },
               },
               error: null,
@@ -423,17 +479,12 @@ function createMockSupabaseClient() {
             username: u.username,
             full_name: u.full_name,
             role: u.role,
-            active: true,
-            is_primary: u.username === 'admin',
+            laboratory: u.laboratory || null,
+            branch: u.branch || null,
+            active: u.active !== false,
+            is_primary: u.is_primary || u.username === 'admin',
           }));
           return { data: safeUsers, error: null };
-        }
-
-        case 'delete_user': {
-          const { p_id } = args as { p_id: string };
-          const filtered = users.filter(u => u.id !== p_id);
-          saveData(STORAGE_KEYS.ADMIN_USERS, filtered);
-          return { data: { success: true }, error: null };
         }
 
         case 'get_admin_surveys':

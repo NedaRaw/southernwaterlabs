@@ -604,51 +604,19 @@ export default function NajranLabDetail() {
 
             {/* Building Photos */}
             <div className="lg:col-span-5">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
 
-                {/* First Building Photo */}
-                <div
-                  className="group relative rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-700 cursor-pointer"
-                  onClick={() => {
-                    setSelectedImage(najranBuilding);
-                    setSelectedImageTitle(tText.buildingBadge);
-                  }}
-                >
-                  <img
-                    src={najranBuilding}
-                    alt={tText.buildingBadge}
-                    className="w-full h-64 sm:h-80 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex items-end p-4">
-                    <div className="text-white">
-                      <span className="text-xs font-semibold bg-blue-600 px-2 py-1 rounded-full inline-flex items-center gap-1 mb-2">
-                        <Eye className="w-3 h-3" />
-                        {tText.buildingBadge}
-                      </span>
-
-                      <p className="text-xs text-slate-200">
-                        {lang === 'ar'
-                          ? 'المقر الإداري والمخبري الرئيسي - نجران'
-                          : lang === 'fr'
-                            ? 'Siège administratif et laboratoire principal - Najran'
-                            : 'Main Laboratory Facility - Najran'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Second Building Photo */}
+                {/* Conserver le nouveau bâtiment à sa place */}
                 <div
                   className="group relative rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-700 cursor-pointer"
                   onClick={() => {
                     setSelectedImage(buildingNajranImg);
                     setSelectedImageTitle(
                       lang === 'ar'
-                        ? 'المبنى الجديد للمختبر المركزي بنجران'
+                        ? 'المبنى الرئيسي للمختبر المركزي بنجران'
                         : lang === 'fr'
-                          ? 'Nouveau bâtiment du laboratoire central de Najran'
-                          : 'New Najran Central Laboratory Building'
+                          ? 'Bâtiment principal du laboratoire central de Najran'
+                          : 'Main Najran Central Laboratory Building'
                     );
                   }}
                 >
@@ -656,10 +624,10 @@ export default function NajranLabDetail() {
                     src={buildingNajranImg}
                     alt={
                       lang === 'ar'
-                        ? 'المبنى الجديد للمختبر المركزي بنجران'
+                        ? 'المبنى الرئيسي للمختبر المركزي بنجران'
                         : lang === 'fr'
-                          ? 'Nouveau bâtiment du laboratoire central de Najran'
-                          : 'New Najran Central Laboratory Building'
+                          ? 'Bâtiment principal du laboratoire central de Najran'
+                          : 'Main Najran Central Laboratory Building'
                     }
                     className="w-full h-64 sm:h-80 object-cover group-hover:scale-105 transition-transform duration-300"
                   />
@@ -669,19 +637,11 @@ export default function NajranLabDetail() {
                       <span className="text-xs font-semibold bg-teal-600 px-2 py-1 rounded-full inline-flex items-center gap-1 mb-2">
                         <Eye className="w-3 h-3" />
                         {lang === 'ar'
-                          ? 'المبنى الجديد'
+                          ? 'المبنى الرئيسي للمختبر المركزي بنجران'
                           : lang === 'fr'
-                            ? 'Nouveau bâtiment'
-                            : 'New Building'}
+                            ? 'Bâtiment principal'
+                            : 'Main Laboratory Building'}
                       </span>
-
-                      <p className="text-xs text-slate-200">
-                        {lang === 'ar'
-                          ? 'صورة إضافية للمبنى والمرافق - نجران'
-                          : lang === 'fr'
-                            ? 'Vue complémentaire du bâtiment et des installations - Najran'
-                            : 'Additional View of the Building and Facilities - Najran'}
-                      </p>
                     </div>
                   </div>
                 </div>
@@ -704,8 +664,10 @@ export default function NajranLabDetail() {
             </h2>
           </div>
 
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Primary Chemist Work Photo */}
+
+            {/* Photo du personnel spécialisé : najranChemist */}
             <div
               className="md:col-span-2 group relative rounded-2xl overflow-hidden shadow-md border border-slate-200 dark:border-slate-800 cursor-pointer h-72 sm:h-80"
               onClick={() => {
@@ -718,26 +680,68 @@ export default function NajranLabDetail() {
                 alt={tText.chemistBadge}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
+
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-5">
                 <div className="text-white">
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-600 text-xs font-bold mb-2">
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     {tText.chemistBadge}
                   </span>
+
                   <p className="text-xs sm:text-sm text-slate-200 max-w-md">
                     {lang === 'ar'
-                      ? 'إجراء التحاليل الفيزيائية والكيميائية الدقيقة لعينات مياه الشرب باستخدام مقاييس الطيف الضوئي وأجهزة الكروماتوغرافيا'
+                      ? 'كوادر وطنية متخصصة في الكيمياء والبيولوجيا'
                       : lang === 'fr'
-                        ? 'Analyses physico-chimiques de haute précision sur des échantillons d’eau potable par spectrophotométrie et chromatographie'
-                        : 'Conducting high-precision physical and chemical tests on drinking water samples using spectrophotometers'}
+                        ? 'Personnel national spécialisé en chimie et biologie'
+                        : 'Specialized national staff in chemistry and biology'}
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Flyer Preview Card */}
+            {/* Photo du laboratoire d'urgence : najranBuilding */}
             <div
-              className="group relative rounded-2xl overflow-hidden shadow-md border border-slate-200 dark:border-slate-800 bg-gradient-to-br from-slate-900 to-blue-950 p-6 flex flex-col justify-between cursor-pointer"
+              className="group relative rounded-2xl overflow-hidden shadow-md border border-slate-200 dark:border-slate-800 cursor-pointer h-72 sm:h-80"
+              onClick={() => {
+                setSelectedImage(najranBuilding);
+                setSelectedImageTitle(
+                  lang === 'ar'
+                    ? 'مختبر الطوارئ – وحدة أعمال نجران'
+                    : lang === 'fr'
+                      ? 'Laboratoire d’urgence – Unité de Najran'
+                      : 'Emergency Laboratory – Najran Business Unit'
+                );
+              }}
+            >
+              <img
+                src={najranBuilding}
+                alt={
+                  lang === 'ar'
+                    ? 'مختبر الطوارئ – وحدة أعمال نجران'
+                    : lang === 'fr'
+                      ? 'Laboratoire d’urgence – Unité de Najran'
+                      : 'Emergency Laboratory – Najran Business Unit'
+                }
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              />
+
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-4">
+                <div className="text-white">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-600 text-xs font-bold mb-2">
+                    <Eye className="w-3.5 h-3.5" />
+                    {lang === 'ar'
+                      ? 'مختبر الطوارئ – وحدة أعمال نجران'
+                      : lang === 'fr'
+                        ? 'Laboratoire d’urgence – Unité de Najran'
+                        : 'Emergency Laboratory – Najran Business Unit'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Aperçu de la brochure officielle */}
+            <div
+              className="md:col-span-3 group relative rounded-2xl overflow-hidden shadow-md border border-slate-200 dark:border-slate-800 bg-gradient-to-br from-slate-900 to-blue-950 p-6 flex flex-col justify-between cursor-pointer min-h-64"
               onClick={() => {
                 setSelectedImage(najranFlyer);
                 setSelectedImageTitle(tText.viewFlyerBtn);
@@ -752,40 +756,48 @@ export default function NajranLabDetail() {
                       ? 'Document officiel et brochure'
                       : 'Official Laboratory Document'}
                 </span>
+
                 <h3 className="text-lg font-bold text-white leading-snug">
                   {lang === 'ar'
                     ? 'مطوية الخدمات والتحاليل المعتمدة للمختبر المركزي للخدمات البيئية بنجران'
                     : lang === 'fr'
-                      ? 'Brochure officielle des services et analyses accréditées du Laboratoire de Najran'
+                      ? 'Brochure officielle des services et analyses accréditées du laboratoire de Najran'
                       : 'Najran Central Environmental Laboratory Official Services & Accreditations Flyer'}
                 </h3>
+
                 <p className="text-xs text-slate-300 leading-relaxed">
                   {lang === 'ar'
-                    ? 'تتضمن كافة اشتراطات الفحص ونطاق التحاليل المعتمدة تحت إشراف شركة المياه الوطنية والمركز السعودي للاعتماد.'
+                    ? 'تتضمن نطاقات التحاليل المعتمدة والخدمات المخبرية الرسمية.'
                     : lang === 'fr'
-                      ? 'Comprend l’ensemble des portées d’accréditation sous la supervision de la NWC et du Centre Saoudien d’Accréditation.'
-                      : 'Includes all accredited scopes and analytical requirements under NWC and Saudi Accreditation Center.'}
+                      ? 'Présente les domaines d’analyse accrédités et les services officiels du laboratoire.'
+                      : 'Includes the laboratory’s accredited testing scopes and official services.'}
                 </p>
               </div>
 
               <div className="relative z-10 pt-4">
                 <button
                   type="button"
-                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-colors"
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedImage(najranFlyer);
+                    setSelectedImageTitle(tText.viewFlyerBtn);
+                  }}
                 >
                   <Eye className="w-4 h-4" />
                   <span>{tText.viewFlyerBtn}</span>
                 </button>
               </div>
 
-              {/* Decorative background image blur */}
               <img
                 src={najranFlyer}
-                alt="Flyer Preview"
-                className="absolute inset-0 w-full h-full object-cover opacity-20 filter blur-xs group-hover:scale-105 transition-transform duration-300"
+                alt="Official Laboratory Flyer"
+                className="absolute inset-0 w-full h-full object-cover opacity-20 blur-sm group-hover:scale-105 transition-transform duration-300"
               />
             </div>
+
           </div>
+
 
           {/* Authentic Real Lab Photos Grid */}
           <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
