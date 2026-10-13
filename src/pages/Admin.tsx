@@ -3248,8 +3248,43 @@ export default function Admin() {
                         <div className="flex items-start justify-between gap-4 mb-5">
                           <div>
                             <h3 className="font-bold">
-                              {survey.service_used ||
-                                'Survey'}
+                              {(() => {
+                                const serviceTranslations: Record<
+                                  string,
+                                  { ar: string; en: string; fr: string }
+                                > = {
+                                  'Laboratory Testing': {
+                                    ar: 'الفحوصات المخبرية',
+                                    en: 'Laboratory Testing',
+                                    fr: 'Analyses de laboratoire',
+                                  },
+                                  'Test Results / Reports': {
+                                    ar: 'نتائج التحاليل / التقارير',
+                                    en: 'Test Results / Reports',
+                                    fr: "Résultats d'analyses / Rapports",
+                                  },
+                                  'Environmental Analysis': {
+                                    ar: 'التحاليل البيئية',
+                                    en: 'Environmental Analysis',
+                                    fr: 'Analyse environnementale',
+                                  },
+                                  'Drinking Water Analysis': {
+                                    ar: 'تحليل مياه الشرب',
+                                    en: 'Drinking Water Analysis',
+                                    fr: "Analyse de l'eau potable",
+                                  },
+                                };
+
+                                const service = survey.service_used;
+
+                                return service
+                                  ? serviceTranslations[service]?.[lang] ?? service
+                                  : lang === 'ar'
+                                    ? 'استبيان'
+                                    : lang === 'fr'
+                                      ? 'Enquête'
+                                      : 'Survey';
+                              })()}
                             </h3>
 
                             <p className="text-sm text-slate-500 mt-1">
@@ -3281,8 +3316,20 @@ export default function Admin() {
                               type="button"
                               onClick={() => handleDeleteSurvey(survey)}
                               className="p-2 rounded-lg hover:bg-red-50 text-red-600 transition-colors"
-                              title={lang === 'ar' ? 'حذف الاستبيان' : 'Delete'}
-                              aria-label={lang === 'ar' ? 'حذف الاستبيان' : 'Delete'}
+                              title={
+                                lang === 'ar'
+                                  ? 'حذف الاستبيان'
+                                  : lang === 'fr'
+                                    ? "Supprimer l'enquête"
+                                    : 'Delete Survey'
+                              }
+                              aria-label={
+                                lang === 'ar'
+                                  ? 'حذف الاستبيان'
+                                  : lang === 'fr'
+                                    ? "Supprimer l'enquête"
+                                    : 'Delete Survey'
+                              }
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -3291,40 +3338,71 @@ export default function Admin() {
 
 
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+
                           {[
                             [
-                              'Overall',
+                              lang === 'ar' ? 'التقييم العام' : lang === 'fr' ? 'Satisfaction globale' : 'Overall Satisfaction',
                               survey.overall_satisfaction,
                             ],
                             [
-                              'Staff',
+                              lang === 'ar' ? 'أداء الموظفين' : lang === 'fr' ? 'Professionnalisme du personnel' : 'Staff Professionalism',
                               survey.staff_professionalism,
                             ],
                             [
-                              'Speed',
+                              lang === 'ar' ? 'سرعة الخدمة' : lang === 'fr' ? 'Rapidité du service' : 'Service Speed',
                               survey.service_speed,
                             ],
                             [
-                              'Reports',
+                              lang === 'ar' ? 'وضوح التقارير' : lang === 'fr' ? 'Clarté des rapports' : 'Report Clarity',
                               survey.report_clarity,
                             ],
-                          ].map(
-                            ([label, value]) => (
-                              <div
-                                key={label}
-                                className="bg-slate-50 rounded-xl p-3"
-                              >
-                                <p className="text-xs text-slate-500">
-                                  {label}
-                                </p>
+                          ].map(([label, value]) => (
+                            <div
+                              key={label}
+                              className="bg-slate-50 rounded-xl p-3"
+                            >
+                              <p className="text-xs text-slate-500">
+                                {label}
+                              </p>
 
-                                <p className="font-bold mt-1">
-                                  {value ??
-                                    '—'}
-                                </p>
-                              </div>
-                            )
-                          )}
+                              <p className="font-bold mt-1">
+                                {value == null
+                                  ? '—'
+                                  : String(value) === 'Very Satisfied'
+                                    ? lang === 'ar'
+                                      ? 'راضٍ جدًا'
+                                      : lang === 'fr'
+                                        ? 'Très satisfait'
+                                        : 'Very Satisfied'
+                                    : String(value) === 'Satisfied'
+                                      ? lang === 'ar'
+                                        ? 'راضٍ'
+                                        : lang === 'fr'
+                                          ? 'Satisfait'
+                                          : 'Satisfied'
+                                      : String(value) === 'Neutral'
+                                        ? lang === 'ar'
+                                          ? 'محايد'
+                                          : lang === 'fr'
+                                            ? 'Neutre'
+                                            : 'Neutral'
+                                        : String(value) === 'Dissatisfied'
+                                          ? lang === 'ar'
+                                            ? 'غير راضٍ'
+                                            : lang === 'fr'
+                                              ? 'Insatisfait'
+                                              : 'Dissatisfied'
+                                          : String(value) === 'Very Dissatisfied'
+                                            ? lang === 'ar'
+                                              ? 'غير راضٍ جدًا'
+                                              : lang === 'fr'
+                                                ? 'Très insatisfait'
+                                                : 'Very Dissatisfied'
+                                            : value}
+                              </p>
+                            </div>
+                          ))}
+
                         </div>
 
 
@@ -3337,7 +3415,9 @@ export default function Admin() {
                                   <p className="font-semibold">
                                     {lang === 'ar'
                                       ? 'ما أعجبك:'
-                                      : 'Liked most:'}
+                                      : lang === 'fr'
+                                        ? 'Ce que vous avez le plus apprécié :'
+                                        : 'What you liked most:'}
                                   </p>
 
                                   <p className="text-slate-600 mt-1">
@@ -3350,8 +3430,10 @@ export default function Admin() {
                                 <div>
                                   <p className="font-semibold">
                                     {lang === 'ar'
-                                      ? 'التحسينات:'
-                                      : 'Improvements:'}
+                                      ? 'التحسينات المقترحة:'
+                                      : lang === 'fr'
+                                        ? 'Améliorations proposées :'
+                                        : 'Suggested improvements:'}
                                   </p>
 
                                   <p className="text-slate-600 mt-1">
@@ -3365,7 +3447,9 @@ export default function Admin() {
                                   <p className="font-semibold">
                                     {lang === 'ar'
                                       ? 'تعليقات إضافية:'
-                                      : 'Additional comments:'}
+                                      : lang === 'fr'
+                                        ? 'Commentaires supplémentaires :'
+                                        : 'Additional comments:'}
                                   </p>
 
                                   <p className="text-slate-600 mt-1">
