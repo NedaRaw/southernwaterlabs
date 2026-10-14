@@ -538,6 +538,14 @@ function createMockSupabaseClient() {
       };
 
       switch (fnName) {
+        case 'require_admin': {
+          const caller = getCaller(args.p_token as string);
+          if (!caller || caller.active === false || caller.role === 'user') {
+            return { data: null, error: { message: 'Unauthorized', code: 'P0001' } };
+          }
+          return { data: { success: true, user: caller }, error: null };
+        }
+
         case 'verify_admin_credentials': {
           const { p_username, p_password } = args as { p_username?: string; p_password?: string };
           const match = users.find(

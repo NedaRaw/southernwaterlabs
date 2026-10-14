@@ -43,6 +43,7 @@ import {
 
 import {
   supabase,
+  isSupabaseConfigured,
   STORAGE_KEYS,
   defaultAdminUsers,
   loadData,
@@ -121,8 +122,7 @@ export function hasAdminAccess(role?: string | null): boolean {
     role === 'super_admin' ||
     role === 'lab_admin' ||
     role === 'local_admin' ||
-    role === 'admin' ||
-    role === 'user'
+    role === 'admin'
   );
 }
 
@@ -517,37 +517,75 @@ export default function Admin() {
   // ============================================================
 
   useEffect(() => {
-    const storedUser = sessionStorage.getItem('admin_user');
-    const storedToken = sessionStorage.getItem('admin_token');
+    let isCancelled = false;
 
-    if (!storedUser || !storedToken) {
-      return;
-    }
+    const restoreSession = async () => {
+      const storedUser = sessionStorage.getItem('admin_user');
+      const storedToken = sessionStorage.getItem('admin_token');
 
-    try {
-      const user = JSON.parse(storedUser) as AdminUser;
+      if (!storedUser || !storedToken) {
+        return;
+      }
 
-      // Reject non-admin / standard users
-      if (!user || !hasAdminAccess(user.role)) {
+      // Purge any lingering mock tokens when connected to real Supabase
+      if (isSupabaseConfigured && storedToken.startsWith('mock-token-')) {
         sessionStorage.removeItem('admin_user');
         sessionStorage.removeItem('admin_token');
         return;
       }
 
-      setAdminUser(user);
-      setAdminToken(storedToken);
-      setLoggedIn(true);
+      try {
+        const user = JSON.parse(storedUser) as AdminUser;
 
-      // Initialize role-based scope filters
-      if (isLabAdmin(user.role) && user.laboratory) {
-        setLabFilter(user.laboratory);
-      } else if (isLocalAdmin(user.role)) {
-        if (user.laboratory) setLabFilter(user.laboratory);
-        if (user.branch) setBranchFilter(user.branch);
+        // Reject non-admin / standard users
+        if (!user || !hasAdminAccess(user.role)) {
+          sessionStorage.removeItem('admin_user');
+          sessionStorage.removeItem('admin_token');
+          return;
+        }
+
+        // Validate session against the Supabase server
+        if (isSupabaseConfigured) {
+          const { error } = await supabase.rpc('require_admin', {
+            p_token: storedToken,
+          });
+
+          if (error) {
+            console.warn('Session verification rejected by server:', error);
+            sessionStorage.removeItem('admin_user');
+            sessionStorage.removeItem('admin_token');
+            if (!isCancelled) {
+              setSessionExpired(true);
+            }
+            return;
+          }
+        }
+
+        if (isCancelled) return;
+
+        setAdminUser(user);
+        setAdminToken(storedToken);
+        setLoggedIn(true);
+
+        // Initialize role-based scope filters
+        if (isLabAdmin(user.role) && user.laboratory) {
+          setLabFilter(user.laboratory);
+        } else if (isLocalAdmin(user.role)) {
+          if (user.laboratory) setLabFilter(user.laboratory);
+          if (user.branch) setBranchFilter(user.branch);
+        }
+      } catch (error) {
+        console.error('Failed to restore admin session:', error);
+        sessionStorage.removeItem('admin_user');
+        sessionStorage.removeItem('admin_token');
       }
-    } catch (error) {
-      console.error('Failed to restore admin session:', error);
-    }
+    };
+
+    restoreSession();
+
+    return () => {
+      isCancelled = true;
+    };
   }, []);
 
 
@@ -579,13 +617,12 @@ export default function Admin() {
 
       console.log('Admin login attempt for:', username);
 
-      let loginSuccess = false;
       let authenticatedUser: Partial<AdminUser> | null = null;
       let sessionToken = '';
       let userRole = 'user';
 
-      // 1. Attempt remote login via Supabase RPC
-      try {
+      if (isSupabaseConfigured) {
+        // Real Supabase Authentication exclusively
         const { data, error } = await supabase.rpc('login_user', {
           p_username: username,
           p_password: password,
@@ -593,24 +630,69 @@ export default function Admin() {
 
         console.log('LOGIN RPC RESPONSE:', data, error);
 
-        if (!error && data) {
-          const loginData = Array.isArray(data) ? data[0] : data;
-          if (loginData?.success) {
-            loginSuccess = true;
-            authenticatedUser = loginData?.user || loginData;
-            sessionToken =
-              loginData.session_token ||
-              loginData.token ||
-              loginData.admin_token;
-            userRole = authenticatedUser?.role || loginData.role || 'user';
-          }
+        if (error) {
+          console.warn('Login RPC rejected by database:', error);
+          setLoginError(
+            lang === 'ar'
+              ? 'اسم المستخدم أو كلمة المرور غير صحيحة.'
+              : lang === 'fr'
+                ? "Nom d'utilisateur ou mot de passe incorrect."
+                : 'Invalid username or password.'
+          );
+          setLoggingIn(false);
+          return;
         }
-      } catch (rpcErr) {
-        console.warn('Remote login RPC call failed:', rpcErr);
-      }
 
-      // 2. If remote login was not successful, fallback to local users / default accounts
-      if (!loginSuccess) {
+        const loginData = Array.isArray(data) ? data[0] : data;
+
+        if (!loginData || !loginData.success) {
+          const rawMsg = String(loginData?.message || loginData?.error || '').toLowerCase();
+          if (
+            rawMsg.includes('deactivat') ||
+            rawMsg.includes('désactiv') ||
+            rawMsg.includes('معطل') ||
+            rawMsg.includes('inactive')
+          ) {
+            setLoginError(
+              lang === 'ar'
+                ? 'تم تعطيل هذا الحساب. يرجى التواصل مع مسؤول النظام.'
+                : lang === 'fr'
+                  ? 'Ce compte est désactivé. Veuillez contacter l’administrateur.'
+                  : 'This account is deactivated. Please contact the administrator.'
+            );
+          } else {
+            setLoginError(
+              lang === 'ar'
+                ? 'اسم المستخدم أو كلمة المرور غير صحيحة.'
+                : lang === 'fr'
+                  ? "Nom d'utilisateur ou mot de passe incorrect."
+                  : 'Invalid username or password.'
+            );
+          }
+          setLoggingIn(false);
+          return;
+        }
+
+        authenticatedUser = loginData.user || loginData;
+        sessionToken =
+          loginData.session_token ||
+          loginData.token ||
+          loginData.admin_token;
+        userRole = authenticatedUser?.role || loginData.role || 'user';
+
+        if (authenticatedUser?.active === false) {
+          setLoginError(
+            lang === 'ar'
+              ? 'تم تعطيل هذا الحساب. يرجى التواصل مع مسؤول النظام.'
+              : lang === 'fr'
+                ? 'Ce compte est désactivé. Veuillez contacter l’administrateur.'
+                : 'This account is deactivated. Please contact the administrator.'
+          );
+          setLoggingIn(false);
+          return;
+        }
+      } else {
+        // Pure unconfigured mock/demo environment ONLY
         const localUsers = loadData<AdminUserData[]>(
           STORAGE_KEYS.ADMIN_USERS,
           defaultAdminUsers
@@ -622,53 +704,42 @@ export default function Admin() {
             u.password === password
         );
 
-        if (match) {
-          if (match.active === false) {
-            setLoginError(
-              lang === 'ar'
-                ? 'تم تعطيل هذا الحساب. يرجى التواصل مع مسؤول النظام.'
-                : lang === 'fr'
-                  ? 'Ce compte est désactivé. Veuillez contacter l’administrateur.'
-                  : 'This account is deactivated. Please contact the administrator.'
-            );
-            setLoggingIn(false);
-            return;
-          }
-
-          loginSuccess = true;
-          sessionToken = `mock-token-${match.id}-${Date.now()}`;
-          const sessions = loadData<Record<string, AdminUserData>>(
-            STORAGE_KEYS.ACTIVE_SESSIONS,
-            {}
+        if (!match) {
+          setLoginError(
+            lang === 'ar'
+              ? 'اسم المستخدم أو كلمة المرور غير صحيحة.'
+              : lang === 'fr'
+                ? "Nom d'utilisateur ou mot de passe incorrect."
+                : 'Invalid username or password.'
           );
-          sessions[sessionToken] = match;
-          saveData(STORAGE_KEYS.ACTIVE_SESSIONS, sessions);
-
-          authenticatedUser = {
-            id: match.id,
-            username: match.username,
-            full_name: match.full_name,
-            role: match.role,
-            laboratory: match.laboratory || null,
-            branch: match.branch || null,
-            active: match.active !== false,
-            is_primary: match.is_primary || match.username === 'admin',
-          };
-          userRole = match.role;
+          setLoggingIn(false);
+          return;
         }
-      }
 
-      if (!loginSuccess) {
-        console.warn('Admin login failed: Invalid credentials entered for', username);
-        setLoginError(
-          lang === 'ar'
-            ? 'اسم المستخدم أو كلمة المرور غير صحيحة.'
-            : lang === 'fr'
-              ? "Nom d'utilisateur ou mot de passe incorrect."
-              : 'Invalid username or password.'
-        );
-        setLoggingIn(false);
-        return;
+        if (match.active === false) {
+          setLoginError(
+            lang === 'ar'
+              ? 'تم تعطيل هذا الحساب. يرجى التواصل مع مسؤول النظام.'
+              : lang === 'fr'
+                ? 'Ce compte est désactivé. Veuillez contacter l’administrateur.'
+                : 'This account is deactivated. Please contact the administrator.'
+          );
+          setLoggingIn(false);
+          return;
+        }
+
+        sessionToken = `mock-token-${match.id}-${Date.now()}`;
+        authenticatedUser = {
+          id: match.id,
+          username: match.username,
+          full_name: match.full_name,
+          role: match.role,
+          laboratory: match.laboratory || null,
+          branch: match.branch || null,
+          active: match.active !== false,
+          is_primary: match.is_primary || match.username === 'admin',
+        };
+        userRole = match.role;
       }
 
       if (!sessionToken) {
@@ -924,16 +995,17 @@ export default function Admin() {
       if (surveysRes.error) {
         console.warn('SURVEYS RPC ERROR:', surveysRes.error);
         const errMsg = getErrorMessage(surveysRes.error);
-        const localSurveys = loadData<Survey[]>(STORAGE_KEYS.SURVEYS, []);
-        if (localSurveys.length > 0 || token.startsWith('mock-token-')) {
+        if (!isSupabaseConfigured) {
+          const localSurveys = loadData<Survey[]>(STORAGE_KEYS.SURVEYS, []);
           setSurveys(localSurveys);
           setSurveysError(null);
         } else {
           setSurveysError(errMsg);
           if (
-            !token.startsWith('mock-token-') &&
-            (errMsg.toLowerCase().includes('expired') ||
-              errMsg.toLowerCase().includes('invalid token'))
+            errMsg.toLowerCase().includes('expired') ||
+            errMsg.toLowerCase().includes('invalid token') ||
+            errMsg.toLowerCase().includes('unauthorized') ||
+            surveysRes.error.code === 'P0001'
           ) {
             setSessionExpired(true);
           }
@@ -986,7 +1058,7 @@ export default function Admin() {
 
       if (canManageUsers(adminUser?.role)) {
         const usersRes = await supabase.rpc(
-          'list_users',
+          'list_users_scoped',
           {
             p_token: token,
           }
@@ -1003,12 +1075,11 @@ export default function Admin() {
             usersRes.error
           );
           const errMsg = getErrorMessage(usersRes.error);
-          const localUsers = loadData<AdminUserData[]>(
-            STORAGE_KEYS.ADMIN_USERS,
-            defaultAdminUsers
-          );
-
-          if (localUsers.length > 0 || token.startsWith('mock-token-')) {
+          if (!isSupabaseConfigured) {
+            const localUsers = loadData<AdminUserData[]>(
+              STORAGE_KEYS.ADMIN_USERS,
+              defaultAdminUsers
+            );
             setAdminUsers(
               localUsers.map((u) => ({
                 id: u.id,
@@ -1026,9 +1097,10 @@ export default function Admin() {
           } else {
             setUsersError(errMsg);
             if (
-              !token.startsWith('mock-token-') &&
-              (errMsg.toLowerCase().includes('expired') ||
-                errMsg.toLowerCase().includes('invalid token'))
+              errMsg.toLowerCase().includes('expired') ||
+              errMsg.toLowerCase().includes('invalid token') ||
+              errMsg.toLowerCase().includes('unauthorized') ||
+              usersRes.error.code === 'P0001'
             ) {
               setSessionExpired(true);
             }
@@ -1286,57 +1358,77 @@ export default function Admin() {
         );
         const active = existingUser?.active !== false;
 
-        // Persist to local storage
-        const localUsers = loadData<AdminUserData[]>(
-          STORAGE_KEYS.ADMIN_USERS,
-          defaultAdminUsers
-        );
-        const updatedLocal = localUsers.map((u) => {
-          if (u.id === editingUserId) {
-            return {
-              ...u,
-              role: role,
-              full_name: userForm.full_name || u.full_name,
-              laboratory: assignedLab || null,
-              branch: assignedBranch || null,
-              ...(password ? { password } : {}),
-            };
-          }
-          return u;
-        });
-        saveData(STORAGE_KEYS.ADMIN_USERS, updatedLocal);
-
-        let res = await supabase.rpc('update_user', {
-          p_token: token,
-          p_id: editingUserId,
-          p_password: password || null,
-          p_role: role,
-          p_active: active,
-          p_full_name: userForm.full_name || null,
-          p_laboratory: assignedLab || null,
-          p_branch: assignedBranch || null,
-        });
-
-        // Fallback for legacy database function signature (5 parameters)
-        if (
-          res.error &&
-          (res.error.code === 'PGRST202' ||
-            getErrorMessage(res.error).toLowerCase().includes('schema cache'))
-        ) {
-          console.warn('Extended update_user not found in schema cache, falling back to legacy signature...');
-          res = await supabase.rpc('update_user', {
+        if (!isSupabaseConfigured) {
+          // Mock mode update ONLY
+          const localUsers = loadData<AdminUserData[]>(
+            STORAGE_KEYS.ADMIN_USERS,
+            defaultAdminUsers
+          );
+          const updatedLocal = localUsers.map((u) => {
+            if (u.id === editingUserId) {
+              return {
+                ...u,
+                role: role,
+                full_name: userForm.full_name || u.full_name,
+                laboratory: assignedLab || null,
+                branch: assignedBranch || null,
+                ...(password ? { password } : {}),
+              };
+            }
+            return u;
+          });
+          saveData(STORAGE_KEYS.ADMIN_USERS, updatedLocal);
+        } else {
+          // Real Supabase update — strictly validated
+          let res = await supabase.rpc('update_user', {
             p_token: token,
             p_id: editingUserId,
+            p_password: password || null,
             p_role: role,
             p_active: active,
-            p_password: password || null,
+            p_full_name: userForm.full_name || null,
+            p_laboratory: assignedLab || null,
+            p_branch: assignedBranch || null,
           });
-        }
 
-        console.log('UPDATE USER RESPONSE:', res.data, res.error);
+          // Fallback for legacy database function signature (5 parameters)
+          if (
+            res.error &&
+            (res.error.code === 'PGRST202' ||
+              getErrorMessage(res.error).toLowerCase().includes('schema cache'))
+          ) {
+            console.warn('Extended update_user not found in schema cache, falling back to legacy signature...');
+            res = await supabase.rpc('update_user', {
+              p_token: token,
+              p_id: editingUserId,
+              p_role: role,
+              p_active: active,
+              p_password: password || null,
+            });
+          }
 
-        if (res.error && !token.startsWith('mock-token-')) {
-          console.warn('Remote update_user failed, persisted locally:', res.error);
+          console.log('UPDATE USER RESPONSE:', res.data, res.error);
+
+          if (res.error) {
+            throw new Error(getErrorMessage(res.error));
+          }
+
+          const resData = Array.isArray(res.data) ? res.data[0] : res.data;
+          if (resData && typeof resData === 'object') {
+            if (resData.success === false || resData.error) {
+              throw new Error(
+                String(
+                  resData.error ||
+                  resData.message ||
+                  (lang === 'ar'
+                    ? 'فشل تحديث بيانات المستخدم في قاعدة البيانات.'
+                    : lang === 'fr'
+                      ? "Échec de la mise à jour de l'utilisateur."
+                      : 'User update failed on the server.')
+                )
+              );
+            }
+          }
         }
 
         setFeedback({
@@ -1355,77 +1447,92 @@ export default function Admin() {
       // --------------------------------------------------------
 
       else {
-        // Persist to local storage so user exists immediately
-        const localUsers = loadData<AdminUserData[]>(
-          STORAGE_KEYS.ADMIN_USERS,
-          defaultAdminUsers
-        );
-        const newLocalUser: AdminUserData = {
-          id: `usr-${Date.now()}`,
-          username: username,
-          password: password,
-          full_name: userForm.full_name || username,
-          role: role,
-          laboratory: assignedLab || null,
-          branch: assignedBranch || null,
-          active: true,
-          is_primary: false,
-        };
-        saveData(STORAGE_KEYS.ADMIN_USERS, [
-          newLocalUser,
-          ...localUsers.filter(
-            (u) => u.username.toLowerCase() !== username.toLowerCase()
-          ),
-        ]);
-
-        let res = await supabase.rpc('create_user', {
-          p_token: token,
-          p_username: username,
-          p_password: password,
-          p_role: role,
-          p_full_name: userForm.full_name || null,
-          p_laboratory: assignedLab || null,
-          p_branch: assignedBranch || null,
-        });
-
-        let usedLegacyFallback = false;
-
-        // Fallback for legacy database function signature (4 parameters: p_token, p_username, p_password, p_role)
-        if (
-          res.error &&
-          (res.error.code === 'PGRST202' ||
-            getErrorMessage(res.error).toLowerCase().includes('schema cache'))
-        ) {
-          console.warn('Extended create_user not found in schema cache, falling back to legacy signature...');
-          res = await supabase.rpc('create_user', {
+        if (!isSupabaseConfigured) {
+          // Mock mode creation ONLY
+          const localUsers = loadData<AdminUserData[]>(
+            STORAGE_KEYS.ADMIN_USERS,
+            defaultAdminUsers
+          );
+          const newLocalUser: AdminUserData = {
+            id: `usr-${Date.now()}`,
+            username: username,
+            password: password,
+            full_name: userForm.full_name || username,
+            role: role,
+            laboratory: assignedLab || null,
+            branch: assignedBranch || null,
+            active: true,
+            is_primary: false,
+          };
+          saveData(STORAGE_KEYS.ADMIN_USERS, [
+            newLocalUser,
+            ...localUsers.filter(
+              (u) => u.username.toLowerCase() !== username.toLowerCase()
+            ),
+          ]);
+        } else {
+          // Real Supabase creation: DO NOT save locally before server confirmation!
+          let res = await supabase.rpc('create_user_with_details', {
             p_token: token,
             p_username: username,
             p_password: password,
             p_role: role,
+            p_full_name: userForm.full_name || null,
+            p_laboratory: assignedLab || null,
+            p_branch: assignedBranch || null,
           });
-          usedLegacyFallback = true;
-        }
 
-        console.log('CREATE USER RESPONSE:', res.data, res.error);
+                   console.log('CREATE USER RESPONSE:', res.data, res.error);
 
-        if (res.error && !token.startsWith('mock-token-')) {
-          console.warn('Remote create_user failed on server, saved locally:', res.error);
+          // 1. Check RPC-level error
+          if (res.error) {
+            throw new Error(getErrorMessage(res.error));
+          }
+
+          // 2. Check errors embedded in data payload
+          const resData = Array.isArray(res.data) ? res.data[0] : res.data;
+          if (resData && typeof resData === 'object') {
+            if (resData.success === false || resData.error) {
+              throw new Error(
+                String(
+                  resData.error ||
+                  resData.message ||
+                  (lang === 'ar'
+                    ? 'فشل إنشاء المستخدم في قاعدة البيانات.'
+                    : lang === 'fr'
+                      ? "Échec de la création de l'utilisateur."
+                      : 'User creation failed on database.')
+                )
+              );
+            }
+          }
+
+          // 3. Confirm that a valid user ID or created record was returned by the database
+          const returnedId =
+            resData?.id ||
+            resData?.user_id ||
+            resData?.user?.id ||
+            (typeof resData === 'string' && resData.length > 5 ? resData : null);
+
+          if (!returnedId && resData !== true && resData?.success !== true) {
+            throw new Error(
+              lang === 'ar'
+                ? 'لم يتم تأكيد إنشاء المستخدم من قبل قاعدة البيانات (لم يتم استلام معرّف الحساب).'
+                : lang === 'fr'
+                  ? "La création de l'utilisateur n'a pas été confirmée par la base de données (aucun identifiant reçu)."
+                  : 'User creation was not confirmed by the database (no user ID received).'
+            );
+          }
         }
 
         setFeedback({
           type: 'success',
           message:
-            usedLegacyFallback
-              ? (lang === 'ar'
-                ? `تم إنشاء حساب المستخدم "${username}" بنجاح.`
-                : lang === 'fr'
-                  ? `Compte "${username}" créé avec succès.`
-                  : `User account "${username}" created successfully.`)
-              : (lang === 'ar'
-                ? `تم إنشاء حساب المستخدم "${username}" بنجاح.`
-                : lang === 'fr'
-                  ? `Compte "${username}" créé avec succès.`
-                  : `User account "${username}" created successfully.`),
+            lang === 'ar'
+              ? `تم إنشاء حساب المستخدم "${username}" بنجاح.`
+              : lang === 'fr'
+                ? `Compte "${username}" créé avec succès.`
+                : `User account "${username}" created successfully.`,
         });
       }
 
@@ -1494,29 +1601,36 @@ export default function Admin() {
     setLoading(true);
 
     try {
-      const localUsers = loadData<AdminUserData[]>(
-        STORAGE_KEYS.ADMIN_USERS,
-        defaultAdminUsers
-      );
-      saveData(
-        STORAGE_KEYS.ADMIN_USERS,
-        localUsers.map((u) =>
-          u.id === user.id ? { ...u, active: user.active === false } : u
-        )
-      );
+      if (!isSupabaseConfigured) {
+        const localUsers = loadData<AdminUserData[]>(
+          STORAGE_KEYS.ADMIN_USERS,
+          defaultAdminUsers
+        );
+        saveData(
+          STORAGE_KEYS.ADMIN_USERS,
+          localUsers.map((u) =>
+            u.id === user.id ? { ...u, active: user.active === false } : u
+          )
+        );
+      } else {
+        const { data, error } = await supabase.rpc('update_user', {
+          p_token: token,
+          p_id: user.id,
+          p_password: null,
+          p_role: user.role,
+          p_active: user.active === false,
+        });
 
-      const { data, error } = await supabase.rpc('update_user', {
-        p_token: token,
-        p_id: user.id,
-        p_password: null,
-        p_role: user.role,
-        p_active: user.active === false,
-      });
+        console.log('TOGGLE USER RESPONSE:', data, error);
 
-      console.log('TOGGLE USER RESPONSE:', data, error);
+        if (error) {
+          throw new Error(getErrorMessage(error));
+        }
 
-      if (error && !token.startsWith('mock-token-')) {
-        console.warn('Remote update_user toggle failed, updated locally:', error);
+        const resData = Array.isArray(data) ? data[0] : data;
+        if (resData && typeof resData === 'object' && (resData.success === false || resData.error)) {
+          throw new Error(String(resData.error || resData.message || 'فشل تعديل حالة الحساب في قاعدة البيانات.'));
+        }
       }
 
       setFeedback({
@@ -2115,15 +2229,17 @@ export default function Admin() {
             }
           }
 
-          // Remove from local storage
-          const localUsers = loadData<AdminUserData[]>(
-            STORAGE_KEYS.ADMIN_USERS,
-            defaultAdminUsers
-          );
-          saveData(
-            STORAGE_KEYS.ADMIN_USERS,
-            localUsers.filter((u) => u.id !== deleteTarget.id)
-          );
+          // Remove from local storage in unconfigured mock mode only
+          if (!isSupabaseConfigured) {
+            const localUsers = loadData<AdminUserData[]>(
+              STORAGE_KEYS.ADMIN_USERS,
+              defaultAdminUsers
+            );
+            saveData(
+              STORAGE_KEYS.ADMIN_USERS,
+              localUsers.filter((u) => u.id !== deleteTarget.id)
+            );
+          }
 
           setAdminUsers((prev) => prev.filter((u) => u.id !== deleteTarget.id));
           setFeedback({
