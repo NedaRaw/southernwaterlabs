@@ -346,11 +346,11 @@ export default function Admin() {
 
   const [visitors, setVisitors] = useState<Visitor[]>([]);
   const [surveys, setSurveys] = useState<Survey[]>([]);
-   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
- 
+  const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
+
   const [selectedSurveyIds, setSelectedSurveyIds] = useState<string[]>([]);
   const [selectedVisitorIds, setSelectedVisitorIds] = useState<string[]>([]);
-    const [selectedEnquiryIds, setSelectedEnquiryIds] = useState<string[]>([]);
+  const [selectedEnquiryIds, setSelectedEnquiryIds] = useState<string[]>([]);
 
 
   const [bulkSurveyDeleteOpen, setBulkSurveyDeleteOpen] = useState(false);
@@ -358,7 +358,7 @@ export default function Admin() {
   const [bulkSurveyDeleteError, setBulkSurveyDeleteError] = useState<string | null>(null);
   const [bulkSurveyDeleteResult, setBulkSurveyDeleteResult] = useState<string | null>(null);
 
- 
+
   const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
 
   const [loading, setLoading] = useState(false);
@@ -376,6 +376,12 @@ export default function Admin() {
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteModalError, setDeleteModalError] = useState<string | null>(null);
+
+
+  const [bulkVisitorDeleteOpen, setBulkVisitorDeleteOpen] = useState(false);
+  const [bulkVisitorDeleteLoading, setBulkVisitorDeleteLoading] = useState(false);
+  const [bulkVisitorDeleteError, setBulkVisitorDeleteError] = useState<string | null>(null);
+
 
   // Feedback banner state (replaces alert dialogs)
   const [feedback, setFeedback] = useState<{
@@ -2053,6 +2059,85 @@ export default function Admin() {
     }
   };
 
+  // حذف مجموعة من سجلات الزوار
+  const executeBulkVisitorDelete = async () => {
+    if (
+      bulkVisitorDeleteLoading ||
+      selectedVisitorIds.length === 0 ||
+      isReadOnly(adminUser?.role)
+    ) {
+      return;
+    }
+
+    setBulkVisitorDeleteLoading(true);
+    setBulkVisitorDeleteError(null);
+
+    const idsToDelete = [...new Set(selectedVisitorIds)];
+    const deletedIds: string[] = [];
+    const failedIds: string[] = [];
+
+    try {
+      for (const id of idsToDelete) {
+        try {
+          const { error } = await supabase
+            .from('visitors')
+            .delete()
+            .eq('id', id);
+
+          if (error) {
+            console.error('Visitor deletion failed:', id, error);
+            failedIds.push(id);
+            continue;
+          }
+
+          deletedIds.push(id);
+        } catch (error) {
+          console.error('Visitor deletion failed:', id, error);
+          failedIds.push(id);
+        }
+      }
+
+      if (deletedIds.length > 0) {
+        const deletedSet = new Set(deletedIds);
+
+        setVisitors((prev) =>
+          prev.filter((visitor) => !deletedSet.has(visitor.id))
+        );
+      }
+
+      setSelectedVisitorIds(failedIds);
+
+      if (failedIds.length === 0) {
+        setBulkVisitorDeleteOpen(false);
+
+        setFeedback({
+          type: 'success',
+          message:
+            lang === 'ar'
+              ? `تم حذف ${deletedIds.length} سجل زائر بنجاح.`
+              : lang === 'fr'
+                ? `${deletedIds.length} visiteur(s) supprimé(s) avec succès.`
+                : `${deletedIds.length} visitor record(s) deleted successfully.`,
+        });
+      } else {
+        setBulkVisitorDeleteError(
+          lang === 'ar'
+            ? `تم حذف ${deletedIds.length} سجل، وفشل حذف ${failedIds.length}. بقيت السجلات غير المحذوفة محددة.`
+            : lang === 'fr'
+              ? `${deletedIds.length} supprimé(s), ${failedIds.length} échec(s). Les enregistrements non supprimés restent sélectionnés.`
+              : `${deletedIds.length} deleted; ${failedIds.length} failed. Failed records remain selected.`
+        );
+      }
+
+      await fetchData();
+    } catch (error) {
+      console.error('Bulk visitor deletion failed:', error);
+      setBulkVisitorDeleteError(getErrorMessage(error));
+    } finally {
+      setBulkVisitorDeleteLoading(false);
+    }
+  };
+
 
   // ============================================================
   // Filter Visitors (Scoped by Role and Laboratory)
@@ -3440,18 +3525,44 @@ export default function Admin() {
                       </p>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={exportVisitorsCsv}
-                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm"
-                    >
-                      <Download className="w-4 h-4" />
-                      {lang === 'ar'
-                        ? 'تصدير CSV'
-                        : lang === 'fr'
-                          ? 'Exporter CSV'
-                          : 'Export CSV'}
-                    </button>
+
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {!isReadOnly(adminUser?.role) && (
+                        <button
+                          type="button"
+                          disabled={
+                            selectedVisitorIds.length === 0 ||
+                            bulkVisitorDeleteLoading
+                          }
+                          onClick={() => {
+                            setBulkVisitorDeleteError(null);
+                            setBulkVisitorDeleteOpen(true);
+                          }}
+                          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          {lang === 'ar'
+                            ? `حذف المحدد (${selectedVisitorIds.length})`
+                            : lang === 'fr'
+                              ? `Supprimer (${selectedVisitorIds.length})`
+                              : `Delete selected (${selectedVisitorIds.length})`}
+                        </button>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={exportVisitorsCsv}
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm"
+                      >
+                        <Download className="w-4 h-4" />
+                        {lang === 'ar'
+                          ? 'تصدير CSV'
+                          : lang === 'fr'
+                            ? 'Exporter CSV'
+                            : 'Export CSV'}
+                      </button>
+                    </div>
+
                   </div>
 
                   <div className="overflow-x-auto">
@@ -3565,6 +3676,29 @@ export default function Admin() {
                               key={visitor.id}
                               className="border-b border-slate-100 hover:bg-slate-50"
                             >
+
+                              {!isReadOnly(adminUser?.role) && (
+                                <td className="px-4 py-4">
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedVisitorIds.includes(visitor.id)}
+                                    onChange={(e) => {
+                                      setSelectedVisitorIds((prev) =>
+                                        e.target.checked
+                                          ? [...new Set([...prev, visitor.id])]
+                                          : prev.filter((id) => id !== visitor.id)
+                                      );
+                                    }}
+                                    aria-label={
+                                      lang === 'ar'
+                                        ? `تحديد الزائر ${getVisitorName(visitor)}`
+                                        : `Select visitor ${getVisitorName(visitor)}`
+                                    }
+                                    className="h-4 w-4 cursor-pointer accent-blue-600"
+                                  />
+                                </td>
+                              )}
+
                               <td className="px-4 py-4">
                                 <div className="font-medium">
                                   {getVisitorName(
@@ -5059,6 +5193,51 @@ export default function Admin() {
           confirmVariant="danger"
           isLoading={bulkSurveyDeleteLoading}
           errorMessage={bulkSurveyDeleteError}
+        />
+      )}
+
+      {/* BULK DELETE VISITORS CONFIRMATION */}
+      {bulkVisitorDeleteOpen && (
+        <ConfirmModal
+          isOpen={bulkVisitorDeleteOpen}
+          onClose={() => {
+            if (!bulkVisitorDeleteLoading) {
+              setBulkVisitorDeleteOpen(false);
+              setBulkVisitorDeleteError(null);
+            }
+          }}
+          onConfirm={executeBulkVisitorDelete}
+          title={
+            lang === 'ar'
+              ? 'تأكيد حذف الزوار'
+              : lang === 'fr'
+                ? 'Confirmer la suppression des visiteurs'
+                : 'Confirm Visitor Deletion'
+          }
+          message={
+            lang === 'ar'
+              ? `هل أنتِ متأكدة من حذف ${selectedVisitorIds.length} سجل زائر محدد؟ لا يمكن التراجع عن هذا الإجراء.`
+              : lang === 'fr'
+                ? `Voulez-vous supprimer ${selectedVisitorIds.length} visiteur(s) sélectionné(s) ? Cette action est irréversible.`
+                : `Are you sure you want to delete ${selectedVisitorIds.length} selected visitor record(s)? This action cannot be undone.`
+          }
+          confirmText={
+            lang === 'ar'
+              ? 'حذف الزوار المحددين'
+              : lang === 'fr'
+                ? 'Supprimer les visiteurs sélectionnés'
+                : 'Delete Selected Visitors'
+          }
+          cancelText={
+            lang === 'ar'
+              ? 'إلغاء'
+              : lang === 'fr'
+                ? 'Annuler'
+                : 'Cancel'
+          }
+          confirmVariant="danger"
+          isLoading={bulkVisitorDeleteLoading}
+          errorMessage={bulkVisitorDeleteError}
         />
       )}
 
