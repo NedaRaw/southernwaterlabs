@@ -346,6 +346,7 @@ export default function Admin() {
 
   const [visitors, setVisitors] = useState<Visitor[]>([]);
   const [surveys, setSurveys] = useState<Survey[]>([]);
+  const [selectedSurveyIds, setSelectedSurveyIds] = useState<string[]>([]);
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
   const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
 
@@ -2246,17 +2247,17 @@ export default function Admin() {
       },
       ...(canManageUsers(adminUser?.role)
         ? [
-            {
-              id: 'users' as Tab,
-              label:
-                lang === 'ar'
-                  ? 'إدارة المستخدمين'
-                  : lang === 'fr'
-                    ? 'Gestion des utilisateurs'
-                    : 'User Management',
-              icon: UserCog,
-            },
-          ]
+          {
+            id: 'users' as Tab,
+            label:
+              lang === 'ar'
+                ? 'إدارة المستخدمين'
+                : lang === 'fr'
+                  ? 'Gestion des utilisateurs'
+                  : 'User Management',
+            icon: UserCog,
+          },
+        ]
         : []),
       {
         id: 'qrcodes',
@@ -2397,15 +2398,14 @@ export default function Admin() {
             <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
               {loggedIn && (
                 <div className="hidden md:flex items-center gap-2 px-2.5 py-1 rounded-lg bg-slate-900/60 border border-slate-800/80 text-xs">
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold uppercase shrink-0 ${
-                    isSuperAdmin(adminUser?.role)
-                      ? 'bg-purple-500/20 text-purple-300 border border-purple-400/40'
-                      : isLabAdmin(adminUser?.role)
-                        ? 'bg-blue-500/20 text-blue-300 border border-blue-400/40'
-                        : isLocalAdmin(adminUser?.role)
-                          ? 'bg-teal-500/20 text-teal-300 border border-teal-400/40'
-                          : 'bg-slate-500/20 text-slate-300 border border-slate-400/40'
-                  }`}>
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold uppercase shrink-0 ${isSuperAdmin(adminUser?.role)
+                    ? 'bg-purple-500/20 text-purple-300 border border-purple-400/40'
+                    : isLabAdmin(adminUser?.role)
+                      ? 'bg-blue-500/20 text-blue-300 border border-blue-400/40'
+                      : isLocalAdmin(adminUser?.role)
+                        ? 'bg-teal-500/20 text-teal-300 border border-teal-400/40'
+                        : 'bg-slate-500/20 text-slate-300 border border-slate-400/40'
+                    }`}>
                     {(adminUser?.username || 'A')[0]}
                   </div>
 
@@ -2414,15 +2414,14 @@ export default function Admin() {
                       <span className="font-semibold text-slate-200 truncate max-w-[110px] block leading-tight text-xs">
                         {adminUser?.full_name || adminUser?.username || 'Admin'}
                       </span>
-                      <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold uppercase ${
-                        isSuperAdmin(adminUser?.role)
-                          ? 'bg-purple-500/25 text-purple-300 border border-purple-400/30'
-                          : isLabAdmin(adminUser?.role)
-                            ? 'bg-blue-500/25 text-blue-300 border border-blue-400/30'
-                            : isLocalAdmin(adminUser?.role)
-                              ? 'bg-teal-500/25 text-teal-300 border border-teal-400/30'
-                              : 'bg-slate-700/60 text-slate-300'
-                      }`}>
+                      <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold uppercase ${isSuperAdmin(adminUser?.role)
+                        ? 'bg-purple-500/25 text-purple-300 border border-purple-400/30'
+                        : isLabAdmin(adminUser?.role)
+                          ? 'bg-blue-500/25 text-blue-300 border border-blue-400/30'
+                          : isLocalAdmin(adminUser?.role)
+                            ? 'bg-teal-500/25 text-teal-300 border border-teal-400/30'
+                            : 'bg-slate-700/60 text-slate-300'
+                        }`}>
                         {adminUser?.role === 'super_admin' ? 'Super' : adminUser?.role === 'lab_admin' ? 'Lab Admin' : adminUser?.role === 'local_admin' ? 'Local' : adminUser?.role || 'Admin'}
                       </span>
                       {isReadOnly(adminUser?.role) && (
@@ -3636,71 +3635,90 @@ export default function Admin() {
                         key={survey.id}
                         className="bg-white rounded-2xl border border-slate-200 p-6"
                       >
+
                         <div className="flex items-start justify-between gap-4 mb-5">
-                          <div>
-                            <h3 className="font-bold">
-                              {(() => {
-                                const serviceTranslations: Record<
-                                  string,
-                                  { ar: string; en: string; fr: string }
-                                > = {
-                                  'Laboratory Testing': {
-                                    ar: 'الفحوصات المخبرية',
-                                    en: 'Laboratory Testing',
-                                    fr: 'Analyses de laboratoire',
-                                  },
-                                  'Test Results / Reports': {
-                                    ar: 'نتائج التحاليل / التقارير',
-                                    en: 'Test Results / Reports',
-                                    fr: "Résultats d'analyses / Rapports",
-                                  },
-                                  'Environmental Analysis': {
-                                    ar: 'التحاليل البيئية',
-                                    en: 'Environmental Analysis',
-                                    fr: 'Analyse environnementale',
-                                  },
-                                  'Drinking Water Analysis': {
-                                    ar: 'تحليل مياه الشرب',
-                                    en: 'Drinking Water Analysis',
-                                    fr: "Analyse de l'eau potable",
-                                  },
-                                };
-
-                                const service = survey.service_used;
-
-                                return service
-                                  ? serviceTranslations[service]?.[lang] ?? service
-                                  : lang === 'ar'
-                                    ? 'استبيان'
+                          <div className="flex min-w-0 items-start gap-3">
+                            {!isReadOnly(adminUser?.role) && (
+                              <input
+                                type="checkbox"
+                                checked={selectedSurveyIds.includes(survey.id)}
+                                onChange={(e) => {
+                                  setSelectedSurveyIds((prev) =>
+                                    e.target.checked
+                                      ? [...new Set([...prev, survey.id])]
+                                      : prev.filter((id) => id !== survey.id)
+                                  );
+                                }}
+                                aria-label={
+                                  lang === 'ar'
+                                    ? 'تحديد الاستبيان'
                                     : lang === 'fr'
-                                      ? 'Enquête'
-                                      : 'Survey';
-                              })()}
-                            </h3>
+                                      ? "Sélectionner l'enquête"
+                                      : 'Select survey'
+                                }
+                                className="mt-1 h-4 w-4 shrink-0 cursor-pointer accent-blue-600"
+                              />
+                            )}
 
-                            <p className="text-sm text-slate-500 mt-1">
-                              {survey.laboratory
-                                ? getLabLabel(
-                                  survey.laboratory,
-                                  lang
-                                )
-                                : '—'}
+                            <div className="min-w-0">
+                              <h3 className="font-bold">
+                                {(() => {
+                                  const serviceTranslations: Record<
+                                    string,
+                                    { ar: string; en: string; fr: string }
+                                  > = {
+                                    'Laboratory Testing': {
+                                      ar: 'الفحوصات المخبرية',
+                                      en: 'Laboratory Testing',
+                                      fr: 'Analyses de laboratoire',
+                                    },
+                                    'Test Results / Reports': {
+                                      ar: 'نتائج التحاليل / التقارير',
+                                      en: 'Test Results / Reports',
+                                      fr: "Résultats d'analyses / Rapports",
+                                    },
+                                    'Environmental Analysis': {
+                                      ar: 'التحاليل البيئية',
+                                      en: 'Environmental Analysis',
+                                      fr: 'Analyse environnementale',
+                                    },
+                                    'Drinking Water Analysis': {
+                                      ar: 'تحليل مياه الشرب',
+                                      en: 'Drinking Water Analysis',
+                                      fr: "Analyse de l'eau potable",
+                                    },
+                                  };
 
-                              {survey.branch
-                                ? ` • ${getBranchLabel(
-                                  survey.laboratory,
-                                  survey.branch,
-                                  lang
-                                )}`
-                                : ''}
-                            </p>
+                                  const service = survey.service_used;
+
+                                  return service
+                                    ? serviceTranslations[service]?.[lang] ?? service
+                                    : lang === 'ar'
+                                      ? 'استبيان'
+                                      : lang === 'fr'
+                                        ? 'Enquête'
+                                        : 'Survey';
+                                })()}
+                              </h3>
+
+                              <p className="text-sm text-slate-500 mt-1">
+                                {survey.laboratory
+                                  ? getLabLabel(survey.laboratory, lang)
+                                  : '—'}
+                                {survey.branch
+                                  ? ` • ${getBranchLabel(
+                                    survey.laboratory,
+                                    survey.branch,
+                                    lang
+                                  )}`
+                                  : ''}
+                              </p>
+                            </div>
                           </div>
 
-                          <div className="flex items-center gap-3">
+                          <div className="flex shrink-0 items-center gap-3">
                             <span className="text-xs text-slate-500 whitespace-nowrap">
-                              {formatDate(
-                                survey.created_at
-                              )}
+                              {formatDate(survey.created_at)}
                             </span>
 
                             {!isReadOnly(adminUser?.role) && (
@@ -3728,6 +3746,7 @@ export default function Admin() {
                             )}
                           </div>
                         </div>
+
 
 
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
@@ -3855,6 +3874,7 @@ export default function Admin() {
                             </div>
                           )}
                       </div>
+
                     )
                   )}
 
@@ -4247,15 +4267,14 @@ export default function Admin() {
 
                               <td className="px-4 py-4">
                                 <div className="space-y-1">
-                                  <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                                    user.role === 'super_admin' || user.role === 'admin'
-                                      ? 'bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
-                                      : user.role === 'lab_admin'
-                                        ? 'bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
-                                        : user.role === 'local_admin'
-                                          ? 'bg-teal-100 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800'
-                                          : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
-                                  }`}>
+                                  <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold ${user.role === 'super_admin' || user.role === 'admin'
+                                    ? 'bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
+                                    : user.role === 'lab_admin'
+                                      ? 'bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
+                                      : user.role === 'local_admin'
+                                        ? 'bg-teal-100 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800'
+                                        : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
+                                    }`}>
                                     {getRoleLabel(user.role, lang)}
                                   </span>
 
@@ -4299,20 +4318,20 @@ export default function Admin() {
 
                                   {/* Edit button */}
                                   {(!isLabAdmin(adminUser?.role) || (!isSuperAdmin(user.role) && (user.role !== 'lab_admin' || user.id === adminUser?.id))) &&
-                                   (!isLocalAdmin(adminUser?.role) || user.role === 'user') && (
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        openEditUserModal(
-                                          user
-                                        )
-                                      }
-                                      className="p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/40 text-blue-700 dark:text-blue-400 transition-colors cursor-pointer"
-                                      title={lang === 'ar' ? 'تعديل' : lang === 'fr' ? 'Modifier' : 'Edit'}
-                                    >
-                                      <UserCog className="w-4 h-4" />
-                                    </button>
-                                  )}
+                                    (!isLocalAdmin(adminUser?.role) || user.role === 'user') && (
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          openEditUserModal(
+                                            user
+                                          )
+                                        }
+                                        className="p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/40 text-blue-700 dark:text-blue-400 transition-colors cursor-pointer"
+                                        title={lang === 'ar' ? 'تعديل' : lang === 'fr' ? 'Modifier' : 'Edit'}
+                                      >
+                                        <UserCog className="w-4 h-4" />
+                                      </button>
+                                    )}
 
 
                                   {!user.is_primary && (!isLabAdmin(adminUser?.role) || (!isSuperAdmin(user.role) && user.role !== 'lab_admin')) && (!isLocalAdmin(adminUser?.role) || user.role === 'user') && (
@@ -4444,290 +4463,295 @@ export default function Admin() {
             )}
           </main>
         </>
-      )}
+      )
+      }
 
 
       {/* ======================================================
           User Modal
       ======================================================= */}
 
-      {showUserModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div
-            className="w-full max-w-lg bg-white rounded-2xl shadow-2xl"
-            dir={dir}
-          >
-
-            <div className="flex items-center justify-between p-5 border-b border-slate-200">
-              <div>
-                <h2 className="text-lg font-bold">
-                  {editingUserId
-                    ? lang === 'ar'
-                      ? 'تعديل المستخدم'
-                      : lang === 'fr'
-                        ? "Modifier l'utilisateur"
-                        : 'Edit User'
-                    : lang === 'ar'
-                      ? 'إضافة مستخدم'
-                      : lang === 'fr'
-                        ? 'Ajouter un utilisateur'
-                        : 'Add New Admin'}
-                </h2>
-
-                <p className="text-sm text-slate-500 mt-1">
-                  {editingUserId
-                    ? lang === 'ar'
-                      ? 'تحديث بيانات المستخدم'
-                      : lang === 'fr'
-                        ? "Mettre à jour l'utilisateur"
-                        : 'Update user information'
-                    : lang === 'ar'
-                      ? 'إنشاء حساب إداري جديد'
-                      : lang === 'fr'
-                        ? 'Créer un nouveau compte'
-                        : 'Create a new admin account'}
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={
-                  closeUserModal
-                }
-                className="p-2 rounded-lg hover:bg-slate-100"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-
-            <form
-              onSubmit={handleSaveUser}
-              className="p-5 space-y-5"
+      {
+        showUserModal && (
+          <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+            <div
+              className="w-full max-w-lg bg-white rounded-2xl shadow-2xl"
+              dir={dir}
             >
 
-              {userError && (
-                <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex gap-3">
-                  <AlertCircle className="w-5 h-5 shrink-0" />
+              <div className="flex items-center justify-between p-5 border-b border-slate-200">
+                <div>
+                  <h2 className="text-lg font-bold">
+                    {editingUserId
+                      ? lang === 'ar'
+                        ? 'تعديل المستخدم'
+                        : lang === 'fr'
+                          ? "Modifier l'utilisateur"
+                          : 'Edit User'
+                      : lang === 'ar'
+                        ? 'إضافة مستخدم'
+                        : lang === 'fr'
+                          ? 'Ajouter un utilisateur'
+                          : 'Add New Admin'}
+                  </h2>
 
-                  <span>
-                    {userError}
-                  </span>
-                </div>
-              )}
-
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  {lang === 'ar'
-                    ? 'الاسم الكامل'
-                    : lang === 'fr'
-                      ? 'Nom complet'
-                      : 'Full Name'}
-                </label>
-
-                <input
-                  type="text"
-                  value={
-                    userForm.full_name
-                  }
-                  onChange={(e) =>
-                    setUserForm(
-                      (prev) => ({
-                        ...prev,
-                        full_name:
-                          e.target.value,
-                      })
-                    )
-                  }
-                  className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  {lang === 'ar'
-                    ? 'اسم المستخدم'
-                    : lang === 'fr'
-                      ? "Nom d'utilisateur"
-                      : 'Username'}
-                </label>
-
-                <input
-                  type="text"
-                  value={
-                    userForm.username
-                  }
-                  disabled={
-                    !!editingUserId
-                  }
-                  onChange={(e) =>
-                    setUserForm(
-                      (prev) => ({
-                        ...prev,
-                        username:
-                          e.target.value,
-                      })
-                    )
-                  }
-                  className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-slate-100 disabled:text-slate-500"
-                  dir="ltr"
-                />
-              </div>
-
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  {lang === 'ar'
-                    ? editingUserId
-                      ? 'كلمة مرور جديدة'
-                      : 'كلمة المرور'
-                    : lang === 'fr'
-                      ? editingUserId
-                        ? 'Nouveau mot de passe'
-                        : 'Mot de passe'
-                      : editingUserId
-                        ? 'New Password'
-                        : 'Password'}
-                </label>
-
-                <input
-                  type="password"
-                  value={
-                    userForm.password
-                  }
-                  onChange={(e) =>
-                    setUserForm(
-                      (prev) => ({
-                        ...prev,
-                        password:
-                          e.target.value,
-                      })
-                    )
-                  }
-                  placeholder={
-                    editingUserId
-                      ? '••••••••'
-                      : ''
-                  }
-                  className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
-                  dir="ltr"
-                />
-
-                {editingUserId && (
-                  <p className="text-xs text-slate-500 mt-1">
-                    {lang === 'ar'
-                      ? 'اترك الحقل فارغاً إذا كنت لا تريد تغيير كلمة المرور.'
-                      : lang === 'fr'
-                        ? 'Laissez vide pour conserver le mot de passe actuel.'
-                        : 'Leave blank to keep the current password.'}
+                  <p className="text-sm text-slate-500 mt-1">
+                    {editingUserId
+                      ? lang === 'ar'
+                        ? 'تحديث بيانات المستخدم'
+                        : lang === 'fr'
+                          ? "Mettre à jour l'utilisateur"
+                          : 'Update user information'
+                      : lang === 'ar'
+                        ? 'إنشاء حساب إداري جديد'
+                        : lang === 'fr'
+                          ? 'Créer un nouveau compte'
+                          : 'Create a new admin account'}
                   </p>
-                )}
-              </div>
+                </div>
 
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  {lang === 'ar'
-                    ? 'الدور'
-                    : lang === 'fr'
-                      ? 'Rôle'
-                      : 'Role'}
-                </label>
-
-                <select
-                  value={
-                    userForm.role
-                  }
-                  onChange={(e) =>
-                    setUserForm(
-                      (prev) => ({
-                        ...prev,
-                        role:
-                          e.target.value,
-                      })
-                    )
-                  }
-                  className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="user">
-                    User
-                  </option>
-
-                  <option value="admin">
-                    Admin
-                  </option>
-                </select>
-              </div>
-
-
-              <div className="flex items-center justify-end gap-3 pt-2">
                 <button
                   type="button"
                   onClick={
                     closeUserModal
                   }
-                  className="px-5 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-50"
+                  className="p-2 rounded-lg hover:bg-slate-100"
                 >
-                  {lang === 'ar'
-                    ? 'إلغاء'
-                    : lang === 'fr'
-                      ? 'Annuler'
-                      : 'Cancel'}
-                </button>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="px-5 py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-medium flex items-center gap-2 disabled:opacity-60"
-                >
-                  {loading && (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  )}
-
-                  {editingUserId
-                    ? lang === 'ar'
-                      ? 'حفظ التعديلات'
-                      : lang === 'fr'
-                        ? 'Enregistrer'
-                        : 'Save Changes'
-                    : lang === 'ar'
-                      ? 'إنشاء المستخدم'
-                      : lang === 'fr'
-                        ? 'Créer'
-                        : 'Create User'}
+                  <X className="w-5 h-5" />
                 </button>
               </div>
-            </form>
+
+
+              <form
+                onSubmit={handleSaveUser}
+                className="p-5 space-y-5"
+              >
+
+                {userError && (
+                  <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex gap-3">
+                    <AlertCircle className="w-5 h-5 shrink-0" />
+
+                    <span>
+                      {userError}
+                    </span>
+                  </div>
+                )}
+
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    {lang === 'ar'
+                      ? 'الاسم الكامل'
+                      : lang === 'fr'
+                        ? 'Nom complet'
+                        : 'Full Name'}
+                  </label>
+
+                  <input
+                    type="text"
+                    value={
+                      userForm.full_name
+                    }
+                    onChange={(e) =>
+                      setUserForm(
+                        (prev) => ({
+                          ...prev,
+                          full_name:
+                            e.target.value,
+                        })
+                      )
+                    }
+                    className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    {lang === 'ar'
+                      ? 'اسم المستخدم'
+                      : lang === 'fr'
+                        ? "Nom d'utilisateur"
+                        : 'Username'}
+                  </label>
+
+                  <input
+                    type="text"
+                    value={
+                      userForm.username
+                    }
+                    disabled={
+                      !!editingUserId
+                    }
+                    onChange={(e) =>
+                      setUserForm(
+                        (prev) => ({
+                          ...prev,
+                          username:
+                            e.target.value,
+                        })
+                      )
+                    }
+                    className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-slate-100 disabled:text-slate-500"
+                    dir="ltr"
+                  />
+                </div>
+
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    {lang === 'ar'
+                      ? editingUserId
+                        ? 'كلمة مرور جديدة'
+                        : 'كلمة المرور'
+                      : lang === 'fr'
+                        ? editingUserId
+                          ? 'Nouveau mot de passe'
+                          : 'Mot de passe'
+                        : editingUserId
+                          ? 'New Password'
+                          : 'Password'}
+                  </label>
+
+                  <input
+                    type="password"
+                    value={
+                      userForm.password
+                    }
+                    onChange={(e) =>
+                      setUserForm(
+                        (prev) => ({
+                          ...prev,
+                          password:
+                            e.target.value,
+                        })
+                      )
+                    }
+                    placeholder={
+                      editingUserId
+                        ? '••••••••'
+                        : ''
+                    }
+                    className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                    dir="ltr"
+                  />
+
+                  {editingUserId && (
+                    <p className="text-xs text-slate-500 mt-1">
+                      {lang === 'ar'
+                        ? 'اترك الحقل فارغاً إذا كنت لا تريد تغيير كلمة المرور.'
+                        : lang === 'fr'
+                          ? 'Laissez vide pour conserver le mot de passe actuel.'
+                          : 'Leave blank to keep the current password.'}
+                    </p>
+                  )}
+                </div>
+
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    {lang === 'ar'
+                      ? 'الدور'
+                      : lang === 'fr'
+                        ? 'Rôle'
+                        : 'Role'}
+                  </label>
+
+                  <select
+                    value={
+                      userForm.role
+                    }
+                    onChange={(e) =>
+                      setUserForm(
+                        (prev) => ({
+                          ...prev,
+                          role:
+                            e.target.value,
+                        })
+                      )
+                    }
+                    className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="user">
+                      User
+                    </option>
+
+                    <option value="admin">
+                      Admin
+                    </option>
+                  </select>
+                </div>
+
+
+                <div className="flex items-center justify-end gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={
+                      closeUserModal
+                    }
+                    className="px-5 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-50"
+                  >
+                    {lang === 'ar'
+                      ? 'إلغاء'
+                      : lang === 'fr'
+                        ? 'Annuler'
+                        : 'Cancel'}
+                  </button>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="px-5 py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-medium flex items-center gap-2 disabled:opacity-60"
+                  >
+                    {loading && (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    )}
+
+                    {editingUserId
+                      ? lang === 'ar'
+                        ? 'حفظ التعديلات'
+                        : lang === 'fr'
+                          ? 'Enregistrer'
+                          : 'Save Changes'
+                      : lang === 'ar'
+                        ? 'إنشاء المستخدم'
+                        : lang === 'fr'
+                          ? 'Créer'
+                          : 'Create User'}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* ============================================================
           CONFIRM DELETE MODAL (Visitors, Surveys, Enquiries, Users)
       ============================================================= */}
-      {deleteTarget && (
-        <ConfirmModal
-          isOpen={Boolean(deleteTarget)}
-          onClose={() => {
-            if (!deleteLoading) {
-              setDeleteTarget(null);
-              setDeleteModalError(null);
-            }
-          }}
-          onConfirm={executeDelete}
-          title={deleteTarget.title}
-          message={deleteTarget.message}
-          itemName={deleteTarget.name}
-          details={deleteTarget.details}
-          confirmText={lang === 'ar' ? 'تأكيد الحذف' : lang === 'fr' ? 'Confirmer la suppression' : 'Confirm Delete'}
-          cancelText={lang === 'ar' ? 'إلغاء' : lang === 'fr' ? 'Annuler' : 'Cancel'}
-          confirmVariant="danger"
-          isLoading={deleteLoading}
-          errorMessage={deleteModalError}
-        />
-      )}
-    </div>
+      {
+        deleteTarget && (
+          <ConfirmModal
+            isOpen={Boolean(deleteTarget)}
+            onClose={() => {
+              if (!deleteLoading) {
+                setDeleteTarget(null);
+                setDeleteModalError(null);
+              }
+            }}
+            onConfirm={executeDelete}
+            title={deleteTarget.title}
+            message={deleteTarget.message}
+            itemName={deleteTarget.name}
+            details={deleteTarget.details}
+            confirmText={lang === 'ar' ? 'تأكيد الحذف' : lang === 'fr' ? 'Confirmer la suppression' : 'Confirm Delete'}
+            cancelText={lang === 'ar' ? 'إلغاء' : lang === 'fr' ? 'Annuler' : 'Cancel'}
+            confirmVariant="danger"
+            isLoading={deleteLoading}
+            errorMessage={deleteModalError}
+          />
+        )
+      }
+    </div >
   );
 }
