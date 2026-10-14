@@ -19,6 +19,7 @@ import {
   Trash2,
   Plus,
   Eye,
+  EyeOff,
   Download,
   X,
   TrendingUp,
@@ -61,7 +62,6 @@ import {
   getLabLabel,
   getBranchLabel,
 } from '@/data/labServices';
-
 import { APPROVED_SERVICES } from '@/data/labServices';
 
 
@@ -421,6 +421,8 @@ export default function Admin() {
   const [sessionExpired, setSessionExpired] = useState(false);
   const [surveysError, setSurveysError] = useState<string | null>(null);
   const [usersError, setUsersError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showNewUserPassword, setShowNewUserPassword] = useState(false);
 
   const [loginForm, setLoginForm] = useState({
     username: '',
@@ -817,10 +819,10 @@ export default function Admin() {
       setLoginError(
         message === 'Identifiants invalides'
           ? (lang === 'ar'
-              ? 'اسم المستخدم أو كلمة المرور غير صحيحة.'
-              : lang === 'fr'
-                ? "Nom d'utilisateur ou mot de passe incorrect."
-                : 'Invalid username or password.')
+            ? 'اسم المستخدم أو كلمة المرور غير صحيحة.'
+            : lang === 'fr'
+              ? "Nom d'utilisateur ou mot de passe incorrect."
+              : 'Invalid username or password.')
           : (message ||
             (lang === 'ar'
               ? 'فشل تسجيل الدخول.'
@@ -1380,7 +1382,7 @@ export default function Admin() {
           saveData(STORAGE_KEYS.ADMIN_USERS, updatedLocal);
         } else {
           // Real Supabase update — strictly validated
-          let res = await supabase.rpc('update_user', {
+          let res = await supabase.rpc('update_user_secure', {
             p_token: token,
             p_id: editingUserId,
             p_password: password || null,
@@ -1390,22 +1392,6 @@ export default function Admin() {
             p_laboratory: assignedLab || null,
             p_branch: assignedBranch || null,
           });
-
-          // Fallback for legacy database function signature (5 parameters)
-          if (
-            res.error &&
-            (res.error.code === 'PGRST202' ||
-              getErrorMessage(res.error).toLowerCase().includes('schema cache'))
-          ) {
-            console.warn('Extended update_user not found in schema cache, falling back to legacy signature...');
-            res = await supabase.rpc('update_user', {
-              p_token: token,
-              p_id: editingUserId,
-              p_role: role,
-              p_active: active,
-              p_password: password || null,
-            });
-          }
 
           console.log('UPDATE USER RESPONSE:', res.data, res.error);
 
@@ -1482,7 +1468,7 @@ export default function Admin() {
             p_branch: assignedBranch || null,
           });
 
-                   console.log('CREATE USER RESPONSE:', res.data, res.error);
+          console.log('CREATE USER RESPONSE:', res.data, res.error);
 
           // 1. Check RPC-level error
           if (res.error) {
@@ -1613,7 +1599,7 @@ export default function Admin() {
           )
         );
       } else {
-        const { data, error } = await supabase.rpc('update_user', {
+        const { data, error } = await supabase.rpc('update_user_secure', {
           p_token: token,
           p_id: user.id,
           p_password: null,
@@ -1970,7 +1956,7 @@ export default function Admin() {
             );
           };
 
-          if (error && !isNotFound(getErrorMessage(error))) {
+          if (error) {
             throw error;
           }
 
@@ -2198,7 +2184,7 @@ export default function Admin() {
             );
           };
 
-          const { data, error } = await supabase.rpc('delete_user', {
+          const { data, error } = await supabase.rpc('delete_user_secure', {
             p_token: token,
             p_id: deleteTarget.id,
           });
@@ -2208,24 +2194,43 @@ export default function Admin() {
           }
 
           if (data && typeof data === 'object') {
+            const { data, error } = await supabase.rpc('delete_user_secure', {
+              p_token: token,
+              p_id: deleteTarget.id,
+            });
+
+            if (error) {
+              throw error;
+            }
+
+            if (!data || typeof data !== 'object') {
+              throw new Error(
+                lang === 'ar'
+                  ? 'لم يؤكد الخادم نجاح حذف المستخدم.'
+                  : lang === 'fr'
+                    ? "Le serveur n'a pas confirmé la suppression."
+                    : 'The server did not confirm user deletion.'
+              );
+            }
+
             const result = data as {
               success?: unknown;
               error?: unknown;
               message?: string;
             };
 
-            if (result.error || result.success === false) {
-              const errStr = String(result.error || result.message || '');
-              if (!isNotFound(errStr)) {
-                throw new Error(
-                  errStr ||
+            if (result.error || result.success !== true) {
+              throw new Error(
+                String(
+                  result.error ||
+                  result.message ||
                   (lang === 'ar'
-                    ? 'لم يتم تأكيد حذف المستخدم من قبل الخادم.'
+                    ? 'لم يؤكد الخادم نجاح حذف المستخدم.'
                     : lang === 'fr'
-                      ? "La suppression de l'utilisateur n'a pas été confirmée par le serveur."
-                      : 'User deletion was not confirmed by the server.')
-                );
-              }
+                      ? "Le serveur n'a pas confirmé la suppression."
+                      : 'The server did not confirm user deletion.')
+                )
+              );
             }
           }
 
@@ -3251,6 +3256,7 @@ export default function Admin() {
                   />
                 </div>
 
+
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                     {lang === 'ar'
@@ -3260,21 +3266,61 @@ export default function Admin() {
                         : 'Password'}
                   </label>
 
-                  <input
-                    type="password"
-                    value={loginForm.password}
-                    onChange={(e) =>
-                      setLoginForm((prev) => ({
-                        ...prev,
-                        password:
-                          e.target.value,
-                      }))
-                    }
-                    autoComplete="current-password"
-                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
-                    dir="ltr"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={loginForm.password}
+                      onChange={(e) =>
+                        setLoginForm((prev) => ({
+                          ...prev,
+                          password: e.target.value,
+                        }))
+                      }
+                      autoComplete="current-password"
+                      className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-3 pr-12 outline-none focus:ring-2 focus:ring-blue-500"
+                      dir="ltr"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400"
+                      aria-label={
+                        showPassword
+                          ? lang === 'ar'
+                            ? 'إخفاء كلمة المرور'
+                            : lang === 'fr'
+                              ? 'Masquer le mot de passe'
+                              : 'Hide password'
+                          : lang === 'ar'
+                            ? 'إظهار كلمة المرور'
+                            : lang === 'fr'
+                              ? 'Afficher le mot de passe'
+                              : 'Show password'
+                      }
+                      title={
+                        showPassword
+                          ? lang === 'ar'
+                            ? 'إخفاء كلمة المرور'
+                            : lang === 'fr'
+                              ? 'Masquer le mot de passe'
+                              : 'Hide password'
+                          : lang === 'ar'
+                            ? 'إظهار كلمة المرور'
+                            : lang === 'fr'
+                              ? 'Afficher le mot de passe'
+                              : 'Show password'
+                      }
+                    >
+                      {showPassword ? (
+                        <EyeOff size={20} />
+                      ) : (
+                        <Eye size={20} />
+                      )}
+                    </button>
+                  </div>
                 </div>
+
 
                 <button
                   type="submit"
@@ -4879,215 +4925,215 @@ export default function Admin() {
 
                   {filteredEnquiries.map((enquiry) => (
                     <div
-                            key={enquiry.id}
-                            className={`bg-white dark:bg-slate-900 rounded-2xl border ${selectedEnquiryIds.includes(enquiry.id)
-                              ? 'border-blue-500 ring-1 ring-blue-500'
-                              : 'border-slate-200 dark:border-slate-800'
-                              } p-6 shadow-xs`}
-                          >
-                            {!isReadOnly(adminUser?.role) && (
-                              <div className="flex items-center gap-2 mb-4">
-                                <input
-                                  type="checkbox"
-                                  checked={selectedEnquiryIds.includes(enquiry.id)}
-                                  onChange={(e) => {
-                                    setSelectedEnquiryIds((prev) =>
-                                      e.target.checked
-                                        ? [...new Set([...prev, enquiry.id])]
-                                        : prev.filter((id) => id !== enquiry.id)
-                                    );
-                                  }}
-                                  className="w-4 h-4 accent-blue-600 cursor-pointer"
-                                  aria-label={`Select enquiry ${enquiry.id}`}
-                                />
-                                <span className="text-sm text-slate-600 dark:text-slate-300">
-                                  {lang === 'ar'
-                                    ? 'تحديد الاستفسار'
-                                    : lang === 'fr'
-                                      ? 'Sélectionner la demande'
-                                      : 'Select enquiry'}
-                                </span>
-                              </div>
-                            )}
-
-                            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                              <div className="min-w-0">
-                                <h3 className="font-bold text-lg text-slate-900 dark:text-slate-100">
-                                  {enquiry.subject ||
-                                    'Enquiry'}
-                                </h3>
-
-                                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                                  {getEnquiryName(
-                                    enquiry
-                                  )}
-
-                                  {enquiry.email
-                                    ? ` • ${enquiry.email}`
-                                    : ''}
-                                </p>
-
-                                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
-                                  {formatDate(
-                                    enquiry.created_at
-                                  )}
-                                </p>
-                              </div>
-
-                              <div className="flex items-center gap-2">
-                                {isReadOnly(adminUser?.role) ? (
-                                  <span className="inline-flex px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-                                    {enquiry.status || 'New'}
-                                  </span>
-                                ) : (
-                                  <select
-                                    value={
-                                      enquiry.status ||
-                                      'New'
-                                    }
-                                    onChange={(e) =>
-                                      handleEnquiryStatusChange(
-                                        enquiry,
-                                        e.target.value
-                                      )
-                                    }
-                                    className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-blue-500"
-                                  >
-                                    <option value="Pending">
-                                      {lang === 'ar' ? 'قيد الانتظار' : lang === 'fr' ? 'En attente' : 'Pending'}
-                                    </option>
-
-                                    <option value="Approved">
-                                      {lang === 'ar' ? 'تمت الموافقة' : lang === 'fr' ? 'Approuvé' : 'Approved'}
-                                    </option>
-
-                                    <option value="Completed">
-                                      {lang === 'ar' ? 'مكتمل' : lang === 'fr' ? 'Terminé' : 'Completed'}
-                                    </option>
-
-                                    <option value="Cancelled">
-                                      {lang === 'ar' ? 'ملغي' : lang === 'fr' ? 'Annulé' : 'Cancelled'}
-                                    </option>
-
-                                    <option value="New">
-                                      {lang === 'ar' ? 'جديد' : lang === 'fr' ? 'Nouveau' : 'New'}
-                                    </option>
-
-                                    <option value="In Progress">
-                                      {lang === 'ar' ? 'قيد المعالجة' : lang === 'fr' ? 'En cours' : 'In Progress'}
-                                    </option>
-
-                                    <option value="Resolved">
-                                      {lang === 'ar' ? 'تم الحل' : lang === 'fr' ? 'Résolu' : 'Resolved'}
-                                    </option>
-
-                                    <option value="Confirmed">
-                                      {lang === 'ar' ? 'تم التأكيد' : lang === 'fr' ? 'Confirmé' : 'Confirmed'}
-                                    </option>
-                                  </select>
-                                )}
-
-                                {!isReadOnly(adminUser?.role) && (
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      handleDeleteEnquiry(
-                                        enquiry
-                                      )
-                                    }
-                                    className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/40 text-red-600 dark:text-red-400 transition-colors cursor-pointer"
-                                    title={lang === 'ar' ? 'حذف' : lang === 'fr' ? 'Supprimer' : 'Delete'}
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </button>
-                                )}
-                              </div>
-                            </div>
-
-
-                            <div className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
-                              <div>
-                                <span className="text-slate-500">
-                                  {lang === 'ar'
-                                    ? 'المختبر'
-                                    : 'Laboratory'}
-                                </span>
-
-                                <p className="font-medium mt-1">
-                                  {enquiry.laboratory
-                                    ? getLabLabel(
-                                      enquiry.laboratory,
-                                      lang
-                                    )
-                                    : '—'}
-                                </p>
-                              </div>
-
-                              <div>
-                                <span className="text-slate-500">
-                                  {lang === 'ar'
-                                    ? 'الفرع'
-                                    : 'Branch'}
-                                </span>
-
-                                <p className="font-medium mt-1">
-                                  {enquiry.branch
-                                    ? getBranchLabel(
-                                      enquiry.laboratory,
-                                      enquiry.branch,
-                                      lang
-                                    )
-                                    : '—'}
-                                </p>
-                              </div>
-
-
-                              <div>
-                                <span className="text-slate-500">
-                                  {lang === 'ar'
-                                    ? 'الخدمة المطلوبة'
-                                    : lang === 'fr'
-                                      ? 'Service demandé'
-                                      : 'Requested Service'}
-                                </span>
-
-                                <p className="font-medium mt-1">
-                                  {(() => {
-                                    const service = APPROVED_SERVICES.find(
-                                      (item) => item.value === enquiry.service_required
-                                    );
-
-                                    return service
-                                      ? service[lang]
-                                      : enquiry.service_required || '—';
-                                  })()}
-                                </p>
-                              </div>
-
-                            </div>
-
-
-                            {enquiry.message && (
-                              <div className="mt-5 p-4 bg-slate-50 rounded-xl text-sm text-slate-700 whitespace-pre-wrap">
-                                {enquiry.message}
-                              </div>
-                            )}
-                          </div>
-                        ))}
-
-
-                        {
-                      filteredEnquiries.length === 0 && (
-                        <div className="bg-white rounded-2xl border border-slate-200 py-16 text-center text-slate-500">
-                          {lang === 'ar'
-                            ? 'لا توجد سجلات.'
-                            : lang === 'fr'
-                              ? 'Aucun enregistrement.'
-                              : 'No data records found'}
+                      key={enquiry.id}
+                      className={`bg-white dark:bg-slate-900 rounded-2xl border ${selectedEnquiryIds.includes(enquiry.id)
+                        ? 'border-blue-500 ring-1 ring-blue-500'
+                        : 'border-slate-200 dark:border-slate-800'
+                        } p-6 shadow-xs`}
+                    >
+                      {!isReadOnly(adminUser?.role) && (
+                        <div className="flex items-center gap-2 mb-4">
+                          <input
+                            type="checkbox"
+                            checked={selectedEnquiryIds.includes(enquiry.id)}
+                            onChange={(e) => {
+                              setSelectedEnquiryIds((prev) =>
+                                e.target.checked
+                                  ? [...new Set([...prev, enquiry.id])]
+                                  : prev.filter((id) => id !== enquiry.id)
+                              );
+                            }}
+                            className="w-4 h-4 accent-blue-600 cursor-pointer"
+                            aria-label={`Select enquiry ${enquiry.id}`}
+                          />
+                          <span className="text-sm text-slate-600 dark:text-slate-300">
+                            {lang === 'ar'
+                              ? 'تحديد الاستفسار'
+                              : lang === 'fr'
+                                ? 'Sélectionner la demande'
+                                : 'Select enquiry'}
+                          </span>
                         </div>
-                      )
-                    }
+                      )}
+
+                      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                        <div className="min-w-0">
+                          <h3 className="font-bold text-lg text-slate-900 dark:text-slate-100">
+                            {enquiry.subject ||
+                              'Enquiry'}
+                          </h3>
+
+                          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                            {getEnquiryName(
+                              enquiry
+                            )}
+
+                            {enquiry.email
+                              ? ` • ${enquiry.email}`
+                              : ''}
+                          </p>
+
+                          <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                            {formatDate(
+                              enquiry.created_at
+                            )}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          {isReadOnly(adminUser?.role) ? (
+                            <span className="inline-flex px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                              {enquiry.status || 'New'}
+                            </span>
+                          ) : (
+                            <select
+                              value={
+                                enquiry.status ||
+                                'New'
+                              }
+                              onChange={(e) =>
+                                handleEnquiryStatusChange(
+                                  enquiry,
+                                  e.target.value
+                                )
+                              }
+                              className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                            >
+                              <option value="Pending">
+                                {lang === 'ar' ? 'قيد الانتظار' : lang === 'fr' ? 'En attente' : 'Pending'}
+                              </option>
+
+                              <option value="Approved">
+                                {lang === 'ar' ? 'تمت الموافقة' : lang === 'fr' ? 'Approuvé' : 'Approved'}
+                              </option>
+
+                              <option value="Completed">
+                                {lang === 'ar' ? 'مكتمل' : lang === 'fr' ? 'Terminé' : 'Completed'}
+                              </option>
+
+                              <option value="Cancelled">
+                                {lang === 'ar' ? 'ملغي' : lang === 'fr' ? 'Annulé' : 'Cancelled'}
+                              </option>
+
+                              <option value="New">
+                                {lang === 'ar' ? 'جديد' : lang === 'fr' ? 'Nouveau' : 'New'}
+                              </option>
+
+                              <option value="In Progress">
+                                {lang === 'ar' ? 'قيد المعالجة' : lang === 'fr' ? 'En cours' : 'In Progress'}
+                              </option>
+
+                              <option value="Resolved">
+                                {lang === 'ar' ? 'تم الحل' : lang === 'fr' ? 'Résolu' : 'Resolved'}
+                              </option>
+
+                              <option value="Confirmed">
+                                {lang === 'ar' ? 'تم التأكيد' : lang === 'fr' ? 'Confirmé' : 'Confirmed'}
+                              </option>
+                            </select>
+                          )}
+
+                          {!isReadOnly(adminUser?.role) && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleDeleteEnquiry(
+                                  enquiry
+                                )
+                              }
+                              className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/40 text-red-600 dark:text-red-400 transition-colors cursor-pointer"
+                              title={lang === 'ar' ? 'حذف' : lang === 'fr' ? 'Supprimer' : 'Delete'}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
                       </div>
+
+
+                      <div className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                        <div>
+                          <span className="text-slate-500">
+                            {lang === 'ar'
+                              ? 'المختبر'
+                              : 'Laboratory'}
+                          </span>
+
+                          <p className="font-medium mt-1">
+                            {enquiry.laboratory
+                              ? getLabLabel(
+                                enquiry.laboratory,
+                                lang
+                              )
+                              : '—'}
+                          </p>
+                        </div>
+
+                        <div>
+                          <span className="text-slate-500">
+                            {lang === 'ar'
+                              ? 'الفرع'
+                              : 'Branch'}
+                          </span>
+
+                          <p className="font-medium mt-1">
+                            {enquiry.branch
+                              ? getBranchLabel(
+                                enquiry.laboratory,
+                                enquiry.branch,
+                                lang
+                              )
+                              : '—'}
+                          </p>
+                        </div>
+
+
+                        <div>
+                          <span className="text-slate-500">
+                            {lang === 'ar'
+                              ? 'الخدمة المطلوبة'
+                              : lang === 'fr'
+                                ? 'Service demandé'
+                                : 'Requested Service'}
+                          </span>
+
+                          <p className="font-medium mt-1">
+                            {(() => {
+                              const service = APPROVED_SERVICES.find(
+                                (item) => item.value === enquiry.service_required
+                              );
+
+                              return service
+                                ? service[lang]
+                                : enquiry.service_required || '—';
+                            })()}
+                          </p>
+                        </div>
+
+                      </div>
+
+
+                      {enquiry.message && (
+                        <div className="mt-5 p-4 bg-slate-50 rounded-xl text-sm text-slate-700 whitespace-pre-wrap">
+                          {enquiry.message}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+
+                  {
+                    filteredEnquiries.length === 0 && (
+                      <div className="bg-white rounded-2xl border border-slate-200 py-16 text-center text-slate-500">
+                        {lang === 'ar'
+                          ? 'لا توجد سجلات.'
+                          : lang === 'fr'
+                            ? 'Aucun enregistrement.'
+                            : 'No data records found'}
+                      </div>
+                    )
+                  }
+                </div>
               )}
 
 
@@ -5499,23 +5545,10 @@ export default function Admin() {
                 </div>
 
 
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    {lang === 'ar'
-                      ? editingUserId
-                        ? 'كلمة مرور جديدة'
-                        : 'كلمة المرور'
-                      : lang === 'fr'
-                        ? editingUserId
-                          ? 'Nouveau mot de passe'
-                          : 'Mot de passe'
-                        : editingUserId
-                          ? 'New Password'
-                          : 'Password'}
-                  </label>
 
+                <div className="relative">
                   <input
-                    type="password"
+                    type={showNewUserPassword ? 'text' : 'password'}
                     value={userForm.password}
                     onChange={(e) =>
                       setUserForm((prev) => ({
@@ -5528,20 +5561,35 @@ export default function Admin() {
                         ? '••••••••'
                         : ''
                     }
-                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 pr-12 outline-none focus:ring-2 focus:ring-blue-500"
                     dir="ltr"
                   />
 
-                  {editingUserId && (
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                      {lang === 'ar'
-                        ? 'اترك الحقل فارغاً إذا كنت لا تريد تغيير كلمة المرور.'
-                        : lang === 'fr'
-                          ? 'Laissez vide pour conserver le mot de passe actuel.'
-                          : 'Leave blank to keep the current password.'}
-                    </p>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setShowNewUserPassword((prev) => !prev)
+                    }
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400"
+                    aria-label={
+                      showNewUserPassword
+                        ? 'Hide password'
+                        : 'Show password'
+                    }
+                    title={
+                      showNewUserPassword
+                        ? 'Hide password'
+                        : 'Show password'
+                    }
+                  >
+                    {showNewUserPassword ? (
+                      <EyeOff size={20} />
+                    ) : (
+                      <Eye size={20} />
+                    )}
+                  </button>
                 </div>
+
 
 
                 <div>
