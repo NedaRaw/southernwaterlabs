@@ -95,6 +95,7 @@ export const siteMedia = {
     asir: labAsirImg,
     najran: labNajranImg1,
     najranBuilding: labNajranImg,
+    najranNewBuilding: buildingNajranImg,
     jazan: labJazanImg,
     baha: labBahaImg,
   },

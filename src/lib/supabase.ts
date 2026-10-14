@@ -4,18 +4,19 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 console.log('ACTIVE SUPABASE URL:', supabaseUrl);
 
-const isSupabaseConfigured = Boolean(
+export const isSupabaseConfigured = Boolean(
   supabaseUrl &&
   supabaseAnonKey &&
   supabaseUrl.startsWith('http') &&
   !supabaseUrl.includes('placeholder')
 );
 
-const STORAGE_KEYS = {
+export const STORAGE_KEYS = {
   VISITORS: 'swl_visitors',
   SURVEYS: 'swl_surveys',
   ENQUIRIES: 'swl_enquiries',
   ADMIN_USERS: 'swl_admin_users',
+  ACTIVE_SESSIONS: 'swl_active_sessions',
 };
 
 export interface AdminUserData {
@@ -99,12 +100,12 @@ export interface EnquiryDataRecord {
   [key: string]: unknown;
 }
 
-const defaultAdminUsers: AdminUserData[] = [
+export const defaultAdminUsers: AdminUserData[] = [
   {
     id: '1',
     username: 'admin',
     password: 'admin123',
-    full_name: 'مدير النظام العام',
+    full_name: 'مدير النظام العام (المشرف العام)',
     role: 'super_admin',
     laboratory: null,
     branch: null,
@@ -126,7 +127,7 @@ const defaultAdminUsers: AdminUserData[] = [
     id: '3',
     username: 'local_bisha',
     password: 'admin123',
-    full_name: 'مسؤول فرع بيشة',
+    full_name: 'مسؤول فرع بيشة - عسير',
     role: 'local_admin',
     laboratory: 'asir',
     branch: 'bisha',
@@ -135,12 +136,111 @@ const defaultAdminUsers: AdminUserData[] = [
   },
   {
     id: '4',
-    username: 'user_analyst',
+    username: 'local_mahayel',
     password: 'admin123',
-    full_name: 'محلل مخبري (مستخدم عادي)',
+    full_name: 'مسؤول فرع محايل عسير',
+    role: 'local_admin',
+    laboratory: 'asir',
+    branch: 'mahayel',
+    active: true,
+    is_primary: false,
+  },
+  {
+    id: '5',
+    username: 'user_asir',
+    password: 'admin123',
+    full_name: 'فني مختبر عسير (مستخدم عادي)',
     role: 'user',
     laboratory: 'asir',
+    branch: 'bisha',
+    active: true,
+    is_primary: false,
+  },
+  {
+    id: '6',
+    username: 'lab_najran',
+    password: 'admin123',
+    full_name: 'مدير مختبر نجران المركزي',
+    role: 'lab_admin',
+    laboratory: 'najran',
     branch: null,
+    active: true,
+    is_primary: false,
+  },
+  {
+    id: '7',
+    username: 'local_sharurah',
+    password: 'admin123',
+    full_name: 'مسؤول فرع شرورة - نجران',
+    role: 'local_admin',
+    laboratory: 'najran',
+    branch: 'sharurah',
+    active: true,
+    is_primary: false,
+  },
+  {
+    id: '8',
+    username: 'user_najran',
+    password: 'admin123',
+    full_name: 'محلل جودة نجران (مستخدم عادي)',
+    role: 'user',
+    laboratory: 'najran',
+    branch: 'sharurah',
+    active: true,
+    is_primary: false,
+  },
+  {
+    id: '9',
+    username: 'lab_albaha',
+    password: 'admin123',
+    full_name: 'مدير مختبر الباحة المركزي',
+    role: 'lab_admin',
+    laboratory: 'al-baha',
+    branch: null,
+    active: true,
+    is_primary: false,
+  },
+  {
+    id: '10',
+    username: 'local_qalwah',
+    password: 'admin123',
+    full_name: 'مسؤول فرع قلوة - الباحة',
+    role: 'local_admin',
+    laboratory: 'al-baha',
+    branch: 'qalwah',
+    active: true,
+    is_primary: false,
+  },
+  {
+    id: '11',
+    username: 'lab_jazan',
+    password: 'admin123',
+    full_name: 'مدير مختبر جازان المركزي',
+    role: 'lab_admin',
+    laboratory: 'jazan',
+    branch: null,
+    active: true,
+    is_primary: false,
+  },
+  {
+    id: '12',
+    username: 'local_aldarb',
+    password: 'admin123',
+    full_name: 'مسؤول فرع الدرب - جازان',
+    role: 'local_admin',
+    laboratory: 'jazan',
+    branch: 'al-darb',
+    active: true,
+    is_primary: false,
+  },
+  {
+    id: '13',
+    username: 'local_farasan',
+    password: 'admin123',
+    full_name: 'مسؤول فرع جزر فرسان - جازان',
+    role: 'local_admin',
+    laboratory: 'jazan',
+    branch: 'farasan',
     active: true,
     is_primary: false,
   },
@@ -151,11 +251,12 @@ const defaultVisitors: VisitorDataRecord[] = [
     id: 'vis-1001',
     visitor_name: 'م. أحمد القحطاني',
     company: 'هيئة المياه الوطنية',
-    job_title: 'مهندس جودة',
+    job_title: 'مهندس جودة مياه',
     phone: '0501234567',
     email: 'ahmed@nwc.com.sa',
     visit_date: '2026-09-24',
-    laboratory: 'مختبر عسيرالمركزي - فرع أبها',
+    laboratory: 'asir',
+    branch: 'bisha',
     visit_purpose: 'فحص عينات دورية للمياه المعالجة',
     notes: 'زيارة مجدولة مسبقاً',
     status: 'checked_in',
@@ -169,11 +270,42 @@ const defaultVisitors: VisitorDataRecord[] = [
     phone: '0559876543',
     email: 'sarah@kku.edu.sa',
     visit_date: '2026-09-25',
-    laboratory: 'المختبر المركزي بجازان',
+    laboratory: 'jazan',
+    branch: 'al-darb',
     visit_purpose: 'بحث علمي واختبار ميكروبيولوجي',
-    notes: 'تنسيق مع الإدارة المركزية',
+    notes: 'تنسيق مع إدارة المختبر المركزي',
     status: 'pending',
     created_at: new Date(Date.now() - 3600000 * 24).toISOString(),
+  },
+  {
+    id: 'vis-1003',
+    visitor_name: 'سالم بن علي الصيعري',
+    company: 'بلدية شرورة',
+    job_title: 'مفتش صحي',
+    phone: '0543322110',
+    email: 'salem@sharurah.gov.sa',
+    visit_date: '2026-09-26',
+    laboratory: 'najran',
+    branch: 'sharurah',
+    visit_purpose: 'تسليم عينات مياه شبكة الشرب',
+    notes: 'عينات عاجلة',
+    status: 'completed',
+    created_at: new Date(Date.now() - 3600000 * 18).toISOString(),
+  },
+  {
+    id: 'vis-1004',
+    visitor_name: 'فهد عبدالله الزهراني',
+    company: 'فرع وزارة البيئة والمياه والزراعة بالباحة',
+    job_title: 'أخصائي بيئي',
+    phone: '0567788112',
+    email: 'fahad@mewa.gov.sa',
+    visit_date: '2026-09-27',
+    laboratory: 'al-baha',
+    branch: 'qalwah',
+    visit_purpose: 'فحص عينات سد وادي قلوة',
+    notes: 'تقارير معتمدة',
+    status: 'checked_in',
+    created_at: new Date(Date.now() - 3600000 * 10).toISOString(),
   },
 ];
 
@@ -182,13 +314,46 @@ const defaultSurveys: SurveyDataRecord[] = [
     id: 'srv-101',
     respondent_name: 'عبدالله الغامدي',
     respondent_contact: '0540001122',
+    laboratory: 'asir',
+    branch: 'bisha',
+    service_used: 'Drinking Water Analysis',
     service_quality_rating: 5,
     facility_rating: 5,
     staff_rating: 5,
     overall_rating: 5,
-    comments: 'خدمة متميزة وسرعة في استلام العينات وظهور النتائج.',
+    comments: 'خدمة متميزة وسرعة في استلام العينات وظهور النتائج في فرع بيشة.',
     would_recommend: true,
     created_at: new Date(Date.now() - 3600000 * 12).toISOString(),
+  },
+  {
+    id: 'srv-102',
+    respondent_name: 'محمد هادي اليامي',
+    respondent_contact: '0551122334',
+    laboratory: 'najran',
+    branch: 'sharurah',
+    service_used: 'Water Quality Testing',
+    service_quality_rating: 5,
+    facility_rating: 4,
+    staff_rating: 5,
+    overall_rating: 5,
+    comments: 'تعامل راقي ودقة متناهية في فحوصات مختبر نجران وفرع شرورة.',
+    would_recommend: true,
+    created_at: new Date(Date.now() - 3600000 * 36).toISOString(),
+  },
+  {
+    id: 'srv-103',
+    respondent_name: 'إبراهيم يحيى الفيفي',
+    respondent_contact: '0533344556',
+    laboratory: 'jazan',
+    branch: 'farasan',
+    service_used: 'Chemical Analysis',
+    service_quality_rating: 4,
+    facility_rating: 5,
+    staff_rating: 4,
+    overall_rating: 4,
+    comments: 'جهود تشكرون عليها لخدمة أهالي جزر فرسان والمختبر المركزي.',
+    would_recommend: true,
+    created_at: new Date(Date.now() - 3600000 * 48).toISOString(),
   },
 ];
 
@@ -196,15 +361,34 @@ const defaultEnquiries: EnquiryDataRecord[] = [
   {
     id: 'enq-201',
     name: 'مبارك اليامي',
+    laboratory: 'najran',
+    branch: 'sharurah',
     contact_info: '0567788990',
+    email: 'mubarak@gmail.com',
+    phone: '0567788990',
+    service_required: 'Drinking Water Analysis',
     subject: 'طلب تحليل عينات مياه آبار خاصة',
-    message: 'السلام عليكم، أرغب في معرفة الإجراءات والرسوم المطلوبة لفحص عينات بئر ارتوازية في منطقة نجران.',
-    status: 'new',
+    message: 'السلام عليكم، أرغب في معرفة الإجراءات والرسوم المطلوبة لفحص عينات بئر ارتوازية في منطقة نجران وفرع شرورة.',
+    status: 'New',
     created_at: new Date(Date.now() - 3600000 * 8).toISOString(),
+  },
+  {
+    id: 'enq-202',
+    name: 'خالد عسيري',
+    laboratory: 'asir',
+    branch: 'mahayel',
+    contact_info: '0509988776',
+    email: 'khaled@asir-water.sa',
+    phone: '0509988776',
+    service_required: 'Water Quality Testing',
+    subject: 'استفسار عن فحص محطات التحلية المصغرة',
+    message: 'نود الاستفسار عن إمكانية التعاقد لفحص دوري لمحطات التنقية في محايل عسير.',
+    status: 'In Progress',
+    created_at: new Date(Date.now() - 3600000 * 14).toISOString(),
   },
 ];
 
-function loadData<T>(key: string, defaultVal: T): T {
+export function loadData<T>(key: string, defaultVal: T): T {
   try {
     const raw = localStorage.getItem(key);
     if (!raw) {
@@ -217,7 +401,7 @@ function loadData<T>(key: string, defaultVal: T): T {
   }
 }
 
-function saveData<T>(key: string, val: T): void {
+export function saveData<T>(key: string, val: T): void {
   try {
     localStorage.setItem(key, JSON.stringify(val));
   } catch (err) {
@@ -338,11 +522,26 @@ function createMockSupabaseClient() {
     rpc: async (fnName: string, args: Record<string, unknown> = {}) => {
       const users = loadData<AdminUserData[]>(STORAGE_KEYS.ADMIN_USERS, defaultAdminUsers);
 
+      const getCaller = (token?: string): AdminUserData | null => {
+        if (!token) return null;
+        const sessions = loadData<Record<string, AdminUserData>>(STORAGE_KEYS.ACTIVE_SESSIONS, {});
+        if (sessions[token]) return sessions[token];
+        // Parse mock-token format fallback
+        if (token.startsWith('mock-token-')) {
+          const parts = token.split('-');
+          if (parts[2]) {
+            const byId = users.find(u => u.id === parts[2]);
+            if (byId) return byId;
+          }
+        }
+        return users.find(u => u.is_primary) || users[0] || null;
+      };
+
       switch (fnName) {
         case 'verify_admin_credentials': {
           const { p_username, p_password } = args as { p_username?: string; p_password?: string };
           const match = users.find(
-            u => u.username === p_username && u.password === p_password
+            u => u.username === p_username && u.password === p_password && u.active !== false
           );
           if (match) {
             return {
@@ -370,25 +569,139 @@ function createMockSupabaseClient() {
           return { data: safeUsers, error: null };
         }
 
+        case 'login_user': {
+          const { p_username, p_password } = args as { p_username?: string; p_password?: string };
+          const match = users.find(
+            u => u.username === p_username && u.password === p_password
+          );
+          if (!match) {
+            return {
+              data: { success: false, message: 'Invalid username or password' },
+              error: null,
+            };
+          }
+          if (match.active === false) {
+            return {
+              data: { success: false, message: 'Account is deactivated' },
+              error: null,
+            };
+          }
+
+          const token = `mock-token-${match.id}-${Date.now()}`;
+          const sessions = loadData<Record<string, AdminUserData>>(STORAGE_KEYS.ACTIVE_SESSIONS, {});
+          sessions[token] = match;
+          saveData(STORAGE_KEYS.ACTIVE_SESSIONS, sessions);
+
+          return {
+            data: {
+              success: true,
+              session_token: token,
+              user: {
+                id: match.id,
+                username: match.username,
+                full_name: match.full_name,
+                role: match.role,
+                laboratory: match.laboratory || null,
+                branch: match.branch || null,
+                active: match.active !== false,
+                is_primary: match.is_primary || match.username === 'admin',
+              },
+            },
+            error: null,
+          };
+        }
+
+        case 'logout_user': {
+          const { p_token } = args as { p_token?: string };
+          if (p_token) {
+            const sessions = loadData<Record<string, AdminUserData>>(STORAGE_KEYS.ACTIVE_SESSIONS, {});
+            delete sessions[p_token];
+            saveData(STORAGE_KEYS.ACTIVE_SESSIONS, sessions);
+          }
+          return { data: { success: true }, error: null };
+        }
+
+        case 'require_admin': {
+          const caller = getCaller(args.p_token as string);
+          if (!caller || caller.role === 'user') {
+            return { data: null, error: { message: 'Unauthorized: Admin privileges required' } };
+          }
+          return { data: { success: true }, error: null };
+        }
+
+        case 'list_users': {
+          const caller = getCaller(args.p_token as string);
+          if (caller && caller.role === 'user') {
+            return { data: null, error: { message: 'Unauthorized: Standard users cannot access user management' } };
+          }
+
+          let scoped = users;
+          if (caller?.role === 'lab_admin') {
+            // Lab admin cannot see super admins; scoped only to their laboratory
+            scoped = users.filter(
+              u => u.role !== 'super_admin' && u.role !== 'admin' && (!u.laboratory || u.laboratory === caller.laboratory)
+            );
+          } else if (caller?.role === 'local_admin') {
+            // Local admin can only view ordinary users in their laboratory and branch
+            scoped = users.filter(
+              u => u.role === 'user' && u.laboratory === caller.laboratory && (!caller.branch || u.branch === caller.branch)
+            );
+          }
+
+          const safeUsers = scoped.map(u => ({
+            id: u.id,
+            username: u.username,
+            full_name: u.full_name,
+            role: u.role,
+            laboratory: u.laboratory || null,
+            branch: u.branch || null,
+            active: u.active !== false,
+            is_primary: u.is_primary || u.username === 'admin',
+          }));
+          return { data: safeUsers, error: null };
+        }
+
         case 'create_user':
         case 'create_admin_user': {
+          const caller = getCaller(args.p_token as string);
+          if (caller && caller.role === 'user') {
+            return { data: null, error: { message: 'Unauthorized: Standard users cannot create accounts' } };
+          }
+
           const { p_username, p_password, p_role } = args as {
             p_username: string;
             p_password?: string;
             p_role?: string;
           };
+          const targetRole = p_role || 'user';
           const p_full_name = (args.p_full_name as string) || (args.full_name as string) || p_username;
-          const p_laboratory = (args.p_laboratory as string) || (args.laboratory as string) || null;
-          const p_branch = (args.p_branch as string) || (args.branch as string) || null;
+          let p_laboratory = (args.p_laboratory as string) || (args.laboratory as string) || null;
+          let p_branch = (args.p_branch as string) || (args.branch as string) || null;
+
+          // Hierarchy validation on creation
+          if (caller?.role === 'lab_admin') {
+            if (targetRole === 'super_admin' || targetRole === 'admin' || targetRole === 'lab_admin') {
+              return { data: null, error: { message: 'Unauthorized: Laboratory administrators cannot create Super Admin or Laboratory Admin accounts' } };
+            }
+            p_laboratory = caller.laboratory || null;
+          } else if (caller?.role === 'local_admin') {
+            if (targetRole !== 'user') {
+              return { data: null, error: { message: 'Unauthorized: Local administrators can only create standard users' } };
+            }
+            p_laboratory = caller.laboratory || null;
+            p_branch = caller.branch || null;
+          }
+
           if (users.some(u => u.username === p_username)) {
             return { data: null, error: { message: 'duplicate username' } };
           }
+
           const newUser: AdminUserData = {
             id: `usr-${Date.now()}`,
             username: p_username,
             password: p_password,
             full_name: p_full_name,
-            role: p_role || 'user',
+            role: targetRole,
             laboratory: p_laboratory,
             branch: p_branch,
             active: true,
@@ -400,15 +713,52 @@ function createMockSupabaseClient() {
 
         case 'update_user':
         case 'update_admin_user': {
+          const caller = getCaller(args.p_token as string);
+          if (caller && caller.role === 'user') {
+            return { data: null, error: { message: 'Unauthorized: Standard users cannot update accounts' } };
+          }
+
           const { p_id, p_password, p_role, p_active } = args as {
             p_id: string;
             p_password?: string;
             p_role?: string;
             p_active?: boolean;
           };
+          const target = users.find(u => u.id === p_id);
+          if (!target) {
+            return { data: null, error: { message: 'User not found' } };
+          }
+
           const p_full_name = (args.p_full_name as string) || (args.full_name as string);
-          const p_laboratory = (args.p_laboratory as string) || (args.laboratory as string);
-          const p_branch = (args.p_branch as string) || (args.branch as string);
+          let p_laboratory = (args.p_laboratory as string) || (args.laboratory as string);
+          let p_branch = (args.p_branch as string) || (args.branch as string);
+
+          // Hierarchy validation on update
+          if (caller?.role === 'lab_admin') {
+            if (target.role === 'super_admin' || target.role === 'admin' || target.role === 'lab_admin') {
+              return { data: null, error: { message: 'Unauthorized: Laboratory administrators cannot edit Super Admin or Laboratory Admin accounts' } };
+            }
+            if (p_role && (p_role === 'super_admin' || p_role === 'admin' || p_role === 'lab_admin')) {
+              return { data: null, error: { message: 'Unauthorized: Laboratory administrators cannot promote accounts to Super Admin or Laboratory Admin' } };
+            }
+            if (target.laboratory && target.laboratory !== caller.laboratory) {
+              return { data: null, error: { message: 'Unauthorized: Cannot edit users outside your assigned laboratory' } };
+            }
+            p_laboratory = caller.laboratory || null;
+          } else if (caller?.role === 'local_admin') {
+            if (target.role !== 'user') {
+              return { data: null, error: { message: 'Unauthorized: Local administrators can only manage standard users' } };
+            }
+            if (p_role && p_role !== 'user') {
+              return { data: null, error: { message: 'Unauthorized: Local administrators cannot promote accounts to administrator roles' } };
+            }
+            if (target.laboratory !== caller.laboratory || (caller.branch && target.branch !== caller.branch)) {
+              return { data: null, error: { message: 'Unauthorized: Cannot edit users outside your assigned branch' } };
+            }
+            p_laboratory = caller.laboratory || null;
+            p_branch = caller.branch || null;
+          }
+
           const updated = users.map(u => {
             if (u.id === p_id) {
               return {
@@ -429,62 +779,40 @@ function createMockSupabaseClient() {
 
         case 'delete_admin_user':
         case 'delete_user': {
+          const caller = getCaller(args.p_token as string);
+          if (caller && caller.role === 'user') {
+            return { data: null, error: { message: 'Unauthorized: Standard users cannot delete accounts' } };
+          }
+
           const { p_id } = args as { p_id: string };
+          const target = users.find(u => u.id === p_id);
+          if (!target) {
+            return { data: null, error: { message: 'User not found' } };
+          }
+          if (target.is_primary || target.username === 'admin') {
+            return { data: null, error: { message: 'Cannot delete primary super administrator account' } };
+          }
+
+          // Hierarchy validation on delete
+          if (caller?.role === 'lab_admin') {
+            if (target.role === 'super_admin' || target.role === 'admin' || target.role === 'lab_admin') {
+              return { data: null, error: { message: 'Unauthorized: Laboratory administrators cannot delete Super Admin or Laboratory Admin accounts' } };
+            }
+            if (target.laboratory && target.laboratory !== caller.laboratory) {
+              return { data: null, error: { message: 'Unauthorized: Cannot delete accounts outside your assigned laboratory' } };
+            }
+          } else if (caller?.role === 'local_admin') {
+            if (target.role !== 'user') {
+              return { data: null, error: { message: 'Unauthorized: Local administrators can only delete standard users' } };
+            }
+            if (target.laboratory !== caller.laboratory || (caller.branch && target.branch !== caller.branch)) {
+              return { data: null, error: { message: 'Unauthorized: Cannot delete accounts outside your assigned branch' } };
+            }
+          }
+
           const filtered = users.filter(u => u.id !== p_id);
           saveData(STORAGE_KEYS.ADMIN_USERS, filtered);
           return { data: { success: true }, error: null };
-        }
-
-        case 'login_user': {
-          const { p_username, p_password } = args as { p_username?: string; p_password?: string };
-          const match = users.find(
-            u => u.username === p_username && u.password === p_password
-          );
-          if (match) {
-            return {
-              data: {
-                success: true,
-                session_token: `mock-token-${Date.now()}`,
-                user: {
-                  id: match.id,
-                  username: match.username,
-                  full_name: match.full_name,
-                  role: match.role,
-                  laboratory: match.laboratory || null,
-                  branch: match.branch || null,
-                  active: match.active !== false,
-                  is_primary: match.is_primary || match.username === 'admin',
-                },
-              },
-              error: null,
-            };
-          }
-          return {
-            data: { success: false, message: 'Invalid username or password' },
-            error: null,
-          };
-        }
-
-        case 'logout_user': {
-          return { data: { success: true }, error: null };
-        }
-
-        case 'require_admin': {
-          return { data: { success: true }, error: null };
-        }
-
-        case 'list_users': {
-          const safeUsers = users.map(u => ({
-            id: u.id,
-            username: u.username,
-            full_name: u.full_name,
-            role: u.role,
-            laboratory: u.laboratory || null,
-            branch: u.branch || null,
-            active: u.active !== false,
-            is_primary: u.is_primary || u.username === 'admin',
-          }));
-          return { data: safeUsers, error: null };
         }
 
         case 'get_admin_surveys':
@@ -494,8 +822,30 @@ function createMockSupabaseClient() {
         }
 
         case 'admin_delete_survey': {
+          const caller = getCaller(args.p_token as string);
+          if (caller && caller.role === 'user') {
+            return { data: null, error: { message: 'Unauthorized: Standard users cannot delete surveys' } };
+          }
+
           const { p_id } = args as { p_id: string };
           const surveys = loadData<SurveyDataRecord[]>(STORAGE_KEYS.SURVEYS, defaultSurveys);
+          const target = surveys.find(s => s.id === p_id);
+          if (!target) {
+            return { data: { success: true }, error: null };
+          }
+
+          if (caller?.role === 'lab_admin' && target.laboratory && target.laboratory !== caller.laboratory) {
+            return { data: null, error: { message: 'Unauthorized: Cannot delete surveys outside your assigned laboratory' } };
+          }
+          if (caller?.role === 'local_admin') {
+            if (target.laboratory && target.laboratory !== caller.laboratory) {
+              return { data: null, error: { message: 'Unauthorized: Cannot delete surveys outside your assigned laboratory' } };
+            }
+            if (target.branch && caller.branch && target.branch !== caller.branch) {
+              return { data: null, error: { message: 'Unauthorized: Cannot delete surveys outside your assigned branch' } };
+            }
+          }
+
           const filtered = surveys.filter(s => s.id !== p_id);
           saveData(STORAGE_KEYS.SURVEYS, filtered);
           return { data: { success: true }, error: null };
@@ -507,8 +857,30 @@ function createMockSupabaseClient() {
         }
 
         case 'admin_delete_enquiry': {
+          const caller = getCaller(args.p_token as string);
+          if (caller && caller.role === 'user') {
+            return { data: null, error: { message: 'Unauthorized: Standard users cannot delete enquiries' } };
+          }
+
           const { p_id } = args as { p_id: string };
           const enquiries = loadData<EnquiryDataRecord[]>(STORAGE_KEYS.ENQUIRIES, defaultEnquiries);
+          const target = enquiries.find(e => e.id === p_id);
+          if (!target) {
+            return { data: { success: true }, error: null };
+          }
+
+          if (caller?.role === 'lab_admin' && target.laboratory && target.laboratory !== caller.laboratory) {
+            return { data: null, error: { message: 'Unauthorized: Cannot delete enquiries outside your assigned laboratory' } };
+          }
+          if (caller?.role === 'local_admin') {
+            if (target.laboratory && target.laboratory !== caller.laboratory) {
+              return { data: null, error: { message: 'Unauthorized: Cannot delete enquiries outside your assigned laboratory' } };
+            }
+            if (target.branch && caller.branch && target.branch !== caller.branch) {
+              return { data: null, error: { message: 'Unauthorized: Cannot delete enquiries outside your assigned branch' } };
+            }
+          }
+
           const filtered = enquiries.filter(e => e.id !== p_id);
           saveData(STORAGE_KEYS.ENQUIRIES, filtered);
           return { data: { success: true }, error: null };
