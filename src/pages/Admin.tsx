@@ -346,14 +346,19 @@ export default function Admin() {
 
   const [visitors, setVisitors] = useState<Visitor[]>([]);
   const [surveys, setSurveys] = useState<Survey[]>([]);
+   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
+ 
   const [selectedSurveyIds, setSelectedSurveyIds] = useState<string[]>([]);
+  const [selectedVisitorIds, setSelectedVisitorIds] = useState<string[]>([]);
+    const [selectedEnquiryIds, setSelectedEnquiryIds] = useState<string[]>([]);
+
 
   const [bulkSurveyDeleteOpen, setBulkSurveyDeleteOpen] = useState(false);
   const [bulkSurveyDeleteLoading, setBulkSurveyDeleteLoading] = useState(false);
   const [bulkSurveyDeleteError, setBulkSurveyDeleteError] = useState<string | null>(null);
   const [bulkSurveyDeleteResult, setBulkSurveyDeleteResult] = useState<string | null>(null);
 
-  const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
+ 
   const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
 
   const [loading, setLoading] = useState(false);
@@ -3453,6 +3458,48 @@ export default function Admin() {
                     <table className="w-full text-sm">
                       <thead className="bg-slate-50 border-b border-slate-200">
                         <tr>
+                          {!isReadOnly(adminUser?.role) && (
+                            <th className="text-start px-4 py-3">
+                              <input
+                                type="checkbox"
+                                checked={
+                                  filteredVisitors.length > 0 &&
+                                  filteredVisitors.every((visitor) =>
+                                    selectedVisitorIds.includes(visitor.id)
+                                  )
+                                }
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setSelectedVisitorIds((prev) => [
+                                      ...new Set([
+                                        ...prev,
+                                        ...filteredVisitors.map((visitor) => visitor.id),
+                                      ]),
+                                    ]);
+                                  } else {
+                                    setSelectedVisitorIds((prev) =>
+                                      prev.filter(
+                                        (id) =>
+                                          !filteredVisitors.some(
+                                            (visitor) => visitor.id === id
+                                          )
+                                      )
+                                    );
+                                  }
+                                }}
+                                aria-label={
+                                  lang === 'ar'
+                                    ? 'تحديد جميع الزوار'
+                                    : lang === 'fr'
+                                      ? 'Sélectionner tous les visiteurs'
+                                      : 'Select all visitors'
+                                }
+                                className="h-4 w-4 cursor-pointer accent-blue-600"
+                              />
+                            </th>
+                          )}
+
+
                           <th className="text-start px-4 py-3">
                             {lang === 'ar'
                               ? 'الاسم'
