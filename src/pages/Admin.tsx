@@ -347,6 +347,12 @@ export default function Admin() {
   const [visitors, setVisitors] = useState<Visitor[]>([]);
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [selectedSurveyIds, setSelectedSurveyIds] = useState<string[]>([]);
+
+  const [bulkSurveyDeleteOpen, setBulkSurveyDeleteOpen] = useState(false);
+  const [bulkSurveyDeleteLoading, setBulkSurveyDeleteLoading] = useState(false);
+  const [bulkSurveyDeleteError, setBulkSurveyDeleteError] = useState<string | null>(null);
+  const [bulkSurveyDeleteResult, setBulkSurveyDeleteResult] = useState<string | null>(null);
+
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
   const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
 
@@ -1928,6 +1934,117 @@ export default function Admin() {
       setDeleteModalError(getErrorMessage(err));
     } finally {
       setDeleteLoading(false);
+    }
+  };
+
+  // حذف مجموعة من الاستبيانات
+  const executeBulkSurveyDelete = async () => {
+    if (
+      bulkSurveyDeleteLoading ||
+      selectedSurveyIds.length === 0 ||
+      isReadOnly(adminUser?.role)
+    ) {
+      return;
+    }
+
+    const token =
+      adminToken ||
+      sessionStorage.getItem('admin_token') ||
+      '';
+
+    if (!token) {
+      setBulkSurveyDeleteError(
+        lang === 'ar'
+          ? 'انتهت جلسة المسؤول. يرجى تسجيل الدخول مجددًا.'
+          : 'Admin session expired. Please log in again.'
+      );
+      return;
+    }
+
+    setBulkSurveyDeleteLoading(true);
+    setBulkSurveyDeleteError(null);
+    setBulkSurveyDeleteResult(null);
+
+    const idsToDelete = [...new Set(selectedSurveyIds)];
+    const deletedIds: string[] = [];
+    const failedIds: string[] = [];
+
+    try {
+      for (const id of idsToDelete) {
+        try {
+          const { data, error } = await supabase.rpc(
+            'admin_delete_survey',
+            {
+              p_token: token,
+              p_id: id,
+            }
+          );
+
+          if (error) {
+            const message = getErrorMessage(error).toLowerCase();
+
+            if (
+              message.includes('unauthorized') ||
+              message.includes('invalid token') ||
+              message.includes('expired')
+            ) {
+              setSessionExpired(true);
+            }
+
+            failedIds.push(id);
+            continue;
+          }
+
+          if (!data || typeof data !== 'object') {
+            failedIds.push(id);
+            continue;
+          }
+
+          const result = data as {
+            success?: boolean;
+            error?: unknown;
+            message?: string;
+          };
+
+          if (result.success === true && !result.error) {
+            deletedIds.push(id);
+          } else {
+            failedIds.push(id);
+          }
+        } catch (error) {
+          console.error('Survey deletion failed:', id, error);
+          failedIds.push(id);
+        }
+      }
+
+      if (deletedIds.length > 0) {
+        setSurveys((prev) =>
+          prev.filter((survey) => !deletedIds.includes(survey.id))
+        );
+      }
+
+      setSelectedSurveyIds(failedIds);
+
+      if (failedIds.length === 0) {
+        setBulkSurveyDeleteOpen(false);
+        setBulkSurveyDeleteResult(
+          lang === 'ar'
+            ? `تم حذف ${deletedIds.length} استبيان بنجاح.`
+            : `${deletedIds.length} survey/s deleted successfully.`
+        );
+      } else {
+        setBulkSurveyDeleteError(
+          lang === 'ar'
+            ? `تم حذف ${deletedIds.length} استبيان، وفشل حذف ${failedIds.length}.`
+            : `${deletedIds.length} deleted; ${failedIds.length} failed.`
+        );
+      }
+
+      await fetchData();
+    } catch (error) {
+      setBulkSurveyDeleteError(getErrorMessage(error));
+    } finally {
+      setBulkSurveyDeleteLoading(false);
     }
   };
 
@@ -3584,6 +3701,93 @@ export default function Admin() {
                           ? 'استبيان'
                           : 'records'}
                       </p>
+
+
+                      {!isReadOnly(adminUser?.role) && (
+                        <div className="flex flex-wrap items-center gap-2 mt-3">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const allVisibleSelected =
+                                filteredSurveys.length > 0 &&
+                                filteredSurveys.every((survey) =>
+                                  selectedSurveyIds.includes(survey.id)
+                                );
+
+                              if (allVisibleSelected) {
+                                setSelectedSurveyIds((prev) =>
+                                  prev.filter(
+                                    (id) =>
+                                      !filteredSurveys.some(
+                                        (survey) => survey.id === id
+                                      )
+                                  )
+                                );
+                              } else {
+                                setSelectedSurveyIds((prev) => [
+                                  ...new Set([
+                                    ...prev,
+                                    ...filteredSurveys.map(
+                                      (survey) => survey.id
+                                    ),
+                                  ]),
+                                ]);
+                              }
+                            }}
+                            disabled={
+                              filteredSurveys.length === 0 ||
+                              bulkSurveyDeleteLoading
+                            }
+                            className="px-3 py-2 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {filteredSurveys.length > 0 &&
+                              filteredSurveys.every((survey) =>
+                                selectedSurveyIds.includes(survey.id)
+                              )
+                              ? lang === 'ar'
+                                ? 'إلغاء تحديد الكل'
+                                : lang === 'fr'
+                                  ? 'Tout désélectionner'
+                                  : 'Clear selection'
+                              : lang === 'ar'
+                                ? 'تحديد الكل'
+                                : lang === 'fr'
+                                  ? 'Tout sélectionner'
+                                  : 'Select all'}
+                          </button>
+
+                          {selectedSurveyIds.length > 0 && (
+                            <>
+                              <span className="text-sm text-slate-600">
+                                {lang === 'ar'
+                                  ? `تم تحديد ${selectedSurveyIds.length} استبيان`
+                                  : lang === 'fr'
+                                    ? `${selectedSurveyIds.length} enquête(s) sélectionnée(s)`
+                                    : `${selectedSurveyIds.length} survey/s selected`}
+                              </span>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setBulkSurveyDeleteError(null);
+                                  setBulkSurveyDeleteResult(null);
+                                  setBulkSurveyDeleteOpen(true);
+                                }}
+                                disabled={bulkSurveyDeleteLoading}
+                                className="px-3 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                {lang === 'ar'
+                                  ? `حذف المحدد (${selectedSurveyIds.length})`
+                                  : lang === 'fr'
+                                    ? `Supprimer la sélection (${selectedSurveyIds.length})`
+                                    : `Delete selected (${selectedSurveyIds.length})`}
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      )}
+
+
                     </div>
 
                     {/* Server-side date range and branch filters */}
@@ -4726,32 +4930,91 @@ export default function Admin() {
         )
       }
 
+
       {/* ============================================================
           CONFIRM DELETE MODAL (Visitors, Surveys, Enquiries, Users)
       ============================================================= */}
-      {
-        deleteTarget && (
-          <ConfirmModal
-            isOpen={Boolean(deleteTarget)}
-            onClose={() => {
-              if (!deleteLoading) {
-                setDeleteTarget(null);
-                setDeleteModalError(null);
-              }
-            }}
-            onConfirm={executeDelete}
-            title={deleteTarget.title}
-            message={deleteTarget.message}
-            itemName={deleteTarget.name}
-            details={deleteTarget.details}
-            confirmText={lang === 'ar' ? 'تأكيد الحذف' : lang === 'fr' ? 'Confirmer la suppression' : 'Confirm Delete'}
-            cancelText={lang === 'ar' ? 'إلغاء' : lang === 'fr' ? 'Annuler' : 'Cancel'}
-            confirmVariant="danger"
-            isLoading={deleteLoading}
-            errorMessage={deleteModalError}
-          />
-        )
-      }
+      {deleteTarget && (
+        <ConfirmModal
+          isOpen={Boolean(deleteTarget)}
+          onClose={() => {
+            if (!deleteLoading) {
+              setDeleteTarget(null);
+              setDeleteModalError(null);
+            }
+          }}
+          onConfirm={executeDelete}
+          title={deleteTarget.title}
+          message={deleteTarget.message}
+          itemName={deleteTarget.name}
+          details={deleteTarget.details}
+          confirmText={
+            lang === 'ar'
+              ? 'تأكيد الحذف'
+              : lang === 'fr'
+                ? 'Confirmer la suppression'
+                : 'Confirm Delete'
+          }
+          cancelText={
+            lang === 'ar'
+              ? 'إلغاء'
+              : lang === 'fr'
+                ? 'Annuler'
+                : 'Cancel'
+          }
+          confirmVariant="danger"
+          isLoading={deleteLoading}
+          errorMessage={deleteModalError}
+        />
+      )}
+
+      {/* ============================================================
+          BULK DELETE SURVEYS CONFIRMATION
+      ============================================================= */}
+      {bulkSurveyDeleteOpen && (
+        <ConfirmModal
+          isOpen={bulkSurveyDeleteOpen}
+          onClose={() => {
+            if (!bulkSurveyDeleteLoading) {
+              setBulkSurveyDeleteOpen(false);
+              setBulkSurveyDeleteError(null);
+            }
+          }}
+          onConfirm={executeBulkSurveyDelete}
+          title={
+            lang === 'ar'
+              ? 'تأكيد حذف الاستبيانات'
+              : lang === 'fr'
+                ? 'Confirmer la suppression des enquêtes'
+                : 'Confirm Survey Deletion'
+          }
+          message={
+            lang === 'ar'
+              ? `هل أنتِ متأكدة من حذف ${selectedSurveyIds.length} استبيان محدد؟`
+              : lang === 'fr'
+                ? `Voulez-vous vraiment supprimer les ${selectedSurveyIds.length} enquêtes sélectionnées ?`
+                : `Are you sure you want to delete the ${selectedSurveyIds.length} selected surveys?`
+          }
+          confirmText={
+            lang === 'ar'
+              ? 'حذف الاستبيانات المحددة'
+              : lang === 'fr'
+                ? 'Supprimer les enquêtes sélectionnées'
+                : 'Delete Selected Surveys'
+          }
+          cancelText={
+            lang === 'ar'
+              ? 'إلغاء'
+              : lang === 'fr'
+                ? 'Annuler'
+                : 'Cancel'
+          }
+          confirmVariant="danger"
+          isLoading={bulkSurveyDeleteLoading}
+          errorMessage={bulkSurveyDeleteError}
+        />
+      )}
+
     </div >
   );
 }
