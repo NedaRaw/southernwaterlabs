@@ -1477,35 +1477,98 @@ function createMockSupabaseClient() {
 
 
 
+
         case 'admin_delete_enquiry': {
           const caller = getCaller(args.p_token as string);
-          if (caller && caller.role === 'user') {
-            return { data: null, error: { message: 'Unauthorized: Standard users cannot delete enquiries' } };
+
+          if (!caller || caller.active === false) {
+            return {
+              data: null,
+              error: { message: 'Unauthorized: Invalid session' },
+            };
+          }
+
+          if (!['super_admin', 'lab_admin'].includes(caller.role)) {
+            return {
+              data: null,
+              error: {
+                message: 'Unauthorized: Insufficient permissions to delete enquiries',
+              },
+            };
           }
 
           const { p_id } = args as { p_id: string };
-          const enquiries = loadData<EnquiryDataRecord[]>(STORAGE_KEYS.ENQUIRIES, defaultEnquiries);
-          const target = enquiries.find(e => e.id === p_id);
+
+          if (!p_id) {
+            return {
+              data: null,
+              error: { message: 'Missing enquiry ID' },
+            };
+          }
+
+          const enquiries = loadData<EnquiryDataRecord[]>(
+            STORAGE_KEYS.ENQUIRIES,
+            defaultEnquiries
+          );
+
+          const target = enquiries.find(enquiry => enquiry.id === p_id);
+
           if (!target) {
+            return {
+              data: null,
+              error: { message: 'Enquiry not found' },
+            };
+          }
+
+          // Super Admin: global access.
+          if (caller.role === 'super_admin') {
+            const filtered = enquiries.filter(enquiry => enquiry.id !== p_id);
+            saveData(STORAGE_KEYS.ENQUIRIES, filtered);
+
             return { data: { success: true }, error: null };
           }
 
-          if (caller?.role === 'lab_admin' && target.laboratory && target.laboratory !== caller.laboratory) {
-            return { data: null, error: { message: 'Unauthorized: Cannot delete enquiries outside your assigned laboratory' } };
-          }
-          if (caller?.role === 'local_admin') {
-            if (target.laboratory && target.laboratory !== caller.laboratory) {
-              return { data: null, error: { message: 'Unauthorized: Cannot delete enquiries outside your assigned laboratory' } };
-            }
-            if (target.branch && caller.branch && target.branch !== caller.branch) {
-              return { data: null, error: { message: 'Unauthorized: Cannot delete enquiries outside your assigned branch' } };
-            }
+          // Lab Admin: must be explicitly assigned to a laboratory.
+          if (!caller.laboratory) {
+            return {
+              data: null,
+              error: { message: 'Unauthorized: No laboratory assigned' },
+            };
           }
 
-          const filtered = enquiries.filter(e => e.id !== p_id);
+          // Reject missing or mismatched laboratory assignments.
+          if (
+            !target.laboratory ||
+            target.laboratory !== caller.laboratory
+          ) {
+            return {
+              data: null,
+              error: {
+                message: 'Unauthorized: Enquiry is outside your laboratory scope',
+              },
+            };
+          }
+
+          // Reject invalid branch assignments; allow a null branch only
+          // when the enquiry legitimately belongs to the central laboratory.
+          if (
+            target.branch &&
+            !validBranchForLab(target.laboratory, target.branch)
+          ) {
+            return {
+              data: null,
+              error: {
+                message: 'Unauthorized: Enquiry has an invalid branch assignment',
+              },
+            };
+          }
+
+          const filtered = enquiries.filter(enquiry => enquiry.id !== p_id);
           saveData(STORAGE_KEYS.ENQUIRIES, filtered);
+
           return { data: { success: true }, error: null };
         }
+
 
         default:
           return { data: null, error: { message: `Unknown function ${fnName}` } };
