@@ -197,7 +197,7 @@ export const LAB_HIERARCHY: LabHierarchyItem[] = [
   {
     id: 'asir',
 name: {
-  ar: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة عسير',
+  ar: 'المختبر المرجعي لمياه الشرب والخدمات البيئية بمنطقة عسير',
   en: 'Asir Central Laboratory for Drinking Water and Environmental Services',
   fr: 'Laboratoire Central d’Asir pour les Eaux Potables et les Services Environnementaux',
 },

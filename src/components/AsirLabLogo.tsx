@@ -26,7 +26,7 @@ export default function AsirLabLogo({ className = 'w-40 h-40', size }: AsirLabLo
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
-      aria-label="شعار المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة عسير"
+      aria-label="شعار المختبر المرجعي لمياه الشرب والخدمات البيئية بمنطقة عسير"
     >
       <defs>
         {/* Outer Gold Border Gradient */}

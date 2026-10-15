@@ -116,7 +116,7 @@ export const defaultAdminUsers: AdminUserData[] = [
     id: '2',
     username: 'lab_asir',
     password: 'admin123',
-    full_name: 'مدير مختبر عسير المركزي',
+    full_name: 'مدير  مختبر عسير المرجعي',
     role: 'lab_admin',
     laboratory: 'asir',
     branch: null,

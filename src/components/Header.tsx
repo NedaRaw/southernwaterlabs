@@ -406,7 +406,7 @@ export default function Header() {
         id: 'asir',
         name:
           lang === 'ar'
-            ? 'وحدة المختبر المركزي بعسير'
+            ? 'وحدة المختبر المرجعي بعسير'
             : lang === 'fr'
               ? 'Unité Mobile du Laboratoire Central d’Asir'
               : 'Asir Central Mobile Unit',

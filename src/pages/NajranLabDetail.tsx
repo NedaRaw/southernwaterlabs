@@ -280,7 +280,7 @@ export default function NajranLabDetail() {
       fr: 'Carte interactive en direct : déplacez, zoomez ou basculez en vue satellite',
     }[lang],
     contactHeading: { ar: 'معلومات التواصل وساعات العمل', en: 'Official Contact & Working Hours', fr: 'Contact Officiel & Horaires de Travail' }[lang],
-    hoursVal: { ar: 'الأحد – الخميس: 8:00 ص – 4:00 م', en: 'Sun – Thu: 8:00 AM – 4:00 PM', fr: 'Dim – Jeu : 8h00 – 16h00' }[lang],
+    hoursVal: { ar: 'الأحد – الخميس: 7:00 ص – 4:00 م', en: 'Sun – Thu: 8:00 AM – 4:00 PM', fr: 'Dim – Jeu : 8h00 – 16h00' }[lang],
     closedVal: { ar: 'الجمعة والسبت: عطلة أسبوعية', en: 'Fri & Sat: Weekend Closed', fr: 'Ven & Sam : Fermé' }[lang],
     directPhone: '+966568982662',
     nwcPhone: '8004411110',

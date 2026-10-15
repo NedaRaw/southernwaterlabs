@@ -29,8 +29,8 @@ export const siteStats = {
   centralCenters: '4',
   branches: '18',
   regions: '4',
-  labTests: '+50,000',
-  samples: '+25,000',
+  labTests: '405069',
+  samples: '43711',
 };
 
 export interface NewsItem {

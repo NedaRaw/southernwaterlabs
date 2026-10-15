@@ -71,8 +71,8 @@ const labCoordinates = {
 const translations: Record<Lang, Record<string, string>> = {
   ar: {
     officialTitle:
-      'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة عسير',
-    shortTitle: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة عسير',
+      'المختبر المرجعي لمياه الشرب والخدمات البيئية بمنطقة عسير',
+    shortTitle: 'المختبر المرجعي لمياه الشرب والخدمات البيئية بمنطقة عسير',
     sectorTitle:
       'شركة المياه الوطنية — الإدارة العامة للمختبرات والخدمات البيئية بالقطاع الجنوبي',
     institutionalAffiliation:
@@ -97,7 +97,7 @@ const translations: Record<Lang, Record<string, string>> = {
     aboutHeading: 'عن المختبر',
     aboutSub: 'المختبر المركزي للمياه بالمنطقة الجنوبية - عسير',
     aboutText:
-      'يقدم المختبر المركزي بعسير خدمات متخصصة في فحص وتحليل عينات المياه والبيئة، وفق منهجيات علمية ومعايير جودة معتمدة، لدعم موثوقية النتائج وسلامة الموارد المائية وحماية البيئة.',
+      'يقدم المختبر المرجعي بعسير خدمات متخصصة في فحص وتحليل عينات المياه والبيئة، وفق منهجيات علمية ومعايير جودة معتمدة، لدعم موثوقية النتائج وسلامة الموارد المائية وحماية البيئة.',
 
     buildingBadge: 'المبنى الرئيسي',
     facilityBadge: 'منشأة مخبرية متخصصة',
@@ -425,7 +425,7 @@ const album: ImageItem[] = [
   {
     src: asirWaterLab4,
     title: {
-      ar: 'الإضاءة الليلية لمبنى المختبر المركزي بعسير',
+      ar: 'الإضاءة الليلية لمبنى المختبر المرجعي بعسير',
       en: 'Night View of Asir Central Water Laboratory Building',
       fr: 'Vue nocturne du bâtiment du Laboratoire central d’Asir',
     },
@@ -433,7 +433,7 @@ const album: ImageItem[] = [
   {
     src: labAsirEnf,
     title: {
-      ar: 'مكتب الاستقبال والترحيب بالزيارات المدرسية بالمختبر المركزي بعسير',
+      ar: 'مكتب الاستقبال والترحيب بالزيارات المدرسية بالمختبر المرجعي بعسير',
       en: 'Reception Counter & School Visit Welcome Area at Asir Central Lab',
       fr: 'Banque d’accueil et réception des visites scolaires au Laboratoire d’Asir',
     },

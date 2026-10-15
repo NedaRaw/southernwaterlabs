@@ -174,7 +174,7 @@ const REGION_FILTER_TABS = [
     key: 'asir' as const,
     count: 1,
     label: {
-      ar: 'المختبر المركزي بعسير',
+      ar: 'المختبر المرجعي بعسير',
       en: 'Asir Central',
       fr: 'Asir Central',
     },

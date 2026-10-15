@@ -435,7 +435,7 @@ const SAMPLE_ACTIVITY_LAST_MONTH: ActivityDataPoint[] = [
 ];
 
 const LAB_Central_ACTIVITY = [
-  { name: 'Asir Central Laboratory', arName: 'مختبر عسير المركزي', frName: 'Laboratoire Central Asir', samples: 1420, completed: 1395, compliance: '99.6%', labId: 'asir' },
+  { name: 'Asir Central Laboratory', arName: ' مختبر عسير المرجعي', frName: 'Laboratoire Central Asir', samples: 1420, completed: 1395, compliance: '99.6%', labId: 'asir' },
   { name: 'Najran Central Laboratory', arName: 'مختبر نجران المركزي', frName: 'Laboratoire Central Najran', samples: 1180, completed: 1162, compliance: '99.3%', labId: 'najran' },
   { name: 'Al-Baha Central Laboratory', arName: 'مختبر الباحة المركزي', frName: 'Laboratoire Central Al-Baha', samples: 890, completed: 875, compliance: '99.5%', labId: 'al-baha' },
   { name: 'Jazan Central Laboratory', arName: 'مختبر جازان المركزي', frName: 'Laboratoire Central Jazan', samples: 966, completed: 948, compliance: '99.1%', labId: 'jazan' },

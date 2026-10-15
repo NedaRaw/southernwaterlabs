@@ -99,7 +99,7 @@ const DEFAULT_LAB_REPORTS: LabReportItem[] = [
     source_location_ar: 'محطة تنقية وتوزيع مياه أبها المركزية — خط الإمداد A-4',
     source_location_en: 'Abha Central Water Purification & Distribution Plant — Supply Line A-4',
     laboratory_id: 'asir',
-    laboratory_name_ar: 'مختبر عسير المركزي لمياه الشرب والخدمات البيئية',
+    laboratory_name_ar: ' مختبر عسير المرجعي لمياه الشرب والخدمات البيئية',
     laboratory_name_en: 'Asir Central Water and Environmental Laboratory',
     collection_date: '2026-09-18',
     analysis_date: '2026-09-19',
