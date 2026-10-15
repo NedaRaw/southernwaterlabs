@@ -582,6 +582,7 @@ function createMockSupabaseClient() {
       const users = loadData<AdminUserData[]>(STORAGE_KEYS.ADMIN_USERS, defaultAdminUsers);
 
 
+
       const getCaller = (token?: string): AdminUserData | null => {
         if (!token) return null;
 
@@ -591,20 +592,19 @@ function createMockSupabaseClient() {
         );
 
         const sessionUser = sessions[token];
+        if (!sessionUser) return null;
 
-        if (sessionUser) {
-          const currentUser = users.find(u => u.id === sessionUser.id);
+        const currentUser = users.find(
+          (user) => user.id === sessionUser.id
+        );
 
-          if (!currentUser || currentUser.active === false) {
-            return null;
-          }
-
-          return currentUser;
+        if (!currentUser || currentUser.active === false) {
+          return null;
         }
 
-        // Never grant the primary administrator identity to an invalid token.
-        return null;
+        return currentUser;
       };
+
 
 
       switch (fnName) {
@@ -795,30 +795,61 @@ function createMockSupabaseClient() {
                 u.laboratory === caller.laboratory &&
                 validBranchForLab(u.laboratory, u.branch)
             );
+
           } else if (caller.role === 'local_admin') {
-            // Local admins can view ordinary users in their authorized branch(es).
             if (!caller.laboratory || !caller.branch) {
               return {
                 data: null,
                 error: {
-                  message: 'Unauthorized: No laboratory or branch is assigned to this account',
+                  message:
+                    'Unauthorized: No laboratory or branch is assigned to this account',
                 },
               };
             }
 
-            const callerBranches = caller.branch
-              .split(',')
-              .map((b) => b.trim())
-              .filter(Boolean);
+            const callerBranches = [
+              ...new Set(
+                caller.branch
+                  .split(',')
+                  .map(b => b.trim())
+                  .filter(Boolean)
+              ),
+            ];
 
-            scoped = users.filter(
-              u =>
-                u.role === 'user' &&
-                u.laboratory === caller.laboratory &&
-                u.branch &&
-                callerBranches.includes(u.branch)
-            );
-          } else {
+            // Reject invalid or unsupported branch assignments.
+            if (
+              callerBranches.length === 0 ||
+              callerBranches.length > 2 ||
+              !callerBranches.every(branch =>
+                validBranchForLab(caller.laboratory, branch)
+              )
+            ) {
+              return {
+                data: null,
+                error: {
+                  message: 'Unauthorized: Invalid branch assignment',
+                },
+              };
+            }
+
+            scoped = users.filter(u => {
+              if (
+                u.role !== 'user' ||
+                u.laboratory !== caller.laboratory ||
+                !u.branch
+              ) {
+                return false;
+              }
+
+              const userBranch = u.branch.trim();
+
+              return (
+                !userBranch.includes(',') &&
+                callerBranches.includes(userBranch) &&
+                validBranchForLab(u.laboratory, userBranch)
+              );
+            });
+ else {
             return {
               data: null,
               error: {
