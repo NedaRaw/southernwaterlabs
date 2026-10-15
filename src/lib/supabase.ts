@@ -27,6 +27,7 @@ export interface AdminUserData {
   role: string;
   laboratory?: string | null;
   branch?: string | null;
+  branches?: string[] | null;
   active?: boolean;
   is_primary?: boolean;
 }
@@ -434,7 +435,7 @@ const canAssignRole = (
   return allowedRoles[callerRole]?.includes(targetRole) ?? false;
 };
 
-const validBranchForLab = (
+export const validBranchForLab = (
   laboratory: string | null | undefined,
   branch: string | null | undefined
 ): boolean => {
@@ -443,7 +444,7 @@ const validBranchForLab = (
   }
 
   const branchesByLab: Record<string, string[]> = {
-    asir: ['bisha', 'mahayel'],
+    asir: ['bisha', 'mahayel', 'muhayil'],
     najran: ['sharurah'],
     'al-baha': ['qalwah'],
     jazan: ['al-darb', 'farasan'],
@@ -453,7 +454,19 @@ const validBranchForLab = (
 
   if (!allowedBranches) return false;
 
-  return branch == null || branch === '' || allowedBranches.includes(branch);
+  if (branch == null || branch === '') return true;
+
+  // Split comma-separated branches (supports 1 or 2 branches simultaneously)
+  const branches = branch
+    .split(',')
+    .map((b) => b.trim())
+    .filter(Boolean);
+
+  if (branches.length === 0) return true;
+  // Maximum 2 branches allowed simultaneously for local admin accounts
+  if (branches.length > 2) return false;
+
+  return branches.every((b) => allowedBranches.includes(b));
 };
 
 
@@ -745,6 +758,7 @@ function createMockSupabaseClient() {
         }
 
 
+        case 'list_users_scoped':
         case 'list_users': {
           const caller = getCaller(args.p_token as string);
 
@@ -782,7 +796,7 @@ function createMockSupabaseClient() {
                 validBranchForLab(u.laboratory, u.branch)
             );
           } else if (caller.role === 'local_admin') {
-            // Local admins can only view ordinary users in their exact branch.
+            // Local admins can view ordinary users in their authorized branch(es).
             if (!caller.laboratory || !caller.branch) {
               return {
                 data: null,
@@ -792,11 +806,17 @@ function createMockSupabaseClient() {
               };
             }
 
+            const callerBranches = caller.branch
+              .split(',')
+              .map((b) => b.trim())
+              .filter(Boolean);
+
             scoped = users.filter(
               u =>
                 u.role === 'user' &&
                 u.laboratory === caller.laboratory &&
-                u.branch === caller.branch
+                u.branch &&
+                callerBranches.includes(u.branch)
             );
           } else {
             return {
@@ -921,7 +941,7 @@ function createMockSupabaseClient() {
             }
           }
 
-          // Local administrators can create ordinary users in their own branch only.
+          // Local administrators can create ordinary users in their authorized branch(es) only.
           if (caller.role === 'local_admin') {
             if (!caller.laboratory || !caller.branch) {
               return {
@@ -933,7 +953,23 @@ function createMockSupabaseClient() {
             }
 
             p_laboratory = caller.laboratory;
-            p_branch = caller.branch;
+            const callerBranches = caller.branch
+              .split(',')
+              .map((b) => b.trim())
+              .filter(Boolean);
+
+            if (p_branch && !callerBranches.includes(p_branch)) {
+              return {
+                data: null,
+                error: {
+                  message: 'Unauthorized: Local administrator cannot assign user outside assigned branches',
+                },
+              };
+            }
+
+            if (!p_branch) {
+              p_branch = callerBranches[0] || caller.branch;
+            }
           }
 
           // Validate the final laboratory/branch assignment.
@@ -1100,14 +1136,19 @@ function createMockSupabaseClient() {
             }
           }
 
-          // Local administrators can manage ordinary users in their own branch only.
+          // Local administrators can manage ordinary users in their authorized branch(es) only.
           if (caller.role === 'local_admin') {
+            const callerBranches = (caller.branch || '')
+              .split(',')
+              .map((b) => b.trim())
+              .filter(Boolean);
+
             if (
               !caller.laboratory ||
-              !caller.branch ||
+              callerBranches.length === 0 ||
               target.role !== 'user' ||
               target.laboratory !== caller.laboratory ||
-              target.branch !== caller.branch
+              !callerBranches.includes(target.branch || '')
             ) {
               return {
                 data: null,
@@ -1118,7 +1159,17 @@ function createMockSupabaseClient() {
             }
 
             p_laboratory = caller.laboratory;
-            p_branch = caller.branch;
+            if (p_branch && !callerBranches.includes(p_branch)) {
+              return {
+                data: null,
+                error: {
+                  message: 'Unauthorized: Cannot assign user to branch outside your authorization',
+                },
+              };
+            }
+            if (!p_branch) {
+              p_branch = target.branch;
+            }
           }
 
           if (!validBranchForLab(p_laboratory, p_branch)) {
@@ -1259,20 +1310,17 @@ function createMockSupabaseClient() {
               };
             }
           } else if (caller.role === 'local_admin') {
-            if (!caller.laboratory || !caller.branch) {
-              return {
-                data: null,
-                error: {
-                  message: 'Unauthorized: No laboratory or branch is assigned to this account',
-                },
-              };
-            }
+            const callerBranches = (caller.branch || '')
+              .split(',')
+              .map((b) => b.trim())
+              .filter(Boolean);
 
-            // Local admins can delete ordinary users in their exact branch only.
             if (
+              !caller.laboratory ||
+              callerBranches.length === 0 ||
               target.role !== 'user' ||
               target.laboratory !== caller.laboratory ||
-              target.branch !== caller.branch
+              !callerBranches.includes(target.branch || '')
             ) {
               return {
                 data: null,

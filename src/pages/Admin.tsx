@@ -83,6 +83,7 @@ export interface AdminUser {
   role: string;
   laboratory?: string | null;
   branch?: string | null;
+  branches?: string[] | null;
   active?: boolean | null;
   created_at?: string | null;
   is_primary?: boolean | null;
@@ -126,6 +127,41 @@ export function hasAdminAccess(role?: string | null): boolean {
   );
 }
 
+export function getUserBranches(
+  user?: { branch?: string | null; branches?: string[] | null } | null | string
+): string[] {
+  if (!user) return [];
+  if (typeof user === 'string') {
+    return user
+      .split(',')
+      .map((b) => b.trim())
+      .filter(Boolean);
+  }
+  if (Array.isArray(user.branches) && user.branches.length > 0) {
+    return user.branches.filter(Boolean);
+  }
+  if (!user.branch) return [];
+  return user.branch
+    .split(',')
+    .map((b) => b.trim())
+    .filter(Boolean);
+}
+
+export function isUserBranchAuthorized(
+  actor: AdminUser | null,
+  recordBranch?: string | null
+): boolean {
+  if (!actor) return false;
+  if (isSuperAdmin(actor.role) || isLabAdmin(actor.role)) return true;
+  if (!isLocalAdmin(actor.role)) return false;
+
+  const branches = getUserBranches(actor);
+  if (branches.length === 0) return true;
+  if (!recordBranch) return false;
+
+  return branches.some((b) => isBranchMatch(recordBranch, b));
+}
+
 export function canCreateRole(actorRole?: string | null, targetRole?: string | null): boolean {
   if (isSuperAdmin(actorRole)) return true;
   if (isLabAdmin(actorRole)) {
@@ -146,14 +182,14 @@ export function canEditUser(actor: AdminUser | null, target: AdminUser): boolean
     // Cannot edit Super Admin or Lab Admin accounts
     if (isSuperAdmin(target.role) || target.role === 'lab_admin') return false;
     // Must belong to their laboratory
-    return !target.laboratory || target.laboratory === actor.laboratory;
+    return !target.laboratory || isLabMatch(target.laboratory, actor.laboratory);
   }
   if (isLocalAdmin(actor.role)) {
     // Cannot edit any admin accounts; only ordinary users
     if (target.role !== 'user') return false;
-    // Must match laboratory and branch
-    if (target.laboratory && actor.laboratory && target.laboratory !== actor.laboratory) return false;
-    if (target.branch && actor.branch && target.branch !== actor.branch) return false;
+    // Must match laboratory and assigned branch
+    if (target.laboratory && actor.laboratory && !isLabMatch(target.laboratory, actor.laboratory)) return false;
+    if (!isUserBranchAuthorized(actor, target.branch)) return false;
     return true;
   }
   return false;
@@ -181,12 +217,12 @@ export function canDeleteUser(
     return true;
   }
 
-  // Lab Admin: same laboratory only; cannot delete Lab Admins.
+  // Lab Admin: same laboratory only; cannot delete Super Admin or Lab Admins.
   if (isLabAdmin(actor.role)) {
     if (
       !actor.laboratory ||
       !target.laboratory ||
-      target.laboratory !== actor.laboratory
+      !isLabMatch(target.laboratory, actor.laboratory)
     ) {
       return false;
     }
@@ -197,22 +233,18 @@ export function canDeleteUser(
     );
   }
 
-  // Local Admin: ordinary users in the exact same lab and branch.
+  // Local Admin: ordinary users in their assigned laboratory and authorized branch(es).
   if (isLocalAdmin(actor.role)) {
     if (
       target.role !== 'user' ||
       !actor.laboratory ||
-      !actor.branch ||
       !target.laboratory ||
-      !target.branch
+      !isLabMatch(target.laboratory, actor.laboratory)
     ) {
       return false;
     }
 
-    return (
-      target.laboratory === actor.laboratory &&
-      target.branch === actor.branch
-    );
+    return isUserBranchAuthorized(actor, target.branch);
   }
 
   return false;
@@ -237,15 +269,28 @@ export function isBranchMatch(recordBranch?: string | null, targetBranch?: strin
   if (!targetBranch) return true;
   if (!recordBranch) return false;
   if (recordBranch === targetBranch) return true;
+
+  // If targetBranch contains multiple branches (e.g. 'bisha,mahayel'), check any match
+  if (targetBranch.includes(',')) {
+    const branches = targetBranch.split(',').map((b) => b.trim()).filter(Boolean);
+    return branches.some((b) => isBranchMatch(recordBranch, b));
+  }
+
+  // If recordBranch contains multiple branches, check any match
+  if (recordBranch.includes(',')) {
+    const branches = recordBranch.split(',').map((b) => b.trim()).filter(Boolean);
+    return branches.some((b) => isBranchMatch(b, targetBranch));
+  }
+
   const r = recordBranch.toLowerCase();
   const t = targetBranch.toLowerCase();
-  if (r.includes(t) || t.includes(r)) return true;
-  if (targetBranch === 'bisha' && (r.includes('بيشة') || r.includes('bisha'))) return true;
-  if ((targetBranch === 'mahayel' || targetBranch === 'muhayil') && (r.includes('محايل') || r.includes('mahayel') || r.includes('muhayil'))) return true;
-  if (targetBranch === 'sharurah' && (r.includes('شرورة') || r.includes('sharurah'))) return true;
-  if (targetBranch === 'qalwah' && (r.includes('قلوة') || r.includes('qalwah'))) return true;
-  if (targetBranch === 'al-darb' && (r.includes('درب') || r.includes('darb'))) return true;
-  if (targetBranch === 'farasan' && (r.includes('فرسان') || r.includes('farasan'))) return true;
+  if (r === t || r.includes(t) || t.includes(r)) return true;
+  if (t === 'bisha' && (r.includes('بيشة') || r.includes('bisha'))) return true;
+  if ((t === 'mahayel' || t === 'muhayil') && (r.includes('محايل') || r.includes('mahayel') || r.includes('muhayil'))) return true;
+  if (t === 'sharurah' && (r.includes('شرورة') || r.includes('sharurah'))) return true;
+  if (t === 'qalwah' && (r.includes('قلوة') || r.includes('qalwah'))) return true;
+  if (t === 'al-darb' && (r.includes('درب') || r.includes('darb'))) return true;
+  if (t === 'farasan' && (r.includes('فرسان') || r.includes('farasan'))) return true;
   return false;
 }
 
@@ -553,6 +598,7 @@ export default function Admin() {
 
   const [userError, setUserError] = useState('');
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [selectedBranches, setSelectedBranches] = useState<string[]>([]);
 
 
   // ============================================================
@@ -613,9 +659,16 @@ export default function Admin() {
         // Initialize role-based scope filters
         if (isLabAdmin(user.role) && user.laboratory) {
           setLabFilter(user.laboratory);
+          setBranchFilter('');
         } else if (isLocalAdmin(user.role)) {
           if (user.laboratory) setLabFilter(user.laboratory);
-          if (user.branch) setBranchFilter(user.branch);
+          const branches = getUserBranches(user);
+          if (branches.length === 1) {
+            setBranchFilter(branches[0]);
+          } else {
+            // When assigned to 2 branches, default to '' to view all authorized branches simultaneously
+            setBranchFilter('');
+          }
         }
       } catch (error) {
         console.error('Failed to restore admin session:', error);
@@ -850,7 +903,12 @@ export default function Admin() {
         setBranchFilter('');
       } else if (isLocalAdmin(user.role)) {
         if (user.laboratory) setLabFilter(user.laboratory);
-        if (user.branch) setBranchFilter(user.branch);
+        const branches = getUserBranches(user);
+        if (branches.length === 1) {
+          setBranchFilter(branches[0]);
+        } else {
+          setBranchFilter('');
+        }
       }
     } catch (error) {
       console.warn('Admin login exception caught:', error);
@@ -1232,23 +1290,29 @@ export default function Admin() {
   // ============================================================
 
   const resetUserForm = () => {
+    const defaultRole = isSuperAdmin(adminUser?.role)
+      ? 'lab_admin'
+      : isLabAdmin(adminUser?.role)
+        ? 'local_admin'
+        : 'user';
+    const defaultLab = isLabAdmin(adminUser?.role) || isLocalAdmin(adminUser?.role)
+      ? adminUser?.laboratory || ''
+      : '';
+    const adminBranches = getUserBranches(adminUser);
+    const defaultBranch = isLocalAdmin(adminUser?.role)
+      ? (adminBranches.length === 1 ? adminBranches[0] : '')
+      : '';
+
     setUserForm({
       username: '',
       password: '',
       full_name: '',
-      role: isSuperAdmin(adminUser?.role)
-        ? 'lab_admin'
-        : isLabAdmin(adminUser?.role)
-          ? 'local_admin'
-          : 'user',
-      laboratory: isLabAdmin(adminUser?.role) || isLocalAdmin(adminUser?.role)
-        ? adminUser?.laboratory || ''
-        : '',
-      branch: isLocalAdmin(adminUser?.role)
-        ? adminUser?.branch || ''
-        : '',
+      role: defaultRole,
+      laboratory: defaultLab,
+      branch: defaultBranch,
     });
 
+    setSelectedBranches(isLocalAdmin(adminUser?.role) && adminBranches.length === 1 ? adminBranches : []);
     setEditingUserId(null);
     setUserError('');
   };
@@ -1276,6 +1340,8 @@ export default function Admin() {
     }
 
     setEditingUserId(user.id);
+    const parsedBranches = getUserBranches(user);
+    setSelectedBranches(parsedBranches);
 
     setUserForm({
       username: user.username || '',
@@ -1386,10 +1452,41 @@ export default function Admin() {
           ? adminUser?.laboratory || userForm.laboratory
           : userForm.laboratory;
 
-      const assignedBranch =
-        isLocalAdmin(adminUser?.role)
-          ? adminUser?.branch || userForm.branch
-          : userForm.branch;
+      let assignedBranch = userForm.branch;
+      if (role === 'local_admin') {
+        if (selectedBranches.length === 0) {
+          throw new Error(
+            lang === 'ar'
+              ? 'يجب تحديد فرع واحد على الأقل للمسؤول المحلي (بحد أقصى فرعين).'
+              : lang === 'fr'
+                ? "Vous devez sélectionner au moins une agence (maximum 2) pour l'administrateur local."
+                : 'You must select at least one branch (up to 2 branches) for a local administrator.'
+          );
+        }
+        if (selectedBranches.length > 2) {
+          throw new Error(
+            lang === 'ar'
+              ? 'لا يمكن تعيين أكثر من فرعين للمسؤول المحلي.'
+              : lang === 'fr'
+                ? "Impossible d'affecter plus de 2 agences à un administrateur local."
+                : 'A local administrator cannot be assigned to more than 2 branches.'
+          );
+        }
+        assignedBranch = selectedBranches.join(',');
+      } else if (isLocalAdmin(adminUser?.role)) {
+        const adminBranches = getUserBranches(adminUser);
+        if (adminBranches.length > 0) {
+          if (!assignedBranch) {
+            assignedBranch = adminBranches[0];
+          } else if (!adminBranches.includes(assignedBranch)) {
+            throw new Error(
+              lang === 'ar'
+                ? 'لا يمكنك تعيين مستخدم في فرع خارج نطاق فروعك المصرح بها.'
+                : 'You cannot assign a user to a branch outside your authorized branches.'
+            );
+          }
+        }
+      }
 
       // --------------------------------------------------------
       // Update existing user
@@ -1499,17 +1596,15 @@ export default function Admin() {
           ]);
         } else {
           // Real Supabase creation: DO NOT save locally before server confirmation!
-          let res = await supabase.rpc('create_user_with_details', {
+          // Step 1: Call create_user (4 parameters: p_token, p_username, p_password, p_role)
+          let res = await supabase.rpc('create_user', {
             p_token: token,
             p_username: username,
             p_password: password,
             p_role: role,
-            p_full_name: userForm.full_name || null,
-            p_laboratory: assignedLab || null,
-            p_branch: assignedBranch || null,
           });
 
-          console.log('CREATE USER RESPONSE:', res.data, res.error);
+          console.log('CREATE USER RPC RESPONSE:', res.data, res.error);
 
           // 1. Check RPC-level error
           if (res.error) {
@@ -1549,6 +1644,24 @@ export default function Admin() {
                   ? "La création de l'utilisateur n'a pas été confirmée par la base de données (aucun identifiant reçu)."
                   : 'User creation was not confirmed by the database (no user ID received).'
             );
+          }
+
+          // Step 2: Now update full_name, laboratory, and branch via update_user_secure
+          if (returnedId && (userForm.full_name || assignedLab || assignedBranch)) {
+            const updateRes = await supabase.rpc('update_user_secure', {
+              p_token: token,
+              p_id: returnedId,
+              p_password: null,
+              p_role: role,
+              p_active: true,
+              p_full_name: userForm.full_name || null,
+              p_laboratory: assignedLab || null,
+              p_branch: assignedBranch || null,
+            });
+            console.log('UPDATE USER AFTER CREATE:', updateRes.data, updateRes.error);
+            if (updateRes.error) {
+              console.warn('Warning updating details after create:', updateRes.error);
+            }
           }
         }
 
@@ -1980,27 +2093,42 @@ export default function Admin() {
     try {
       switch (deleteTarget.type) {
         case 'visitor': {
-          const { count, error } = await supabase
-            .from('visitors')
-            .delete({ count: 'exact' })
-            .eq('id', deleteTarget.id);
+          const token =
+            adminToken ||
+            sessionStorage.getItem('admin_token') ||
+            '';
 
-          const isNotFound = (msg: string) => {
-            const lower = msg.toLowerCase();
-            return (
-              lower.includes('not found') ||
-              lower.includes('introuvable') ||
-              lower.includes('غير موجود') ||
-              lower.includes('does not exist')
-            );
-          };
-
-          if (error) {
-            throw error;
+          let deletedViaRpc = false;
+          if (token && isSupabaseConfigured) {
+            try {
+              const { data, error } = await supabase.rpc('admin_delete_visitor', {
+                p_token: token,
+                p_id: deleteTarget.id,
+              });
+              if (!error) {
+                const res = Array.isArray(data) ? data[0] : data;
+                if (res?.success === true || res === true) {
+                  deletedViaRpc = true;
+                }
+              }
+            } catch (rpcErr) {
+              console.warn('admin_delete_visitor RPC attempt warning:', rpcErr);
+            }
           }
 
-          if (count === 0) {
-            console.info('Visitor record count was 0, confirming absent from server.');
+          if (!deletedViaRpc) {
+            const { count, error } = await supabase
+              .from('visitors')
+              .delete({ count: 'exact' })
+              .eq('id', deleteTarget.id);
+
+            if (error) {
+              throw error;
+            }
+
+            if (count === 0) {
+              console.info('Visitor record count was 0, confirming absent from server.');
+            }
           }
 
           setVisitors((prev) => prev.filter((v) => v.id !== deleteTarget.id));
@@ -2682,11 +2810,11 @@ export default function Admin() {
     }
     if (isLocalAdmin(adminUser?.role)) {
       if (adminUser?.laboratory && !isLabMatch(visitor.laboratory, adminUser.laboratory)) return false;
-      if (adminUser?.branch && !isBranchMatch(visitor.branch, adminUser.branch)) return false;
+      if (!isUserBranchAuthorized(adminUser, visitor.branch)) return false;
     }
     if (isReadOnly(adminUser?.role)) {
       if (adminUser?.laboratory && !isLabMatch(visitor.laboratory, adminUser.laboratory)) return false;
-      if (adminUser?.branch && !isBranchMatch(visitor.branch, adminUser.branch)) return false;
+      if (!isUserBranchAuthorized(adminUser, visitor.branch)) return false;
     }
 
     const search = searchTerm.trim().toLowerCase();
@@ -2731,11 +2859,11 @@ export default function Admin() {
     }
     if (isLocalAdmin(adminUser?.role)) {
       if (adminUser?.laboratory && !isLabMatch(survey.laboratory, adminUser.laboratory)) return false;
-      if (adminUser?.branch && !isBranchMatch(survey.branch, adminUser.branch)) return false;
+      if (!isUserBranchAuthorized(adminUser, survey.branch)) return false;
     }
     if (isReadOnly(adminUser?.role)) {
       if (adminUser?.laboratory && !isLabMatch(survey.laboratory, adminUser.laboratory)) return false;
-      if (adminUser?.branch && !isBranchMatch(survey.branch, adminUser.branch)) return false;
+      if (!isUserBranchAuthorized(adminUser, survey.branch)) return false;
     }
 
     const search = searchTerm.trim().toLowerCase();
@@ -2790,11 +2918,11 @@ export default function Admin() {
     }
     if (isLocalAdmin(adminUser?.role)) {
       if (adminUser?.laboratory && !isLabMatch(enquiry.laboratory, adminUser.laboratory)) return false;
-      if (adminUser?.branch && !isBranchMatch(enquiry.branch, adminUser.branch)) return false;
+      if (!isUserBranchAuthorized(adminUser, enquiry.branch)) return false;
     }
     if (isReadOnly(adminUser?.role)) {
       if (adminUser?.laboratory && !isLabMatch(enquiry.laboratory, adminUser.laboratory)) return false;
-      if (adminUser?.branch && !isBranchMatch(enquiry.branch, adminUser.branch)) return false;
+      if (!isUserBranchAuthorized(adminUser, enquiry.branch)) return false;
     }
 
     const search = searchTerm.trim().toLowerCase();
@@ -2845,10 +2973,10 @@ export default function Admin() {
     }
 
     if (isLocalAdmin(adminUser?.role)) {
-      // Local admin: only sees and manages ordinary users in their authorized laboratory and branch
+      // Local admin: only sees and manages ordinary users in their authorized laboratory and branches
       if (user.role !== 'user') return false;
       if (user.laboratory && adminUser?.laboratory && !isLabMatch(user.laboratory, adminUser.laboratory)) return false;
-      if (user.branch && adminUser?.branch && !isBranchMatch(user.branch, adminUser.branch)) return false;
+      if (!isUserBranchAuthorized(adminUser, user.branch)) return false;
       return true;
     }
 
@@ -3186,7 +3314,12 @@ export default function Admin() {
                     {adminUser?.laboratory ? (
                       <span className="text-[10px] text-blue-300/80 truncate block leading-tight">
                         {getLabLabel(adminUser.laboratory, lang)}
-                        {adminUser.branch ? ` • ${getBranchLabel(adminUser.laboratory, adminUser.branch, lang)}` : ''}
+                        {adminUser.branch
+                          ? ` • ${adminUser.branch
+                              .split(',')
+                              .map((b) => getBranchLabel(adminUser.laboratory!, b.trim(), lang))
+                              .join(' & ')}`
+                          : ''}
                       </span>
                     ) : isSuperAdmin(adminUser?.role) ? (
                       <span className="text-[10px] text-purple-300/80 truncate block leading-tight">
@@ -3589,7 +3722,10 @@ export default function Admin() {
 
                     <select
                       value={branchFilter}
-                      disabled={isLocalAdmin(adminUser?.role) || (isReadOnly(adminUser?.role) && !!adminUser?.branch)}
+                      disabled={
+                        (isLocalAdmin(adminUser?.role) && getUserBranches(adminUser).length <= 1) ||
+                        (isReadOnly(adminUser?.role) && !!adminUser?.branch)
+                      }
                       onChange={(e) =>
                         setBranchFilter(
                           e.target.value
@@ -3598,36 +3734,48 @@ export default function Admin() {
                       className="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-75 disabled:bg-slate-100 dark:disabled:bg-slate-800/60 disabled:cursor-not-allowed"
                     >
                       <option value="">
-                        {lang === 'ar'
-                          ? 'كل الفروع'
-                          : lang === 'fr'
-                            ? 'Toutes les agences'
-                            : 'All Branches'}
+                        {isLocalAdmin(adminUser?.role) && getUserBranches(adminUser).length > 1
+                          ? (lang === 'ar'
+                            ? `كافة الفروع المصرح بها (${getUserBranches(adminUser).length})`
+                            : lang === 'fr'
+                              ? `Toutes mes agences (${getUserBranches(adminUser).length})`
+                              : `All Authorized Branches (${getUserBranches(adminUser).length})`)
+                          : (lang === 'ar'
+                            ? 'كل الفروع'
+                            : lang === 'fr'
+                              ? 'Toutes les agences'
+                              : 'All Branches')}
                       </option>
 
-                      {LAB_HIERARCHY
-                        .filter(
-                          (lab) =>
-                            !labFilter ||
-                            lab.id ===
-                            labFilter
-                        )
-                        .flatMap((lab) =>
-                          (lab.branches || []).map(
-                            (branch) => (
-                              <option
-                                key={`${lab.id}-${branch.id}`}
-                                value={branch.id}
-                              >
-                                {getBranchLabel(
-                                  lab.id,
-                                  branch.id,
-                                  lang
-                                )}
-                              </option>
-                            )
+                      {isLocalAdmin(adminUser?.role)
+                        ? getUserBranches(adminUser).map((branchId) => (
+                          <option key={branchId} value={branchId}>
+                            {getBranchLabel(adminUser?.laboratory || '', branchId, lang)}
+                          </option>
+                        ))
+                        : LAB_HIERARCHY
+                          .filter(
+                            (lab) =>
+                              !labFilter ||
+                              lab.id ===
+                              labFilter
                           )
-                        )}
+                          .flatMap((lab) =>
+                            (lab.branches || []).map(
+                              (branch) => (
+                                <option
+                                  key={`${lab.id}-${branch.id}`}
+                                  value={branch.id}
+                                >
+                                  {getBranchLabel(
+                                    lab.id,
+                                    branch.id,
+                                    lang
+                                  )}
+                                </option>
+                              )
+                            )
+                          )}
                     </select>
 
 
@@ -3974,7 +4122,7 @@ export default function Admin() {
                         </button>
                       </div>
 
-                      {visitors
+                      {filteredVisitors
                         .slice(0, 5)
                         .map((visitor) => (
                           <div
@@ -4008,7 +4156,7 @@ export default function Admin() {
                           </div>
                         ))}
 
-                      {visitors.length === 0 && (
+                      {filteredVisitors.length === 0 && (
                         <p className="text-sm text-slate-500">
                           {lang === 'ar'
                             ? 'لا توجد سجلات.'
@@ -4047,7 +4195,7 @@ export default function Admin() {
                         </button>
                       </div>
 
-                      {enquiries
+                      {filteredEnquiries
                         .slice(0, 5)
                         .map((enquiry) => (
                           <div
@@ -4069,7 +4217,7 @@ export default function Admin() {
                           </div>
                         ))}
 
-                      {enquiries.length === 0 && (
+                      {filteredEnquiries.length === 0 && (
                         <p className="text-sm text-slate-500">
                           {lang === 'ar'
                             ? 'لا توجد سجلات.'
