@@ -624,15 +624,81 @@ function createMockSupabaseClient() {
           return { data: [], error: null };
         }
 
+
         case 'get_all_admin_users': {
-          const safeUsers = users.map(u => ({
+          const caller = getCaller(args.p_token as string);
+
+          // Reject invalid sessions and inactive accounts.
+          if (!canManageAccounts(caller)) {
+            return {
+              data: null,
+              error: {
+                message: 'Unauthorized: Invalid session or insufficient permissions',
+              },
+            };
+          }
+
+          let scoped: AdminUserData[] = [];
+
+          if (caller.role === 'super_admin') {
+            // Super admins can view all administrator accounts.
+            scoped = users.filter(
+              u => ['super_admin', 'lab_admin', 'local_admin', 'admin'].includes(u.role)
+            );
+          } else if (caller.role === 'lab_admin') {
+            if (!caller.laboratory) {
+              return {
+                data: null,
+                error: {
+                  message: 'Unauthorized: No laboratory is assigned to this account',
+                },
+              };
+            }
+
+            // Only administrators assigned to the same laboratory and valid branches.
+            scoped = users.filter(
+              u =>
+                ['lab_admin', 'local_admin', 'admin'].includes(u.role) &&
+                u.laboratory === caller.laboratory &&
+                validBranchForLab(u.laboratory, u.branch)
+            );
+          } else if (caller.role === 'local_admin') {
+            if (!caller.laboratory || !caller.branch) {
+              return {
+                data: null,
+                error: {
+                  message: 'Unauthorized: No laboratory or branch is assigned to this account',
+                },
+              };
+            }
+
+            // Local admins may view local admin accounts in their exact branch.
+            // They cannot view super admins or laboratory admins.
+            scoped = users.filter(
+              u =>
+                ['local_admin', 'admin'].includes(u.role) &&
+                u.laboratory === caller.laboratory &&
+                u.branch === caller.branch
+            );
+          } else {
+            return {
+              data: null,
+              error: {
+                message: 'Unauthorized: Unsupported account role',
+              },
+            };
+          }
+
+          const safeUsers = scoped.map(u => ({
             id: u.id,
             username: u.username,
             full_name: u.full_name,
             role: u.role,
           }));
+
           return { data: safeUsers, error: null };
         }
+
 
         case 'login_user': {
           const { p_username, p_password } = args as { p_username?: string; p_password?: string };
