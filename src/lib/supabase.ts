@@ -625,6 +625,7 @@ function createMockSupabaseClient() {
         }
 
 
+
         case 'get_all_admin_users': {
           const caller = getCaller(args.p_token as string);
 
@@ -643,7 +644,8 @@ function createMockSupabaseClient() {
           if (caller.role === 'super_admin') {
             // Super admins can view all administrator accounts.
             scoped = users.filter(
-              u => ['super_admin', 'lab_admin', 'local_admin', 'admin'].includes(u.role)
+              u =>
+                ['super_admin', 'lab_admin', 'local_admin', 'admin'].includes(u.role)
             );
           } else if (caller.role === 'lab_admin') {
             if (!caller.laboratory) {
@@ -655,7 +657,8 @@ function createMockSupabaseClient() {
               };
             }
 
-            // Only administrators assigned to the same laboratory and valid branches.
+            // Show only administrators assigned to the same laboratory
+            // and valid branches.
             scoped = users.filter(
               u =>
                 ['lab_admin', 'local_admin', 'admin'].includes(u.role) &&
@@ -663,23 +666,13 @@ function createMockSupabaseClient() {
                 validBranchForLab(u.laboratory, u.branch)
             );
           } else if (caller.role === 'local_admin') {
-            if (!caller.laboratory || !caller.branch) {
-              return {
-                data: null,
-                error: {
-                  message: 'Unauthorized: No laboratory or branch is assigned to this account',
-                },
-              };
-            }
-
-            // Local admins may view local admin accounts in their exact branch.
-            // They cannot view super admins or laboratory admins.
-            scoped = users.filter(
-              u =>
-                ['local_admin', 'admin'].includes(u.role) &&
-                u.laboratory === caller.laboratory &&
-                u.branch === caller.branch
-            );
+            // Local admins manage ordinary users, not administrator accounts.
+            return {
+              data: null,
+              error: {
+                message: 'Unauthorized: Local administrators cannot access admin account management',
+              },
+            };
           } else {
             return {
               data: null,
@@ -698,6 +691,7 @@ function createMockSupabaseClient() {
 
           return { data: safeUsers, error: null };
         }
+
 
 
         case 'login_user': {
