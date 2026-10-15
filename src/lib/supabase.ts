@@ -686,25 +686,70 @@ function createMockSupabaseClient() {
           return { data: { success: true }, error: null };
         }
 
+
         case 'list_users': {
           const caller = getCaller(args.p_token as string);
-          if (caller && caller.role === 'user') {
-            return { data: null, error: { message: 'Unauthorized: Standard users cannot access user management' } };
+
+          // Reject invalid sessions, inactive accounts and standard users.
+          if (!canManageAccounts(caller)) {
+            return {
+              data: null,
+              error: {
+                message: 'Unauthorized: Invalid session or insufficient permissions',
+              },
+            };
           }
 
-          let scoped = users;
-          if (caller?.role === 'lab_admin') {
-            // Lab admin cannot see super admins; scoped only to their laboratory
+          let scoped: AdminUserData[] = [];
+
+          if (caller.role === 'super_admin') {
+            // Super admins can view all accounts.
+            scoped = users;
+          } else if (caller.role === 'lab_admin') {
+            // Lab admins must have a laboratory assignment.
+            if (!caller.laboratory) {
+              return {
+                data: null,
+                error: {
+                  message: 'Unauthorized: No laboratory is assigned to this account',
+                },
+              };
+            }
+
+            // Only accounts assigned to their own laboratory and valid branches.
             scoped = users.filter(
-              u => u.role !== 'super_admin' && u.role !== 'admin' && (!u.laboratory || u.laboratory === caller.laboratory)
+              u =>
+                u.role !== 'super_admin' &&
+                u.laboratory === caller.laboratory &&
+                validBranchForLab(u.laboratory, u.branch)
             );
-          } else if (caller?.role === 'local_admin') {
-            // Local admin can only view ordinary users in their laboratory and branch
+          } else if (caller.role === 'local_admin') {
+            // Local admins can only view ordinary users in their exact branch.
+            if (!caller.laboratory || !caller.branch) {
+              return {
+                data: null,
+                error: {
+                  message: 'Unauthorized: No laboratory or branch is assigned to this account',
+                },
+              };
+            }
+
             scoped = users.filter(
-              u => u.role === 'user' && u.laboratory === caller.laboratory && (!caller.branch || u.branch === caller.branch)
+              u =>
+                u.role === 'user' &&
+                u.laboratory === caller.laboratory &&
+                u.branch === caller.branch
             );
+          } else {
+            return {
+              data: null,
+              error: {
+                message: 'Unauthorized: Unsupported account role',
+              },
+            };
           }
 
+          // Return safe account fields only; never expose passwords.
           const safeUsers = scoped.map(u => ({
             id: u.id,
             username: u.username,
@@ -715,8 +760,10 @@ function createMockSupabaseClient() {
             active: u.active !== false,
             is_primary: u.is_primary || u.username === 'admin',
           }));
+
           return { data: safeUsers, error: null };
         }
+
 
 
         case 'create_user':
