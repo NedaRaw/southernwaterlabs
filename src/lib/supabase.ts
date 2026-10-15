@@ -1301,11 +1301,92 @@ function createMockSupabaseClient() {
         }
 
 
+
         case 'get_admin_surveys':
         case 'admin_list_surveys': {
-          const surveys = loadData<SurveyDataRecord[]>(STORAGE_KEYS.SURVEYS, defaultSurveys);
-          return { data: surveys, error: null };
+          const caller = getCaller(args.p_token as string);
+
+          if (!caller || caller.active === false) {
+            return {
+              data: null,
+              error: { message: 'Unauthorized: Invalid session' },
+            };
+          }
+
+          if (!['super_admin', 'lab_admin'].includes(caller.role)) {
+            return {
+              data: null,
+              error: {
+                message: 'Unauthorized: Insufficient permissions to view surveys',
+              },
+            };
+          }
+
+          const surveys = loadData<SurveyDataRecord[]>(
+            STORAGE_KEYS.SURVEYS,
+            defaultSurveys
+          );
+
+          if (caller.role === 'super_admin') {
+            return { data: surveys, error: null };
+          }
+
+          if (!caller.laboratory) {
+            return {
+              data: null,
+              error: { message: 'Unauthorized: No laboratory assigned' },
+            };
+          }
+
+          const scoped = surveys.filter(
+            survey => survey.laboratory === caller.laboratory
+          );
+
+          return { data: scoped, error: null };
         }
+
+        case 'admin_list_enquiries': {
+          const caller = getCaller(args.p_token as string);
+
+          if (!caller || caller.active === false) {
+            return {
+              data: null,
+              error: { message: 'Unauthorized: Invalid session' },
+            };
+          }
+
+          if (!['super_admin', 'lab_admin'].includes(caller.role)) {
+            return {
+              data: null,
+              error: {
+                message: 'Unauthorized: Insufficient permissions to view enquiries',
+              },
+            };
+          }
+
+          const enquiries = loadData<EnquiryDataRecord[]>(
+            STORAGE_KEYS.ENQUIRIES,
+            defaultEnquiries
+          );
+
+          if (caller.role === 'super_admin') {
+            return { data: enquiries, error: null };
+          }
+
+          if (!caller.laboratory) {
+            return {
+              data: null,
+              error: { message: 'Unauthorized: No laboratory assigned' },
+            };
+          }
+
+          const scoped = enquiries.filter(
+            enquiry => enquiry.laboratory === caller.laboratory
+          );
+
+          return { data: scoped, error: null };
+        }
+
 
         case 'admin_delete_survey': {
           const caller = getCaller(args.p_token as string);
@@ -1337,10 +1418,79 @@ function createMockSupabaseClient() {
           return { data: { success: true }, error: null };
         }
 
+
         case 'admin_list_enquiries': {
-          const enquiries = loadData<EnquiryDataRecord[]>(STORAGE_KEYS.ENQUIRIES, defaultEnquiries);
-          return { data: enquiries, error: null };
+          const caller = getCaller(args.p_token as string);
+
+          if (!caller || caller.active === false) {
+            return {
+              data: null,
+              error: { message: 'Unauthorized: Invalid session' },
+            };
+          }
+
+          if (!['super_admin', 'lab_admin', 'local_admin'].includes(caller.role)) {
+            return {
+              data: null,
+              error: {
+                message: 'Unauthorized: Insufficient permissions to view enquiries',
+              },
+            };
+          }
+
+          const enquiries = loadData<EnquiryDataRecord[]>(
+            STORAGE_KEYS.ENQUIRIES,
+            defaultEnquiries
+          );
+
+          // Super Admin: can view all enquiries.
+          if (caller.role === 'super_admin') {
+            return { data: enquiries, error: null };
+          }
+
+          // Lab Admin: must have a laboratory assignment.
+          if (caller.role === 'lab_admin') {
+            if (!caller.laboratory) {
+              return {
+                data: null,
+                error: { message: 'Unauthorized: No laboratory assigned' },
+              };
+            }
+
+            const scoped = enquiries.filter(
+              enquiry => enquiry.laboratory === caller.laboratory
+            );
+
+            return { data: scoped, error: null };
+          }
+
+          // Local Admin: require explicit laboratory and branch assignments.
+          // The current scalar branch field supports only one branch.
+          if (caller.role === 'local_admin') {
+            if (!caller.laboratory || !caller.branch) {
+              return {
+                data: null,
+                error: {
+                  message: 'Unauthorized: No laboratory or branch assigned',
+                },
+              };
+            }
+
+            const scoped = enquiries.filter(
+              enquiry =>
+                enquiry.laboratory === caller.laboratory &&
+                enquiry.branch === caller.branch
+            );
+
+            return { data: scoped, error: null };
+          }
+
+          return {
+            data: null,
+            error: { message: 'Unauthorized' },
+          };
         }
+
 
         case 'admin_delete_enquiry': {
           const caller = getCaller(args.p_token as string);
