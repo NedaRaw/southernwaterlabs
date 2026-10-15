@@ -692,8 +692,6 @@ function createMockSupabaseClient() {
           return { data: safeUsers, error: null };
         }
 
-
-
         case 'login_user': {
           const { p_username, p_password } = args as { p_username?: string; p_password?: string };
           const match = users.find(
@@ -1161,43 +1159,147 @@ function createMockSupabaseClient() {
         }
 
 
+
         case 'delete_admin_user':
         case 'delete_user': {
           const caller = getCaller(args.p_token as string);
-          if (caller && caller.role === 'user') {
-            return { data: null, error: { message: 'Unauthorized: Standard users cannot delete accounts' } };
+
+          // 1. Require a valid, active administrator session.
+          if (!canManageAccounts(caller)) {
+            return {
+              data: null,
+              error: {
+                message: 'Unauthorized: Invalid session or insufficient permissions',
+              },
+            };
           }
 
           const { p_id } = args as { p_id: string };
+
+          if (!p_id) {
+            return {
+              data: null,
+              error: { message: 'User ID is required' },
+            };
+          }
+
           const target = users.find(u => u.id === p_id);
+
           if (!target) {
-            return { data: null, error: { message: 'User not found' } };
+            return {
+              data: null,
+              error: { message: 'User not found' },
+            };
           }
+
+          // 2. Protect the primary administrator.
           if (target.is_primary || target.username === 'admin') {
-            return { data: null, error: { message: 'Cannot delete primary super administrator account' } };
+            return {
+              data: null,
+              error: {
+                message: 'Cannot delete primary super administrator account',
+              },
+            };
           }
 
-          // Hierarchy validation on delete
-          if (caller?.role === 'lab_admin') {
-            if (target.role === 'super_admin' || target.role === 'admin' || target.role === 'lab_admin') {
-              return { data: null, error: { message: 'Unauthorized: Laboratory administrators cannot delete Super Admin or Laboratory Admin accounts' } };
-            }
-            if (target.laboratory && target.laboratory !== caller.laboratory) {
-              return { data: null, error: { message: 'Unauthorized: Cannot delete accounts outside your assigned laboratory' } };
-            }
-          } else if (caller?.role === 'local_admin') {
-            if (target.role !== 'user') {
-              return { data: null, error: { message: 'Unauthorized: Local administrators can only delete standard users' } };
-            }
-            if (target.laboratory !== caller.laboratory || (caller.branch && target.branch !== caller.branch)) {
-              return { data: null, error: { message: 'Unauthorized: Cannot delete accounts outside your assigned branch' } };
-            }
+          // 3. Prevent self-deletion.
+          if (caller.id === target.id) {
+            return {
+              data: null,
+              error: {
+                message: 'Unauthorized: You cannot delete your own account',
+              },
+            };
           }
 
+          // 4. Enforce role hierarchy and scope.
+          if (caller.role === 'super_admin') {
+            // Super admin can delete other accounts,
+            // except the protected primary account above.
+          } else if (caller.role === 'lab_admin') {
+            if (!caller.laboratory) {
+              return {
+                data: null,
+                error: {
+                  message: 'Unauthorized: No laboratory is assigned to this account',
+                },
+              };
+            }
+
+            // Lab admins can delete local admins and users only
+            // within their own central laboratory.
+            if (!['local_admin', 'user'].includes(target.role)) {
+              return {
+                data: null,
+                error: {
+                  message: 'Unauthorized: Cannot delete this account role',
+                },
+              };
+            }
+
+            if (
+              !target.laboratory ||
+              target.laboratory !== caller.laboratory ||
+              !validBranchForLab(target.laboratory, target.branch)
+            ) {
+              return {
+                data: null,
+                error: {
+                  message: 'Unauthorized: Account is outside your laboratory scope',
+                },
+              };
+            }
+
+            if (target.role === 'local_admin' && !target.branch) {
+              return {
+                data: null,
+                error: {
+                  message: 'Unauthorized: Local administrator has no valid branch assignment',
+                },
+              };
+            }
+          } else if (caller.role === 'local_admin') {
+            if (!caller.laboratory || !caller.branch) {
+              return {
+                data: null,
+                error: {
+                  message: 'Unauthorized: No laboratory or branch is assigned to this account',
+                },
+              };
+            }
+
+            // Local admins can delete ordinary users in their exact branch only.
+            if (
+              target.role !== 'user' ||
+              target.laboratory !== caller.laboratory ||
+              target.branch !== caller.branch
+            ) {
+              return {
+                data: null,
+                error: {
+                  message: 'Unauthorized: Can only delete users in your assigned branch',
+                },
+              };
+            }
+          } else {
+            return {
+              data: null,
+              error: {
+                message: 'Unauthorized: Unsupported account role',
+              },
+            };
+          }
+
+          // 5. Delete only after all checks pass.
           const filtered = users.filter(u => u.id !== p_id);
           saveData(STORAGE_KEYS.ADMIN_USERS, filtered);
-          return { data: { success: true }, error: null };
+
+          return {
+            data: { success: true },
+            error: null,
+          };
         }
+
 
         case 'get_admin_surveys':
         case 'admin_list_surveys': {
