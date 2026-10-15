@@ -187,7 +187,7 @@ export const QR_REGISTRY: QrCodeEntry[] = [
     descAr: 'المختبر الفرعي التابع لمختبر نجران المركزي بمحافظة شرورة',
     descEn: 'Sub-laboratory affiliated with Najran Central Laboratory in Sharurah',
     descFr: 'Laboratoire affilié au Laboratoire Central de Najran à Sharurah',
-    badgeAr: 'فرع نجرan',
+    badgeAr: 'فرع نجران',
     badgeEn: 'Najran Branch',
     badgeFr: 'Branche Najran',
   },

@@ -159,24 +159,65 @@ export function canEditUser(actor: AdminUser | null, target: AdminUser): boolean
   return false;
 }
 
-export function canDeleteUser(actor: AdminUser | null, target: AdminUser): boolean {
-  if (!actor) return false;
-  if (target.is_primary || target.username === 'admin') return false;
-  if (isSuperAdmin(actor.role)) return true;
-  if (isLabAdmin(actor.role)) {
-    // Cannot delete Super Admin or Laboratory Admin accounts
-    if (isSuperAdmin(target.role) || target.role === 'lab_admin') return false;
-    return !target.laboratory || target.laboratory === actor.laboratory;
+
+export function canDeleteUser(
+  actor: AdminUser | null,
+  target: AdminUser
+): boolean {
+  if (!actor || !target) return false;
+
+  // Protect primary and legacy admin accounts.
+  if (target.is_primary || target.username === 'admin') {
+    return false;
   }
-  if (isLocalAdmin(actor.role)) {
-    // Cannot delete any administrator accounts; only ordinary users
-    if (target.role !== 'user') return false;
-    if (target.laboratory && actor.laboratory && target.laboratory !== actor.laboratory) return false;
-    if (target.branch && actor.branch && target.branch !== actor.branch) return false;
+
+  // Prevent self-deletion.
+  if (actor.id === target.id) {
+    return false;
+  }
+
+  // Super Admin: global access, except protected accounts.
+  if (isSuperAdmin(actor.role)) {
     return true;
   }
+
+  // Lab Admin: same laboratory only; cannot delete Lab Admins.
+  if (isLabAdmin(actor.role)) {
+    if (
+      !actor.laboratory ||
+      !target.laboratory ||
+      target.laboratory !== actor.laboratory
+    ) {
+      return false;
+    }
+
+    return (
+      target.role === 'local_admin' ||
+      target.role === 'user'
+    );
+  }
+
+  // Local Admin: ordinary users in the exact same lab and branch.
+  if (isLocalAdmin(actor.role)) {
+    if (
+      target.role !== 'user' ||
+      !actor.laboratory ||
+      !actor.branch ||
+      !target.laboratory ||
+      !target.branch
+    ) {
+      return false;
+    }
+
+    return (
+      target.laboratory === actor.laboratory &&
+      target.branch === actor.branch
+    );
+  }
+
   return false;
 }
+
 
 export function isLabMatch(recordLab?: string | null, targetLab?: string | null): boolean {
   if (!targetLab) return true;
@@ -1607,8 +1648,6 @@ export default function Admin() {
           p_active: user.active === false,
         });
 
-        console.log('TOGGLE USER RESPONSE:', data, error);
-
         if (error) {
           throw new Error(getErrorMessage(error));
         }
@@ -2064,86 +2103,71 @@ export default function Admin() {
           break;
         }
 
+
         case 'enquiry': {
           const token =
             adminToken ||
             sessionStorage.getItem('admin_token') ||
             '';
 
-          let deleted = false;
-
-          const isNotFound = (msg: string) => {
-            const lower = msg.toLowerCase();
-            return (
-              lower.includes('not found') ||
-              lower.includes('introuvable') ||
-              lower.includes('غير موجود') ||
-              lower.includes('does not exist')
+          if (!token) {
+            throw new Error(
+              lang === 'ar'
+                ? 'انتهت جلسة المسؤول. يرجى تسجيل الدخول مجددًا.'
+                : lang === 'fr'
+                  ? 'Session administrateur expirée. Veuillez vous reconnecter.'
+                  : 'Admin session expired. Please log in again.'
             );
-          };
+          }
 
-          // 1. First attempt: Dedicated token-authenticated RPC for enquiries
-          if (token) {
-            const { data, error } = await supabase.rpc('admin_delete_enquiry', {
+          const { data, error } = await supabase.rpc(
+            'admin_delete_enquiry',
+            {
               p_token: token,
               p_id: deleteTarget.id,
-            });
-
-            if (!error) {
-              if (data && typeof data === 'object') {
-                const resObj = data as { success?: boolean; error?: unknown; message?: string };
-                if (resObj.success === false || resObj.error) {
-                  const errorMsg = String(resObj.error || resObj.message || '');
-                  if (isNotFound(errorMsg)) {
-                    console.info('Enquiry record was already absent from server:', errorMsg);
-                    deleted = true;
-                  } else {
-                    throw new Error(
-                      errorMsg ||
-                      (lang === 'ar' ? 'فشل حذف الاستفسار' : 'Failed to delete enquiry')
-                    );
-                  }
-                } else {
-                  deleted = true;
-                }
-              } else {
-                deleted = true;
-              }
-            } else {
-              const errMsg = getErrorMessage(error);
-              if (isNotFound(errMsg)) {
-                console.info('Enquiry record was already absent from server:', errMsg);
-                deleted = true;
-              } else if (
-                errMsg.toLowerCase().includes('unauthorized') ||
-                errMsg.toLowerCase().includes('invalid token') ||
-                errMsg.toLowerCase().includes('expired')
-              ) {
-                setSessionExpired(true);
-                throw error;
-              } else {
-                console.warn('admin_delete_enquiry RPC error, attempting fallback:', error);
-              }
             }
+          );
+
+          if (error) {
+            const message = getErrorMessage(error).toLowerCase();
+
+            if (
+              message.includes('unauthorized') ||
+              message.includes('invalid token') ||
+              message.includes('expired') ||
+              error.code === 'P0001'
+            ) {
+              setSessionExpired(true);
+            }
+
+            throw error;
           }
 
-          // 2. Fallback: Direct table delete (when RPC is not configured or in local storage mock)
-          if (!deleted) {
-            const { count, error } = await supabase
-              .from('enquiries')
-              .delete({ count: 'exact' })
-              .eq('id', deleteTarget.id);
+          const result = Array.isArray(data) ? data[0] : data;
 
-            if (error && !isNotFound(getErrorMessage(error))) {
-              throw error;
-            }
-
-            if (count === 0) {
-              console.info('Enquiry record count is 0, confirming absent from server.');
-            }
+          if (
+            !result ||
+            typeof result !== 'object' ||
+            result.success !== true ||
+            result.error
+          ) {
+            throw new Error(
+              String(
+                result?.error ||
+                result?.message ||
+                (lang === 'ar'
+                  ? 'لم يؤكد الخادم نجاح حذف الاستفسار.'
+                  : lang === 'fr'
+                    ? 'Le serveur n’a pas confirmé la suppression.'
+                    : 'The server did not confirm enquiry deletion.')
+              )
+            );
           }
 
-          setEnquiries((prev) => prev.filter((e) => e.id !== deleteTarget.id));
+          setEnquiries((prev) =>
+            prev.filter((item) => item.id !== deleteTarget.id)
+          );
+
           setFeedback({
             type: 'success',
             message:
@@ -2153,10 +2177,13 @@ export default function Admin() {
                   ? 'Demande supprimée avec succès.'
                   : 'Enquiry deleted successfully.',
           });
+
           setDeleteTarget(null);
           await fetchData();
           break;
         }
+
+
 
         case 'user': {
           const token =
@@ -2174,79 +2201,84 @@ export default function Admin() {
             );
           }
 
-          const isNotFound = (msg: string) => {
-            const lower = msg.toLowerCase();
-            return (
-              lower.includes('not found') ||
-              lower.includes('introuvable') ||
-              lower.includes('غير موجود') ||
-              lower.includes('does not exist')
+          const targetUser = adminUsers.find(
+            (item) => item.id === deleteTarget.id
+          );
+
+          if (
+            !targetUser ||
+            !canDeleteUser(adminUser, targetUser)
+          ) {
+            throw new Error(
+              lang === 'ar'
+                ? 'لا تملك صلاحية حذف هذا الحساب.'
+                : lang === 'fr'
+                  ? 'Vous n’avez pas l’autorisation de supprimer ce compte.'
+                  : 'You are not authorized to delete this account.'
             );
-          };
+          }
 
-          const { data, error } = await supabase.rpc('delete_user_secure', {
-            p_token: token,
-            p_id: deleteTarget.id,
-          });
+          const { data, error } = await supabase.rpc(
+            'delete_user_secure',
+            {
+              p_token: token,
+              p_id: deleteTarget.id,
+            }
+          );
 
-          if (error && !isNotFound(getErrorMessage(error))) {
+          if (error) {
+            const message = getErrorMessage(error).toLowerCase();
+
+            if (
+              message.includes('unauthorized') ||
+              message.includes('invalid token') ||
+              message.includes('expired') ||
+              error.code === 'P0001'
+            ) {
+              setSessionExpired(true);
+            }
+
             throw error;
           }
 
-          if (data && typeof data === 'object') {
-            const { data, error } = await supabase.rpc('delete_user_secure', {
-              p_token: token,
-              p_id: deleteTarget.id,
-            });
+          const result = Array.isArray(data) ? data[0] : data;
 
-            if (error) {
-              throw error;
-            }
-
-            if (!data || typeof data !== 'object') {
-              throw new Error(
-                lang === 'ar'
+          if (
+            !result ||
+            typeof result !== 'object' ||
+            result.success !== true ||
+            result.error
+          ) {
+            throw new Error(
+              String(
+                result?.error ||
+                result?.message ||
+                (lang === 'ar'
                   ? 'لم يؤكد الخادم نجاح حذف المستخدم.'
                   : lang === 'fr'
-                    ? "Le serveur n'a pas confirmé la suppression."
-                    : 'The server did not confirm user deletion.'
-              );
-            }
-
-            const result = data as {
-              success?: unknown;
-              error?: unknown;
-              message?: string;
-            };
-
-            if (result.error || result.success !== true) {
-              throw new Error(
-                String(
-                  result.error ||
-                  result.message ||
-                  (lang === 'ar'
-                    ? 'لم يؤكد الخادم نجاح حذف المستخدم.'
-                    : lang === 'fr'
-                      ? "Le serveur n'a pas confirmé la suppression."
-                      : 'The server did not confirm user deletion.')
-                )
-              );
-            }
+                    ? 'Le serveur n’a pas confirmé la suppression.'
+                    : 'The server did not confirm user deletion.')
+              )
+            );
           }
 
-          // Remove from local storage in unconfigured mock mode only
+          // Local storage is used only in mock mode.
           if (!isSupabaseConfigured) {
             const localUsers = loadData<AdminUserData[]>(
               STORAGE_KEYS.ADMIN_USERS,
               defaultAdminUsers
             );
+
             saveData(
               STORAGE_KEYS.ADMIN_USERS,
-              localUsers.filter((u) => u.id !== deleteTarget.id)
+              localUsers.filter((item) => item.id !== deleteTarget.id)
             );
           }
 
-          setAdminUsers((prev) => prev.filter((u) => u.id !== deleteTarget.id));
+          setAdminUsers((prev) =>
+            prev.filter((item) => item.id !== deleteTarget.id)
+          );
+
           setFeedback({
             type: 'success',
             message:
@@ -2256,10 +2288,12 @@ export default function Admin() {
                   ? 'Compte utilisateur supprimé avec succès.'
                   : 'User account deleted successfully.',
           });
+
           setDeleteTarget(null);
           await fetchData();
           break;
         }
+
       }
     } catch (err: unknown) {
       console.error('Delete execution error:', err);
@@ -2295,7 +2329,6 @@ export default function Admin() {
 
     setBulkSurveyDeleteLoading(true);
     setBulkSurveyDeleteError(null);
-    setBulkSurveyDeleteResult(null);
 
     const idsToDelete = [...new Set(selectedSurveyIds)];
     const deletedIds: string[] = [];
@@ -2382,7 +2415,7 @@ export default function Admin() {
     }
   };
 
-  // حذف مجموعة من سجلات الزوار
+  // حذف مجموعة من سجلات الزوار عبر دالة Supabase الآمنة
   const executeBulkVisitorDelete = async () => {
     if (
       bulkVisitorDeleteLoading ||
@@ -2400,22 +2433,71 @@ export default function Admin() {
     const failedIds: string[] = [];
 
     try {
+      const token =
+        adminToken ||
+        sessionStorage.getItem('admin_token') ||
+        '';
+
+      if (!token) {
+        setSessionExpired(true);
+        throw new Error(
+          lang === 'ar'
+            ? 'انتهت جلسة المسؤول. يرجى تسجيل الدخول مجددًا.'
+            : lang === 'fr'
+              ? 'Session administrateur expirée. Veuillez vous reconnecter.'
+              : 'Admin session expired. Please log in again.'
+        );
+      }
+
       for (const id of idsToDelete) {
         try {
-          const { error } = await supabase
-            .from('visitors')
-            .delete()
-            .eq('id', id);
+          const { data, error } = await supabase.rpc(
+            'admin_delete_visitor',
+            {
+              p_token: token,
+              p_id: id,
+            }
+          );
 
           if (error) {
-            console.error('Visitor deletion failed:', id, error);
+            const message = getErrorMessage(error).toLowerCase();
+
+            if (
+              message.includes('unauthorized') ||
+              message.includes('invalid token') ||
+              message.includes('expired')
+            ) {
+              setSessionExpired(true);
+              throw error;
+            }
+
+            failedIds.push(id);
+            continue;
+          }
+
+          const result = Array.isArray(data) ? data[0] : data;
+
+          if (
+            !result ||
+            typeof result !== 'object' ||
+            result.success !== true
+          ) {
             failedIds.push(id);
             continue;
           }
 
           deletedIds.push(id);
         } catch (error) {
-          console.error('Visitor deletion failed:', id, error);
+          const message = getErrorMessage(error).toLowerCase();
+
+          if (
+            message.includes('unauthorized') ||
+            message.includes('invalid token') ||
+            message.includes('expired')
+          ) {
+            throw error;
+          }
+
           failedIds.push(id);
         }
       }
@@ -2454,12 +2536,12 @@ export default function Admin() {
 
       await fetchData();
     } catch (error) {
-      console.error('Bulk visitor deletion failed:', error);
       setBulkVisitorDeleteError(getErrorMessage(error));
     } finally {
       setBulkVisitorDeleteLoading(false);
     }
   };
+
 
   // حذف مجموعة من الاستفسارات
   const executeBulkEnquiryDelete = async () => {
@@ -4455,7 +4537,6 @@ export default function Admin() {
                                 type="button"
                                 onClick={() => {
                                   setBulkSurveyDeleteError(null);
-                                  setBulkSurveyDeleteResult(null);
                                   setBulkSurveyDeleteOpen(true);
                                 }}
                                 disabled={bulkSurveyDeleteLoading}

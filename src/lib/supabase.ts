@@ -411,6 +411,52 @@ export function saveData<T>(key: string, val: T): void {
 
 type GenericRow = Record<string, unknown>;
 
+const canManageAccounts = (
+  caller: AdminUserData | null
+): caller is AdminUserData => {
+  return Boolean(
+    caller &&
+    caller.active !== false &&
+    ['super_admin', 'lab_admin', 'local_admin'].includes(caller.role)
+  );
+};
+
+const canAssignRole = (
+  callerRole: string,
+  targetRole: string
+): boolean => {
+  const allowedRoles: Record<string, string[]> = {
+    super_admin: ['super_admin', 'lab_admin', 'local_admin', 'user'],
+    lab_admin: ['local_admin', 'user'],
+    local_admin: ['user'],
+  };
+
+  return allowedRoles[callerRole]?.includes(targetRole) ?? false;
+};
+
+const validBranchForLab = (
+  laboratory: string | null | undefined,
+  branch: string | null | undefined
+): boolean => {
+  if (!laboratory) {
+    return branch == null || branch === '';
+  }
+
+  const branchesByLab: Record<string, string[]> = {
+    asir: ['bisha', 'mahayel'],
+    najran: ['sharurah'],
+    'al-baha': ['qalwah'],
+    jazan: ['al-darb', 'farasan'],
+  };
+
+  const allowedBranches = branchesByLab[laboratory];
+
+  if (!allowedBranches) return false;
+
+  return branch == null || branch === '' || allowedBranches.includes(branch);
+};
+
+
 function createMockSupabaseClient() {
   return {
     from: (table: string) => {
@@ -522,20 +568,31 @@ function createMockSupabaseClient() {
     rpc: async (fnName: string, args: Record<string, unknown> = {}) => {
       const users = loadData<AdminUserData[]>(STORAGE_KEYS.ADMIN_USERS, defaultAdminUsers);
 
+
       const getCaller = (token?: string): AdminUserData | null => {
         if (!token) return null;
-        const sessions = loadData<Record<string, AdminUserData>>(STORAGE_KEYS.ACTIVE_SESSIONS, {});
-        if (sessions[token]) return sessions[token];
-        // Parse mock-token format fallback
-        if (token.startsWith('mock-token-')) {
-          const parts = token.split('-');
-          if (parts[2]) {
-            const byId = users.find(u => u.id === parts[2]);
-            if (byId) return byId;
+
+        const sessions = loadData<Record<string, AdminUserData>>(
+          STORAGE_KEYS.ACTIVE_SESSIONS,
+          {}
+        );
+
+        const sessionUser = sessions[token];
+
+        if (sessionUser) {
+          const currentUser = users.find(u => u.id === sessionUser.id);
+
+          if (!currentUser || currentUser.active === false) {
+            return null;
           }
+
+          return currentUser;
         }
-        return users.find(u => u.is_primary) || users[0] || null;
+
+        // Never grant the primary administrator identity to an invalid token.
+        return null;
       };
+
 
       switch (fnName) {
         case 'require_admin': {
@@ -719,71 +776,190 @@ function createMockSupabaseClient() {
           return { data: { success: true, user: newUser }, error: null };
         }
 
+
         case 'update_user':
         case 'update_admin_user': {
           const caller = getCaller(args.p_token as string);
-          if (caller && caller.role === 'user') {
-            return { data: null, error: { message: 'Unauthorized: Standard users cannot update accounts' } };
+
+          if (!canManageAccounts(caller)) {
+            return {
+              data: null,
+              error: {
+                message: 'Unauthorized: Invalid session or insufficient permissions',
+              },
+            };
           }
 
-          const { p_id, p_password, p_role, p_active } = args as {
+          const {
+            p_id,
+            p_password,
+            p_role,
+            p_active,
+          } = args as {
             p_id: string;
-            p_password?: string;
+            p_password?: string | null;
             p_role?: string;
             p_active?: boolean;
           };
-          const target = users.find(u => u.id === p_id);
+
+          const target = users.find((u) => u.id === p_id);
+
           if (!target) {
-            return { data: null, error: { message: 'User not found' } };
+            return {
+              data: null,
+              error: { message: 'User not found' },
+            };
           }
 
-          const p_full_name = (args.p_full_name as string) || (args.full_name as string);
-          let p_laboratory = (args.p_laboratory as string) || (args.laboratory as string);
-          let p_branch = (args.p_branch as string) || (args.branch as string);
+          const p_full_name =
+            (args.p_full_name as string | undefined) ??
+            (args.full_name as string | undefined);
 
-          // Hierarchy validation on update
-          if (caller?.role === 'lab_admin') {
-            if (target.role === 'super_admin' || target.role === 'admin' || target.role === 'lab_admin') {
-              return { data: null, error: { message: 'Unauthorized: Laboratory administrators cannot edit Super Admin or Laboratory Admin accounts' } };
-            }
-            if (p_role && (p_role === 'super_admin' || p_role === 'admin' || p_role === 'lab_admin')) {
-              return { data: null, error: { message: 'Unauthorized: Laboratory administrators cannot promote accounts to Super Admin or Laboratory Admin' } };
-            }
-            if (target.laboratory && target.laboratory !== caller.laboratory) {
-              return { data: null, error: { message: 'Unauthorized: Cannot edit users outside your assigned laboratory' } };
-            }
-            p_laboratory = caller.laboratory || null;
-          } else if (caller?.role === 'local_admin') {
-            if (target.role !== 'user') {
-              return { data: null, error: { message: 'Unauthorized: Local administrators can only manage standard users' } };
-            }
-            if (p_role && p_role !== 'user') {
-              return { data: null, error: { message: 'Unauthorized: Local administrators cannot promote accounts to administrator roles' } };
-            }
-            if (target.laboratory !== caller.laboratory || (caller.branch && target.branch !== caller.branch)) {
-              return { data: null, error: { message: 'Unauthorized: Cannot edit users outside your assigned branch' } };
-            }
-            p_laboratory = caller.laboratory || null;
-            p_branch = caller.branch || null;
+          let p_laboratory =
+            (args.p_laboratory as string | null | undefined) ??
+            (args.laboratory as string | null | undefined);
+
+          let p_branch =
+            (args.p_branch as string | null | undefined) ??
+            (args.branch as string | null | undefined);
+
+          // Prevent administrators from changing their own account.
+          if (caller.id === target.id) {
+            return {
+              data: null,
+              error: {
+                message: 'Unauthorized: You cannot modify your own account here',
+              },
+            };
           }
 
-          const updated = users.map(u => {
-            if (u.id === p_id) {
+          // Determine the role after the requested update.
+          const effectiveRole = p_role ?? target.role;
+
+          if (!canAssignRole(caller.role, effectiveRole)) {
+            return {
+              data: null,
+              error: {
+                message: 'Unauthorized: You cannot assign this role',
+              },
+            };
+          }
+
+          // Only the super administrator can manage all laboratories.
+          if (caller.role === 'super_admin') {
+            if (effectiveRole === 'super_admin') {
+              p_laboratory = null;
+              p_branch = null;
+            }
+          }
+
+          // Laboratory administrators are restricted to their own central lab
+          // and its authorized branches.
+          if (caller.role === 'lab_admin') {
+            if (!caller.laboratory) {
               return {
-                ...u,
-                ...(p_password ? { password: p_password } : {}),
-                ...(p_full_name !== undefined ? { full_name: p_full_name } : {}),
-                ...(p_role !== undefined ? { role: p_role } : {}),
-                ...(p_laboratory !== undefined ? { laboratory: p_laboratory } : {}),
-                ...(p_branch !== undefined ? { branch: p_branch } : {}),
-                ...(p_active !== undefined ? { active: p_active } : {}),
+                data: null,
+                error: {
+                  message: 'Unauthorized: No laboratory is assigned to this account',
+                },
               };
             }
-            return u;
+
+            if (
+              !['local_admin', 'user'].includes(target.role) ||
+              target.laboratory !== caller.laboratory
+            ) {
+              return {
+                data: null,
+                error: {
+                  message: 'Unauthorized: Cannot edit this account',
+                },
+              };
+            }
+
+            p_laboratory = caller.laboratory;
+
+            if (p_branch === undefined) {
+              p_branch = target.branch ?? null;
+            }
+
+            if (!validBranchForLab(p_laboratory, p_branch)) {
+              return {
+                data: null,
+                error: {
+                  message: 'Unauthorized: Invalid branch for this laboratory',
+                },
+              };
+            }
+
+            if (effectiveRole === 'local_admin' && !p_branch) {
+              return {
+                data: null,
+                error: {
+                  message: 'A local administrator must be assigned to a branch',
+                },
+              };
+            }
+          }
+
+          // Local administrators can manage ordinary users in their own branch only.
+          if (caller.role === 'local_admin') {
+            if (
+              !caller.laboratory ||
+              !caller.branch ||
+              target.role !== 'user' ||
+              target.laboratory !== caller.laboratory ||
+              target.branch !== caller.branch
+            ) {
+              return {
+                data: null,
+                error: {
+                  message: 'Unauthorized: Cannot edit users outside your assigned branch',
+                },
+              };
+            }
+
+            p_laboratory = caller.laboratory;
+            p_branch = caller.branch;
+          }
+
+          if (!validBranchForLab(p_laboratory, p_branch)) {
+            return {
+              data: null,
+              error: {
+                message: 'Invalid laboratory or branch assignment',
+              },
+            };
+          }
+
+          const updated = users.map((u) => {
+            if (u.id !== p_id) {
+              return u;
+            }
+
+            return {
+              ...u,
+              ...(p_password ? { password: p_password } : {}),
+              ...(p_full_name !== undefined
+                ? { full_name: p_full_name }
+                : {}),
+              ...(p_role !== undefined ? { role: p_role } : {}),
+              ...(p_laboratory !== undefined
+                ? { laboratory: p_laboratory }
+                : {}),
+              ...(p_branch !== undefined ? { branch: p_branch } : {}),
+              ...(p_active !== undefined ? { active: p_active } : {}),
+            };
           });
+
           saveData(STORAGE_KEYS.ADMIN_USERS, updated);
-          return { data: { success: true }, error: null };
+
+          return {
+            data: { success: true },
+            error: null,
+          };
         }
+
 
         case 'delete_admin_user':
         case 'delete_user': {
@@ -904,11 +1080,11 @@ function createMockSupabaseClient() {
 export const supabase = (
   isSupabaseConfigured
     ? createClient(supabaseUrl!, supabaseAnonKey!, {
-        auth: {
-          persistSession: false,
-          autoRefreshToken: false,
-          detectSessionInUrl: false,
-        },
-      })
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+      },
+    })
     : createMockSupabaseClient()
 ) as ReturnType<typeof createClient>;

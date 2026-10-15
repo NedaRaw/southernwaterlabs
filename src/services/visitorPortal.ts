@@ -258,333 +258,162 @@ export const visitorPortalService = {
     localStorage.removeItem(STORAGE_SESSION_KEY);
   },
 
+
   /**
-   * Find visitor by any credential:
-   * Visitor ID (LAB-2026-xxxx), National ID (10 digits), Phone number, or Email
+   * Visitor lookup.
+   *
+   * Login remains disabled until a secure server-side identity
+   * verification flow is implemented. A visitor ID, phone number,
+   * or national ID alone is not proof of identity.
    */
   async findVisitorByQuery(query: string): Promise<VisitorProfile | null> {
     const trimmed = query.trim();
-    if (!trimmed) return null;
 
-    // Check demo accounts first for instant access
-    if (trimmed.toLowerCase() === 'demo' || trimmed === '1234567890' || trimmed === '0501234567') {
-      const demoUser: VisitorProfile = {
-        id: 'vis-1001',
-        visitor_id: 'LAB-2026-0001',
-        visitor_name: 'م. أحمد بن ناصر القحطاني',
-        first_name: 'أحمد',
-        last_name: 'القحطاني',
-        national_id: '1089234812',
-        phone: '0501234567',
-        email: 'ahmed.alqahtani@nwc.com.sa',
-        company: 'شركة المياه الوطنية — إدارة الرقابة الميدانية',
-        job_title: 'كبير مهندسي ضبط جودة المياه',
-      };
-      this.saveSession(demoUser);
-      return demoUser;
-    }
-
-    try {
-      // 1. Fetch visitors from Supabase
-      const { data: rows, error } = await supabase.from('visitors').select('*');
-      if (error) {
-        console.warn('Supabase query error in visitor lookup:', error);
-      }
-
-      const allVisitors: VisitorDataRecord[] = (rows as VisitorDataRecord[]) || [];
-      const cleanedQuery = cleanPhone(trimmed);
-
-      const match = allVisitors.find((v) => {
-        const vId = String(v.visitor_id || v.id || '').toLowerCase();
-        const qId = trimmed.toLowerCase();
-        if (vId === qId) return true;
-
-        const natId = String(v.national_id || '').trim();
-        if (natId && natId === trimmed) return true;
-
-        const vPhone = cleanPhone(v.phone);
-        if (cleanedQuery && vPhone && (vPhone.includes(cleanedQuery) || cleanedQuery.includes(vPhone))) {
-          return true;
-        }
-
-        const email = String(v.email || '').toLowerCase().trim();
-        if (email && email === trimmed.toLowerCase()) return true;
-
-        return false;
-      });
-
-      if (match) {
-        const profile: VisitorProfile = {
-          id: match.id,
-          visitor_id: match.visitor_id || match.id,
-          visitor_name:
-            match.first_name && match.last_name
-              ? `${match.first_name} ${match.last_name}`
-              : match.visitor_name || match.first_name || 'زائر معتمد',
-          first_name: match.first_name,
-          last_name: match.last_name,
-          national_id: match.national_id,
-          phone: match.phone,
-          email: match.email || undefined,
-          company: match.company || undefined,
-          job_title: match.job_title || undefined,
-        };
-        this.saveSession(profile);
-        return profile;
-      }
-
-      // If not found in database, check if it's formatted like a valid phone or ID to generate temporary verified profile
-      if (/^05\d{8}$/.test(cleanedQuery) || /^1\d{9}$/.test(trimmed)) {
-        const generated: VisitorProfile = {
-          id: `vis-${Date.now().toString().slice(-6)}`,
-          visitor_id: `LAB-2026-${Math.floor(1000 + Math.random() * 9000)}`,
-          visitor_name: 'زائر مسجل بالنظام',
-          national_id: /^\d{10}$/.test(trimmed) ? trimmed : undefined,
-          phone: trimmed,
-          company: 'مؤسسة معتمدة',
-          job_title: 'مستفيد من الخدمات المخبرية',
-        };
-        this.saveSession(generated);
-        return generated;
-      }
-
-      return null;
-    } catch (err) {
-      console.error('Error during visitor lookup:', err);
+    if (!trimmed) {
       return null;
     }
+
+    // Do not accept demo credentials as a real visitor identity.
+    if (
+      trimmed.toLowerCase() === 'demo' ||
+      trimmed === '1234567890' ||
+      trimmed === '0501234567'
+    ) {
+      return null;
+    }
+
+    // Never fetch all visitor records into the browser.
+    // Do not fabricate a profile when no matching record is found.
+    // A secure server-side verification flow must be implemented
+    // before real visitor login is re-enabled.
+    console.warn(
+      'Visitor login is unavailable until secure identity verification is configured.'
+    );
+
+    return null;
   },
 
+
+
   /**
-   * Get all visits for a specific visitor, categorized into Upcoming vs History
+   * Visitor appointments.
+   *
+   * Temporarily fail closed until secure server-side visitor
+   * verification and appointment access are implemented.
    */
   async getVisitorVisits(visitor: VisitorProfile): Promise<{
     upcoming: AppointmentItem[];
     history: AppointmentItem[];
   }> {
-    try {
-      const { data: rows } = await supabase.from('visitors').select('*');
-      const allVisitors: VisitorDataRecord[] = (rows as VisitorDataRecord[]) || [];
-
-      const visitorPhoneClean = cleanPhone(visitor.phone);
-
-      const matchedRecords = allVisitors.filter((v) => {
-        if (v.visitor_id && v.visitor_id === visitor.visitor_id) return true;
-        if (v.id && (v.id === visitor.id || v.id === visitor.visitor_id)) return true;
-        if (visitor.national_id && v.national_id === visitor.national_id) return true;
-        const vPhoneClean = cleanPhone(v.phone);
-        if (visitorPhoneClean && vPhoneClean && visitorPhoneClean === vPhoneClean) return true;
-        return false;
-      });
-
-      const todayStr = new Date().toISOString().split('T')[0];
-
-      const mapped: AppointmentItem[] = matchedRecords.map((r) => {
-        let status: 'Confirmed' | 'Pending' | 'Completed' | 'Cancelled' = 'Confirmed';
-        const rawStatus = String(r.status || '').toLowerCase();
-        if (rawStatus.includes('cancel')) status = 'Cancelled';
-        else if (rawStatus.includes('pend') || rawStatus === 'new') status = 'Pending';
-        else if (rawStatus.includes('check') || rawStatus.includes('complet') || r.visit_date < todayStr) {
-          status = 'Completed';
-        } else {
-          status = 'Confirmed';
-        }
-
-        return {
-          id: r.id,
-          visitor_id: r.visitor_id || r.id,
-          visitor_name:
-            r.first_name && r.last_name
-              ? `${r.first_name} ${r.last_name}`
-              : r.visitor_name || visitor.visitor_name,
-          national_id: r.national_id || visitor.national_id,
-          phone: r.phone || visitor.phone,
-          email: r.email || visitor.email,
-          company: r.company || visitor.company,
-          job_title: r.job_title || visitor.job_title,
-          laboratory: r.laboratory || 'asir',
-          branch: r.branch || undefined,
-          department: r.department || 'إدارة ضبط الجودة والتحاليل المعتمدة',
-          employee: r.employee || undefined,
-          purpose: r.purpose || r.visit_purpose || 'فحص وتحليل عينات مياه معتمدة',
-          visit_date: r.visit_date || todayStr,
-          arrival_time: r.arrival_time || '09:30 صباحاً',
-          status,
-          notes: r.notes || undefined,
-          qr_url: r.qr_url || undefined,
-          created_at: r.created_at || new Date().toISOString(),
-        };
-      });
-
-      // If this is a demo user and no visits exist, provide high-value initial visits
-      if (mapped.length === 0 && (visitor.visitor_id === 'LAB-2026-0001' || visitor.phone === '0501234567')) {
-        mapped.push(
-          {
-            id: 'appt-upcoming-01',
-            visitor_id: 'LAB-2026-0001',
-            visitor_name: visitor.visitor_name,
-            national_id: visitor.national_id,
-            phone: visitor.phone,
-            email: visitor.email,
-            company: visitor.company,
-            job_title: visitor.job_title,
-            laboratory: 'asir',
-            branch: 'bisha',
-            department: 'وحدة الفحص الميكروبيولوجي والمعادن الثقيلة',
-            employee: 'د. عبدالله الشهراني',
-            purpose: 'تسليم عينات مياه شبكة محطة بيشة المركزية واستلام شهادة المطابقة',
-            visit_date: new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0],
-            arrival_time: '10:00 صباحاً',
-            status: 'Confirmed',
-            notes: 'تم تأكيد الموعد وإشعار المشرف المخبري',
-            created_at: new Date().toISOString(),
-          },
-          {
-            id: 'appt-past-01',
-            visitor_id: 'LAB-2026-0001',
-            visitor_name: visitor.visitor_name,
-            national_id: visitor.national_id,
-            phone: visitor.phone,
-            email: visitor.email,
-            company: visitor.company,
-            job_title: visitor.job_title,
-            laboratory: 'najran',
-            branch: 'sharurah',
-            department: 'المختبر المركزي بنجران — قسم الكيمياء التحليلية',
-            employee: 'م. مانع اليامي',
-            purpose: 'فحص مياه آبار ارتوازية مطابقة لمعايير SASO',
-            visit_date: '2026-08-25',
-            arrival_time: '11:15 صباحاً',
-            status: 'Completed',
-            notes: 'اكتملت الزيارة وصدر تقرير التحليل المخبري NWC-SL-2026-0915',
-            created_at: new Date(Date.now() - 86400000 * 30).toISOString(),
-          }
-        );
-      }
-
-      // Sort by date
-      const upcoming = mapped
-        .filter((a) => a.visit_date >= todayStr && a.status !== 'Completed' && a.status !== 'Cancelled')
-        .sort((a, b) => a.visit_date.localeCompare(b.visit_date));
-
-      const history = mapped
-        .filter((a) => a.visit_date < todayStr || a.status === 'Completed' || a.status === 'Cancelled')
-        .sort((a, b) => b.visit_date.localeCompare(a.visit_date));
-
-      return { upcoming, history };
-    } catch (err) {
-      console.error('Error fetching visitor visits:', err);
+    if (!visitor?.id || !visitor?.visitor_id) {
       return { upcoming: [], history: [] };
     }
+
+    console.warn(
+      'Visitor appointments are temporarily unavailable until secure server-side verification is configured.'
+    );
+
+    return {
+      upcoming: [],
+      history: [],
+    };
   },
+
+
 
   /**
-   * Get official lab reports for visitor
+   * Visitor lab reports.
+   *
+   * Temporarily disable report display until reports can be
+   * retrieved securely from the server and verified as belonging
+   * to the authenticated visitor.
    */
   getVisitorReports(visitor: VisitorProfile): LabReportItem[] {
-    try {
-      const customRaw = localStorage.getItem(STORAGE_CUSTOM_REPORTS);
-      const customReports: LabReportItem[] = customRaw ? JSON.parse(customRaw) : [];
-
-      const combined = [...customReports, ...DEFAULT_LAB_REPORTS];
-
-      // Match by visitor_id or return all if demo user, or tailor to visitor
-      const visitorMatch = combined.filter(
-        (r) =>
-          r.visitor_id === visitor.visitor_id ||
-          r.visitor_id === 'LAB-2026-0001' ||
-          visitor.phone === '0501234567'
-      );
-
-      // If user has no specific report, adapt reports to their name so they can test downloading
-      if (visitorMatch.length === 0) {
-        return DEFAULT_LAB_REPORTS.map((r, idx) => ({
-          ...r,
-          id: `custom-rpt-${idx}-${visitor.id}`,
-          visitor_id: visitor.visitor_id,
-          visitor_name: visitor.visitor_name,
-        }));
-      }
-
-      return visitorMatch;
-    } catch {
-      return DEFAULT_LAB_REPORTS;
+    if (!visitor?.id || !visitor?.visitor_id) {
+      return [];
     }
+
+    console.warn(
+      'Visitor reports are temporarily unavailable until secure server-side access is configured.'
+    );
+
+    return [];
   },
+
 
 
   /**
  * Reschedule appointment date & time.
  * Supabase arrival_time column uses SQL type TIME.
  */
-async rescheduleAppointment(
-  appointmentId: string,
-  newDate: string,
-  newTime: string
-): Promise<boolean> {
-  try {
-    const match = newTime.trim().match(/^(\d{1,2}):(\d{2})\s*(.*)$/);
+  async rescheduleAppointment(
+    appointmentId: string,
+    newDate: string,
+    newTime: string
+  ): Promise<boolean> {
+    try {
+      const match = newTime.trim().match(/^(\d{1,2}):(\d{2})\s*(.*)$/);
 
-    if (!match) {
-      console.error('Invalid appointment time:', newTime);
+      if (!match) {
+        console.error('Invalid appointment time:', newTime);
+        return false;
+      }
+
+      let hours = Number(match[1]);
+      const minutes = Number(match[2]);
+      const period = match[3];
+
+      // Convert Arabic AM/PM to 24-hour format.
+      if (period.includes('ظهراً') || period.includes('مساءً')) {
+        if (hours < 12) hours += 12;
+      } else if (period.includes('صباحاً')) {
+        if (hours === 12) hours = 0;
+      }
+
+      if (
+        !Number.isInteger(hours) ||
+        !Number.isInteger(minutes) ||
+        hours < 0 ||
+        hours > 23 ||
+        minutes < 0 ||
+        minutes > 59
+      ) {
+        console.error('Invalid appointment time:', newTime);
+        return false;
+      }
+
+      const sqlTime =
+        `${String(hours).padStart(2, '0')}:` +
+        `${String(minutes).padStart(2, '0')}:00`;
+
+      const { data, error } = await supabase
+        .from('visitors')
+        .update({
+          visit_date: newDate,
+          arrival_time: sqlTime,
+          status: 'Confirmed',
+        })
+        .eq('id', appointmentId)
+        .select('id');
+
+      if (error) {
+        console.error('Failed to reschedule appointment:', error);
+        return false;
+      }
+
+      if (!data || data.length === 0) {
+        console.error(
+          'No appointment was updated. Check the ID and Supabase permissions.'
+        );
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Unexpected error rescheduling appointment:', error);
       return false;
     }
-
-    let hours = Number(match[1]);
-    const minutes = Number(match[2]);
-    const period = match[3];
-
-    // Convert Arabic AM/PM to 24-hour format.
-    if (period.includes('ظهراً') || period.includes('مساءً')) {
-      if (hours < 12) hours += 12;
-    } else if (period.includes('صباحاً')) {
-      if (hours === 12) hours = 0;
-    }
-
-    if (
-      !Number.isInteger(hours) ||
-      !Number.isInteger(minutes) ||
-      hours < 0 ||
-      hours > 23 ||
-      minutes < 0 ||
-      minutes > 59
-    ) {
-      console.error('Invalid appointment time:', newTime);
-      return false;
-    }
-
-    const sqlTime =
-      `${String(hours).padStart(2, '0')}:` +
-      `${String(minutes).padStart(2, '0')}:00`;
-
-    const { data, error } = await supabase
-      .from('visitors')
-      .update({
-        visit_date: newDate,
-        arrival_time: sqlTime,
-        status: 'Confirmed',
-      })
-      .eq('id', appointmentId)
-      .select('id');
-
-    if (error) {
-      console.error('Failed to reschedule appointment:', error);
-      return false;
-    }
-
-    if (!data || data.length === 0) {
-      console.error(
-        'No appointment was updated. Check the ID and Supabase permissions.'
-      );
-      return false;
-    }
-
-    return true;
-  } catch (error) {
-    console.error('Unexpected error rescheduling appointment:', error);
-    return false;
-  }
-},
+  },
   /**
    * Cancel an upcoming visit.
    * Return true only when Supabase confirms that a row was updated.
