@@ -718,11 +718,19 @@ function createMockSupabaseClient() {
           return { data: safeUsers, error: null };
         }
 
+
         case 'create_user':
         case 'create_admin_user': {
           const caller = getCaller(args.p_token as string);
-          if (caller && caller.role === 'user') {
-            return { data: null, error: { message: 'Unauthorized: Standard users cannot create accounts' } };
+
+          // Reject invalid sessions and inactive accounts.
+          if (!canManageAccounts(caller)) {
+            return {
+              data: null,
+              error: {
+                message: 'Unauthorized: Invalid session or insufficient permissions',
+              },
+            };
           }
 
           const { p_username, p_password, p_role } = args as {
@@ -730,27 +738,114 @@ function createMockSupabaseClient() {
             p_password?: string;
             p_role?: string;
           };
-          const targetRole = p_role || 'user';
-          const p_full_name = (args.p_full_name as string) || (args.full_name as string) || p_username;
-          let p_laboratory = (args.p_laboratory as string) || (args.laboratory as string) || null;
-          let p_branch = (args.p_branch as string) || (args.branch as string) || null;
 
-          // Hierarchy validation on creation
-          if (caller?.role === 'lab_admin') {
-            if (targetRole === 'super_admin' || targetRole === 'admin' || targetRole === 'lab_admin') {
-              return { data: null, error: { message: 'Unauthorized: Laboratory administrators cannot create Super Admin or Laboratory Admin accounts' } };
+          const targetRole = p_role || 'user';
+
+          // Enforce the role hierarchy for every account creation.
+          if (!canAssignRole(caller.role, targetRole)) {
+            return {
+              data: null,
+              error: {
+                message: 'Unauthorized: You cannot create this account role',
+              },
+            };
+          }
+
+          if (!p_username || !p_username.trim()) {
+            return {
+              data: null,
+              error: { message: 'Username is required' },
+            };
+          }
+
+          const p_full_name =
+            (args.p_full_name as string) ||
+            (args.full_name as string) ||
+            p_username;
+
+          let p_laboratory =
+            (args.p_laboratory as string) ||
+            (args.laboratory as string) ||
+            null;
+
+          let p_branch =
+            (args.p_branch as string) ||
+            (args.branch as string) ||
+            null;
+
+          // Super admin accounts are global, not assigned to a lab.
+          if (targetRole === 'super_admin') {
+            p_laboratory = null;
+            p_branch = null;
+          }
+
+          // Laboratory administrators can create local admins and users
+          // only inside their assigned central laboratory and branches.
+          if (caller.role === 'lab_admin') {
+            if (!caller.laboratory) {
+              return {
+                data: null,
+                error: {
+                  message: 'Unauthorized: No laboratory is assigned to this account',
+                },
+              };
             }
-            p_laboratory = caller.laboratory || null;
-          } else if (caller?.role === 'local_admin') {
-            if (targetRole !== 'user') {
-              return { data: null, error: { message: 'Unauthorized: Local administrators can only create standard users' } };
+
+            p_laboratory = caller.laboratory;
+
+            if (!p_branch) {
+              if (targetRole === 'local_admin') {
+                return {
+                  data: null,
+                  error: {
+                    message: 'A local administrator must be assigned to a branch',
+                  },
+                };
+              }
+
+              p_branch = null;
             }
-            p_laboratory = caller.laboratory || null;
-            p_branch = caller.branch || null;
+
+            if (!validBranchForLab(p_laboratory, p_branch)) {
+              return {
+                data: null,
+                error: {
+                  message: 'Unauthorized: Invalid branch for this laboratory',
+                },
+              };
+            }
+          }
+
+          // Local administrators can create ordinary users in their own branch only.
+          if (caller.role === 'local_admin') {
+            if (!caller.laboratory || !caller.branch) {
+              return {
+                data: null,
+                error: {
+                  message: 'Unauthorized: No laboratory or branch is assigned to this account',
+                },
+              };
+            }
+
+            p_laboratory = caller.laboratory;
+            p_branch = caller.branch;
+          }
+
+          // Validate the final laboratory/branch assignment.
+          if (!validBranchForLab(p_laboratory, p_branch)) {
+            return {
+              data: null,
+              error: {
+                message: 'Invalid laboratory or branch assignment',
+              },
+            };
           }
 
           if (users.some(u => u.username === p_username)) {
-            return { data: null, error: { message: 'duplicate username' } };
+            return {
+              data: null,
+              error: { message: 'duplicate username' },
+            };
           }
 
           const newUser: AdminUserData = {
@@ -764,9 +859,15 @@ function createMockSupabaseClient() {
             active: true,
             is_primary: false,
           };
+
           saveData(STORAGE_KEYS.ADMIN_USERS, [...users, newUser]);
-          return { data: { success: true, user: newUser }, error: null };
+
+          return {
+            data: { success: true, user: newUser },
+            error: null,
+          };
         }
+
 
 
         case 'update_user':
