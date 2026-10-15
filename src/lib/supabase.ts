@@ -1388,38 +1388,8 @@ function createMockSupabaseClient() {
         }
 
 
+
         case 'admin_delete_survey': {
-          const caller = getCaller(args.p_token as string);
-          if (caller && caller.role === 'user') {
-            return { data: null, error: { message: 'Unauthorized: Standard users cannot delete surveys' } };
-          }
-
-          const { p_id } = args as { p_id: string };
-          const surveys = loadData<SurveyDataRecord[]>(STORAGE_KEYS.SURVEYS, defaultSurveys);
-          const target = surveys.find(s => s.id === p_id);
-          if (!target) {
-            return { data: { success: true }, error: null };
-          }
-
-          if (caller?.role === 'lab_admin' && target.laboratory && target.laboratory !== caller.laboratory) {
-            return { data: null, error: { message: 'Unauthorized: Cannot delete surveys outside your assigned laboratory' } };
-          }
-          if (caller?.role === 'local_admin') {
-            if (target.laboratory && target.laboratory !== caller.laboratory) {
-              return { data: null, error: { message: 'Unauthorized: Cannot delete surveys outside your assigned laboratory' } };
-            }
-            if (target.branch && caller.branch && target.branch !== caller.branch) {
-              return { data: null, error: { message: 'Unauthorized: Cannot delete surveys outside your assigned branch' } };
-            }
-          }
-
-          const filtered = surveys.filter(s => s.id !== p_id);
-          saveData(STORAGE_KEYS.SURVEYS, filtered);
-          return { data: { success: true }, error: null };
-        }
-
-
-        case 'admin_list_enquiries': {
           const caller = getCaller(args.p_token as string);
 
           if (!caller || caller.active === false) {
@@ -1429,67 +1399,82 @@ function createMockSupabaseClient() {
             };
           }
 
-          if (!['super_admin', 'lab_admin', 'local_admin'].includes(caller.role)) {
+          if (!['super_admin', 'lab_admin'].includes(caller.role)) {
             return {
               data: null,
               error: {
-                message: 'Unauthorized: Insufficient permissions to view enquiries',
+                message: 'Unauthorized: Insufficient permissions to delete surveys',
               },
             };
           }
 
-          const enquiries = loadData<EnquiryDataRecord[]>(
-            STORAGE_KEYS.ENQUIRIES,
-            defaultEnquiries
+          const { p_id } = args as { p_id: string };
+
+          if (!p_id) {
+            return {
+              data: null,
+              error: { message: 'Missing survey ID' },
+            };
+          }
+
+          const surveys = loadData<SurveyDataRecord[]>(
+            STORAGE_KEYS.SURVEYS,
+            defaultSurveys
           );
 
-          // Super Admin: can view all enquiries.
+          const target = surveys.find(survey => survey.id === p_id);
+
+          if (!target) {
+            return {
+              data: null,
+              error: { message: 'Survey not found' },
+            };
+          }
+
           if (caller.role === 'super_admin') {
-            return { data: enquiries, error: null };
+            const filtered = surveys.filter(survey => survey.id !== p_id);
+            saveData(STORAGE_KEYS.SURVEYS, filtered);
+
+            return { data: { success: true }, error: null };
           }
 
-          // Lab Admin: must have a laboratory assignment.
-          if (caller.role === 'lab_admin') {
-            if (!caller.laboratory) {
-              return {
-                data: null,
-                error: { message: 'Unauthorized: No laboratory assigned' },
-              };
-            }
-
-            const scoped = enquiries.filter(
-              enquiry => enquiry.laboratory === caller.laboratory
-            );
-
-            return { data: scoped, error: null };
+          if (!caller.laboratory) {
+            return {
+              data: null,
+              error: { message: 'Unauthorized: No laboratory assigned' },
+            };
           }
 
-          // Local Admin: require explicit laboratory and branch assignments.
-          // The current scalar branch field supports only one branch.
-          if (caller.role === 'local_admin') {
-            if (!caller.laboratory || !caller.branch) {
-              return {
-                data: null,
-                error: {
-                  message: 'Unauthorized: No laboratory or branch assigned',
-                },
-              };
-            }
-
-            const scoped = enquiries.filter(
-              enquiry =>
-                enquiry.laboratory === caller.laboratory &&
-                enquiry.branch === caller.branch
-            );
-
-            return { data: scoped, error: null };
+          if (
+            !target.laboratory ||
+            target.laboratory !== caller.laboratory
+          ) {
+            return {
+              data: null,
+              error: {
+                message: 'Unauthorized: Survey is outside your laboratory scope',
+              },
+            };
           }
 
-          return {
-            data: null,
-            error: { message: 'Unauthorized' },
-          };
+          if (
+            target.branch &&
+            !validBranchForLab(target.laboratory, target.branch)
+          ) {
+            return {
+              data: null,
+              error: {
+                message: 'Unauthorized: Survey has an invalid branch assignment',
+              },
+            };
+          }
+
+          const filtered = surveys.filter(survey => survey.id !== p_id);
+          saveData(STORAGE_KEYS.SURVEYS, filtered);
+
+          return { data: { success: true }, error: null };
         }
+
 
 
         case 'admin_delete_enquiry': {
