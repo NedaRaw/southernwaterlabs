@@ -686,14 +686,6 @@ function createMockSupabaseClient() {
           return { data: { success: true }, error: null };
         }
 
-        case 'require_admin': {
-          const caller = getCaller(args.p_token as string);
-          if (!caller || caller.role === 'user') {
-            return { data: null, error: { message: 'Unauthorized: Admin privileges required' } };
-          }
-          return { data: { success: true }, error: null };
-        }
-
         case 'list_users': {
           const caller = getCaller(args.p_token as string);
           if (caller && caller.role === 'user') {
