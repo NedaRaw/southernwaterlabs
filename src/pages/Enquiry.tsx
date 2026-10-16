@@ -432,10 +432,10 @@ export default function Enquiry() {
                 >
                   <option value="">
                     {lang === 'ar'
-                      ? 'اختر الدولة / السوق'
+                      ? 'اختر الدولة'
                       : lang === 'fr'
-                        ? 'Choisir le pays / marché'
-                        : 'Select country / market'}
+                        ? 'Choisir le pays'
+                        : 'Select country'}
                   </option>
                   {ENQUIRY_LOCATIONS.map((loc) => (
                     <option key={loc.value} value={loc.value}>
