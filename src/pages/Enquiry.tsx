@@ -48,34 +48,42 @@ export default function Enquiry() {
   const selectedLab = LAB_HIERARCHY.find((l) => l.id === formData.laboratory);
   const availableBranches = selectedLab?.branches || [];
 
+
   const validate = (): boolean => {
     const e: Record<string, string> = {};
+
     if (!formData.laboratory) e.laboratory = t('register.required');
     if (!formData.branch) e.branch = t('register.required');
-    if (!formData.laboratory) e.laboratory = t('register.required');
     if (!formData.full_name.trim()) e.full_name = t('register.required');
-    if (!formData.email.trim()) e.email = t('register.required');
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) e.email = t('register.required');
+
+    if (!formData.email.trim()) {
+      e.email = t('register.required');
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      e.email = t('register.required');
+    }
+
+    if (!formData.phone.trim()) e.phone = t('register.required');
+    if (!formData.location) e.location = t('register.required');
+    if (!formData.service_required) e.service_required = t('register.required');
+    if (!formData.subject.trim()) e.subject = t('register.required');
     if (!formData.message.trim()) e.message = t('register.required');
+
     setErrors(e);
     return Object.keys(e).length === 0;
   };
 
   const handleChange = (field: keyof FormData, value: string) => {
-    setFormData((prev) => {
-      const next = { ...prev, [field]: value };
-      if (field === 'laboratory') {
-        next.branch = '';
-      }
-      return next;
-    });
-    if (errors[field]) {
-      setErrors((prev) => {
-        const n = { ...prev };
-        delete n[field];
-        return n;
-      });
-    }
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+      ...(field === 'laboratory' ? { branch: '' } : {}),
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [field]: '',
+      ...(field === 'laboratory' ? { branch: '' } : {}),
+    }));
   };
 
   const handleSubmit = async (ev: React.FormEvent) => {
@@ -195,22 +203,29 @@ export default function Enquiry() {
             </div>
 
 
+
             <div>
               <label className={labelClass}>
                 {t('enquiry.lab')} {req}
               </label>
+
               <select
                 value={formData.laboratory}
                 onChange={(e) => handleChange('laboratory', e.target.value)}
                 className={inputClass('laboratory')}
                 required
               >
+                <option value="">
+                  {t('register.selectLaboratory')}
+                </option>
+
                 {LAB_HIERARCHY.map((lab) => (
                   <option key={lab.id} value={lab.id}>
                     {lab.name[lang] || lab.name.en}
                   </option>
                 ))}
               </select>
+
               {errors.laboratory && (
                 <p className="text-red-500 text-xs mt-1">
                   {errors.laboratory}
@@ -218,21 +233,29 @@ export default function Enquiry() {
               )}
             </div>
 
+
+
             <div>
               <label className={labelClass}>
                 {t('enquiry.branch')} {req}
               </label>
+
               <select
                 value={formData.branch}
                 onChange={(e) => handleChange('branch', e.target.value)}
                 className={inputClass('branch')}
                 required
+                disabled={!formData.laboratory}
               >
-                <option value="">{t('register.selectBranch')}</option>
-
-                <option value={MAIN_LAB_VALUE}>
-                  {selectedLab?.name[lang] || selectedLab?.name.en}
+                <option value="">
+                  {t('register.selectBranch')}
                 </option>
+
+                {selectedLab && (
+                  <option value={MAIN_LAB_VALUE}>
+                    {selectedLab.name[lang] || selectedLab.name.en}
+                  </option>
+                )}
 
                 {availableBranches.map((br) => (
                   <option key={br.id} value={br.id}>
@@ -247,6 +270,7 @@ export default function Enquiry() {
                 </p>
               )}
             </div>
+
 
           </div>
 
