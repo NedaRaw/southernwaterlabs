@@ -199,8 +199,8 @@ export const translations: Record<string, { ar: string; en: string; fr: string }
   'register.nationalId': { ar: 'رقم الهوية الوطنية / الإقامة / جواز السفر', en: 'National ID / Passport', fr: 'N° Carte Nationale / Passeport' },
   'register.employee': { ar: 'الموظف / المسؤول المطلوب مقابلته', en: 'Employee / Official to Visit', fr: 'Personne / Employé à Rencontrer' },
   'register.arrivalTime': { ar: 'وقت الوصول المتوقع', en: 'Expected Arrival Time', fr: 'Heure d\'Arrivée Prévue' },
-  'register.branch': { ar: 'الفرع المستهدف (اختياري)', en: 'Branch (optional)', fr: 'Agence (facultatif)' },
-  'register.department': { ar: 'القسم أو الإدارة المستهدفة', en: 'Department / Unit', fr: 'Département / Service' },
+  'register.branch': { ar: 'الفرع ', en: 'Branch (optional)', fr: 'Agence (facultatif)' },
+  'register.department': { ar: 'القسم أو الإدارة', en: 'Department / Unit', fr: 'Département / Service' },
   'register.name': { ar: 'الاسم الكامل', en: 'Full Name', fr: 'Nom Complet' },
   'register.namePlaceholder': { ar: 'مثال: م. فهد القحطاني', en: 'e.g. Eng. Fahad Al-Qahtani', fr: 'ex: Ing. Fahad Al-Qahtani' },
   'register.company': { ar: 'الجهة / المنظمة (اختياري)', en: 'Organization / Company (optional)', fr: 'Organisme / Société (facultatif)' },
@@ -212,8 +212,8 @@ export const translations: Record<string, { ar: string; en: string; fr: string }
   'register.email': { ar: 'البريد الإلكتروني', en: 'Email Address', fr: 'Adresse Email' },
   'register.emailPlaceholder': { ar: 'name@example.com', en: 'name@example.com', fr: 'nom@exemple.com' },
   'register.date': { ar: 'تاريخ الزيارة المقترح', en: 'Proposed Visit Date', fr: 'Date Prévue de Visite' },
-  'register.lab': { ar: 'المختبر المستهدف', en: 'Target Laboratory', fr: 'Laboratoire Choisi' },
-  'register.selectBranch': { ar: '-- المختبر الرئيسي --', en: '-- Central Laboratory (Main) --', fr: '-- Laboratoire Central (Sans agence) --' },
+  'register.lab': { ar: 'المختبر ', en: 'Target Laboratory', fr: 'Laboratoire Choisi' },
+  'register.selectBranch': { ar: '-- المختبر الرئيسي أو الفرع--', en: '-- Central Laboratory (Main) --', fr: '-- Laboratoire Central (Sans agence) --' },
   'register.purpose': { ar: 'الغرض من الزيارة', en: 'Purpose of Visit', fr: 'Motif de la Visite' },
   'register.purposePlaceholder': { ar: 'مثال: تسليم عينات مياه، فحص مشترك، تدريب، جولة تفقدية...', en: 'e.g. Sample delivery, joint inspection, training, inspection tour...', fr: 'ex: Dépôt d\'échantillons, contrôle conjoint, formation, audit...' },
   'register.notes': { ar: 'ملاحظات أو متطلبات إضافية (اختياري)', en: 'Additional Notes or Requirements (optional)', fr: 'Remarques ou Besoins Particuliers (facultatif)' },
@@ -237,7 +237,7 @@ export const translations: Record<string, { ar: string; en: string; fr: string }
 
   // Survey Questions & Options
   'survey.lab': { ar: 'المختبر الذي تعاملت معه', en: 'Laboratory Visited / Contacted', fr: 'Laboratoire concerné' },
-  'survey.branch': { ar: 'الفرع التابع (اختياري)', en: 'Branch (optional)', fr: 'Agence (facultatif)' },
+  'survey.branch': { ar: 'الفرع', en: 'Branch (optional)', fr: 'Agence (facultatif)' },
   'survey.serviceUsed': { ar: 'ما هي الخدمة التي استفدت منها اليوم؟', en: 'What service did you use today?', fr: 'Quel service avez-vous utilisé aujourd\'hui ?' },
   'survey.selectService': { ar: '-- اختر الخدمة المستخدمة --', en: '-- Select service used --', fr: '-- Sélectionnez le service --' },
   'survey.howHeard': { ar: 'كيف تعرفت على خدماتنا؟', en: 'How did you hear about us?', fr: 'Comment avez-vous connu nos services ?' },
@@ -279,7 +279,7 @@ export const translations: Record<string, { ar: string; en: string; fr: string }
 
   // Enquiry Specific
   'enquiry.lab': { ar: 'المختبر الموجه له الاستفسار', en: 'Laboratory', fr: 'Laboratoire destinataire' },
-  'enquiry.branch': { ar: 'الفرع المستهدف (اختياري)', en: 'Branch (optional)', fr: 'Agence (facultatif)' },
+  'enquiry.branch': { ar: 'الفرع  (اختياري)', en: 'Branch (optional)', fr: 'Agence (facultatif)' },
   'enquiry.fullName': { ar: 'الاسم الكامل', en: 'Full Name', fr: 'Nom Complet' },
   'enquiry.company': { ar: 'اسم الجهة / الشركة (اختياري)', en: 'Company Name (optional)', fr: 'Société / Organisme (facultatif)' },
   'enquiry.email': { ar: 'البريد الإلكتروني للتواصل', en: 'Email Address', fr: 'Adresse Email' },
@@ -312,7 +312,7 @@ export const translations: Record<string, { ar: string; en: string; fr: string }
   'visitor.badgeTitle': { ar: 'بطاقة زائر معتمدة', en: 'Official Visitor Pass', fr: 'Pass Visiteur Officiel' },
   'visitor.name': { ar: 'اسم الزائر', en: 'Visitor Name', fr: 'Nom du Visiteur' },
   'visitor.date': { ar: 'تاريخ الزيارة', en: 'Visit Date', fr: 'Date de Visite' },
-  'visitor.lab': { ar: 'المختبر المستهدف', en: 'Target Laboratory', fr: 'Laboratoire Visé' },
+  'visitor.lab': { ar: 'المختبر ', en: 'Target Laboratory', fr: 'Laboratoire Visé' },
   'visitor.purpose': { ar: 'الغرض من الزيارة', en: 'Purpose of Visit', fr: 'Motif de Visite' },
   'visitor.phone': { ar: 'رقم الهاتف', en: 'Phone', fr: 'Téléphone' },
   'visitor.email': { ar: 'البريد الإلكتروني', en: 'Email', fr: 'Email' },

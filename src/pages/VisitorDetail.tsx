@@ -298,7 +298,7 @@ export default function VisitorDetail() {
                 <div>
                   <p className="text-xs text-slate-400">
                     {lang === 'ar'
-                      ? 'القسم أو الإدارة المستهدفة'
+                      ? 'القسم أو الإدارة'
                       : lang === 'fr'
                         ? 'Département ou administration ciblée'
                         : 'Target Department or Administration'}
@@ -366,7 +366,7 @@ export default function VisitorDetail() {
                   <div>
                     <p className="text-xs text-navy-300">
                       {lang === 'ar'
-                        ? 'القسم أو الإدارة المستهدفة'
+                        ? 'القسم أو الإدارة ة'
                         : lang === 'fr'
                           ? 'Département ou administration ciblée'
                           : 'Target Department or Administration'}

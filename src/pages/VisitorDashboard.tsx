@@ -1364,7 +1364,7 @@ export default function VisitorDashboard() {
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-500">{lang === 'ar' ? 'المختبر المستهدف:' : 'Target Lab:'}</span>
+                  <span className="text-slate-500">{lang === 'ar' ? 'المختبر :' : 'Target Lab:'}</span>
                   <span className="font-medium text-slate-800 dark:text-slate-200">
                     {getLabLabel(badgeModalAppt.laboratory, lang)}
                   </span>

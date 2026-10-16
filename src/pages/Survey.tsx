@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabase';
 import { useLang } from '@/lib/i18n';
 import Breadcrumb from '@/components/Breadcrumb';
 import { LAB_HIERARCHY, APPROVED_SERVICES } from '@/data/labServices';
+const MAIN_LAB_VALUE = '__main_lab__';
 
 interface FormData {
   laboratory: string;
@@ -178,7 +179,10 @@ export default function Survey() {
       const { error } = await supabase.from('surveys').insert([
         {
           laboratory: formData.laboratory,
-          branch: formData.branch || null,
+          branch:
+  formData.branch === MAIN_LAB_VALUE
+    ? null
+    : formData.branch || null,
           service_used: formData.service_used,
           how_heard: formData.how_heard || null,
           overall_satisfaction: formData.overall_satisfaction || null,
@@ -381,18 +385,26 @@ export default function Survey() {
                 <label className={labelClass}>
                   {t('survey.branch')} {req}
                 </label>
+
                 <select
                   value={formData.branch}
                   onChange={(e) => handleChange('branch', e.target.value)}
                   className={inputClass('branch')}
+                  required
                 >
                   <option value="">{t('register.selectBranch')}</option>
+
+                  <option value={MAIN_LAB_VALUE}>
+                    {selectedLab?.name[lang] || selectedLab?.name.en}
+                  </option>
+
                   {availableBranches.map((br) => (
                     <option key={br.id} value={br.id}>
                       {br.name[lang] || br.name.en}
                     </option>
                   ))}
                 </select>
+
                 {errors.branch && (
                   <p className="text-red-500 text-xs mt-1">{errors.branch}</p>
                 )}

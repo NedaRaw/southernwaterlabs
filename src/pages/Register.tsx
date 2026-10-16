@@ -9,7 +9,7 @@ import { useLang } from '@/lib/i18n';
 import Breadcrumb from '@/components/Breadcrumb';
 import { LAB_HIERARCHY } from '@/data/labServices';
 import { getNextVisitorId, buildVisitorQrUrl } from '@/lib/visitorId';
-
+const MAIN_LAB_VALUE = '__main_lab__';
 interface FormData {
   first_name: string;
   last_name: string;
@@ -244,7 +244,10 @@ export default function Register() {
         company: formData.company.trim() || null,
         job_title: formData.job_title.trim() || null,
         laboratory: formData.laboratory,
-        branch: formData.branch || null,
+        branch:
+          formData.branch === MAIN_LAB_VALUE
+            ? null
+            : formData.branch || null,
         department: formData.department || 'Quality Control',
         employee: formData.employee.trim(),
         purpose: formData.purpose,
@@ -360,307 +363,329 @@ export default function Register() {
                 <p className="text-xs text-slate-400">{t('register.namePlaceholder')}</p>
               </div>
             </div>
+            {/* First Name */}
+            <div>
+              <label className={labelClass}>{t('register.firstName')} {req}</label>
+              <input
+                type="text"
+                placeholder={t('register.firstName')}
+                value={formData.first_name}
+                onChange={(e) => handleChange('first_name', e.target.value)}
+                className={inputClass('first_name')}
+              />
+              {errors.first_name && <p className="text-red-500 text-xs mt-1">{errors.first_name}</p>}
+            </div>
+
+            {/* Last Name */}
+            <div>
+              <label className={labelClass}>{t('register.lastName')} {req}</label>
+              <input
+                type="text"
+                placeholder={t('register.lastName')}
+                value={formData.last_name}
+                onChange={(e) => handleChange('last_name', e.target.value)}
+                className={inputClass('last_name')}
+              />
+              {errors.last_name && <p className="text-red-500 text-xs mt-1">{errors.last_name}</p>}
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              {/* National ID / Passport */}
+              <div className="sm:col-span-2">
+                <label className={labelClass}>{t('register.nationalId')} {req}</label>
+                <input
+                  type="text"
+                  placeholder={t('register.nationalId')}
+                  value={formData.national_id}
+                  onChange={(e) => handleChange('national_id', e.target.value)}
+                  className={inputClass('national_id')}
+                />
+                {errors.national_id && <p className="text-red-500 text-xs mt-1">{errors.national_id}</p>}
+              </div>
+
+              {/* Mobile Phone */}
+              <div>
+                <label className={labelClass}>{t('register.phone')} {req}</label>
+                <input
+                  type="tel"
+                  placeholder="+966 5x xxx xxxx"
+                  value={formData.phone}
+                  onChange={(e) => handleChange('phone', e.target.value)}
+                  className={inputClass('phone')}
+                  dir="ltr"
+                />
+                {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+              </div>
+
+              {/* Email Address */}
+              <div>
+                <label className={labelClass}>{t('register.email')} {req}</label>
+                <input
+                  type="email"
+                  placeholder="name@example.com"
+                  value={formData.email}
+                  onChange={(e) => handleChange('email', e.target.value)}
+                  className={inputClass('email')}
+                  dir="ltr"
+                />
+                {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+              </div>
+
+              {/* Organization / Company */}
+              <div>
+                <label className={labelClass}>{t('register.company')}</label>
+                <input
+                  type="text"
+                  placeholder={t('register.companyPlaceholder')}
+                  value={formData.company}
+                  onChange={(e) => handleChange('company', e.target.value)}
+                  className={inputClass('company')}
+                />
+              </div>
+
+              {/* Job Title */}
+              <div>
+                <label className={labelClass}>{t('register.jobTitle')}</label>
+                <input
+                  type="text"
+                  placeholder={t('register.jobTitlePlaceholder')}
+                  value={formData.job_title}
+                  onChange={(e) => handleChange('job_title', e.target.value)}
+                  className={inputClass('job_title')}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Card 2: Laboratory & Department Information */}
+          <div className="p-6 sm:p-7 rounded-xl bg-white border border-slate-200 shadow-sm">
+            <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-100">
+              <div className="w-9 h-9 rounded-lg bg-navy-50 flex items-center justify-center">
+                <Building2 className="w-4 h-4 text-navy-700" />
+              </div>
+              <h2 className="text-base font-semibold text-slate-800">{t('register.lab')}</h2>
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              {/* First Name */}
+              {/* Laboratory Selection */}
+
               <div>
-                <label className={labelClass}>{t('register.firstName')} {req}</label>
-                <input
-                  type="text"
-                  placeholder={t('register.firstName')}
-                  value={formData.first_name}
-                  onChange={(e) => handleChange('first_name', e.target.value)}
-                  className={inputClass('first_name')}
-                />
-                {errors.first_name && <p className="text-red-500 text-xs mt-1">{errors.first_name}</p>}
-              </div>
-
-              {/* Last Name */}
-              <div>
-                <label className={labelClass}>{t('register.lastName')} {req}</label>
-                <input
-                  type="text"
-                  placeholder={t('register.lastName')}
-                  value={formData.last_name}
-                  onChange={(e) => handleChange('last_name', e.target.value)}
-                  className={inputClass('last_name')}
-                />
-                {errors.last_name && <p className="text-red-500 text-xs mt-1">{errors.last_name}</p>}
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                {/* National ID / Passport */}
-                <div className="sm:col-span-2">
-                  <label className={labelClass}>{t('register.nationalId')} {req}</label>
-                  <input
-                    type="text"
-                    placeholder={t('register.nationalId')}
-                    value={formData.national_id}
-                    onChange={(e) => handleChange('national_id', e.target.value)}
-                    className={inputClass('national_id')}
-                  />
-                  {errors.national_id && <p className="text-red-500 text-xs mt-1">{errors.national_id}</p>}
-                </div>
-
-                {/* Mobile Phone */}
-                <div>
-                  <label className={labelClass}>{t('register.phone')} {req}</label>
-                  <input
-                    type="tel"
-                    placeholder="+966 5x xxx xxxx"
-                    value={formData.phone}
-                    onChange={(e) => handleChange('phone', e.target.value)}
-                    className={inputClass('phone')}
-                    dir="ltr"
-                  />
-                  {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
-                </div>
-
-                {/* Email Address */}
-                <div>
-                  <label className={labelClass}>{t('register.email')} {req}</label>
-                  <input
-                    type="email"
-                    placeholder="name@example.com"
-                    value={formData.email}
-                    onChange={(e) => handleChange('email', e.target.value)}
-                    className={inputClass('email')}
-                    dir="ltr"
-                  />
-                  {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
-                </div>
-
-                {/* Organization / Company */}
-                <div>
-                  <label className={labelClass}>{t('register.company')}</label>
-                  <input
-                    type="text"
-                    placeholder={t('register.companyPlaceholder')}
-                    value={formData.company}
-                    onChange={(e) => handleChange('company', e.target.value)}
-                    className={inputClass('company')}
-                  />
-                </div>
-
-                {/* Job Title */}
-                <div>
-                  <label className={labelClass}>{t('register.jobTitle')}</label>
-                  <input
-                    type="text"
-                    placeholder={t('register.jobTitlePlaceholder')}
-                    value={formData.job_title}
-                    onChange={(e) => handleChange('job_title', e.target.value)}
-                    className={inputClass('job_title')}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Card 2: Laboratory & Department Information */}
-            <div className="p-6 sm:p-7 rounded-xl bg-white border border-slate-200 shadow-sm">
-              <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-100">
-                <div className="w-9 h-9 rounded-lg bg-navy-50 flex items-center justify-center">
-                  <Building2 className="w-4 h-4 text-navy-700" />
-                </div>
-                <h2 className="text-base font-semibold text-slate-800">{t('register.lab')}</h2>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                {/* Laboratory Selection */}
-
-                <div>
-                  <label className={labelClass}>
-                    {t('register.lab')} {req}
-                  </label>
-
-                  <select
-                    value={formData.laboratory}
-                    onChange={(e) => handleChange('laboratory', e.target.value)}
-                    className={inputClass('laboratory')}
-                  >
-                    <option value="">-- اختر المختبر المستهدف --</option>
-
-                    {LAB_HIERARCHY.map((lab) => (
-                      <option key={lab.id} value={lab.id}>
-                        {lab.name[lang] || lab.name.en}
-                      </option>
-                    ))}
-                  </select>
-
-                  {errors.laboratory && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.laboratory}
-                    </p>
-                  )}
-                </div>
-
-
-
-                {/* Branch Selection */}
-                <div>
-                  <label className={labelClass}>
-                    {t('register.branch')} {req}
-                  </label>
-
-                  <select
-                    value={formData.branch}
-                    onChange={(e) => handleChange('branch', e.target.value)}
-                    className={inputClass('branch')}
-                  >
-                    <option value="">-- اختر الفرع المستهدف --</option>
-
-                    {availableBranches.map((br) => (
-                      <option key={br.id} value={br.id}>
-                        {br.name[lang] || br.name.en}
-                      </option>
-                    ))}
-                  </select>
-
-                  {errors.branch && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.branch}
-                    </p>
-                  )}
-                </div>
-
-
-
-                {/* Department */}
-                <div>
-                  <label className={labelClass}>
-                    {t('register.department')} {req}
-                  </label>
-
-                  <select
-                    value={formData.department}
-                    onChange={(e) => handleChange('department', e.target.value)}
-                    className={inputClass('department')}
-                  >
-                    <option value="">-- اختر القسم أو الإدارة --</option>
-
-                    {departmentOptions.map((dep) => (
-                      <option key={dep.value} value={dep.value}>
-                        {dep.label}
-                      </option>
-                    ))}
-                  </select>
-
-                  {errors.department && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.department}
-                    </p>
-                  )}
-                </div>
-
-
-                {/* Employee to Visit */}
-                <div>
-                  <label className={labelClass}>{t('register.employee')} {req}</label>
-                  <input
-                    type="text"
-                    placeholder={lang === 'ar' ? 'اسم الموظف أو رئيس القسم' : lang === 'fr' ? "Nom de l'agent ou chef de service" : 'Staff or department head'}
-                    value={formData.employee}
-                    onChange={(e) => handleChange('employee', e.target.value)}
-                    className={inputClass('employee')}
-                  />
-                  {errors.employee && <p className="text-red-500 text-xs mt-1">{errors.employee}</p>}
-                </div>
-              </div>
-            </div>
-
-            {/* Card 3: Visit Specifications */}
-            <div className="p-6 sm:p-7 rounded-xl bg-white border border-slate-200 shadow-sm">
-              <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-100">
-                <div className="w-9 h-9 rounded-lg bg-navy-50 flex items-center justify-center">
-                  <Calendar className="w-4 h-4 text-navy-700" />
-                </div>
-                <h2 className="text-base font-semibold text-slate-800">{t('register.visit')}</h2>
-              </div>
-
-
-              {/* Purpose */}
-              <div className="sm:col-span-2">
                 <label className={labelClass}>
-                  {t('register.purpose')} {req}
+                  {t('register.lab')} {req}
                 </label>
 
                 <select
-                  value={formData.purpose}
-                  onChange={(e) => handleChange('purpose', e.target.value)}
-                  className={inputClass('purpose')}
+                  value={formData.laboratory}
+                  onChange={(e) => handleChange('laboratory', e.target.value)}
+                  className={inputClass('laboratory')}
+                  required
                 >
-                  <option value="">-- اختر الغرض من الزيارة --</option>
+                  <option value="" disabled>
+                    {lang === 'ar'
+                      ? 'اختر المختبر'
+                      : lang === 'fr'
+                        ? 'Choisir un laboratoire'
+                        : 'Choose a laboratory'}
+                  </option>
 
-                  {purposeOptions.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
+                  {LAB_HIERARCHY.map((lab) => (
+                    <option key={lab.id} value={lab.id}>
+                      {lab.name[lang] || lab.name.en}
                     </option>
                   ))}
                 </select>
 
-                {errors.purpose && (
+                {errors.laboratory && (
                   <p className="text-red-500 text-xs mt-1">
-                    {errors.purpose}
+                    {errors.laboratory}
                   </p>
                 )}
               </div>
 
 
-              {/* Visit Date */}
+
               <div>
-                <label className={labelClass}>{t('register.date')} {req}</label>
+                <label className={labelClass}>
+                  {t('register.branch')} {req}
+                </label>
+
+                <select
+                  value={formData.branch}
+                  onChange={(e) => handleChange('branch', e.target.value)}
+                  className={inputClass('branch')}
+                  required
+                >
+                  <option value="" disabled>
+                    {t('register.selectBranch')}
+                  </option>
+
+                  <option value={MAIN_LAB_VALUE}>
+                    {selectedLab?.name[lang] || selectedLab?.name.en}
+                  </option>
+
+                  {availableBranches.map((br) => (
+                    <option key={br.id} value={br.id}>
+                      {br.name[lang] || br.name.en}
+                    </option>
+                  ))}
+                </select>
+
+                {errors.branch && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.branch}
+                  </p>
+                )}
+              </div>
+
+
+
+              {/* Department */}
+              <div>
+                <label className={labelClass}>
+                  {t('register.department')} {req}
+                </label>
+
+                <select
+                  value={formData.department}
+                  onChange={(e) => handleChange('department', e.target.value)}
+                  className={inputClass('department')}
+                >
+                  <option value="" disabled>
+                    {lang === 'ar'
+                      ? 'اختر القسم أو الإدارة'
+                      : lang === 'fr'
+                        ? 'Choisir un département'
+                        : 'Choose a department'}
+                  </option>
+
+                  {departmentOptions.map((dep) => (
+                    <option key={dep.value} value={dep.value}>
+                      {dep.label}
+                    </option>
+                  ))}
+                </select>
+
+                {errors.department && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.department}
+                  </p>
+                )}
+              </div>
+
+
+              {/* Employee to Visit */}
+              <div>
+                <label className={labelClass}>{t('register.employee')} {req}</label>
                 <input
-                  type="date"
-                  value={formData.visit_date}
-                  onChange={(e) => handleChange('visit_date', e.target.value)}
-                  className={inputClass('visit_date')}
+                  type="text"
+                  placeholder={lang === 'ar' ? 'اسم الموظف أو رئيس القسم' : lang === 'fr' ? "Nom de l'agent ou chef de service" : 'Staff or department head'}
+                  value={formData.employee}
+                  onChange={(e) => handleChange('employee', e.target.value)}
+                  className={inputClass('employee')}
                 />
-                {errors.visit_date && <p className="text-red-500 text-xs mt-1">{errors.visit_date}</p>}
-              </div>
-
-
-              {/* Expected Arrival Time */}
-              <div>
-                <label className={labelClass}>
-                  {t('register.arrivalTime')} {req}
-                </label>
-
-                <div className="relative">
-                  <input
-                    type="time"
-                    value={formData.arrival_time}
-                    onChange={(e) => handleChange('arrival_time', e.target.value)}
-                    className={`${inputClass('arrival_time')} pe-10`}
-                  />
-
-                  <Clock className="w-4 h-4 text-slate-400 absolute end-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div>
-
-                {errors.arrival_time && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.arrival_time}
-                  </p>
-                )}
-              </div>
-
-
-              {/* Additional Notes */}
-              <div className="sm:col-span-2">
-                <label className={labelClass}>
-                  {t('register.notes')}
-                </label>
-                <textarea
-                  rows={3}
-                  placeholder={t('register.notesPlaceholder')}
-                  value={formData.notes}
-                  onChange={(e) => handleChange('notes', e.target.value)}
-                  className={`${inputClass('notes')} resize-none`}
-                />
+                {errors.employee && <p className="text-red-500 text-xs mt-1">{errors.employee}</p>}
               </div>
             </div>
-            {/* End Visit Specifications card */}
           </div>
-          {/* End form grid if you opened one around all cards */}
 
+          {/* Card 3: Visit Specifications */}
+          <div className="p-6 sm:p-7 rounded-xl bg-white border border-slate-200 shadow-sm">
+            <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-100">
+              <div className="w-9 h-9 rounded-lg bg-navy-50 flex items-center justify-center">
+                <Calendar className="w-4 h-4 text-navy-700" />
+              </div>
+              <h2 className="text-base font-semibold text-slate-800">{t('register.visit')}</h2>
+            </div>
+
+
+            {/* Purpose */}
+            <div className="sm:col-span-2">
+              <label className={labelClass}>
+                {t('register.purpose')} {req}
+              </label>
+
+              <select
+                value={formData.purpose}
+                onChange={(e) => handleChange('purpose', e.target.value)}
+                className={inputClass('purpose')}
+              >
+                <option value="" disabled>
+                  {lang === 'ar'
+                    ? 'اختر الغرض من الزيارة'
+                    : lang === 'fr'
+                      ? 'Choisir le motif de la visite'
+                      : 'Choose a visit purpose'}
+                </option>
+
+                {purposeOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+
+              {errors.purpose && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.purpose}
+                </p>
+              )}
+            </div>
+
+
+            {/* Visit Date */}
+            <div>
+              <label className={labelClass}>{t('register.date')} {req}</label>
+              <input
+                type="date"
+                value={formData.visit_date}
+                onChange={(e) => handleChange('visit_date', e.target.value)}
+                className={inputClass('visit_date')}
+              />
+              {errors.visit_date && <p className="text-red-500 text-xs mt-1">{errors.visit_date}</p>}
+            </div>
+
+
+            {/* Expected Arrival Time */}
+            <div>
+              <label className={labelClass}>
+                {t('register.arrivalTime')} {req}
+              </label>
+
+              <div className="relative">
+                <input
+                  type="time"
+                  value={formData.arrival_time}
+                  onChange={(e) => handleChange('arrival_time', e.target.value)}
+                  className={`${inputClass('arrival_time')} pe-10`}
+                />
+
+                <Clock className="w-4 h-4 text-slate-400 absolute end-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
+
+              {errors.arrival_time && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.arrival_time}
+                </p>
+              )}
+            </div>
+
+
+            {/* Additional Notes */}
+            <div className="sm:col-span-2">
+              <label className={labelClass}>
+                {t('register.notes')}
+              </label>
+              <textarea
+                rows={3}
+                placeholder={t('register.notesPlaceholder')}
+                value={formData.notes}
+                onChange={(e) => handleChange('notes', e.target.value)}
+                className={`${inputClass('notes')} resize-none`}
+              />
+            </div>
+          </div>
+
+
+          {/* End Visit Specifications card */}
           <button
             type="submit"
             disabled={submitting}
@@ -681,27 +706,5 @@ export default function Register() {
         </form>
       </div>
     </div>
-  );
-}                      
-<button
-  type="submit"
-  disabled={submitting}
-  className="flex items-center justify-center gap-2.5 w-full py-3.5 px-6 rounded-xl bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-semibold text-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-md hover:shadow-lg whitespace-nowrap cursor-pointer"
->
-  {submitting ? (
-    <>
-      <Loader2 className="w-5 h-5 animate-spin shrink-0" />
-      <span>{t('register.submitting')}</span>
-    </>
-  ) : (
-    <>
-      <Send className="w-4 h-4 shrink-0" />
-      <span>{t('register.submit')}</span>
-    </>
-  )}
-</button>
-</form >
-      </div >
-    </div >
   );
 }
