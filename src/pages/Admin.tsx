@@ -2,6 +2,7 @@ import {
   useState,
   useEffect,
   useCallback,
+  useRef,
   type FormEvent,
 } from 'react';
 import { Link } from 'react-router-dom';
@@ -64,7 +65,6 @@ import {
   getBranchLabel,
 } from '@/data/labServices';
 import { APPROVED_SERVICES } from '@/data/labServices';
-
 
 // ============================================================
 // Types & Hierarchy Roles
@@ -1157,7 +1157,8 @@ export default function Admin() {
   // ============================================================
   // Fetch Data
   // ============================================================
-
+  // Prevent overlapping data refreshes
+  const fetchInProgress = useRef(false);
   const fetchData = useCallback(async () => {
     if (!loggedIn) return;
 
@@ -1442,19 +1443,50 @@ export default function Admin() {
         error
       );
     } finally {
+      fetchInProgress.current = false;
       setLoading(false);
     }
-  }, [loggedIn, adminToken, adminUser, branchFilter, labFilter, surveyStartDate, surveyEndDate]);
+  }, [
+    loggedIn,
+    adminToken,
+    adminUser,
+    branchFilter,
+    labFilter,
+    surveyStartDate,
+    surveyEndDate,
+  ]);
 
 
   // ============================================================
-  // Fetch after login
+  // Fetch after login + automatic refresh
   // ============================================================
 
   useEffect(() => {
-    if (loggedIn) {
-      fetchData();
-    }
+    if (!loggedIn) return;
+
+    void fetchData();
+
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        void fetchData();
+      }
+    }, 30_000);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        void fetchData();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.clearInterval(intervalId);
+      document.removeEventListener(
+        'visibilitychange',
+        handleVisibilityChange
+      );
+    };
   }, [loggedIn, fetchData]);
 
 
