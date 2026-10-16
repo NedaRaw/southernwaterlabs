@@ -26,19 +26,22 @@ interface FormData {
 
 export default function Enquiry() {
   const { lang, t, dir } = useLang();
-
-  const [formData, setFormData] = useState<FormData>({
-    laboratory: 'asir',
+  const initialFormData: FormData = {
+    laboratory: '',
     branch: '',
     full_name: '',
     company_name: '',
     email: '',
     phone: '',
-    location: 'Saudi Arabia',
-    service_required: 'Drinking Water Analysis',
+    location: '',
+    service_required: '',
     subject: '',
     message: '',
-  });
+  };
+
+  const [formData, setFormData] =
+    useState<FormData>(initialFormData);
+
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -49,28 +52,64 @@ export default function Enquiry() {
   const availableBranches = selectedLab?.branches || [];
 
 
+
   const validate = (): boolean => {
     const e: Record<string, string> = {};
+    const requiredMessage = t('register.required');
 
-    if (!formData.laboratory) e.laboratory = t('register.required');
-    if (!formData.branch) e.branch = t('register.required');
-    if (!formData.full_name.trim()) e.full_name = t('register.required');
-
-    if (!formData.email.trim()) {
-      e.email = t('register.required');
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
-      e.email = t('register.required');
+    if (!formData.laboratory) {
+      e.laboratory = requiredMessage;
     }
 
-    if (!formData.phone.trim()) e.phone = t('register.required');
-    if (!formData.location) e.location = t('register.required');
-    if (!formData.service_required) e.service_required = t('register.required');
-    if (!formData.subject.trim()) e.subject = t('register.required');
-    if (!formData.message.trim()) e.message = t('register.required');
+    if (!formData.branch) {
+      e.branch = requiredMessage;
+    }
+
+    if (!formData.full_name.trim()) {
+      e.full_name = requiredMessage;
+    }
+
+    if (!formData.company_name.trim()) {
+      e.company_name = requiredMessage;
+    }
+
+    if (!formData.email.trim()) {
+      e.email = requiredMessage;
+    } else if (
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())
+    ) {
+      e.email =
+        lang === 'ar'
+          ? 'يرجى إدخال بريد إلكتروني صحيح'
+          : lang === 'fr'
+            ? 'Veuillez saisir une adresse e-mail valide'
+            : 'Please enter a valid email address';
+    }
+
+    if (!formData.phone.trim()) {
+      e.phone = requiredMessage;
+    }
+
+    if (!formData.location.trim()) {
+      e.location = requiredMessage;
+    }
+
+    if (!formData.service_required.trim()) {
+      e.service_required = requiredMessage;
+    }
+
+    if (!formData.subject.trim()) {
+      e.subject = requiredMessage;
+    }
+
+    if (!formData.message.trim()) {
+      e.message = requiredMessage;
+    }
 
     setErrors(e);
     return Object.keys(e).length === 0;
   };
+
 
   const handleChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({
@@ -143,26 +182,19 @@ export default function Enquiry() {
             >
               <span>{t('success.home')}</span>
             </Link>
+
             <button
               onClick={() => {
                 setSubmitted(false);
-                setFormData({
-                  laboratory: 'asir',
-                  branch: '',
-                  full_name: '',
-                  company_name: '',
-                  email: '',
-                  phone: '',
-                  location: 'Saudi Arabia',
-                  service_required: 'Drinking Water Analysis',
-                  subject: '',
-                  message: '',
-                });
+                setFormData(initialFormData);
+                setErrors({});
+                setSubmitError('');
               }}
               className="inline-flex items-center gap-2.5 px-6 py-3 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 font-semibold text-sm transition-all shadow-xs hover:shadow-md whitespace-nowrap cursor-pointer"
             >
               <span>{t('enquiry.submit')}</span>
             </button>
+
           </div>
         </div>
       </div>
@@ -170,9 +202,14 @@ export default function Enquiry() {
   }
 
   const inputClass = (field: string) =>
-    `w-full px-3.5 py-2.5 rounded-lg bg-white border ${errors[field] ? 'border-red-400 bg-red-50/40' : 'border-slate-200'
+    `w-full px-3.5 py-2.5 rounded-lg bg-white border ${errors[field]
+      ? 'border-red-400 bg-red-50/40'
+      : 'border-slate-200'
     } text-slate-800 text-sm focus:outline-none focus:border-navy-600 focus:ring-1 focus:ring-navy-600 transition-all`;
-  const labelClass = 'block text-xs font-semibold text-slate-700 mb-1.5';
+
+  const labelClass =
+    'block text-xs font-semibold text-slate-700 mb-1.5';
+
   const req = <span className="text-red-500">*</span>;
 
   return (
@@ -192,7 +229,12 @@ export default function Enquiry() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6" dir={dir}>
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-6"
+          dir={dir}
+          noValidate
+        >
           {/* Card 1: Target Laboratory & Branch */}
           <div className="p-6 sm:p-7 rounded-xl bg-white border border-slate-200 shadow-sm">
             <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-100">
@@ -208,7 +250,6 @@ export default function Enquiry() {
               <label className={labelClass}>
                 {t('enquiry.lab')} {req}
               </label>
-
               <select
                 value={formData.laboratory}
                 onChange={(e) => handleChange('laboratory', e.target.value)}
@@ -216,7 +257,11 @@ export default function Enquiry() {
                 required
               >
                 <option value="">
-                  {t('register.selectLaboratory')}
+                  {lang === 'ar'
+                    ? 'اختر المختبر'
+                    : lang === 'fr'
+                      ? 'Choisir un laboratoire'
+                      : 'Choose a laboratory'}
                 </option>
 
                 {LAB_HIERARCHY.map((lab) => (
@@ -292,20 +337,33 @@ export default function Enquiry() {
                   value={formData.full_name}
                   onChange={(e) => handleChange('full_name', e.target.value)}
                   className={inputClass('full_name')}
+                  required
                 />
                 {errors.full_name && <p className="text-red-500 text-xs mt-1">{errors.full_name}</p>}
               </div>
 
+
               <div>
-                <label className={labelClass}>{t('enquiry.company')}</label>
+                <label className={labelClass}>
+                  {t('enquiry.company')} {req}
+                </label>
                 <input
                   type="text"
                   placeholder={t('register.companyPlaceholder')}
                   value={formData.company_name}
-                  onChange={(e) => handleChange('company_name', e.target.value)}
+                  onChange={(e) =>
+                    handleChange('company_name', e.target.value)
+                  }
                   className={inputClass('company_name')}
+                  required
                 />
+                {errors.company_name && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.company_name}
+                  </p>
+                )}
               </div>
+
 
               <div>
                 <label className={labelClass}>{t('enquiry.email')} {req}</label>
@@ -316,36 +374,68 @@ export default function Enquiry() {
                   onChange={(e) => handleChange('email', e.target.value)}
                   className={inputClass('email')}
                   dir="ltr"
+                  required
                 />
                 {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
               </div>
 
+
               <div>
-                <label className={labelClass}>{t('enquiry.phone')}</label>
+                <label className={labelClass}>
+                  {t('enquiry.phone')} {req}
+                </label>
                 <input
                   type="tel"
                   placeholder="+966 5x xxx xxxx"
                   value={formData.phone}
-                  onChange={(e) => handleChange('phone', e.target.value)}
+                  onChange={(e) =>
+                    handleChange('phone', e.target.value)
+                  }
                   className={inputClass('phone')}
                   dir="ltr"
+                  required
                 />
+                {errors.phone && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.phone}
+                  </p>
+                )}
               </div>
 
+
+
               <div className="sm:col-span-2">
-                <label className={labelClass}>{t('enquiry.location')}</label>
+                <label className={labelClass}>
+                  {t('enquiry.location')} {req}
+                </label>
                 <select
                   value={formData.location}
-                  onChange={(e) => handleChange('location', e.target.value)}
+                  onChange={(e) =>
+                    handleChange('location', e.target.value)
+                  }
                   className={inputClass('location')}
+                  required
                 >
+                  <option value="">
+                    {lang === 'ar'
+                      ? 'اختر الدولة / السوق'
+                      : lang === 'fr'
+                        ? 'Choisir le pays / marché'
+                        : 'Select country / market'}
+                  </option>
                   {ENQUIRY_LOCATIONS.map((loc) => (
                     <option key={loc.value} value={loc.value}>
                       {loc[lang] || loc.en}
                     </option>
                   ))}
                 </select>
+                {errors.location && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.location}
+                  </p>
+                )}
               </div>
+
             </div>
           </div>
 
@@ -359,31 +449,68 @@ export default function Enquiry() {
             </div>
 
             <div className="space-y-5">
+
               <div>
-                <label className={labelClass}>{t('enquiry.serviceRequired')}</label>
+                <label className={labelClass}>
+                  {t('enquiry.serviceRequired')} {req}
+                </label>
                 <select
                   value={formData.service_required}
-                  onChange={(e) => handleChange('service_required', e.target.value)}
+                  onChange={(e) =>
+                    handleChange('service_required', e.target.value)
+                  }
                   className={inputClass('service_required')}
+                  required
                 >
+                  <option value="">
+                    {lang === 'ar'
+                      ? 'اختر الخدمة المطلوبة'
+                      : lang === 'fr'
+                        ? 'Choisir le service demandé'
+                        : 'Select the required service'}
+                  </option>
                   {APPROVED_SERVICES.map((svc) => (
                     <option key={svc.value} value={svc.value}>
                       {svc[lang] || svc.en}
                     </option>
                   ))}
                 </select>
+                {errors.service_required && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.service_required}
+                  </p>
+                )}
               </div>
 
+
+
               <div>
-                <label className={labelClass}>{t('enquiry.subject')}</label>
+                <label className={labelClass}>
+                  {t('enquiry.subject')} {req}
+                </label>
                 <input
                   type="text"
-                  placeholder={lang === 'ar' ? 'عنوان الموضوع أو التحليل المطلوب' : lang === 'fr' ? 'Objet de votre demande ou analyse' : 'Subject of your request'}
+                  placeholder={
+                    lang === 'ar'
+                      ? 'عنوان الموضوع أو التحليل المطلوب'
+                      : lang === 'fr'
+                        ? 'Objet de votre demande ou analyse'
+                        : 'Subject of your request'
+                  }
                   value={formData.subject}
-                  onChange={(e) => handleChange('subject', e.target.value)}
+                  onChange={(e) =>
+                    handleChange('subject', e.target.value)
+                  }
                   className={inputClass('subject')}
+                  required
                 />
+                {errors.subject && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.subject}
+                  </p>
+                )}
               </div>
+
 
               <div>
                 <label className={labelClass}>{t('enquiry.message')} {req}</label>
@@ -393,6 +520,7 @@ export default function Enquiry() {
                   value={formData.message}
                   onChange={(e) => handleChange('message', e.target.value)}
                   className={`${inputClass('message')} resize-none`}
+                  required
                 />
                 {errors.message && <p className="text-red-500 text-xs mt-1">{errors.message}</p>}
               </div>
