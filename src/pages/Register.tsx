@@ -74,11 +74,11 @@ export default function Register() {
     job_title: '',
     phone: '',
     email: '',
-    laboratory: 'asir',
+    laboratory: '',
     branch: '',
-    department: 'Quality Control',
+    department: '',
     employee: '',
-    purpose: 'Business Meeting',
+    purpose: '',
     visit_date: '',
     arrival_time: '09:00',
     notes: '',
@@ -163,23 +163,44 @@ export default function Register() {
     },
   ];
 
+
   const validate = (): boolean => {
     const e: Record<string, string> = {};
-    if (!formData.first_name.trim()) e.first_name = t('register.required');
-    if (!formData.last_name.trim()) e.last_name = t('register.required');
-    if (!formData.national_id.trim()) e.national_id = t('register.required');
-    if (!formData.phone.trim()) e.phone = t('register.required');
-    else if (!/^[0-9+\s-]{8,}$/.test(formData.phone.trim())) e.phone = t('register.required');
-    if (!formData.email.trim()) e.email = t('register.required');
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) e.email = t('register.required');
-    if (!formData.laboratory) e.laboratory = t('register.required');
-    if (!formData.employee.trim()) e.employee = t('register.required');
-    if (!formData.purpose.trim()) e.purpose = t('register.required');
-    if (!formData.visit_date) e.visit_date = t('register.required');
-    if (!formData.arrival_time) e.arrival_time = t('register.required');
+    const requiredMessage =
+      lang === 'ar'
+        ? 'هذا الحقل مطلوب'
+        : lang === 'fr'
+          ? 'Ce champ est obligatoire'
+          : 'This field is required';
+
+    if (!formData.first_name.trim()) e.first_name = requiredMessage;
+    if (!formData.last_name.trim()) e.last_name = requiredMessage;
+    if (!formData.national_id.trim()) e.national_id = requiredMessage;
+
+    if (!formData.phone.trim()) {
+      e.phone = requiredMessage;
+    } else if (!/^[0-9+\s-]{8,}$/.test(formData.phone.trim())) {
+      e.phone = requiredMessage;
+    }
+
+    if (!formData.email.trim()) {
+      e.email = requiredMessage;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      e.email = requiredMessage;
+    }
+
+    if (!formData.laboratory) e.laboratory = requiredMessage;
+    if (!formData.branch) e.branch = requiredMessage;
+    if (!formData.department.trim()) e.department = requiredMessage;
+    if (!formData.purpose.trim()) e.purpose = requiredMessage;
+    if (!formData.employee.trim()) e.employee = requiredMessage;
+    if (!formData.visit_date) e.visit_date = requiredMessage;
+    if (!formData.arrival_time) e.arrival_time = requiredMessage;
+
     setErrors(e);
     return Object.keys(e).length === 0;
   };
+
 
   const handleChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => {
@@ -366,175 +387,223 @@ export default function Register() {
                 />
                 {errors.last_name && <p className="text-red-500 text-xs mt-1">{errors.last_name}</p>}
               </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                {/* National ID / Passport */}
+                <div className="sm:col-span-2">
+                  <label className={labelClass}>{t('register.nationalId')} {req}</label>
+                  <input
+                    type="text"
+                    placeholder={t('register.nationalId')}
+                    value={formData.national_id}
+                    onChange={(e) => handleChange('national_id', e.target.value)}
+                    className={inputClass('national_id')}
+                  />
+                  {errors.national_id && <p className="text-red-500 text-xs mt-1">{errors.national_id}</p>}
+                </div>
 
-              {/* National ID / Passport */}
-              <div className="sm:col-span-2">
-                <label className={labelClass}>{t('register.nationalId')} {req}</label>
-                <input
-                  type="text"
-                  placeholder={t('register.nationalId')}
-                  value={formData.national_id}
-                  onChange={(e) => handleChange('national_id', e.target.value)}
-                  className={inputClass('national_id')}
-                />
-                {errors.national_id && <p className="text-red-500 text-xs mt-1">{errors.national_id}</p>}
-              </div>
+                {/* Mobile Phone */}
+                <div>
+                  <label className={labelClass}>{t('register.phone')} {req}</label>
+                  <input
+                    type="tel"
+                    placeholder="+966 5x xxx xxxx"
+                    value={formData.phone}
+                    onChange={(e) => handleChange('phone', e.target.value)}
+                    className={inputClass('phone')}
+                    dir="ltr"
+                  />
+                  {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+                </div>
 
-              {/* Mobile Phone */}
-              <div>
-                <label className={labelClass}>{t('register.phone')} {req}</label>
-                <input
-                  type="tel"
-                  placeholder="+966 5x xxx xxxx"
-                  value={formData.phone}
-                  onChange={(e) => handleChange('phone', e.target.value)}
-                  className={inputClass('phone')}
-                  dir="ltr"
-                />
-                {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
-              </div>
+                {/* Email Address */}
+                <div>
+                  <label className={labelClass}>{t('register.email')} {req}</label>
+                  <input
+                    type="email"
+                    placeholder="name@example.com"
+                    value={formData.email}
+                    onChange={(e) => handleChange('email', e.target.value)}
+                    className={inputClass('email')}
+                    dir="ltr"
+                  />
+                  {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                </div>
 
-              {/* Email Address */}
-              <div>
-                <label className={labelClass}>{t('register.email')} {req}</label>
-                <input
-                  type="email"
-                  placeholder="name@example.com"
-                  value={formData.email}
-                  onChange={(e) => handleChange('email', e.target.value)}
-                  className={inputClass('email')}
-                  dir="ltr"
-                />
-                {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
-              </div>
+                {/* Organization / Company */}
+                <div>
+                  <label className={labelClass}>{t('register.company')}</label>
+                  <input
+                    type="text"
+                    placeholder={t('register.companyPlaceholder')}
+                    value={formData.company}
+                    onChange={(e) => handleChange('company', e.target.value)}
+                    className={inputClass('company')}
+                  />
+                </div>
 
-              {/* Organization / Company */}
-              <div>
-                <label className={labelClass}>{t('register.company')}</label>
-                <input
-                  type="text"
-                  placeholder={t('register.companyPlaceholder')}
-                  value={formData.company}
-                  onChange={(e) => handleChange('company', e.target.value)}
-                  className={inputClass('company')}
-                />
-              </div>
-
-              {/* Job Title */}
-              <div>
-                <label className={labelClass}>{t('register.jobTitle')}</label>
-                <input
-                  type="text"
-                  placeholder={t('register.jobTitlePlaceholder')}
-                  value={formData.job_title}
-                  onChange={(e) => handleChange('job_title', e.target.value)}
-                  className={inputClass('job_title')}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Card 2: Laboratory & Department Information */}
-          <div className="p-6 sm:p-7 rounded-xl bg-white border border-slate-200 shadow-sm">
-            <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-100">
-              <div className="w-9 h-9 rounded-lg bg-navy-50 flex items-center justify-center">
-                <Building2 className="w-4 h-4 text-navy-700" />
-              </div>
-              <h2 className="text-base font-semibold text-slate-800">{t('register.lab')}</h2>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              {/* Laboratory Selection */}
-              <div>
-                <label className={labelClass}>{t('register.lab')} {req}</label>
-                <select
-                  value={formData.laboratory}
-                  onChange={(e) => handleChange('laboratory', e.target.value)}
-                  className={inputClass('laboratory')}
-                >
-                  {LAB_HIERARCHY.map((lab) => (
-                    <option key={lab.id} value={lab.id}>
-                      {lab.name[lang] || lab.name.en}
-                    </option>
-                  ))}
-                </select>
-                {errors.laboratory && <p className="text-red-500 text-xs mt-1">{errors.laboratory}</p>}
-              </div>
-
-              {/* Branch Selection */}
-              <div>
-                <label className={labelClass}>{t('register.branch')}</label>
-                <select
-                  value={formData.branch}
-                  onChange={(e) => handleChange('branch', e.target.value)}
-                  className={inputClass('branch')}
-                >
-                  <option value="">{t('register.selectBranch')}</option>
-                  {availableBranches.map((br) => (
-                    <option key={br.id} value={br.id}>
-                      {br.name[lang] || br.name.en}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Department */}
-              <div>
-                <label className={labelClass}>{t('register.department')} {req}</label>
-                <select
-                  value={formData.department}
-                  onChange={(e) => handleChange('department', e.target.value)}
-                  className={inputClass('department')}
-                >
-                  {departmentOptions.map((dep) => (
-                    <option key={dep.value} value={dep.value}>
-                      {dep.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Employee to Visit */}
-              <div>
-                <label className={labelClass}>{t('register.employee')} {req}</label>
-                <input
-                  type="text"
-                  placeholder={lang === 'ar' ? 'اسم الموظف أو رئيس القسم' : lang === 'fr' ? "Nom de l'agent ou chef de service" : 'Staff or department head'}
-                  value={formData.employee}
-                  onChange={(e) => handleChange('employee', e.target.value)}
-                  className={inputClass('employee')}
-                />
-                {errors.employee && <p className="text-red-500 text-xs mt-1">{errors.employee}</p>}
+                {/* Job Title */}
+                <div>
+                  <label className={labelClass}>{t('register.jobTitle')}</label>
+                  <input
+                    type="text"
+                    placeholder={t('register.jobTitlePlaceholder')}
+                    value={formData.job_title}
+                    onChange={(e) => handleChange('job_title', e.target.value)}
+                    className={inputClass('job_title')}
+                  />
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Card 3: Visit Specifications */}
-          <div className="p-6 sm:p-7 rounded-xl bg-white border border-slate-200 shadow-sm">
-            <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-100">
-              <div className="w-9 h-9 rounded-lg bg-navy-50 flex items-center justify-center">
-                <Calendar className="w-4 h-4 text-navy-700" />
+            {/* Card 2: Laboratory & Department Information */}
+            <div className="p-6 sm:p-7 rounded-xl bg-white border border-slate-200 shadow-sm">
+              <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-100">
+                <div className="w-9 h-9 rounded-lg bg-navy-50 flex items-center justify-center">
+                  <Building2 className="w-4 h-4 text-navy-700" />
+                </div>
+                <h2 className="text-base font-semibold text-slate-800">{t('register.lab')}</h2>
               </div>
-              <h2 className="text-base font-semibold text-slate-800">{t('register.visit')}</h2>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                {/* Laboratory Selection */}
+
+                <div>
+                  <label className={labelClass}>
+                    {t('register.lab')} {req}
+                  </label>
+
+                  <select
+                    value={formData.laboratory}
+                    onChange={(e) => handleChange('laboratory', e.target.value)}
+                    className={inputClass('laboratory')}
+                  >
+                    <option value="">-- اختر المختبر المستهدف --</option>
+
+                    {LAB_HIERARCHY.map((lab) => (
+                      <option key={lab.id} value={lab.id}>
+                        {lab.name[lang] || lab.name.en}
+                      </option>
+                    ))}
+                  </select>
+
+                  {errors.laboratory && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.laboratory}
+                    </p>
+                  )}
+                </div>
+
+
+
+                {/* Branch Selection */}
+                <div>
+                  <label className={labelClass}>
+                    {t('register.branch')} {req}
+                  </label>
+
+                  <select
+                    value={formData.branch}
+                    onChange={(e) => handleChange('branch', e.target.value)}
+                    className={inputClass('branch')}
+                  >
+                    <option value="">-- اختر الفرع المستهدف --</option>
+
+                    {availableBranches.map((br) => (
+                      <option key={br.id} value={br.id}>
+                        {br.name[lang] || br.name.en}
+                      </option>
+                    ))}
+                  </select>
+
+                  {errors.branch && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.branch}
+                    </p>
+                  )}
+                </div>
+
+
+
+                {/* Department */}
+                <div>
+                  <label className={labelClass}>
+                    {t('register.department')} {req}
+                  </label>
+
+                  <select
+                    value={formData.department}
+                    onChange={(e) => handleChange('department', e.target.value)}
+                    className={inputClass('department')}
+                  >
+                    <option value="">-- اختر القسم أو الإدارة --</option>
+
+                    {departmentOptions.map((dep) => (
+                      <option key={dep.value} value={dep.value}>
+                        {dep.label}
+                      </option>
+                    ))}
+                  </select>
+
+                  {errors.department && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.department}
+                    </p>
+                  )}
+                </div>
+
+
+                {/* Employee to Visit */}
+                <div>
+                  <label className={labelClass}>{t('register.employee')} {req}</label>
+                  <input
+                    type="text"
+                    placeholder={lang === 'ar' ? 'اسم الموظف أو رئيس القسم' : lang === 'fr' ? "Nom de l'agent ou chef de service" : 'Staff or department head'}
+                    value={formData.employee}
+                    onChange={(e) => handleChange('employee', e.target.value)}
+                    className={inputClass('employee')}
+                  />
+                  {errors.employee && <p className="text-red-500 text-xs mt-1">{errors.employee}</p>}
+                </div>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {/* Card 3: Visit Specifications */}
+            <div className="p-6 sm:p-7 rounded-xl bg-white border border-slate-200 shadow-sm">
+              <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-100">
+                <div className="w-9 h-9 rounded-lg bg-navy-50 flex items-center justify-center">
+                  <Calendar className="w-4 h-4 text-navy-700" />
+                </div>
+                <h2 className="text-base font-semibold text-slate-800">{t('register.visit')}</h2>
+              </div>
+
+
               {/* Purpose */}
               <div className="sm:col-span-2">
-                <label className={labelClass}>{t('register.purpose')} {req}</label>
+                <label className={labelClass}>
+                  {t('register.purpose')} {req}
+                </label>
+
                 <select
                   value={formData.purpose}
                   onChange={(e) => handleChange('purpose', e.target.value)}
                   className={inputClass('purpose')}
                 >
+                  <option value="">-- اختر الغرض من الزيارة --</option>
+
                   {purposeOptions.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
                     </option>
                   ))}
                 </select>
-                {errors.purpose && <p className="text-red-500 text-xs mt-1">{errors.purpose}</p>}
+
+                {errors.purpose && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.purpose}
+                  </p>
+                )}
               </div>
+
 
               {/* Visit Date */}
               <div>
@@ -573,9 +642,12 @@ export default function Register() {
                 )}
               </div>
 
+
               {/* Additional Notes */}
               <div className="sm:col-span-2">
-                <label className={labelClass}>{t('register.notes')}</label>
+                <label className={labelClass}>
+                  {t('register.notes')}
+                </label>
                 <textarea
                   rows={3}
                   placeholder={t('register.notesPlaceholder')}
@@ -585,7 +657,9 @@ export default function Register() {
                 />
               </div>
             </div>
+            {/* End Visit Specifications card */}
           </div>
+          {/* End form grid if you opened one around all cards */}
 
           <button
             type="submit"
@@ -607,5 +681,27 @@ export default function Register() {
         </form>
       </div>
     </div>
+  );
+}                      
+<button
+  type="submit"
+  disabled={submitting}
+  className="flex items-center justify-center gap-2.5 w-full py-3.5 px-6 rounded-xl bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-semibold text-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-md hover:shadow-lg whitespace-nowrap cursor-pointer"
+>
+  {submitting ? (
+    <>
+      <Loader2 className="w-5 h-5 animate-spin shrink-0" />
+      <span>{t('register.submitting')}</span>
+    </>
+  ) : (
+    <>
+      <Send className="w-4 h-4 shrink-0" />
+      <span>{t('register.submit')}</span>
+    </>
+  )}
+</button>
+</form >
+      </div >
+    </div >
   );
 }
