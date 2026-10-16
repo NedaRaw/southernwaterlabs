@@ -15,6 +15,7 @@ interface VisitorData {
   first_name?: string;
   last_name?: string;
   visitor_name?: string;
+  national_id?: string;
   company: string | null;
   job_title: string | null;
   phone: string;
@@ -82,11 +83,7 @@ export default function VisitorDetail() {
     : '';
 
   const displayRefId = visitor?.visitor_id || visitor?.id || id || '';
-  console.log('Visitor data:', {
-    laboratory: visitor?.laboratory,
-    branch: visitor?.branch,
-    department: visitor?.department,
-  });
+
   const displayLab = visitor?.laboratory
     ? getLabLabel(visitor.laboratory, lang) +
     (visitor.branch ? ` - ${getBranchLabel(visitor.laboratory, visitor.branch, lang)}` : '')
@@ -295,7 +292,23 @@ export default function VisitorDetail() {
                 </div>
               </div>
             </div>
-
+            {visitor.department && (
+              <div className="flex items-center gap-3 p-4 rounded-lg bg-slate-50">
+                <Building2 className="w-5 h-5 text-navy-600 shrink-0" />
+                <div>
+                  <p className="text-xs text-slate-400">
+                    {lang === 'ar'
+                      ? 'القسم أو الإدارة المستهدفة'
+                      : lang === 'fr'
+                        ? 'Département ou administration ciblée'
+                        : 'Target Department or Administration'}
+                  </p>
+                  <p className="text-sm font-bold text-slate-700">
+                    {visitor.department}
+                  </p>
+                </div>
+              </div>
+            )}
             {visitor.notes && (
               <div className="mt-5 p-4 rounded-lg bg-slate-50">
                 <p className="text-xs text-slate-400 mb-1">{t('register.notes')}</p>
@@ -326,29 +339,66 @@ export default function VisitorDetail() {
                   <p className="text-xs text-navy-300">{t('visitor.name')}</p>
                   <p className="text-lg font-bold text-white">{displayName}</p>
                 </div>
+
+                {visitor.national_id && (
+                  <div>
+                    <p className="text-xs text-navy-300">
+                      {lang === 'ar'
+                        ? 'رقم الهوية الوطنية / جواز السفر'
+                        : lang === 'fr'
+                          ? 'Numéro national d’identité / passeport'
+                          : 'National ID / Passport Number'}
+                    </p>
+                    <p className="font-medium text-slate-200" dir="ltr">
+                      {visitor.national_id}
+                    </p>
+                  </div>
+                )}
+
                 {visitor.company && (
                   <div>
                     <p className="text-xs text-navy-300">{t('register.company')}</p>
                     <p className="font-medium text-slate-200">{visitor.company}</p>
                   </div>
                 )}
+
+                {visitor.department && (
+                  <div>
+                    <p className="text-xs text-navy-300">
+                      {lang === 'ar'
+                        ? 'القسم أو الإدارة المستهدفة'
+                        : lang === 'fr'
+                          ? 'Département ou administration ciblée'
+                          : 'Target Department or Administration'}
+                    </p>
+                    <p className="font-medium text-slate-200">{visitor.department}</p>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10">
                   <div>
                     <p className="text-xs text-navy-300">{t('visitor.date')}</p>
-                    <p className="font-medium text-slate-200">{visitor.visit_date}</p>
+                    <p className="font-medium text-slate-200">
+                      {visitor.visit_date}
+                      {visitor.arrival_time ? ` (${visitor.arrival_time})` : ''}
+                    </p>
                   </div>
                   <div>
                     <p className="text-xs text-navy-300">{t('visitor.lab')}</p>
                     <p className="font-medium text-slate-200">{displayLab}</p>
                   </div>
                 </div>
+
                 <div className="pt-2 border-t border-white/10">
                   <p className="text-xs text-navy-300">{t('visitor.purpose')}</p>
                   <p className="font-medium text-slate-200">{displayPurpose}</p>
                 </div>
+
                 <div className="pt-2 border-t border-white/10">
                   <p className="text-xs text-navy-300">{t('success.ref')}</p>
-                  <p className="text-xs font-mono text-navy-200 break-all">{displayRefId}</p>
+                  <p className="text-xs font-mono text-navy-200 break-all">
+                    {displayRefId}
+                  </p>
                 </div>
               </div>
             </div>
