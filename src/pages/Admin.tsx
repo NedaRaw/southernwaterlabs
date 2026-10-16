@@ -630,6 +630,7 @@ export default function Admin() {
   const [selectedBranches, setSelectedBranches] = useState<string[]>([]);
 
 
+
   // ============================================================
   // Session Restore
   // ============================================================
@@ -645,8 +646,11 @@ export default function Admin() {
         return;
       }
 
-      // Purge any lingering mock tokens when connected to real Supabase
-      if (isSupabaseConfigured && storedToken.startsWith('mock-token-')) {
+      // Reject mock tokens when connected to real Supabase.
+      if (
+        isSupabaseConfigured &&
+        storedToken.startsWith('mock-token-')
+      ) {
         sessionStorage.removeItem('admin_user');
         sessionStorage.removeItem('admin_token');
         return;
@@ -655,16 +659,14 @@ export default function Admin() {
       try {
         const user = JSON.parse(storedUser) as AdminUser;
 
-        // Reject non-admin / standard users
+        // Reject invalid users and roles without admin access.
         if (!user || !hasAdminAccess(user.role)) {
           sessionStorage.removeItem('admin_user');
           sessionStorage.removeItem('admin_token');
           return;
         }
 
-
-
-        // Validate session against the Supabase server
+        // Validate the session against Supabase.
         if (isSupabaseConfigured) {
           const { data, error } = await supabase.rpc(
             'validate_admin_session',
@@ -703,37 +705,61 @@ export default function Admin() {
 
         if (isCancelled) return;
 
+        // Restore authenticated state.
         setAdminUser(user);
         setAdminToken(storedToken);
-        setLoggedIn(true);
 
-
-        // Initialize role-based scope filters
-        if (isLabAdmin(user.role) && user.laboratory) {
+        // Initialize filters according to the user's role.
+        if (
+          user.role === 'super_admin' ||
+          user.role === 'admin'
+        ) {
+          // Global administrators must not inherit scoped filters.
+          setLabFilter('');
+          setBranchFilter('');
+        } else if (
+          isLabAdmin(user.role) &&
+          user.laboratory
+        ) {
           setLabFilter(user.laboratory);
           setBranchFilter('');
         } else if (isLocalAdmin(user.role)) {
-          if (user.laboratory) setLabFilter(user.laboratory);
-          const branches = getUserBranches(user);
-          if (branches.length === 1) {
-            setBranchFilter(branches[0]);
-          } else {
-            // When assigned to 2 branches, default to '' to view all authorized branches simultaneously
-            setBranchFilter('');
+          if (user.laboratory) {
+            setLabFilter(user.laboratory);
           }
+
+          const branches = getUserBranches(user);
+
+          setBranchFilter(
+            branches.length === 1 ? branches[0] : ''
+          );
         } else if (isReadOnly(user.role)) {
-          if (user.laboratory) setLabFilter(user.laboratory);
-          const branches = getUserBranches(user);
-          if (branches.length === 1) {
-            setBranchFilter(branches[0]);
-          } else {
-            setBranchFilter('');
+          if (user.laboratory) {
+            setLabFilter(user.laboratory);
           }
+
+          const branches = getUserBranches(user);
+
+          setBranchFilter(
+            branches.length === 1 ? branches[0] : ''
+          );
         }
+
+        setLoggedIn(true);
       } catch (error) {
-        console.error('Failed to restore admin session:', error);
+        console.error(
+          'Failed to restore admin session:',
+          error
+        );
+
         sessionStorage.removeItem('admin_user');
         sessionStorage.removeItem('admin_token');
+
+        if (!isCancelled) {
+          setAdminUser(null);
+          setAdminToken('');
+          setLoggedIn(false);
+        }
       }
     };
 
@@ -743,6 +769,7 @@ export default function Admin() {
       isCancelled = true;
     };
   }, []);
+
 
 
   // ============================================================
@@ -1237,28 +1264,9 @@ export default function Admin() {
       // IMPORTANT: Token-protected RPC with server-side filtering
       // --------------------------------------------------------
 
-      let surveysQuery = supabase.rpc('get_admin_surveys', {
+      const surveysQuery = supabase.rpc('get_admin_surveys', {
         p_token: token,
       });
-
-      if (branchFilter) {
-        surveysQuery = surveysQuery.eq('branch', branchFilter);
-      }
-      if (labFilter) {
-        surveysQuery = surveysQuery.eq('laboratory', labFilter);
-      }
-      if (surveyStartDate) {
-        surveysQuery = surveysQuery.gte(
-          'created_at',
-          `${surveyStartDate}T00:00:00.000Z`
-        );
-      }
-      if (surveyEndDate) {
-        surveysQuery = surveysQuery.lte(
-          'created_at',
-          `${surveyEndDate}T23:59:59.999Z`
-        );
-      }
 
       const surveysRes = await surveysQuery;
 
@@ -3132,7 +3140,30 @@ export default function Admin() {
     );
   });
 
+  const overviewVisitors = visitors.filter((visitor) => {
+    if (
+      isLabAdmin(adminUser?.role) &&
+      adminUser?.laboratory &&
+      !isLabMatch(visitor.laboratory, adminUser.laboratory)
+    ) {
+      return false;
+    }
 
+    if (isLocalAdmin(adminUser?.role) || isReadOnly(adminUser?.role)) {
+      if (
+        adminUser?.laboratory &&
+        !isLabMatch(visitor.laboratory, adminUser.laboratory)
+      ) {
+        return false;
+      }
+
+      if (!isUserBranchAuthorized(adminUser, visitor.branch)) {
+        return false;
+      }
+    }
+
+    return true;
+  });
   // ============================================================
   // Filter Surveys (Scoped by Role and Laboratory)
   // ============================================================
@@ -3203,7 +3234,28 @@ export default function Admin() {
     surveyEndDate,
     visibleIds: filteredSurveys.map((s) => s.id),
   });
+  const overviewSurveys = surveys.filter((survey) => {
+    if (isLabAdmin(adminUser?.role) && adminUser?.laboratory) {
+      if (!isLabMatch(survey.laboratory, adminUser.laboratory)) {
+        return false;
+      }
+    }
 
+    if (isLocalAdmin(adminUser?.role) || isReadOnly(adminUser?.role)) {
+      if (
+        adminUser?.laboratory &&
+        !isLabMatch(survey.laboratory, adminUser.laboratory)
+      ) {
+        return false;
+      }
+
+      if (!isUserBranchAuthorized(adminUser, survey.branch)) {
+        return false;
+      }
+    }
+
+    return true;
+  });
   // ============================================================
   // Filter Enquiries (Scoped by Role and Laboratory)
   // ============================================================
@@ -3249,6 +3301,29 @@ export default function Admin() {
       matchesBranch &&
       matchesStatus
     );
+  });
+
+  const overviewEnquiries = enquiries.filter((enquiry) => {
+    if (isLabAdmin(adminUser?.role) && adminUser?.laboratory) {
+      if (!isLabMatch(enquiry.laboratory, adminUser.laboratory)) {
+        return false;
+      }
+    }
+
+    if (isLocalAdmin(adminUser?.role) || isReadOnly(adminUser?.role)) {
+      if (
+        adminUser?.laboratory &&
+        !isLabMatch(enquiry.laboratory, adminUser.laboratory)
+      ) {
+        return false;
+      }
+
+      if (!isUserBranchAuthorized(adminUser, enquiry.branch)) {
+        return false;
+      }
+    }
+
+    return true;
   });
 
 
@@ -3460,7 +3535,7 @@ export default function Admin() {
           : lang === 'fr'
             ? 'Visiteurs'
             : 'Visitors',
-      value: filteredVisitors.length,
+      value: overviewVisitors.length,
       icon: Users,
     },
     {
@@ -3470,7 +3545,7 @@ export default function Admin() {
           : lang === 'fr'
             ? 'Enquêtes'
             : 'Surveys',
-      value: filteredSurveys.length,
+      value: overviewSurveys.length,
       icon: FileText,
     },
     {
@@ -3480,7 +3555,7 @@ export default function Admin() {
           : lang === 'fr'
             ? 'Demandes'
             : 'Enquiries',
-      value: filteredEnquiries.length,
+      value: overviewEnquiries.length,
       icon: MessageSquare,
     },
     {
@@ -4441,7 +4516,7 @@ export default function Admin() {
                         </button>
                       </div>
 
-                      {filteredVisitors
+                      {overviewVisitors
                         .slice(0, 5)
                         .map((visitor) => (
                           <div
@@ -4475,7 +4550,7 @@ export default function Admin() {
                           </div>
                         ))}
 
-                      {filteredVisitors.length === 0 && (
+                      {overviewVisitors.length === 0 && (
                         <p className="text-sm text-slate-500">
                           {lang === 'ar'
                             ? 'لا توجد سجلات.'
@@ -4514,7 +4589,7 @@ export default function Admin() {
                         </button>
                       </div>
 
-                      {filteredEnquiries
+                      {overviewEnquiries
                         .slice(0, 5)
                         .map((enquiry) => (
                           <div
@@ -4536,7 +4611,7 @@ export default function Admin() {
                           </div>
                         ))}
 
-                      {filteredEnquiries.length === 0 && (
+                      {overviewEnquiries.length === 0 && (
                         <p className="text-sm text-slate-500">
                           {lang === 'ar'
                             ? 'لا توجد سجلات.'
@@ -4899,7 +4974,7 @@ export default function Admin() {
                   </div>
 
 
-                  {filteredVisitors.length === 0 && (
+                  {overviewVisitors.length === 0 && (
                     <div className="py-16 text-center text-slate-500">
                       {lang === 'ar'
                         ? 'لا توجد سجلات.'
