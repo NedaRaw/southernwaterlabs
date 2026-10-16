@@ -164,8 +164,10 @@ export default function Register() {
   ];
 
 
+
   const validate = (): boolean => {
     const e: Record<string, string> = {};
+
     const requiredMessage =
       lang === 'ar'
         ? 'هذا الحقل مطلوب'
@@ -173,33 +175,94 @@ export default function Register() {
           ? 'Ce champ est obligatoire'
           : 'This field is required';
 
-    if (!formData.first_name.trim()) e.first_name = requiredMessage;
-    if (!formData.last_name.trim()) e.last_name = requiredMessage;
-    if (!formData.national_id.trim()) e.national_id = requiredMessage;
-
-    if (!formData.phone.trim()) {
-      e.phone = requiredMessage;
-    } else if (!/^[0-9+\s-]{8,}$/.test(formData.phone.trim())) {
-      e.phone = requiredMessage;
+    // First name
+    if (!formData.first_name.trim()) {
+      e.first_name = requiredMessage;
     }
 
-    if (!formData.email.trim()) {
-      e.email = requiredMessage;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
-      e.email = requiredMessage;
+    // Last name
+    if (!formData.last_name.trim()) {
+      e.last_name = requiredMessage;
     }
 
-    if (!formData.laboratory) e.laboratory = requiredMessage;
-    if (!formData.branch) e.branch = requiredMessage;
-    if (!formData.department.trim()) e.department = requiredMessage;
-    if (!formData.purpose.trim()) e.purpose = requiredMessage;
-    if (!formData.employee.trim()) e.employee = requiredMessage;
-    if (!formData.visit_date) e.visit_date = requiredMessage;
-    if (!formData.arrival_time) e.arrival_time = requiredMessage;
+    // National ID / Passport
+    if (!formData.national_id.trim()) {
+      e.national_id = requiredMessage;
+    }
+
+    // Phone number: 8 to 15 digits
+    const phone = formData.phone.trim();
+    const phoneDigits = phone.replace(/\D/g, '');
+
+    if (!phone) {
+      e.phone = requiredMessage;
+    } else if (
+      !/^\+?[0-9\s()-]+$/.test(phone) ||
+      phoneDigits.length < 8 ||
+      phoneDigits.length > 15
+    ) {
+      e.phone =
+        lang === 'ar'
+          ? 'يرجى إدخال رقم هاتف صحيح من 8 إلى 15 رقمًا'
+          : lang === 'fr'
+            ? 'Veuillez saisir un numéro valide de 8 à 15 chiffres'
+            : 'Please enter a valid phone number with 8 to 15 digits';
+    }
+
+    // Email: complete email address
+    const email = formData.email.trim();
+
+    if (!email) {
+      e.email = requiredMessage;
+    } else if (
+      !/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)+$/.test(email)
+    ) {
+      e.email =
+        lang === 'ar'
+          ? 'يرجى إدخال بريد إلكتروني كامل وصحيح'
+          : lang === 'fr'
+            ? 'Veuillez saisir une adresse e-mail complète et valide'
+            : 'Please enter a complete and valid email address';
+    }
+
+    // Laboratory and branch
+    if (!formData.laboratory) {
+      e.laboratory = requiredMessage;
+    }
+
+    if (!formData.branch) {
+      e.branch = requiredMessage;
+    }
+
+    // Department
+    if (!formData.department.trim()) {
+      e.department = requiredMessage;
+    }
+
+    // Employee to visit
+    if (!formData.employee.trim()) {
+      e.employee = requiredMessage;
+    }
+
+    // Visit purpose
+    if (!formData.purpose.trim()) {
+      e.purpose = requiredMessage;
+    }
+
+    // Visit date
+    if (!formData.visit_date) {
+      e.visit_date = requiredMessage;
+    }
+
+    // Arrival time
+    if (!formData.arrival_time) {
+      e.arrival_time = requiredMessage;
+    }
 
     setErrors(e);
     return Object.keys(e).length === 0;
   };
+
 
 
   const handleChange = (field: keyof FormData, value: string) => {
@@ -351,7 +414,12 @@ export default function Register() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6" dir={dir}>
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-6"
+          dir={dir}
+          noValidate
+        >
           {/* Card 1: Personal & Professional Information */}
           <div className="p-6 sm:p-7 rounded-xl bg-white border border-slate-200 shadow-sm">
             <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-100">

@@ -76,7 +76,7 @@ export default function Enquiry() {
     if (!formData.email.trim()) {
       e.email = requiredMessage;
     } else if (
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())
+      !/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)+$/.test(formData.email.trim())
     ) {
       e.email =
         lang === 'ar'
@@ -86,8 +86,22 @@ export default function Enquiry() {
             : 'Please enter a valid email address';
     }
 
-    if (!formData.phone.trim()) {
+    const phone = formData.phone.trim();
+    const phoneDigits = phone.replace(/\D/g, '');
+
+    if (!phone) {
       e.phone = requiredMessage;
+    } else if (
+      !/^\+?[0-9\s()-]+$/.test(phone) ||
+      phoneDigits.length < 8 ||
+      phoneDigits.length > 15
+    ) {
+      e.phone =
+        lang === 'ar'
+          ? 'يرجى إدخال رقم هاتف صحيح من 8 إلى 15 رقمًا'
+          : lang === 'fr'
+            ? 'Veuillez saisir un numéro valide de 8 à 15 chiffres'
+            : 'Please enter a valid phone number with 8 to 15 digits';
     }
 
     if (!formData.location.trim()) {
