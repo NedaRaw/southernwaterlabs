@@ -7,6 +7,7 @@ import {
 import { Link } from 'react-router-dom';
 import {
   Lock,
+  Key,
   Loader2,
   AlertCircle,
   LayoutDashboard,
@@ -123,7 +124,8 @@ export function hasAdminAccess(role?: string | null): boolean {
     role === 'super_admin' ||
     role === 'lab_admin' ||
     role === 'local_admin' ||
-    role === 'admin'
+    role === 'admin' ||
+    role === 'user'
   );
 }
 
@@ -153,13 +155,22 @@ export function isUserBranchAuthorized(
 ): boolean {
   if (!actor) return false;
   if (isSuperAdmin(actor.role) || isLabAdmin(actor.role)) return true;
-  if (!isLocalAdmin(actor.role)) return false;
 
   const branches = getUserBranches(actor);
-  if (branches.length === 0) return true;
-  if (!recordBranch) return false;
 
-  return branches.some((b) => isBranchMatch(recordBranch, b));
+  if (isLocalAdmin(actor.role)) {
+    if (branches.length === 0) return true;
+    if (!recordBranch) return false;
+    return branches.some((b) => isBranchMatch(recordBranch, b));
+  }
+
+  if (isStandardUser(actor.role) || isReadOnly(actor.role)) {
+    if (branches.length === 0) return true;
+    if (!recordBranch) return true;
+    return branches.some((b) => isBranchMatch(recordBranch, b));
+  }
+
+  return false;
 }
 
 export function canCreateRole(actorRole?: string | null, targetRole?: string | null): boolean {
@@ -518,6 +529,18 @@ export default function Admin() {
   const [loginError, setLoginError] = useState('');
   const [loggingIn, setLoggingIn] = useState(false);
 
+  // Change Own Password State
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+  const [changePasswordForm, setChangePasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [changePasswordLoading, setChangePasswordLoading] = useState(false);
+  const [changePasswordError, setChangePasswordError] = useState<string | null>(null);
+  const [showChangePwdCurrent, setShowChangePwdCurrent] = useState(false);
+  const [showChangePwdNew, setShowChangePwdNew] = useState(false);
+
   // ============================================================
   // Dashboard
   // ============================================================
@@ -633,19 +656,41 @@ export default function Admin() {
           return;
         }
 
+
+
         // Validate session against the Supabase server
         if (isSupabaseConfigured) {
-          const { error } = await supabase.rpc('require_admin', {
-            p_token: storedToken,
-          });
+          const { data, error } = await supabase.rpc(
+            'validate_admin_session',
+            {
+              p_token: storedToken,
+            }
+          );
 
-          if (error) {
-            console.warn('Session verification rejected by server:', error);
+          const validation = Array.isArray(data) ? data[0] : data;
+
+          const sessionIsValid =
+            !error &&
+            validation?.success === true &&
+            String(validation?.user_id) === String(user.id) &&
+            validation?.role === user.role;
+
+          if (!sessionIsValid) {
+            console.warn(
+              'Session verification rejected or user data mismatch:',
+              error || validation
+            );
+
             sessionStorage.removeItem('admin_user');
             sessionStorage.removeItem('admin_token');
+
             if (!isCancelled) {
+              setAdminUser(null);
+              setAdminToken('');
+              setLoggedIn(false);
               setSessionExpired(true);
             }
+
             return;
           }
         }
@@ -655,6 +700,7 @@ export default function Admin() {
         setAdminUser(user);
         setAdminToken(storedToken);
         setLoggedIn(true);
+
 
         // Initialize role-based scope filters
         if (isLabAdmin(user.role) && user.laboratory) {
@@ -667,6 +713,14 @@ export default function Admin() {
             setBranchFilter(branches[0]);
           } else {
             // When assigned to 2 branches, default to '' to view all authorized branches simultaneously
+            setBranchFilter('');
+          }
+        } else if (isReadOnly(user.role)) {
+          if (user.laboratory) setLabFilter(user.laboratory);
+          const branches = getUserBranches(user);
+          if (branches.length === 1) {
+            setBranchFilter(branches[0]);
+          } else {
             setBranchFilter('');
           }
         }
@@ -909,6 +963,14 @@ export default function Admin() {
         } else {
           setBranchFilter('');
         }
+      } else if (isReadOnly(user.role)) {
+        if (user.laboratory) setLabFilter(user.laboratory);
+        const branches = getUserBranches(user);
+        if (branches.length === 1) {
+          setBranchFilter(branches[0]);
+        } else {
+          setBranchFilter('');
+        }
       }
     } catch (error) {
       console.warn('Admin login exception caught:', error);
@@ -977,6 +1039,111 @@ export default function Admin() {
       setAdminUsers([]);
 
       setActiveTab('dashboard');
+    }
+  };
+
+
+  // ============================================================
+  // Change Own Password
+  // ============================================================
+
+  const handleChangeOwnPassword = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setChangePasswordError(null);
+
+    const { currentPassword, newPassword, confirmPassword } = changePasswordForm;
+
+    if (!newPassword) {
+      setChangePasswordError(
+        lang === 'ar'
+          ? 'يرجى إدخال كلمة المرور الجديدة.'
+          : lang === 'fr'
+            ? 'Veuillez saisir le nouveau mot de passe.'
+            : 'Please enter the new password.'
+      );
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setChangePasswordError(
+        lang === 'ar'
+          ? 'يجب ألا تقل كلمة المرور عن 6 أحرف.'
+          : lang === 'fr'
+            ? 'Le mot de passe doit comporter au moins 6 caractères.'
+            : 'Password must be at least 6 characters long.'
+      );
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setChangePasswordError(
+        lang === 'ar'
+          ? 'كلمتا المرور غير متطابقتين.'
+          : lang === 'fr'
+            ? 'Les mots de passe ne correspondent pas.'
+            : 'Passwords do not match.'
+      );
+      return;
+    }
+
+    const token =
+      adminToken ||
+      sessionStorage.getItem('admin_token') ||
+      '';
+
+    if (!token) {
+      setChangePasswordError(
+        lang === 'ar'
+          ? 'انتهت جلسة تسجيل الدخول.'
+          : 'Session expired.'
+      );
+      return;
+    }
+
+    setChangePasswordLoading(true);
+
+    try {
+      const res = await supabase.rpc('change_own_password', {
+        p_token: token,
+        p_old_password: currentPassword || null,
+        p_new_password: newPassword,
+      });
+
+      if (res.error) {
+        throw new Error(getErrorMessage(res.error));
+      }
+
+      const resData = Array.isArray(res.data) ? res.data[0] : res.data;
+      if (resData && typeof resData === 'object' && resData.success === false) {
+        throw new Error(
+          String(
+            resData.error ||
+            resData.message ||
+            (lang === 'ar' ? 'فشل تغيير كلمة المرور.' : 'Password update failed.')
+          )
+        );
+      }
+
+      setFeedback({
+        type: 'success',
+        message:
+          lang === 'ar'
+            ? 'تم تغيير كلمة المرور بنجاح.'
+            : lang === 'fr'
+              ? 'Mot de passe modifié avec succès.'
+              : 'Password changed successfully.',
+      });
+
+      setShowChangePasswordModal(false);
+      setChangePasswordForm({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      });
+    } catch (err) {
+      setChangePasswordError(getErrorMessage(err));
+    } finally {
+      setChangePasswordLoading(false);
     }
   };
 
@@ -1520,7 +1687,7 @@ export default function Admin() {
           saveData(STORAGE_KEYS.ADMIN_USERS, updatedLocal);
         } else {
           // Real Supabase update — strictly validated
-          let res = await supabase.rpc('update_user_secure', {
+          const res = await supabase.rpc('update_user_secure', {
             p_token: token,
             p_id: editingUserId,
             p_password: password || null,
@@ -1570,6 +1737,7 @@ export default function Admin() {
       // Create new user
       // --------------------------------------------------------
 
+
       else {
         if (!isSupabaseConfigured) {
           // Mock mode creation ONLY
@@ -1577,17 +1745,19 @@ export default function Admin() {
             STORAGE_KEYS.ADMIN_USERS,
             defaultAdminUsers
           );
+
           const newLocalUser: AdminUserData = {
             id: `usr-${Date.now()}`,
-            username: username,
-            password: password,
+            username,
+            password,
             full_name: userForm.full_name || username,
-            role: role,
+            role,
             laboratory: assignedLab || null,
             branch: assignedBranch || null,
             active: true,
             is_primary: false,
           };
+
           saveData(STORAGE_KEYS.ADMIN_USERS, [
             newLocalUser,
             ...localUsers.filter(
@@ -1595,74 +1765,71 @@ export default function Admin() {
             ),
           ]);
         } else {
-          // Real Supabase creation: DO NOT save locally before server confirmation!
-          // Step 1: Call create_user (4 parameters: p_token, p_username, p_password, p_role)
-          let res = await supabase.rpc('create_user', {
-            p_token: token,
-            p_username: username,
-            p_password: password,
-            p_role: role,
-          });
-
-          console.log('CREATE USER RPC RESPONSE:', res.data, res.error);
-
-          // 1. Check RPC-level error
-          if (res.error) {
-            throw new Error(getErrorMessage(res.error));
-          }
-
-          // 2. Check errors embedded in data payload
-          const resData = Array.isArray(res.data) ? res.data[0] : res.data;
-          if (resData && typeof resData === 'object') {
-            if (resData.success === false || resData.error) {
-              throw new Error(
-                String(
-                  resData.error ||
-                  resData.message ||
-                  (lang === 'ar'
-                    ? 'فشل إنشاء المستخدم في قاعدة البيانات.'
-                    : lang === 'fr'
-                      ? "Échec de la création de l'utilisateur."
-                      : 'User creation failed on database.')
-                )
-              );
+          // Create user and details through one Supabase RPC.
+          const { data, error } = await supabase.rpc(
+            'create_user_with_details',
+            {
+              p_token: token,
+              p_username: username.trim(),
+              p_password: password,
+              p_role: role,
+              p_full_name: userForm.full_name?.trim() || null,
+              p_laboratory: assignedLab || null,
+              p_branch: assignedBranch || null,
             }
+          );
+
+          console.log('CREATE USER WITH DETAILS:', data, error);
+
+          if (error) {
+            throw new Error(getErrorMessage(error));
           }
 
-          // 3. Confirm that a valid user ID or created record was returned by the database
-          const returnedId =
-            resData?.id ||
-            resData?.user_id ||
-            resData?.user?.id ||
-            (typeof resData === 'string' && resData.length > 5 ? resData : null);
+          const resData = Array.isArray(data) ? data[0] : data;
 
-          if (!returnedId && resData !== true && resData?.success !== true) {
+          if (
+            !resData ||
+            typeof resData !== 'object' ||
+            resData.success === false ||
+            resData.error
+          ) {
             throw new Error(
-              lang === 'ar'
-                ? 'لم يتم تأكيد إنشاء المستخدم من قبل قاعدة البيانات (لم يتم استلام معرّف الحساب).'
-                : lang === 'fr'
-                  ? "La création de l'utilisateur n'a pas été confirmée par la base de données (aucun identifiant reçu)."
-                  : 'User creation was not confirmed by the database (no user ID received).'
+              String(
+                resData?.error ||
+                resData?.message ||
+                (lang === 'ar'
+                  ? 'فشل إنشاء الحساب في قاعدة البيانات.'
+                  : lang === 'fr'
+                    ? "Échec de la création du compte dans la base de données."
+                    : 'Database account creation failed.')
+              )
             );
           }
 
-          // Step 2: Now update full_name, laboratory, and branch via update_user_secure
-          if (returnedId && (userForm.full_name || assignedLab || assignedBranch)) {
-            const updateRes = await supabase.rpc('update_user_secure', {
-              p_token: token,
-              p_id: returnedId,
-              p_password: null,
-              p_role: role,
-              p_active: true,
-              p_full_name: userForm.full_name || null,
-              p_laboratory: assignedLab || null,
-              p_branch: assignedBranch || null,
-            });
-            console.log('UPDATE USER AFTER CREATE:', updateRes.data, updateRes.error);
-            if (updateRes.error) {
-              console.warn('Warning updating details after create:', updateRes.error);
-            }
+          const createdUser = resData.user;
+
+          if (
+            !createdUser?.id ||
+            createdUser.username !== username.trim()
+          ) {
+            throw new Error(
+              lang === 'ar'
+                ? 'لم يتم تأكيد إنشاء الحساب أو أن بياناته المعادة غير مكتملة.'
+                : lang === 'fr'
+                  ? 'La création du compte ou les données retournées sont incomplètes.'
+                  : 'Account creation was not confirmed or returned data is incomplete.'
+            );
           }
+
+          console.log('CREATED USER DETAILS:', {
+            id: createdUser.id,
+            username: createdUser.username,
+            role: createdUser.role,
+            full_name: createdUser.full_name,
+            laboratory: createdUser.laboratory,
+            branch: createdUser.branch,
+            active: createdUser.active,
+          });
         }
 
         setFeedback({
@@ -1675,6 +1842,7 @@ export default function Admin() {
                 : `User account "${username}" created successfully.`,
         });
       }
+
 
       closeUserModal();
 
@@ -2092,46 +2260,73 @@ export default function Admin() {
 
     try {
       switch (deleteTarget.type) {
+
         case 'visitor': {
           const token =
             adminToken ||
             sessionStorage.getItem('admin_token') ||
             '';
 
-          let deletedViaRpc = false;
-          if (token && isSupabaseConfigured) {
-            try {
-              const { data, error } = await supabase.rpc('admin_delete_visitor', {
-                p_token: token,
-                p_id: deleteTarget.id,
-              });
-              if (!error) {
-                const res = Array.isArray(data) ? data[0] : data;
-                if (res?.success === true || res === true) {
-                  deletedViaRpc = true;
-                }
-              }
-            } catch (rpcErr) {
-              console.warn('admin_delete_visitor RPC attempt warning:', rpcErr);
-            }
+          if (!token) {
+            setSessionExpired(true);
+            throw new Error(
+              lang === 'ar'
+                ? 'انتهت جلسة المسؤول. يرجى تسجيل الدخول مجددًا.'
+                : lang === 'fr'
+                  ? 'Session administrateur expirée. Veuillez vous reconnecter.'
+                  : 'Admin session expired. Please log in again.'
+            );
           }
 
-          if (!deletedViaRpc) {
-            const { count, error } = await supabase
-              .from('visitors')
-              .delete({ count: 'exact' })
-              .eq('id', deleteTarget.id);
+          const { data, error } = await supabase.rpc(
+            'admin_delete_visitor',
+            {
+              p_token: token,
+              p_id: deleteTarget.id,
+            }
+          );
 
-            if (error) {
-              throw error;
+          if (error) {
+            const message = getErrorMessage(error).toLowerCase();
+
+            if (
+              message.includes('unauthorized') ||
+              message.includes('invalid token') ||
+              message.includes('expired') ||
+              error.code === 'P0001'
+            ) {
+              setSessionExpired(true);
             }
 
-            if (count === 0) {
-              console.info('Visitor record count was 0, confirming absent from server.');
-            }
+            throw error;
           }
 
-          setVisitors((prev) => prev.filter((v) => v.id !== deleteTarget.id));
+          const result = Array.isArray(data) ? data[0] : data;
+
+          const confirmed =
+            result === true ||
+            (
+              typeof result === 'object' &&
+              result !== null &&
+              'success' in result &&
+              result.success === true &&
+              !('error' in result && result.error)
+            );
+
+          if (!confirmed) {
+            throw new Error(
+              lang === 'ar'
+                ? 'لم يؤكد الخادم حذف سجل الزائر. لم تُعرض العملية على أنها ناجحة.'
+                : lang === 'fr'
+                  ? 'Le serveur n’a pas confirmé la suppression. L’opération n’est pas considérée comme réussie.'
+                  : 'The server did not confirm visitor deletion. The operation is not considered successful.'
+            );
+          }
+
+          setVisitors((prev) =>
+            prev.filter((visitor) => visitor.id !== deleteTarget.id)
+          );
+
           setFeedback({
             type: 'success',
             message:
@@ -2141,10 +2336,12 @@ export default function Admin() {
                   ? 'Visite supprimée avec succès.'
                   : 'Visitor record deleted successfully.',
           });
+
           setDeleteTarget(null);
           await fetchData();
           break;
         }
+
 
         case 'survey': {
           const token =
@@ -2543,6 +2740,7 @@ export default function Admin() {
     }
   };
 
+
   // حذف مجموعة من سجلات الزوار عبر دالة Supabase الآمنة
   const executeBulkVisitorDelete = async () => {
     if (
@@ -2590,13 +2788,15 @@ export default function Admin() {
           if (error) {
             const message = getErrorMessage(error).toLowerCase();
 
-            if (
+            const isSessionError =
               message.includes('unauthorized') ||
               message.includes('invalid token') ||
-              message.includes('expired')
-            ) {
+              message.includes('session expired') ||
+              message.includes('session has expired');
+
+            if (isSessionError) {
               setSessionExpired(true);
-              throw error;
+              throw new Error(`SESSION_ERROR: ${getErrorMessage(error)}`);
             }
 
             failedIds.push(id);
@@ -2618,11 +2818,18 @@ export default function Admin() {
         } catch (error) {
           const message = getErrorMessage(error).toLowerCase();
 
-          if (
+          if (message.includes('session_error:')) {
+            throw error;
+          }
+
+          const isSessionError =
             message.includes('unauthorized') ||
             message.includes('invalid token') ||
-            message.includes('expired')
-          ) {
+            message.includes('session expired') ||
+            message.includes('session has expired');
+
+          if (isSessionError) {
+            setSessionExpired(true);
             throw error;
           }
 
@@ -2664,14 +2871,28 @@ export default function Admin() {
 
       await fetchData();
     } catch (error) {
-      setBulkVisitorDeleteError(getErrorMessage(error));
+      const message = getErrorMessage(error);
+
+      setBulkVisitorDeleteError(message);
+
+      const normalizedMessage = message.toLowerCase();
+
+      if (
+        normalizedMessage.includes('session_error:') ||
+        normalizedMessage.includes('unauthorized') ||
+        normalizedMessage.includes('invalid token') ||
+        normalizedMessage.includes('session expired') ||
+        normalizedMessage.includes('session has expired')
+      ) {
+        setSessionExpired(true);
+      }
     } finally {
       setBulkVisitorDeleteLoading(false);
     }
   };
 
 
-  // حذف مجموعة من الاستفسارات
+  // حذف مجموعة من الاستفسارات عبر دالة Supabase الآمنة
   const executeBulkEnquiryDelete = async () => {
     if (
       bulkEnquiryDeleteLoading ||
@@ -2687,6 +2908,7 @@ export default function Admin() {
       '';
 
     if (!token) {
+      setSessionExpired(true);
       setBulkEnquiryDeleteError(
         lang === 'ar'
           ? 'انتهت جلسة المسؤول. يرجى تسجيل الدخول مجددًا.'
@@ -2706,56 +2928,48 @@ export default function Admin() {
 
     try {
       for (const id of idsToDelete) {
-        try {
-          const { data, error } = await supabase.rpc(
-            'admin_delete_enquiry',
-            {
-              p_token: token,
-              p_id: id,
-            }
-          );
-
-          if (error) {
-            const message = getErrorMessage(error).toLowerCase();
-
-            if (
-              message.includes('unauthorized') ||
-              message.includes('invalid token') ||
-              message.includes('expired')
-            ) {
-              setSessionExpired(true);
-            }
-
-            console.error('Enquiry deletion failed:', id, error);
-            failedIds.push(id);
-            continue;
+        const { data, error } = await supabase.rpc(
+          'admin_delete_enquiry',
+          {
+            p_token: token,
+            p_id: id,
           }
+        );
 
-          if (!data || typeof data !== 'object') {
-            failedIds.push(id);
-            continue;
-          }
+        if (error) {
+          const message = getErrorMessage(error).toLowerCase();
 
-          const result = data as {
-            success?: boolean;
-            error?: unknown;
-            message?: string;
-          };
+          const isSessionError =
+            message.includes('unauthorized') ||
+            message.includes('invalid token') ||
+            message.includes('session expired') ||
+            message.includes('session has expired');
 
-          if (result.success === true && !result.error) {
-            deletedIds.push(id);
-          } else {
-            console.error(
-              'Enquiry deletion was not confirmed:',
-              id,
-              result
+          if (isSessionError) {
+            setSessionExpired(true);
+            throw new Error(
+              `SESSION_ERROR: ${getErrorMessage(error)}`
             );
-            failedIds.push(id);
           }
-        } catch (error) {
+
           console.error('Enquiry deletion failed:', id, error);
           failedIds.push(id);
+          continue;
         }
+
+        const result = Array.isArray(data) ? data[0] : data;
+
+        if (
+          !result ||
+          typeof result !== 'object' ||
+          result.success !== true ||
+          result.error
+        ) {
+          failedIds.push(id);
+          continue;
+        }
+
+        deletedIds.push(id);
       }
 
       if (deletedIds.length > 0) {
@@ -2792,12 +3006,27 @@ export default function Admin() {
 
       await fetchData();
     } catch (error) {
+      const message = getErrorMessage(error);
+
       console.error('Bulk enquiry deletion failed:', error);
-      setBulkEnquiryDeleteError(getErrorMessage(error));
+      setBulkEnquiryDeleteError(message);
+
+      const normalizedMessage = message.toLowerCase();
+
+      if (
+        normalizedMessage.includes('session_error:') ||
+        normalizedMessage.includes('unauthorized') ||
+        normalizedMessage.includes('invalid token') ||
+        normalizedMessage.includes('session expired') ||
+        normalizedMessage.includes('session has expired')
+      ) {
+        setSessionExpired(true);
+      }
     } finally {
       setBulkEnquiryDeleteLoading(false);
     }
   };
+
 
   // ============================================================
   // Filter Visitors (Scoped by Role and Laboratory)
@@ -3316,9 +3545,9 @@ export default function Admin() {
                         {getLabLabel(adminUser.laboratory, lang)}
                         {adminUser.branch
                           ? ` • ${adminUser.branch
-                              .split(',')
-                              .map((b) => getBranchLabel(adminUser.laboratory!, b.trim(), lang))
-                              .join(' & ')}`
+                            .split(',')
+                            .map((b) => getBranchLabel(adminUser.laboratory!, b.trim(), lang))
+                            .join(' & ')}`
                           : ''}
                       </span>
                     ) : isSuperAdmin(adminUser?.role) ? (
@@ -3328,6 +3557,25 @@ export default function Admin() {
                     ) : null}
                   </div>
                 </div>
+              )}
+
+              {/* Change Password Button */}
+              {loggedIn && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setChangePasswordError(null);
+                    setChangePasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+                    setShowChangePasswordModal(true);
+                  }}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 transition cursor-pointer"
+                  title={lang === 'ar' ? 'تغيير كلمة المرور' : lang === 'fr' ? 'Changer mot de passe' : 'Change Password'}
+                >
+                  <Key className="w-3.5 h-3.5 text-blue-400" />
+                  <span className="hidden xl:inline">
+                    {lang === 'ar' ? 'كلمة المرور' : lang === 'fr' ? 'Mot de passe' : 'Password'}
+                  </span>
+                </button>
               )}
 
               {/* Theme Toggle Button */}
@@ -5946,7 +6194,76 @@ export default function Admin() {
                 )}
 
 
-                {userForm.laboratory && (
+                {userForm.laboratory && userForm.role === 'local_admin' && (
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                        {lang === 'ar'
+                          ? 'الفروع المصرح بها (اختر فرعاً واحداً أو فرعين كحد أقصى)'
+                          : lang === 'fr'
+                            ? 'Agences autorisées (Sélectionnez 1 ou 2 agences maximum)'
+                            : 'Authorized Branches (Select 1 or 2 branches maximum)'}
+                      </label>
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${selectedBranches.length > 0 && selectedBranches.length <= 2
+                        ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300'
+                        : 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300'
+                        }`}>
+                        {selectedBranches.length} / 2 {lang === 'ar' ? 'فروع' : 'branches'}
+                      </span>
+                    </div>
+
+                    <div className="space-y-2 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40">
+                      {(LAB_HIERARCHY.find((l) => l.id === userForm.laboratory)?.branches || []).map((branch) => {
+                        const isChecked = selectedBranches.includes(branch.id);
+                        const isDisabled = !isChecked && selectedBranches.length >= 2;
+
+                        return (
+                          <label
+                            key={branch.id}
+                            className={`flex items-center gap-3 p-2.5 rounded-lg border transition select-none ${isChecked
+                              ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-400 dark:border-blue-600 text-blue-900 dark:text-blue-200 font-medium'
+                              : isDisabled
+                                ? 'opacity-40 cursor-not-allowed border-slate-200 dark:border-slate-700 text-slate-400'
+                                : 'hover:bg-white dark:hover:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 cursor-pointer'
+                              }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              disabled={isDisabled}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  if (selectedBranches.length < 2) {
+                                    const next = [...selectedBranches, branch.id];
+                                    setSelectedBranches(next);
+                                    setUserForm((prev) => ({ ...prev, branch: next.join(',') }));
+                                  }
+                                } else {
+                                  const next = selectedBranches.filter((b) => b !== branch.id);
+                                  setSelectedBranches(next);
+                                  setUserForm((prev) => ({ ...prev, branch: next.join(',') }));
+                                }
+                              }}
+                              className="w-4 h-4 accent-blue-600 rounded cursor-pointer"
+                            />
+                            <span className="text-sm">
+                              {getBranchLabel(userForm.laboratory!, branch.id, lang)}
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
+                      {lang === 'ar'
+                        ? 'يمكن تعيين المسؤول المحلي لإدارة فرع واحد أو فرعين في آن واحد ضمن نفس المختبر المركزي.'
+                        : lang === 'fr'
+                          ? "Un administrateur local peut être affecté à 1 ou 2 agences simultanément au sein du même laboratoire."
+                          : 'A local administrator can be assigned to 1 or 2 branches simultaneously within the same laboratory.'}
+                    </p>
+                  </div>
+                )}
+
+                {userForm.laboratory && userForm.role !== 'local_admin' && (
                   <div>
                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                       {lang === 'ar'
@@ -5958,7 +6275,6 @@ export default function Admin() {
 
                     <select
                       value={userForm.branch || ''}
-                      disabled={isLocalAdmin(adminUser?.role)}
                       onChange={(e) =>
                         setUserForm((prev) => ({
                           ...prev,
@@ -5967,15 +6283,22 @@ export default function Admin() {
                       }
                       className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-75 disabled:bg-slate-100 dark:disabled:bg-slate-800/60"
                     >
-                      <option value="">
-                        {lang === 'ar'
-                          ? 'المقر الرئيسي للمختبر المركزي (كافة الفروع)'
-                          : lang === 'fr'
-                            ? 'Siège central du laboratoire (Toutes agences)'
-                            : 'Main Central Lab Office (All Branches)'}
-                      </option>
+                      {!isLocalAdmin(adminUser?.role) && (
+                        <option value="">
+                          {lang === 'ar'
+                            ? 'المقر الرئيسي للمختبر المركزي (كافة الفروع)'
+                            : lang === 'fr'
+                              ? 'Siège central du laboratoire (Toutes agences)'
+                              : 'Main Central Lab Office (All Branches)'}
+                        </option>
+                      )}
 
-                      {LAB_HIERARCHY.find((l) => l.id === userForm.laboratory)?.branches.map((branch) => (
+                      {(isLocalAdmin(adminUser?.role)
+                        ? (LAB_HIERARCHY.find((l) => l.id === userForm.laboratory)?.branches || []).filter((b) =>
+                          getUserBranches(adminUser).includes(b.id)
+                        )
+                        : (LAB_HIERARCHY.find((l) => l.id === userForm.laboratory)?.branches || [])
+                      ).map((branch) => (
                         <option key={branch.id} value={branch.id}>
                           {getBranchLabel(userForm.laboratory!, branch.id, lang)}
                         </option>
@@ -6025,6 +6348,144 @@ export default function Admin() {
           </div>
         )
       }
+
+      {/* ============================================================
+          CHANGE PASSWORD MODAL
+      ============================================================= */}
+      {showChangePasswordModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-in fade-in duration-200">
+            <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-100 dark:border-blue-900/50">
+                  <Key className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
+                    {lang === 'ar' ? 'تغيير كلمة المرور' : lang === 'fr' ? 'Modifier le mot de passe' : 'Change Password'}
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    {adminUser?.username} ({getRoleLabel(adminUser?.role || '', lang)})
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowChangePasswordModal(false)}
+                className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleChangeOwnPassword} className="p-5 space-y-4">
+              {changePasswordError && (
+                <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 text-red-700 dark:text-red-300 text-sm flex gap-2.5 items-start">
+                  <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                  <span>{changePasswordError}</span>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  {lang === 'ar' ? 'كلمة المرور الحالية' : lang === 'fr' ? 'Mot de passe actuel' : 'Current Password'}
+                </label>
+                <div className="relative">
+                  <input
+                    type={showChangePwdCurrent ? 'text' : 'password'}
+                    value={changePasswordForm.currentPassword}
+                    onChange={(e) =>
+                      setChangePasswordForm((prev) => ({
+                        ...prev,
+                        currentPassword: e.target.value,
+                      }))
+                    }
+                    placeholder="••••••••"
+                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 pr-11 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    dir="ltr"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowChangePwdCurrent((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                  >
+                    {showChangePwdCurrent ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  {lang === 'ar' ? 'كلمة المرور الجديدة' : lang === 'fr' ? 'Nouveau mot de passe' : 'New Password'}
+                </label>
+                <div className="relative">
+                  <input
+                    type={showChangePwdNew ? 'text' : 'password'}
+                    value={changePasswordForm.newPassword}
+                    onChange={(e) =>
+                      setChangePasswordForm((prev) => ({
+                        ...prev,
+                        newPassword: e.target.value,
+                      }))
+                    }
+                    placeholder="••••••••"
+                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 pr-11 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    dir="ltr"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowChangePwdNew((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                  >
+                    {showChangePwdNew ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                  {lang === 'ar' ? 'يجب ألا تقل عن 6 أحرف' : 'Minimum 6 characters'}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  {lang === 'ar' ? 'تأكيد كلمة المرور الجديدة' : lang === 'fr' ? 'Confirmer le mot de passe' : 'Confirm New Password'}
+                </label>
+                <input
+                  type="password"
+                  value={changePasswordForm.confirmPassword}
+                  onChange={(e) =>
+                    setChangePasswordForm((prev) => ({
+                      ...prev,
+                      confirmPassword: e.target.value,
+                    }))
+                  }
+                  placeholder="••••••••"
+                  className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  dir="ltr"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setShowChangePasswordModal(false)}
+                  className="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm transition-colors cursor-pointer"
+                >
+                  {lang === 'ar' ? 'إلغاء' : lang === 'fr' ? 'Annuler' : 'Cancel'}
+                </button>
+                <button
+                  type="submit"
+                  disabled={changePasswordLoading}
+                  className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm flex items-center gap-2 disabled:opacity-60 transition shadow-xs cursor-pointer"
+                >
+                  {changePasswordLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {lang === 'ar' ? 'حفظ كلمة المرور' : lang === 'fr' ? 'Enregistrer' : 'Save Password'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
 
       {/* ============================================================

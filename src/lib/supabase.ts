@@ -245,6 +245,30 @@ export const defaultAdminUsers: AdminUserData[] = [
     active: true,
     is_primary: false,
   },
+  {
+    id: '14',
+    username: 'local_asir_dual',
+    password: 'admin123',
+    full_name: 'مسؤول فروع عسير المشتركة (بيشة ومحايل)',
+    role: 'local_admin',
+    laboratory: 'asir',
+    branch: 'bisha,mahayel',
+    branches: ['bisha', 'mahayel'],
+    active: true,
+    is_primary: false,
+  },
+  {
+    id: '15',
+    username: 'local_jazan_dual',
+    password: 'admin123',
+    full_name: 'مسؤول فروع جازان (الدرب وفرسان)',
+    role: 'local_admin',
+    laboratory: 'jazan',
+    branch: 'al-darb,farasan',
+    branches: ['al-darb', 'farasan'],
+    active: true,
+    is_primary: false,
+  },
 ];
 
 const defaultVisitors: VisitorDataRecord[] = [
@@ -308,6 +332,36 @@ const defaultVisitors: VisitorDataRecord[] = [
     status: 'checked_in',
     created_at: new Date(Date.now() - 3600000 * 10).toISOString(),
   },
+  {
+    id: 'vis-1005',
+    visitor_name: 'سلطان مريع عسيري',
+    company: 'بلدية محايل عسير',
+    job_title: 'رئيس قسم صحة البيئة',
+    phone: '0505544332',
+    email: 'sultan@mahayel.gov.sa',
+    visit_date: '2026-09-28',
+    laboratory: 'asir',
+    branch: 'mahayel',
+    visit_purpose: 'فحص عينات مياه الآبار بمحايل عسير',
+    notes: 'عينات شهرية مجدولة',
+    status: 'pending',
+    created_at: new Date(Date.now() - 3600000 * 6).toISOString(),
+  },
+  {
+    id: 'vis-1006',
+    visitor_name: 'فيصل عبده صيادي',
+    company: 'إدارة تشغيل وصيانة مياه فرسان',
+    job_title: 'مشرف محطة تحلية',
+    phone: '0539988771',
+    email: 'faisal@farasan-water.sa',
+    visit_date: '2026-09-29',
+    laboratory: 'jazan',
+    branch: 'farasan',
+    visit_purpose: 'فحص ملوحة وميكروبيولوجيا محطة التحلية',
+    notes: 'عاجل جداً',
+    status: 'completed',
+    created_at: new Date(Date.now() - 3600000 * 4).toISOString(),
+  },
 ];
 
 const defaultSurveys: SurveyDataRecord[] = [
@@ -356,6 +410,36 @@ const defaultSurveys: SurveyDataRecord[] = [
     would_recommend: true,
     created_at: new Date(Date.now() - 3600000 * 48).toISOString(),
   },
+  {
+    id: 'srv-104',
+    respondent_name: 'سعيد مفرح العسيري',
+    respondent_contact: '0501199228',
+    laboratory: 'asir',
+    branch: 'mahayel',
+    service_used: 'Microbiological Testing',
+    service_quality_rating: 5,
+    facility_rating: 5,
+    staff_rating: 5,
+    overall_rating: 5,
+    comments: 'كفاءة عالية وسرعة استجابة من طاقم فرع محايل عسير والمختبر المرجعي.',
+    would_recommend: true,
+    created_at: new Date(Date.now() - 3600000 * 16).toISOString(),
+  },
+  {
+    id: 'srv-105',
+    respondent_name: 'يحيى قاسم الدربي',
+    respondent_contact: '0556677889',
+    laboratory: 'jazan',
+    branch: 'al-darb',
+    service_used: 'Drinking Water Analysis',
+    service_quality_rating: 5,
+    facility_rating: 4,
+    staff_rating: 5,
+    overall_rating: 5,
+    comments: 'خدمة ممتازة وفحوصات دقيقة لمياه الشرب بفرع الدرب.',
+    would_recommend: true,
+    created_at: new Date(Date.now() - 3600000 * 20).toISOString(),
+  },
 ];
 
 const defaultEnquiries: EnquiryDataRecord[] = [
@@ -386,6 +470,34 @@ const defaultEnquiries: EnquiryDataRecord[] = [
     message: 'نود الاستفسار عن إمكانية التعاقد لفحص دوري لمحطات التنقية في محايل عسير.',
     status: 'In Progress',
     created_at: new Date(Date.now() - 3600000 * 14).toISOString(),
+  },
+  {
+    id: 'enq-203',
+    name: 'عبدالرحمن الشهراني',
+    laboratory: 'asir',
+    branch: 'bisha',
+    contact_info: '0544455667',
+    email: 'a.shahrani@bisha.gov.sa',
+    phone: '0544455667',
+    service_required: 'Chemical Analysis',
+    subject: 'فحص مياه شبكة بيشة',
+    message: 'طلب تحليل كيميائي دوري لعينات شبكة التوزيع ببيشة.',
+    status: 'New',
+    created_at: new Date(Date.now() - 3600000 * 9).toISOString(),
+  },
+  {
+    id: 'enq-204',
+    name: 'علي ناصر الدربي',
+    laboratory: 'jazan',
+    branch: 'al-darb',
+    contact_info: '0555566778',
+    email: 'ali.darb@jazan-lab.sa',
+    phone: '0555566778',
+    service_required: 'Drinking Water Analysis',
+    subject: 'طلب اعتماد تحاليل لمصنع مياه',
+    message: 'نطلب تقرير فحص دوري لاعتماد خطوط الإنتاج بفرع الدرب.',
+    status: 'Resolved',
+    created_at: new Date(Date.now() - 3600000 * 22).toISOString(),
   },
 ];
 
@@ -469,6 +581,24 @@ export const validBranchForLab = (
   return branches.every((b) => allowedBranches.includes(b));
 };
 
+export const checkBranchScope = (
+  callerBranches: string[],
+  recordBranch?: string | null
+): boolean => {
+  if (!recordBranch) return false;
+  const rb = recordBranch.trim().toLowerCase();
+  return callerBranches.some((cb) => {
+    const b = cb.trim().toLowerCase();
+    if (rb === b || rb.includes(b) || b.includes(rb)) return true;
+    if (b === 'bisha' && (rb.includes('بيشة') || rb.includes('bisha'))) return true;
+    if ((b === 'mahayel' || b === 'muhayil') && (rb.includes('محايل') || rb.includes('mahayel') || rb.includes('muhayil'))) return true;
+    if (b === 'sharurah' && (rb.includes('شرورة') || rb.includes('sharurah'))) return true;
+    if (b === 'qalwah' && (rb.includes('قلوة') || rb.includes('qalwah'))) return true;
+    if (b === 'al-darb' && (rb.includes('درب') || rb.includes('darb'))) return true;
+    if (b === 'farasan' && (rb.includes('فرسان') || rb.includes('farasan'))) return true;
+    return false;
+  });
+};
 
 function createMockSupabaseClient() {
   return {
@@ -739,10 +869,85 @@ function createMockSupabaseClient() {
                 role: match.role,
                 laboratory: match.laboratory || null,
                 branch: match.branch || null,
+                branches: match.branches || (match.branch ? match.branch.split(',').map(b => b.trim()).filter(Boolean) : null),
                 active: match.active !== false,
                 is_primary: match.is_primary || match.username === 'admin',
               },
             },
+            error: null,
+          };
+        }
+
+        case 'validate_admin_session': {
+          const caller = getCaller(args.p_token as string);
+          if (!caller || caller.active === false) {
+            return {
+              data: { success: false, error: 'Invalid or expired session' },
+              error: null,
+            };
+          }
+          const callerBranches = caller.branches || (caller.branch ? caller.branch.split(',').map(b => b.trim()).filter(Boolean) : []);
+          return {
+            data: {
+              success: true,
+              user_id: caller.id,
+              username: caller.username,
+              full_name: caller.full_name,
+              role: caller.role,
+              laboratory: caller.laboratory || null,
+              branch: caller.branch || null,
+              branches: callerBranches,
+            },
+            error: null,
+          };
+        }
+
+        case 'change_own_password': {
+          const caller = getCaller(args.p_token as string);
+          if (!caller || caller.active === false) {
+            return {
+              data: null,
+              error: { message: 'Unauthorized: Invalid session or inactive account' },
+            };
+          }
+
+          const { p_old_password, p_new_password } = args as {
+            p_old_password?: string | null;
+            p_new_password?: string;
+          };
+
+          if (!p_new_password || p_new_password.trim().length < 6) {
+            return {
+              data: null,
+              error: { message: 'Password must be at least 6 characters long' },
+            };
+          }
+
+          if (p_old_password && caller.password && caller.password !== p_old_password) {
+            return {
+              data: null,
+              error: { message: 'Current password is incorrect' },
+            };
+          }
+
+          const updatedUsers = users.map((u) => {
+            if (u.id === caller.id) {
+              return { ...u, password: p_new_password };
+            }
+            return u;
+          });
+
+          saveData(STORAGE_KEYS.ADMIN_USERS, updatedUsers);
+
+          const token = args.p_token as string;
+          const sessions = loadData<Record<string, AdminUserData>>(STORAGE_KEYS.ACTIVE_SESSIONS, {});
+          if (sessions[token]) {
+            sessions[token] = { ...sessions[token], password: p_new_password };
+            saveData(STORAGE_KEYS.ACTIVE_SESSIONS, sessions);
+          }
+
+          return {
+            data: { success: true, message: 'Password updated successfully' },
             error: null,
           };
         }
@@ -762,12 +967,12 @@ function createMockSupabaseClient() {
         case 'list_users': {
           const caller = getCaller(args.p_token as string);
 
-          // Reject invalid sessions, inactive accounts and standard users.
           if (!canManageAccounts(caller)) {
             return {
               data: null,
               error: {
-                message: 'Unauthorized: Invalid session or insufficient permissions',
+                message:
+                  'Unauthorized: Invalid session or insufficient permissions',
               },
             };
           }
@@ -783,19 +988,19 @@ function createMockSupabaseClient() {
               return {
                 data: null,
                 error: {
-                  message: 'Unauthorized: No laboratory is assigned to this account',
+                  message:
+                    'Unauthorized: No laboratory is assigned to this account',
                 },
               };
             }
 
             // Only accounts assigned to their own laboratory and valid branches.
             scoped = users.filter(
-              u =>
+              (u) =>
                 u.role !== 'super_admin' &&
                 u.laboratory === caller.laboratory &&
                 validBranchForLab(u.laboratory, u.branch)
             );
-
           } else if (caller.role === 'local_admin') {
             if (!caller.laboratory || !caller.branch) {
               return {
@@ -811,7 +1016,7 @@ function createMockSupabaseClient() {
               ...new Set(
                 caller.branch
                   .split(',')
-                  .map(b => b.trim())
+                  .map((b) => b.trim())
                   .filter(Boolean)
               ),
             ];
@@ -820,7 +1025,7 @@ function createMockSupabaseClient() {
             if (
               callerBranches.length === 0 ||
               callerBranches.length > 2 ||
-              !callerBranches.every(branch =>
+              !callerBranches.every((branch) =>
                 validBranchForLab(caller.laboratory, branch)
               )
             ) {
@@ -832,7 +1037,8 @@ function createMockSupabaseClient() {
               };
             }
 
-            scoped = users.filter(u => {
+            // Local admins can view ordinary users in their assigned branches.
+            scoped = users.filter((u) => {
               if (
                 u.role !== 'user' ||
                 u.laboratory !== caller.laboratory ||
@@ -849,7 +1055,7 @@ function createMockSupabaseClient() {
                 validBranchForLab(u.laboratory, userBranch)
               );
             });
- else {
+          } else {
             return {
               data: null,
               error: {
@@ -859,7 +1065,7 @@ function createMockSupabaseClient() {
           }
 
           // Return safe account fields only; never expose passwords.
-          const safeUsers = scoped.map(u => ({
+          const safeUsers = scoped.map((u) => ({
             id: u.id,
             username: u.username,
             full_name: u.full_name,
@@ -875,6 +1081,8 @@ function createMockSupabaseClient() {
 
 
 
+
+        case 'create_user_with_details':
         case 'create_user':
         case 'create_admin_user': {
           const caller = getCaller(args.p_token as string);
@@ -1042,6 +1250,7 @@ function createMockSupabaseClient() {
 
 
 
+        case 'update_user_secure':
         case 'update_user':
         case 'update_admin_user': {
           const caller = getCaller(args.p_token as string);
@@ -1242,6 +1451,7 @@ function createMockSupabaseClient() {
 
 
 
+        case 'delete_user_secure':
         case 'delete_admin_user':
         case 'delete_user': {
           const caller = getCaller(args.p_token as string);
@@ -1392,15 +1602,6 @@ function createMockSupabaseClient() {
             };
           }
 
-          if (!['super_admin', 'lab_admin'].includes(caller.role)) {
-            return {
-              data: null,
-              error: {
-                message: 'Unauthorized: Insufficient permissions to view surveys',
-              },
-            };
-          }
-
           const surveys = loadData<SurveyDataRecord[]>(
             STORAGE_KEYS.SURVEYS,
             defaultSurveys
@@ -1410,18 +1611,49 @@ function createMockSupabaseClient() {
             return { data: surveys, error: null };
           }
 
-          if (!caller.laboratory) {
-            return {
-              data: null,
-              error: { message: 'Unauthorized: No laboratory assigned' },
-            };
+          if (caller.role === 'lab_admin') {
+            if (!caller.laboratory) {
+              return {
+                data: null,
+                error: { message: 'Unauthorized: No laboratory assigned' },
+              };
+            }
+            const scoped = surveys.filter(
+              survey => survey.laboratory === caller.laboratory
+            );
+            return { data: scoped, error: null };
           }
 
-          const scoped = surveys.filter(
-            survey => survey.laboratory === caller.laboratory
-          );
+          if (caller.role === 'local_admin') {
+            if (!caller.laboratory || !caller.branch) {
+              return {
+                data: null,
+                error: { message: 'Unauthorized: No laboratory or branch assigned' },
+              };
+            }
+            const callerBranches = caller.branch.split(',').map(b => b.trim()).filter(Boolean);
+            const scoped = surveys.filter(
+              survey =>
+                survey.laboratory === caller.laboratory &&
+                checkBranchScope(callerBranches, survey.branch)
+            );
+            return { data: scoped, error: null };
+          }
 
-          return { data: scoped, error: null };
+          if (caller.role === 'user') {
+            const callerBranches = (caller.branch || '').split(',').map(b => b.trim()).filter(Boolean);
+            const scoped = surveys.filter(survey => {
+              if (caller.laboratory && survey.laboratory !== caller.laboratory) return false;
+              if (callerBranches.length > 0 && !checkBranchScope(callerBranches, survey.branch)) return false;
+              return true;
+            });
+            return { data: scoped, error: null };
+          }
+
+          return {
+            data: null,
+            error: { message: 'Unauthorized: Insufficient permissions to view surveys' },
+          };
         }
 
         case 'admin_list_enquiries': {
@@ -1434,15 +1666,6 @@ function createMockSupabaseClient() {
             };
           }
 
-          if (!['super_admin', 'lab_admin'].includes(caller.role)) {
-            return {
-              data: null,
-              error: {
-                message: 'Unauthorized: Insufficient permissions to view enquiries',
-              },
-            };
-          }
-
           const enquiries = loadData<EnquiryDataRecord[]>(
             STORAGE_KEYS.ENQUIRIES,
             defaultEnquiries
@@ -1452,21 +1675,138 @@ function createMockSupabaseClient() {
             return { data: enquiries, error: null };
           }
 
-          if (!caller.laboratory) {
+          if (caller.role === 'lab_admin') {
+            if (!caller.laboratory) {
+              return {
+                data: null,
+                error: { message: 'Unauthorized: No laboratory assigned' },
+              };
+            }
+            const scoped = enquiries.filter(
+              enquiry => enquiry.laboratory === caller.laboratory
+            );
+            return { data: scoped, error: null };
+          }
+
+          if (caller.role === 'local_admin') {
+            if (!caller.laboratory || !caller.branch) {
+              return {
+                data: null,
+                error: { message: 'Unauthorized: No laboratory or branch assigned' },
+              };
+            }
+            const callerBranches = caller.branch.split(',').map(b => b.trim()).filter(Boolean);
+            const scoped = enquiries.filter(
+              enquiry =>
+                enquiry.laboratory === caller.laboratory &&
+                checkBranchScope(callerBranches, enquiry.branch)
+            );
+            return { data: scoped, error: null };
+          }
+
+          if (caller.role === 'user') {
+            const callerBranches = (caller.branch || '').split(',').map(b => b.trim()).filter(Boolean);
+            const scoped = enquiries.filter(enquiry => {
+              if (caller.laboratory && enquiry.laboratory !== caller.laboratory) return false;
+              if (callerBranches.length > 0 && !checkBranchScope(callerBranches, enquiry.branch)) return false;
+              return true;
+            });
+            return { data: scoped, error: null };
+          }
+
+          return {
+            data: null,
+            error: { message: 'Unauthorized: Insufficient permissions to view enquiries' },
+          };
+        }
+
+        case 'admin_delete_visitor': {
+          const caller = getCaller(args.p_token as string);
+
+          if (!caller || caller.active === false) {
             return {
               data: null,
-              error: { message: 'Unauthorized: No laboratory assigned' },
+              error: { message: 'Unauthorized: Invalid session' },
             };
           }
 
-          const scoped = enquiries.filter(
-            enquiry => enquiry.laboratory === caller.laboratory
+          if (caller.role === 'user') {
+            return {
+              data: null,
+              error: {
+                message: 'Unauthorized: Standard users have read-only access and cannot delete visitors',
+              },
+            };
+          }
+
+          const { p_id } = args as { p_id: string };
+
+          if (!p_id) {
+            return {
+              data: null,
+              error: { message: 'Missing visitor ID' },
+            };
+          }
+
+          const visitors = loadData<VisitorDataRecord[]>(
+            STORAGE_KEYS.VISITORS,
+            defaultVisitors
           );
 
-          return { data: scoped, error: null };
+          const target = visitors.find(visitor => visitor.id === p_id);
+
+          if (!target) {
+            return {
+              data: null,
+              error: { message: 'Visitor record not found' },
+            };
+          }
+
+          if (caller.role === 'super_admin') {
+            const filtered = visitors.filter(visitor => visitor.id !== p_id);
+            saveData(STORAGE_KEYS.VISITORS, filtered);
+            return { data: { success: true }, error: null };
+          }
+
+          if (caller.role === 'lab_admin') {
+            if (!caller.laboratory || target.laboratory !== caller.laboratory) {
+              return {
+                data: null,
+                error: { message: 'Unauthorized: Visitor record is outside your laboratory scope' },
+              };
+            }
+            const filtered = visitors.filter(visitor => visitor.id !== p_id);
+            saveData(STORAGE_KEYS.VISITORS, filtered);
+            return { data: { success: true }, error: null };
+          }
+
+          if (caller.role === 'local_admin') {
+            if (!caller.laboratory || !caller.branch) {
+              return {
+                data: null,
+                error: { message: 'Unauthorized: No laboratory or branch assigned' },
+              };
+            }
+            const callerBranches = caller.branch.split(',').map(b => b.trim()).filter(Boolean);
+            if (
+              target.laboratory !== caller.laboratory ||
+              !checkBranchScope(callerBranches, target.branch)
+            ) {
+              return {
+                data: null,
+                error: { message: 'Unauthorized: Visitor record is outside your authorized branches' },
+              };
+            }
+            const filtered = visitors.filter(visitor => visitor.id !== p_id);
+            saveData(STORAGE_KEYS.VISITORS, filtered);
+            return { data: { success: true }, error: null };
+          }
+
+          return {
+            data: null,
+            error: { message: 'Unauthorized: Unsupported account role' },
+          };
         }
-
-
 
         case 'admin_delete_survey': {
           const caller = getCaller(args.p_token as string);
@@ -1478,11 +1818,11 @@ function createMockSupabaseClient() {
             };
           }
 
-          if (!['super_admin', 'lab_admin'].includes(caller.role)) {
+          if (caller.role === 'user') {
             return {
               data: null,
               error: {
-                message: 'Unauthorized: Insufficient permissions to delete surveys',
+                message: 'Unauthorized: Standard users have read-only access and cannot delete surveys',
               },
             };
           }
@@ -1513,49 +1853,48 @@ function createMockSupabaseClient() {
           if (caller.role === 'super_admin') {
             const filtered = surveys.filter(survey => survey.id !== p_id);
             saveData(STORAGE_KEYS.SURVEYS, filtered);
-
             return { data: { success: true }, error: null };
           }
 
-          if (!caller.laboratory) {
-            return {
-              data: null,
-              error: { message: 'Unauthorized: No laboratory assigned' },
-            };
+          if (caller.role === 'lab_admin') {
+            if (!caller.laboratory || target.laboratory !== caller.laboratory) {
+              return {
+                data: null,
+                error: { message: 'Unauthorized: Survey is outside your laboratory scope' },
+              };
+            }
+            const filtered = surveys.filter(survey => survey.id !== p_id);
+            saveData(STORAGE_KEYS.SURVEYS, filtered);
+            return { data: { success: true }, error: null };
           }
 
-          if (
-            !target.laboratory ||
-            target.laboratory !== caller.laboratory
-          ) {
-            return {
-              data: null,
-              error: {
-                message: 'Unauthorized: Survey is outside your laboratory scope',
-              },
-            };
+          if (caller.role === 'local_admin') {
+            if (!caller.laboratory || !caller.branch) {
+              return {
+                data: null,
+                error: { message: 'Unauthorized: No laboratory or branch assigned' },
+              };
+            }
+            const callerBranches = caller.branch.split(',').map(b => b.trim()).filter(Boolean);
+            if (
+              target.laboratory !== caller.laboratory ||
+              !checkBranchScope(callerBranches, target.branch)
+            ) {
+              return {
+                data: null,
+                error: { message: 'Unauthorized: Survey is outside your authorized branches' },
+              };
+            }
+            const filtered = surveys.filter(survey => survey.id !== p_id);
+            saveData(STORAGE_KEYS.SURVEYS, filtered);
+            return { data: { success: true }, error: null };
           }
 
-          if (
-            target.branch &&
-            !validBranchForLab(target.laboratory, target.branch)
-          ) {
-            return {
-              data: null,
-              error: {
-                message: 'Unauthorized: Survey has an invalid branch assignment',
-              },
-            };
-          }
-
-          const filtered = surveys.filter(survey => survey.id !== p_id);
-          saveData(STORAGE_KEYS.SURVEYS, filtered);
-
-          return { data: { success: true }, error: null };
+          return {
+            data: null,
+            error: { message: 'Unauthorized: Insufficient permissions to delete surveys' },
+          };
         }
-
-
-
 
         case 'admin_delete_enquiry': {
           const caller = getCaller(args.p_token as string);
@@ -1567,11 +1906,11 @@ function createMockSupabaseClient() {
             };
           }
 
-          if (!['super_admin', 'lab_admin'].includes(caller.role)) {
+          if (caller.role === 'user') {
             return {
               data: null,
               error: {
-                message: 'Unauthorized: Insufficient permissions to delete enquiries',
+                message: 'Unauthorized: Standard users have read-only access and cannot delete enquiries',
               },
             };
           }
@@ -1603,49 +1942,49 @@ function createMockSupabaseClient() {
           if (caller.role === 'super_admin') {
             const filtered = enquiries.filter(enquiry => enquiry.id !== p_id);
             saveData(STORAGE_KEYS.ENQUIRIES, filtered);
-
             return { data: { success: true }, error: null };
           }
 
-          // Lab Admin: must be explicitly assigned to a laboratory.
-          if (!caller.laboratory) {
-            return {
-              data: null,
-              error: { message: 'Unauthorized: No laboratory assigned' },
-            };
+          // Lab Admin: must match laboratory.
+          if (caller.role === 'lab_admin') {
+            if (!caller.laboratory || target.laboratory !== caller.laboratory) {
+              return {
+                data: null,
+                error: { message: 'Unauthorized: Enquiry is outside your laboratory scope' },
+              };
+            }
+            const filtered = enquiries.filter(enquiry => enquiry.id !== p_id);
+            saveData(STORAGE_KEYS.ENQUIRIES, filtered);
+            return { data: { success: true }, error: null };
           }
 
-          // Reject missing or mismatched laboratory assignments.
-          if (
-            !target.laboratory ||
-            target.laboratory !== caller.laboratory
-          ) {
-            return {
-              data: null,
-              error: {
-                message: 'Unauthorized: Enquiry is outside your laboratory scope',
-              },
-            };
+          // Local Admin: must match laboratory and authorized branches (supports 1 or 2 branches).
+          if (caller.role === 'local_admin') {
+            if (!caller.laboratory || !caller.branch) {
+              return {
+                data: null,
+                error: { message: 'Unauthorized: No laboratory or branch assigned' },
+              };
+            }
+            const callerBranches = caller.branch.split(',').map(b => b.trim()).filter(Boolean);
+            if (
+              target.laboratory !== caller.laboratory ||
+              !checkBranchScope(callerBranches, target.branch)
+            ) {
+              return {
+                data: null,
+                error: { message: 'Unauthorized: Enquiry is outside your authorized branches' },
+              };
+            }
+            const filtered = enquiries.filter(enquiry => enquiry.id !== p_id);
+            saveData(STORAGE_KEYS.ENQUIRIES, filtered);
+            return { data: { success: true }, error: null };
           }
 
-          // Reject invalid branch assignments; allow a null branch only
-          // when the enquiry legitimately belongs to the central laboratory.
-          if (
-            target.branch &&
-            !validBranchForLab(target.laboratory, target.branch)
-          ) {
-            return {
-              data: null,
-              error: {
-                message: 'Unauthorized: Enquiry has an invalid branch assignment',
-              },
-            };
-          }
-
-          const filtered = enquiries.filter(enquiry => enquiry.id !== p_id);
-          saveData(STORAGE_KEYS.ENQUIRIES, filtered);
-
-          return { data: { success: true }, error: null };
+          return {
+            data: null,
+            error: { message: 'Unauthorized: Insufficient permissions to delete enquiries' },
+          };
         }
 
 
