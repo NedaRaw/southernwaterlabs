@@ -186,25 +186,31 @@ export function canCreateRole(actorRole?: string | null, targetRole?: string | n
   return false;
 }
 
+
 export function canEditUser(actor: AdminUser | null, target: AdminUser): boolean {
-  if (!actor) return false;
-  if (isSuperAdmin(actor.role)) return true;
+  if (!actor || !target) return false;
+
+  // Super admin: cannot manage another super admin
+  if (isSuperAdmin(actor.role)) {
+    return !isSuperAdmin(target.role);
+  }
+
+  // Lab admin: can manage local admins and users in their laboratory
   if (isLabAdmin(actor.role)) {
-    // Cannot edit Super Admin or Lab Admin accounts
-    if (isSuperAdmin(target.role) || target.role === 'lab_admin') return false;
-    // Must belong to their laboratory
-    return !target.laboratory || isLabMatch(target.laboratory, actor.laboratory);
+    if (!['local_admin', 'user'].includes(target.role)) return false;
+    return isLabMatch(target.laboratory, actor.laboratory);
   }
+
+  // Local admin: can manage ordinary users in assigned branches only
   if (isLocalAdmin(actor.role)) {
-    // Cannot edit any admin accounts; only ordinary users
     if (target.role !== 'user') return false;
-    // Must match laboratory and assigned branch
-    if (target.laboratory && actor.laboratory && !isLabMatch(target.laboratory, actor.laboratory)) return false;
-    if (!isUserBranchAuthorized(actor, target.branch)) return false;
-    return true;
+    if (!isLabMatch(target.laboratory, actor.laboratory)) return false;
+    return isUserBranchAuthorized(actor, target.branch);
   }
+
   return false;
 }
+
 
 
 export function canDeleteUser(
@@ -1921,12 +1927,22 @@ export default function Admin() {
           )
         );
       } else {
+
+        const targetUser = adminUsers.find((u) => u.id === user.id);
+
+        if (!targetUser) {
+          throw new Error('User not found.');
+        }
+
         const { data, error } = await supabase.rpc('update_user_secure', {
           p_token: token,
           p_id: user.id,
           p_password: null,
-          p_role: user.role,
-          p_active: user.active === false,
+          p_role: targetUser.role,
+          p_active: targetUser.active === false,
+          p_full_name: targetUser.full_name || null,
+          p_laboratory: targetUser.laboratory || null,
+          p_branch: targetUser.branch || null,
         });
 
         if (error) {
@@ -1934,9 +1950,17 @@ export default function Admin() {
         }
 
         const resData = Array.isArray(data) ? data[0] : data;
-        if (resData && typeof resData === 'object' && (resData.success === false || resData.error)) {
-          throw new Error(String(resData.error || resData.message || 'فشل تعديل حالة الحساب في قاعدة البيانات.'));
+
+        if (
+          resData &&
+          typeof resData === 'object' &&
+          (resData.success === false || resData.error)
+        ) {
+          throw new Error(
+            String(resData.error || resData.message || 'Failed to update user status.')
+          );
         }
+
       }
 
       setFeedback({
@@ -3200,29 +3224,32 @@ export default function Admin() {
   // Filter Users (Scoped by Hierarchy Role)
   // ============================================================
 
+
+
   const scopedAdminUsers = adminUsers.filter((user) => {
     if (isSuperAdmin(adminUser?.role)) {
-      return true; // Super admin sees all accounts
+      return true;
     }
 
     if (isLabAdmin(adminUser?.role)) {
-      // Lab admin cannot see or manage super admin accounts or other lab admins
-      if (isSuperAdmin(user.role) || (user.role === 'lab_admin' && user.id !== adminUser?.id)) return false;
-      // Scoped strictly to lab admin's laboratory
-      if (user.laboratory && !isLabMatch(user.laboratory, adminUser?.laboratory)) return false;
-      return true;
+      // Include all accounts in the same laboratory,
+      // including the current lab_admin and other lab_admins.
+      return isLabMatch(user.laboratory, adminUser?.laboratory);
     }
 
     if (isLocalAdmin(adminUser?.role)) {
-      // Local admin: only sees and manages ordinary users in their authorized laboratory and branches
+      // Only ordinary users in authorized branches.
       if (user.role !== 'user') return false;
-      if (user.laboratory && adminUser?.laboratory && !isLabMatch(user.laboratory, adminUser.laboratory)) return false;
-      if (!isUserBranchAuthorized(adminUser, user.branch)) return false;
-      return true;
+      if (!isLabMatch(user.laboratory, adminUser?.laboratory)) {
+        return false;
+      }
+      return isUserBranchAuthorized(adminUser, user.branch);
     }
 
     return false;
   });
+
+
 
 
   // ============================================================

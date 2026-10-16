@@ -724,6 +724,8 @@ function createMockSupabaseClient() {
         const sessionUser = sessions[token];
         if (!sessionUser) return null;
 
+        // Toujours vérifier l'utilisateur actuel, pas seulement
+        // les données potentiellement anciennes de la session.
         const currentUser = users.find(
           (user) => user.id === sessionUser.id
         );
