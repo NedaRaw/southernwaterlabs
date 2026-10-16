@@ -279,7 +279,7 @@ export const translations: Record<string, { ar: string; en: string; fr: string }
 
   // Enquiry Specific
   'enquiry.lab': { ar: 'المختبر الموجه له الاستفسار', en: 'Laboratory', fr: 'Laboratoire destinataire' },
-  'enquiry.branch': { ar: 'الفرع  (اختياري)', en: 'Branch (optional)', fr: 'Agence (facultatif)' },
+  'enquiry.branch': { ar: 'الفرع', en: 'Branch (optional)', fr: 'Agence (facultatif)' },
   'enquiry.fullName': { ar: 'الاسم الكامل', en: 'Full Name', fr: 'Nom Complet' },
   'enquiry.company': { ar: 'اسم الجهة / الشركة (اختياري)', en: 'Company Name (optional)', fr: 'Société / Organisme (facultatif)' },
   'enquiry.email': { ar: 'البريد الإلكتروني للتواصل', en: 'Email Address', fr: 'Adresse Email' },

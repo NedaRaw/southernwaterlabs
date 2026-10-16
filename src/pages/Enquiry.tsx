@@ -10,7 +10,7 @@ import Breadcrumb from '@/components/Breadcrumb';
 import {
   LAB_HIERARCHY, APPROVED_SERVICES, ENQUIRY_LOCATIONS
 } from '@/data/labServices';
-
+const MAIN_LAB_VALUE = '__main_lab__';
 interface FormData {
   laboratory: string;
   branch: string;
@@ -51,6 +51,8 @@ export default function Enquiry() {
   const validate = (): boolean => {
     const e: Record<string, string> = {};
     if (!formData.laboratory) e.laboratory = t('register.required');
+    if (!formData.branch) e.branch = t('register.required');
+    if (!formData.laboratory) e.laboratory = t('register.required');
     if (!formData.full_name.trim()) e.full_name = t('register.required');
     if (!formData.email.trim()) e.email = t('register.required');
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) e.email = t('register.required');
@@ -87,7 +89,10 @@ export default function Enquiry() {
       const { error } = await supabase.from('enquiries').insert([
         {
           laboratory: formData.laboratory,
-          branch: formData.branch || null,
+          branch:
+            formData.branch === MAIN_LAB_VALUE
+              ? null
+              : formData.branch || null,
           full_name: formData.full_name.trim(),
           company_name: formData.company_name.trim() || null,
           email: formData.email.trim(),
@@ -157,8 +162,7 @@ export default function Enquiry() {
   }
 
   const inputClass = (field: string) =>
-    `w-full px-3.5 py-2.5 rounded-lg bg-white border ${
-      errors[field] ? 'border-red-400 bg-red-50/40' : 'border-slate-200'
+    `w-full px-3.5 py-2.5 rounded-lg bg-white border ${errors[field] ? 'border-red-400 bg-red-50/40' : 'border-slate-200'
     } text-slate-800 text-sm focus:outline-none focus:border-navy-600 focus:ring-1 focus:ring-navy-600 transition-all`;
   const labelClass = 'block text-xs font-semibold text-slate-700 mb-1.5';
   const req = <span className="text-red-500">*</span>;
@@ -190,39 +194,60 @@ export default function Enquiry() {
               <h2 className="text-base font-semibold text-slate-800">{t('enquiry.lab')}</h2>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <div>
-                <label className={labelClass}>{t('enquiry.lab')} {req}</label>
-                <select
-                  value={formData.laboratory}
-                  onChange={(e) => handleChange('laboratory', e.target.value)}
-                  className={inputClass('laboratory')}
-                >
-                  {LAB_HIERARCHY.map((lab) => (
-                    <option key={lab.id} value={lab.id}>
-                      {lab.name[lang] || lab.name.en}
-                    </option>
-                  ))}
-                </select>
-                {errors.laboratory && <p className="text-red-500 text-xs mt-1">{errors.laboratory}</p>}
-              </div>
 
-              <div>
-                <label className={labelClass}>{t('enquiry.branch')}</label>
-                <select
-                  value={formData.branch}
-                  onChange={(e) => handleChange('branch', e.target.value)}
-                  className={inputClass('branch')}
-                >
-                  <option value="">{t('register.selectBranch')}</option>
-                  {availableBranches.map((br) => (
-                    <option key={br.id} value={br.id}>
-                      {br.name[lang] || br.name.en}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <div>
+              <label className={labelClass}>
+                {t('enquiry.lab')} {req}
+              </label>
+              <select
+                value={formData.laboratory}
+                onChange={(e) => handleChange('laboratory', e.target.value)}
+                className={inputClass('laboratory')}
+                required
+              >
+                {LAB_HIERARCHY.map((lab) => (
+                  <option key={lab.id} value={lab.id}>
+                    {lab.name[lang] || lab.name.en}
+                  </option>
+                ))}
+              </select>
+              {errors.laboratory && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.laboratory}
+                </p>
+              )}
             </div>
+
+            <div>
+              <label className={labelClass}>
+                {t('enquiry.branch')} {req}
+              </label>
+              <select
+                value={formData.branch}
+                onChange={(e) => handleChange('branch', e.target.value)}
+                className={inputClass('branch')}
+                required
+              >
+                <option value="">{t('register.selectBranch')}</option>
+
+                <option value={MAIN_LAB_VALUE}>
+                  {selectedLab?.name[lang] || selectedLab?.name.en}
+                </option>
+
+                {availableBranches.map((br) => (
+                  <option key={br.id} value={br.id}>
+                    {br.name[lang] || br.name.en}
+                  </option>
+                ))}
+              </select>
+
+              {errors.branch && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.branch}
+                </p>
+              )}
+            </div>
+
           </div>
 
           {/* Card 2: Contact Information */}
