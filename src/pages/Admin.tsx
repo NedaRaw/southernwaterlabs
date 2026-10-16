@@ -1339,7 +1339,10 @@ export default function Admin() {
       // IMPORTANT: Token-protected RPC, only called for roles authorized to manage users
       // --------------------------------------------------------
 
-      if (canManageUsers(adminUser?.role)) {
+      if (
+        canManageUsers(adminUser?.role) ||
+        isReadOnly(adminUser?.role)
+      ) {
         const usersRes = await supabase.rpc(
           'list_users_scoped',
           {
@@ -1442,6 +1445,13 @@ export default function Admin() {
 
           setAdminUsers(parsedUsers);
         }
+      } else if (isReadOnly(adminUser?.role) && adminUser) {
+        setAdminUsers([
+          {
+            ...adminUser,
+            active: adminUser.active !== false,
+          },
+        ]);
       } else {
         setAdminUsers([]);
       }
@@ -3331,33 +3341,64 @@ export default function Admin() {
   // Filter Users (Scoped by Hierarchy Role)
   // ============================================================
 
-
-
   const scopedAdminUsers = adminUsers.filter((user) => {
+    // Super admin: all accounts
     if (isSuperAdmin(adminUser?.role)) {
       return true;
     }
 
+    // Lab admin: own account and accounts in the same laboratory
     if (isLabAdmin(adminUser?.role)) {
-      // Include all accounts in the same laboratory,
-      // including the current lab_admin and other lab_admins.
-      return isLabMatch(user.laboratory, adminUser?.laboratory);
+      return (
+        user.id === adminUser?.id ||
+        isLabMatch(user.laboratory, adminUser?.laboratory)
+      );
     }
 
+    // Local admin: own account and ordinary users in authorized branches
     if (isLocalAdmin(adminUser?.role)) {
-      // Only ordinary users in authorized branches.
-      if (user.role !== 'user') return false;
+      if (user.id === adminUser?.id) {
+        return true;
+      }
+
+      if (user.role !== 'user') {
+        return false;
+      }
+
       if (!isLabMatch(user.laboratory, adminUser?.laboratory)) {
         return false;
       }
+
       return isUserBranchAuthorized(adminUser, user.branch);
+    }
+
+    // Ordinary user: own account only, for the Overview
+    if (isReadOnly(adminUser?.role)) {
+      return user.id === adminUser?.id;
     }
 
     return false;
   });
 
+  const overviewAdminUsers = adminUsers.filter((user) => {
+    // Le compte connecté doit toujours être visible.
+    if (user.id === adminUser?.id) return true;
 
+    // Les autres comptes visibles dans Overview doivent
+    // appartenir au même laboratoire central.
+    if (!isLabMatch(user.laboratory, adminUser?.laboratory)) {
+      return false;
+    }
 
+    // Dans Overview, les comptes des branches sont visibles
+    // uniquement si la branche est autorisée.
+    if (user.branch) {
+      return isUserBranchAuthorized(adminUser, user.branch);
+    }
+
+    // Compte du laboratoire central, sans branche.
+    return true;
+  });
 
   // ============================================================
   // CSV Export
@@ -3565,7 +3606,7 @@ export default function Admin() {
           : lang === 'fr'
             ? 'Utilisateurs'
             : 'Users',
-      value: scopedAdminUsers.length,
+      value: overviewAdminUsers.length,
       icon: UserCog,
     },
     {

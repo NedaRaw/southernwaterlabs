@@ -196,107 +196,42 @@ export const visitorPortalService = {
 
 
 
+
   /**
- * Reschedule appointment date & time.
- * Supabase arrival_time column uses SQL type TIME.
- */
+   * Reschedule appointment date & time.
+   *
+   * Temporarily disabled until the server can verify that
+   * the authenticated visitor owns the requested appointment.
+   * No database records are modified by this function.
+   */
   async rescheduleAppointment(
     appointmentId: string,
     newDate: string,
     newTime: string
   ): Promise<boolean> {
-    try {
-      const match = newTime.trim().match(/^(\d{1,2}):(\d{2})\s*(.*)$/);
+    console.warn(
+      'Appointment rescheduling is unavailable until secure ' +
+      'server-side visitor ownership verification is implemented.'
+    );
 
-      if (!match) {
-        console.error('Invalid appointment time:', newTime);
-        return false;
-      }
-
-      let hours = Number(match[1]);
-      const minutes = Number(match[2]);
-      const period = match[3];
-
-      // Convert Arabic AM/PM to 24-hour format.
-      if (period.includes('ظهراً') || period.includes('مساءً')) {
-        if (hours < 12) hours += 12;
-      } else if (period.includes('صباحاً')) {
-        if (hours === 12) hours = 0;
-      }
-
-      if (
-        !Number.isInteger(hours) ||
-        !Number.isInteger(minutes) ||
-        hours < 0 ||
-        hours > 23 ||
-        minutes < 0 ||
-        minutes > 59
-      ) {
-        console.error('Invalid appointment time:', newTime);
-        return false;
-      }
-
-      const sqlTime =
-        `${String(hours).padStart(2, '0')}:` +
-        `${String(minutes).padStart(2, '0')}:00`;
-
-      const { data, error } = await supabase
-        .from('visitors')
-        .update({
-          visit_date: newDate,
-          arrival_time: sqlTime,
-          status: 'Confirmed',
-        })
-        .eq('id', appointmentId)
-        .select('id');
-
-      if (error) {
-        console.error('Failed to reschedule appointment:', error);
-        return false;
-      }
-
-      if (!data || data.length === 0) {
-        console.error(
-          'No appointment was updated. Check the ID and Supabase permissions.'
-        );
-        return false;
-      }
-
-      return true;
-    } catch (error) {
-      console.error('Unexpected error rescheduling appointment:', error);
-      return false;
-    }
+    return false;
   },
+
+
   /**
    * Cancel an upcoming visit.
-   * Return true only when Supabase confirms that a row was updated.
+   *
+   * Temporarily disabled until server-side verification confirms
+   * that the authenticated visitor owns the requested appointment.
+   * No database records are modified by this function.
    */
   async cancelAppointment(appointmentId: string): Promise<boolean> {
-    try {
-      const { data, error } = await supabase
-        .from('visitors')
-        .update({ status: 'Cancelled' })
-        .eq('id', appointmentId)
-        .select('id');
+    console.warn(
+      'Appointment cancellation is unavailable until secure ' +
+      'server-side visitor ownership verification is implemented.'
+    );
 
-      if (error) {
-        console.error('Failed to cancel appointment:', error);
-        return false;
-      }
-
-      if (!data || data.length === 0) {
-        console.error(
-          'Cancellation affected no rows. Check appointment ID and Supabase permissions.'
-        );
-        return false;
-      }
-
-      return true;
-    } catch (error) {
-      console.error('Unexpected error cancelling appointment:', error);
-      return false;
-    }
+    return false;
   },
 
 
