@@ -34,32 +34,35 @@ interface FormData {
 export default function Survey() {
   const { lang, t, dir } = useLang();
 
+
   const [formData, setFormData] = useState<FormData>({
-    laboratory: 'asir',
+    laboratory: '',
     branch: '',
-    service_used: 'Drinking Water Analysis',
-    how_heard: 'Website',
-    overall_satisfaction: 'Very Satisfied',
-    staff_professionalism: 5,
-    service_speed: 5,
-    sample_submission: 5,
-    report_clarity: 5,
-    communication: 5,
-    laboratory_cleanliness: 5,
-    overall_experience: 5,
-    results_on_time: 'Yes',
-    reports_understandable: 'Yes',
-    recommendation_score: 10,
+    service_used: '',
+    how_heard: '',
+    overall_satisfaction: '',
+    staff_professionalism: 0,
+    service_speed: 0,
+    sample_submission: 0,
+    report_clarity: 0,
+    communication: 0,
+    laboratory_cleanliness: 0,
+    overall_experience: 0,
+    results_on_time: '',
+    reports_understandable: '',
+    recommendation_score: 0,
     liked_most: '',
     improvements: '',
-    contact_me: 'No',
+    contact_me: '',
     additional_comments: '',
   });
+
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const [recommendationScoreSelected, setRecommendationScoreSelected] = useState(false);
 
   const selectedLab = LAB_HIERARCHY.find((l) => l.id === formData.laboratory);
   const availableBranches = selectedLab?.branches || [];
@@ -81,30 +84,87 @@ export default function Survey() {
     { value: 'Very Dissatisfied', label: t('survey.sat.veryDissatisfied') },
   ];
 
+
   const validate = (): boolean => {
-    const e: Record<string, string> = {};
-    if (!formData.laboratory) e.laboratory = t('register.required');
-    if (!formData.service_used) e.service_used = t('register.required');
-    setErrors(e);
-    return Object.keys(e).length === 0;
+    const newErrors: Record<string, string> = {};
+
+    const requiredMessage =
+      lang === 'ar'
+        ? 'هذا الحقل مطلوب'
+        : lang === 'fr'
+          ? 'Ce champ est obligatoire'
+          : 'This field is required';
+
+    const requiredFields: (keyof FormData)[] = [
+      'laboratory',
+      'branch',
+      'service_used',
+      'how_heard',
+      'overall_satisfaction',
+      'results_on_time',
+      'reports_understandable',
+      'liked_most',
+      'improvements',
+      'contact_me',
+      'additional_comments',
+    ];
+
+    requiredFields.forEach((field) => {
+      const value = formData[field];
+
+      if (typeof value === 'string' && !value.trim()) {
+        newErrors[field] = requiredMessage;
+      }
+    });
+
+    const ratingFields: (keyof FormData)[] = [
+      'staff_professionalism',
+      'service_speed',
+      'sample_submission',
+      'report_clarity',
+      'communication',
+      'laboratory_cleanliness',
+      'overall_experience',
+    ];
+
+    ratingFields.forEach((field) => {
+      const value = formData[field];
+
+      if (typeof value !== 'number' || value < 1 || value > 5) {
+        newErrors[field] = requiredMessage;
+      }
+    });
+    if (!recommendationScoreSelected) {
+      newErrors.recommendation_score = requiredMessage;
+    }
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleChange = (field: keyof FormData, value: string | number) => {
     setFormData((prev) => {
       const next = { ...prev, [field]: value };
+
       if (field === 'laboratory') {
         next.branch = '';
       }
+
       return next;
     });
-    if (errors[field]) {
-      setErrors((prev) => {
-        const n = { ...prev };
-        delete n[field];
-        return n;
-      });
-    }
+
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next[field];
+
+      if (field === 'laboratory') {
+        delete next.branch;
+      }
+
+      return next;
+    });
   };
+
 
   const handleSubmit = async (ev: React.FormEvent) => {
     ev.preventDefault();
@@ -114,6 +174,7 @@ export default function Survey() {
 
     try {
       // Real Supabase INSERT ONLY into public.surveys (No SELECT by public)
+
       const { error } = await supabase.from('surveys').insert([
         {
           laboratory: formData.laboratory,
@@ -121,22 +182,23 @@ export default function Survey() {
           service_used: formData.service_used,
           how_heard: formData.how_heard || null,
           overall_satisfaction: formData.overall_satisfaction || null,
-          staff_professionalism: Number(formData.staff_professionalism) || 5,
-          service_speed: Number(formData.service_speed) || 5,
-          sample_submission: Number(formData.sample_submission) || 5,
-          report_clarity: Number(formData.report_clarity) || 5,
-          communication: Number(formData.communication) || 5,
-          laboratory_cleanliness: Number(formData.laboratory_cleanliness) || 5,
-          overall_experience: Number(formData.overall_experience) || 5,
+          staff_professionalism: formData.staff_professionalism,
+          service_speed: formData.service_speed,
+          sample_submission: formData.sample_submission,
+          report_clarity: formData.report_clarity,
+          communication: formData.communication,
+          laboratory_cleanliness: formData.laboratory_cleanliness,
+          overall_experience: formData.overall_experience,
           results_on_time: formData.results_on_time || null,
           reports_understandable: formData.reports_understandable || null,
-          recommendation_score: Number(formData.recommendation_score) || 10,
+          recommendation_score: formData.recommendation_score,
           liked_most: formData.liked_most.trim() || null,
           improvements: formData.improvements.trim() || null,
           contact_me: formData.contact_me || null,
           additional_comments: formData.additional_comments.trim() || null,
         },
       ]);
+
 
       if (error) {
         console.error('Survey submission error:', error);
@@ -154,15 +216,27 @@ export default function Survey() {
 
   const StarRating = ({
     label,
+    ratingField,
     value,
     onChange,
   }: {
     label: string;
+    ratingField: keyof FormData;
     value: number;
     onChange: (v: number) => void;
   }) => (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg bg-slate-50 border border-slate-100 gap-2">
-      <span className="text-sm font-medium text-slate-700">{label}</span>
+    <div className={`flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg border gap-2 ${errors[ratingField]
+      ? 'border-red-400 bg-red-50/40'
+      : 'border-slate-100 bg-slate-50'
+      }`}>
+      <div>
+        <span className="text-sm font-medium text-slate-700">
+          {label} <span className="text-red-500">*</span>
+        </span>
+        {errors[ratingField] && (
+          <p className="text-red-500 text-xs mt-1">{errors[ratingField]}</p>
+        )}
+      </div>
       <div className="flex items-center gap-1.5 shrink-0">
         {[1, 2, 3, 4, 5].map((n) => (
           <button
@@ -173,7 +247,10 @@ export default function Survey() {
             aria-label={`${n} of 5`}
           >
             <Star
-              className={`w-5 h-5 ${n <= value ? 'text-amber-400 fill-amber-400' : 'text-slate-300'}`}
+              className={`w-5 h-5 transition-colors ${n <= value
+                ? 'text-blue-600 fill-blue-600'
+                : 'text-slate-800 fill-transparent'
+                }`}
             />
           </button>
         ))}
@@ -201,27 +278,32 @@ export default function Survey() {
             <button
               onClick={() => {
                 setSubmitted(false);
+
                 setFormData({
-                  laboratory: 'asir',
+                  laboratory: '',
                   branch: '',
-                  service_used: 'Drinking Water Analysis',
-                  how_heard: 'Website',
-                  overall_satisfaction: 'Very Satisfied',
-                  staff_professionalism: 5,
-                  service_speed: 5,
-                  sample_submission: 5,
-                  report_clarity: 5,
-                  communication: 5,
-                  laboratory_cleanliness: 5,
-                  overall_experience: 5,
-                  results_on_time: 'Yes',
-                  reports_understandable: 'Yes',
-                  recommendation_score: 10,
+                  service_used: '',
+                  how_heard: '',
+                  overall_satisfaction: '',
+                  staff_professionalism: 0,
+                  service_speed: 0,
+                  sample_submission: 0,
+                  report_clarity: 0,
+                  communication: 0,
+                  laboratory_cleanliness: 0,
+                  overall_experience: 0,
+                  results_on_time: '',
+                  reports_understandable: '',
+                  recommendation_score: 0,
                   liked_most: '',
                   improvements: '',
-                  contact_me: 'No',
+                  contact_me: '',
                   additional_comments: '',
                 });
+
+                setRecommendationScoreSelected(false);
+                setErrors({});
+                setSubmitError('');
               }}
               className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-white border border-slate-200 text-slate-700 font-bold text-sm hover:bg-slate-50 transition-colors shadow-sm"
             >
@@ -234,8 +316,7 @@ export default function Survey() {
   }
 
   const inputClass = (field: string) =>
-    `w-full px-3.5 py-2.5 rounded-lg bg-white border ${
-      errors[field] ? 'border-red-400 bg-red-50/40' : 'border-slate-200'
+    `w-full px-3.5 py-2.5 rounded-lg bg-white border ${errors[field] ? 'border-red-400 bg-red-50/40' : 'border-slate-200'
     } text-slate-800 text-sm focus:outline-none focus:border-navy-600 focus:ring-1 focus:ring-navy-600 transition-all`;
   const labelClass = 'block text-xs font-semibold text-slate-700 mb-1.5';
   const req = <span className="text-red-500">*</span>;
@@ -267,25 +348,39 @@ export default function Survey() {
               <h2 className="text-base font-semibold text-slate-800">{t('survey.lab')}</h2>
             </div>
 
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
-                <label className={labelClass}>{t('survey.lab')} {req}</label>
+                <label className={labelClass}>
+                  {t('survey.lab')} {req}
+                </label>
                 <select
                   value={formData.laboratory}
                   onChange={(e) => handleChange('laboratory', e.target.value)}
                   className={inputClass('laboratory')}
                 >
+                  <option value="">
+                    {lang === 'ar'
+                      ? 'اختر المختبر'
+                      : lang === 'fr'
+                        ? 'Choisir un laboratoire'
+                        : 'Choose a laboratory'}
+                  </option>
                   {LAB_HIERARCHY.map((lab) => (
                     <option key={lab.id} value={lab.id}>
                       {lab.name[lang] || lab.name.en}
                     </option>
                   ))}
                 </select>
-                {errors.laboratory && <p className="text-red-500 text-xs mt-1">{errors.laboratory}</p>}
+                {errors.laboratory && (
+                  <p className="text-red-500 text-xs mt-1">{errors.laboratory}</p>
+                )}
               </div>
 
               <div>
-                <label className={labelClass}>{t('survey.branch')}</label>
+                <label className={labelClass}>
+                  {t('survey.branch')} {req}
+                </label>
                 <select
                   value={formData.branch}
                   onChange={(e) => handleChange('branch', e.target.value)}
@@ -298,54 +393,95 @@ export default function Survey() {
                     </option>
                   ))}
                 </select>
+                {errors.branch && (
+                  <p className="text-red-500 text-xs mt-1">{errors.branch}</p>
+                )}
               </div>
 
               <div className="sm:col-span-2">
-                <label className={labelClass}>{t('survey.serviceUsed')} {req}</label>
+                <label className={labelClass}>
+                  {t('survey.serviceUsed')} {req}
+                </label>
                 <select
                   value={formData.service_used}
                   onChange={(e) => handleChange('service_used', e.target.value)}
                   className={inputClass('service_used')}
                 >
+                  <option value="">
+                    {lang === 'ar'
+                      ? 'اختر الخدمة'
+                      : lang === 'fr'
+                        ? 'Choisir un service'
+                        : 'Choose a service'}
+                  </option>
                   {APPROVED_SERVICES.map((svc) => (
                     <option key={svc.value} value={svc.value}>
                       {svc[lang] || svc.en}
                     </option>
                   ))}
                 </select>
-                {errors.service_used && <p className="text-red-500 text-xs mt-1">{errors.service_used}</p>}
+                {errors.service_used && (
+                  <p className="text-red-500 text-xs mt-1">{errors.service_used}</p>
+                )}
               </div>
 
               <div>
-                <label className={labelClass}>{t('survey.howHeard')}</label>
+                <label className={labelClass}>
+                  {t('survey.howHeard')} {req}
+                </label>
                 <select
                   value={formData.how_heard}
                   onChange={(e) => handleChange('how_heard', e.target.value)}
                   className={inputClass('how_heard')}
                 >
+                  <option value="">
+                    {lang === 'ar'
+                      ? 'اختر خيارًا'
+                      : lang === 'fr'
+                        ? 'Choisir une option'
+                        : 'Choose an option'}
+                  </option>
                   {awarenessOptions.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
                     </option>
                   ))}
                 </select>
+                {errors.how_heard && (
+                  <p className="text-red-500 text-xs mt-1">{errors.how_heard}</p>
+                )}
               </div>
 
               <div>
-                <label className={labelClass}>{t('survey.overallSat')}</label>
+                <label className={labelClass}>
+                  {t('survey.overallSat')} {req}
+                </label>
                 <select
                   value={formData.overall_satisfaction}
                   onChange={(e) => handleChange('overall_satisfaction', e.target.value)}
                   className={inputClass('overall_satisfaction')}
                 >
+                  <option value="">
+                    {lang === 'ar'
+                      ? 'اختر مستوى الرضا'
+                      : lang === 'fr'
+                        ? 'Choisir le niveau de satisfaction'
+                        : 'Choose a satisfaction level'}
+                  </option>
                   {satisfactionOptions.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
                     </option>
                   ))}
                 </select>
+                {errors.overall_satisfaction && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.overall_satisfaction}
+                  </p>
+                )}
               </div>
             </div>
+
           </div>
 
           {/* Card 2: 1 to 5 Rating Matrix */}
@@ -360,43 +496,58 @@ export default function Survey() {
               </div>
             </div>
 
+
             <div className="space-y-3">
               <StarRating
                 label={t('survey.staffProf')}
+                ratingField="staff_professionalism"
                 value={formData.staff_professionalism}
                 onChange={(v) => handleChange('staff_professionalism', v)}
               />
+
               <StarRating
                 label={t('survey.serviceSpeed')}
+                ratingField="service_speed"
                 value={formData.service_speed}
                 onChange={(v) => handleChange('service_speed', v)}
               />
+
               <StarRating
                 label={t('survey.sampleSubmission')}
+                ratingField="sample_submission"
                 value={formData.sample_submission}
                 onChange={(v) => handleChange('sample_submission', v)}
               />
+
               <StarRating
                 label={t('survey.reportClarity')}
+                ratingField="report_clarity"
                 value={formData.report_clarity}
                 onChange={(v) => handleChange('report_clarity', v)}
               />
+
               <StarRating
                 label={t('survey.comm')}
+                ratingField="communication"
                 value={formData.communication}
                 onChange={(v) => handleChange('communication', v)}
               />
+
               <StarRating
                 label={t('survey.cleanliness')}
+                ratingField="laboratory_cleanliness"
                 value={formData.laboratory_cleanliness}
                 onChange={(v) => handleChange('laboratory_cleanliness', v)}
               />
+
               <StarRating
                 label={t('survey.overallExp')}
+                ratingField="overall_experience"
                 value={formData.overall_experience}
                 onChange={(v) => handleChange('overall_experience', v)}
               />
             </div>
+
           </div>
 
           {/* Card 3: Additional Timeliness & Reports Questions */}
@@ -410,7 +561,9 @@ export default function Survey() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
-                <label className={labelClass}>{t('survey.resultsOnTime')}</label>
+                <label className={labelClass}>
+                  {t('survey.resultsOnTime')} {req}
+                </label>
                 <div className="flex gap-4 p-2.5 bg-slate-50 rounded-lg border border-slate-200">
                   {['Yes', 'Partially', 'No'].map((val) => (
                     <label key={val} className="flex items-center gap-2 cursor-pointer text-xs sm:text-sm font-medium text-slate-700">
@@ -426,16 +579,23 @@ export default function Survey() {
                         {val === 'Yes'
                           ? t('survey.yesPartialNo.yes')
                           : val === 'Partially'
-                          ? t('survey.yesPartialNo.partial')
-                          : t('survey.yesPartialNo.no')}
+                            ? t('survey.yesPartialNo.partial')
+                            : t('survey.yesPartialNo.no')}
                       </span>
                     </label>
                   ))}
                 </div>
+                {errors.results_on_time && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.results_on_time}
+                  </p>
+                )}
               </div>
 
               <div>
-                <label className={labelClass}>{t('survey.reportsEasy')}</label>
+                <label className={labelClass}>
+                  {t('survey.reportsEasy')} {req}
+                </label>
                 <div className="flex gap-4 p-2.5 bg-slate-50 rounded-lg border border-slate-200">
                   {['Yes', 'Somewhat', 'No'].map((val) => (
                     <label key={val} className="flex items-center gap-2 cursor-pointer text-xs sm:text-sm font-medium text-slate-700">
@@ -451,12 +611,17 @@ export default function Survey() {
                         {val === 'Yes'
                           ? t('survey.yesSomeNo.yes')
                           : val === 'Somewhat'
-                          ? t('survey.yesSomeNo.somewhat')
-                          : t('survey.yesSomeNo.no')}
+                            ? t('survey.yesSomeNo.somewhat')
+                            : t('survey.yesSomeNo.no')}
                       </span>
                     </label>
                   ))}
                 </div>
+                {errors.reports_understandable && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.reports_understandable}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -464,7 +629,7 @@ export default function Survey() {
             <div className="mt-6 pt-5 border-t border-slate-100">
               <div className="flex items-center justify-between mb-2">
                 <label className="text-xs font-semibold text-slate-700">
-                  {t('survey.recommendTitle')}
+                  {t('survey.recommendTitle')} {req}
                 </label>
                 <span className="px-2.5 py-0.5 bg-navy-50 text-navy-800 text-xs font-bold rounded-full">
                   {formData.recommendation_score} / 10
@@ -476,7 +641,10 @@ export default function Survey() {
                 max="10"
                 step="1"
                 value={formData.recommendation_score}
-                onChange={(e) => handleChange('recommendation_score', parseInt(e.target.value, 10))}
+                onChange={(e) => {
+                  handleChange('recommendation_score', parseInt(e.target.value, 10));
+                  setRecommendationScoreSelected(true);
+                }}
                 className="w-full accent-navy-600 cursor-pointer"
               />
               <div className="flex justify-between text-xs text-slate-400 mt-1">
@@ -484,6 +652,11 @@ export default function Survey() {
                 <span>5</span>
                 <span>{lang === 'ar' ? '10 (محتمل جداً)' : lang === 'fr' ? '10 (Très probable)' : '10 (Very likely)'}</span>
               </div>
+              {errors.recommendation_score && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.recommendation_score}
+                </p>
+              )}
             </div>
           </div>
 
@@ -496,31 +669,60 @@ export default function Survey() {
               <h2 className="text-base font-semibold text-slate-800">{t('survey.comments')}</h2>
             </div>
 
+
             <div className="space-y-4">
               <div>
-                <label className={labelClass}>{t('survey.likedMost')}</label>
+                <label className={labelClass}>
+                  {t('survey.likedMost')} {req}
+                </label>
                 <input
                   type="text"
-                  placeholder={lang === 'ar' ? 'أكثر ما أعجبك في الخدمة أو تعامل الفريق...' : lang === 'fr' ? 'Ce que vous avez le plus apprécié...' : 'What you liked most...'}
+                  placeholder={
+                    lang === 'ar'
+                      ? 'أكثر ما أعجبك في الخدمة أو تعامل الفريق...'
+                      : lang === 'fr'
+                        ? 'Ce que vous avez le plus apprécié...'
+                        : 'What you liked most...'
+                  }
                   value={formData.liked_most}
                   onChange={(e) => handleChange('liked_most', e.target.value)}
                   className={inputClass('liked_most')}
                 />
+                {errors.liked_most && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.liked_most}
+                  </p>
+                )}
               </div>
 
               <div>
-                <label className={labelClass}>{t('survey.improvements')}</label>
+                <label className={labelClass}>
+                  {t('survey.improvements')} {req}
+                </label>
                 <input
                   type="text"
-                  placeholder={lang === 'ar' ? 'أي جانب ترى أنه بحاجة إلى تحسين...' : lang === 'fr' ? 'Suggestions d\'amélioration...' : 'Suggestions for improvement...'}
+                  placeholder={
+                    lang === 'ar'
+                      ? 'أي جانب ترى أنه بحاجة إلى تحسين...'
+                      : lang === 'fr'
+                        ? "Suggestions d'amélioration..."
+                        : 'Suggestions for improvement...'
+                  }
                   value={formData.improvements}
                   onChange={(e) => handleChange('improvements', e.target.value)}
                   className={inputClass('improvements')}
                 />
+                {errors.improvements && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.improvements}
+                  </p>
+                )}
               </div>
 
               <div>
-                <label className={labelClass}>{t('survey.contactMe')}</label>
+                <label className={labelClass}>
+                  {t('survey.contactMe')} {req}
+                </label>
                 <div className="flex gap-4 p-2.5 bg-slate-50 rounded-lg border border-slate-200">
                   <label className="flex items-center gap-2 cursor-pointer text-xs sm:text-sm font-medium text-slate-700">
                     <input
@@ -545,19 +747,38 @@ export default function Survey() {
                     <span>{t('survey.no')}</span>
                   </label>
                 </div>
+                {errors.contact_me && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.contact_me}
+                  </p>
+                )}
               </div>
 
               <div>
-                <label className={labelClass}>{t('survey.additionalComments')}</label>
+                <label className={labelClass}>
+                  {t('survey.additionalComments')} {req}
+                </label>
                 <textarea
                   rows={3}
-                  placeholder={lang === 'ar' ? 'أي ملاحظات أو رسائل أخرى تود مشاركتها...' : lang === 'fr' ? 'Remarques ou commentaires supplémentaires...' : 'Additional feedback or notes...'}
+                  placeholder={
+                    lang === 'ar'
+                      ? 'أي ملاحظات أو رسائل أخرى تود مشاركتها...'
+                      : lang === 'fr'
+                        ? 'Remarques ou commentaires supplémentaires...'
+                        : 'Additional feedback or notes...'
+                  }
                   value={formData.additional_comments}
                   onChange={(e) => handleChange('additional_comments', e.target.value)}
                   className={`${inputClass('additional_comments')} resize-none`}
                 />
+                {errors.additional_comments && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.additional_comments}
+                  </p>
+                )}
               </div>
             </div>
+
           </div>
 
           <button
