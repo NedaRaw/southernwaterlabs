@@ -3134,7 +3134,19 @@ export default function Admin() {
       matchesDate
     );
   });
-
+  console.log('[SURVEYS DEBUG]', {
+    role: adminUser?.role,
+    laboratory: adminUser?.laboratory,
+    branch: adminUser?.branch,
+    totalSurveys: surveys.length,
+    filteredSurveys: filteredSurveys.length,
+    searchTerm,
+    labFilter,
+    branchFilter,
+    surveyStartDate,
+    surveyEndDate,
+    visibleIds: filteredSurveys.map((s) => s.id),
+  });
 
   // ============================================================
   // Filter Enquiries (Scoped by Role and Laboratory)
