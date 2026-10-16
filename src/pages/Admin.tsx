@@ -3543,9 +3543,9 @@ export default function Admin() {
             )}
 
             {/* RIGHT: User Badge + Theme Toggle + Website Link + Chic Pro Logout */}
-            <div className="flex min-w-0 max-w-full flex-wrap items-center justify-end gap-2 sm:gap-2.5">
+            <div className="flex flex-nowrap items-center gap-1.5 shrink-0">
               {loggedIn && (
-                <div className="hidden md:flex items-center gap-2 px-2.5 py-1 rounded-lg bg-slate-900/60 border border-slate-800/80 text-xs">
+                <div className="hidden md:flex min-w-0 max-w-[220px] items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-900/60 border border-slate-800/80 text-xs">
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold uppercase shrink-0 ${isSuperAdmin(adminUser?.role)
                     ? 'bg-purple-500/20 text-purple-300 border border-purple-400/40'
                     : isLabAdmin(adminUser?.role)
@@ -3641,7 +3641,7 @@ export default function Admin() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="flex shrink-0 items-center gap-1.5 px-2 py-1.5 rounded-lg bg-slate-900/80 hover:bg-rose-500/10 active:bg-rose-500/20 text-slate-300 hover:text-rose-200 border border-slate-700/70 hover:border-rose-500/40 text-xs font-medium transition-all shadow-xs cursor-pointer group"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900/80 hover:bg-rose-500/10 active:bg-rose-500/20 text-slate-300 hover:text-rose-200 border border-slate-700/70 hover:border-rose-500/40 text-xs font-medium transition-all shadow-xs cursor-pointer shrink-0 group"
                 title={lang === 'ar' ? 'تسجيل الخروج / Logout' : lang === 'fr' ? 'Déconnexion / Logout' : 'Log Out'}
                 aria-label={lang === 'ar' ? 'تسجيل الخروج / Logout' : lang === 'fr' ? 'Déconnexion / Logout' : 'Logout'}
                 data-testid="logout-button"
