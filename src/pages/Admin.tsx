@@ -458,52 +458,7 @@ type Tab =
 // Helpers
 // ============================================================
 
-function getLocalizedDepartment(
-  department: string | null | undefined,
-  language: 'ar' | 'en' | 'fr'
-): string {
-  const value = department?.trim();
 
-  if (!value) return '—';
-
-  const translations: Record<
-    string,
-    { ar: string; en: string; fr: string }
-  > = {
-    'Quality Control': {
-      ar: 'مراقبة الجودة',
-      en: 'Quality Control',
-      fr: 'Contrôle qualité',
-    },
-    'Chemical Analysis': {
-      ar: 'التحاليل الكيميائية',
-      en: 'Chemical Analysis',
-      fr: 'Analyses chimiques',
-    },
-    Microbiology: {
-      ar: 'الأحياء الدقيقة (الميكروبيولوجي)',
-      en: 'Microbiology',
-      fr: 'Microbiologie',
-    },
-    'Sample Reception': {
-      ar: 'استقبال وتسجيل العينات',
-      en: 'Sample Reception',
-      fr: 'Réception des échantillons',
-    },
-    Calibration: {
-      ar: 'المعايرة والأجهزة',
-      en: 'Calibration',
-      fr: 'Étalonnage et métrologie',
-    },
-    Administration: {
-      ar: 'الشؤون الإدارية والفنية',
-      en: 'Administrative and Technical Affairs',
-      fr: 'Affaires administratives et techniques',
-    },
-  };
-
-  return translations[value]?.[language] ?? value;
-}
 
 function getErrorMessage(error: unknown): string {
   if (!error) return 'Unknown error';
@@ -646,6 +601,55 @@ const LAB_Central_ACTIVITY = [
   { name: 'Al-Baha Central Laboratory', arName: 'مختبر الباحة المركزي', frName: 'Laboratoire Central Al-Baha', samples: 890, completed: 875, compliance: '99.5%', labId: 'al-baha' },
   { name: 'Jazan Central Laboratory', arName: 'مختبر جازان المركزي', frName: 'Laboratoire Central Jazan', samples: 966, completed: 948, compliance: '99.1%', labId: 'jazan' },
 ];
+
+function getLocalizedDepartment(
+  department: string | null | undefined,
+  language: 'ar' | 'en' | 'fr'
+): string {
+  const value = department?.trim();
+
+  if (!value) return '—';
+
+  const translations: Record<
+    string,
+    { ar: string; en: string; fr: string }
+  > = {
+    'quality control': {
+      ar: 'مراقبة الجودة',
+      en: 'Quality Control',
+      fr: 'Contrôle qualité',
+    },
+    'chemical analysis': {
+      ar: 'التحاليل الكيميائية',
+      en: 'Chemical Analysis',
+      fr: 'Analyses chimiques',
+    },
+    microbiology: {
+      ar: 'الأحياء الدقيقة (الميكروبيولوجي)',
+      en: 'Microbiology',
+      fr: 'Microbiologie',
+    },
+    'sample reception': {
+      ar: 'استقبال وتسجيل العينات',
+      en: 'Sample Reception',
+      fr: 'Réception des échantillons',
+    },
+    calibration: {
+      ar: 'المعايرة والأجهزة',
+      en: 'Calibration',
+      fr: 'Étalonnage et métrologie',
+    },
+    administration: {
+      ar: 'الشؤون الإدارية والفنية',
+      en: 'Administrative and Technical Affairs',
+      fr: 'Affaires administratives et techniques',
+    },
+  };
+
+  const normalizedValue = value.toLowerCase();
+
+  return translations[normalizedValue]?.[language] ?? value;
+}
 
 
 // ============================================================
@@ -2436,6 +2440,32 @@ export default function Admin() {
           label: lang === 'ar' ? 'تاريخ الزيارة' : lang === 'fr' ? 'Date de visite' : 'Visit Date',
           value: visitor.visit_date || '—',
         },
+
+        {
+          label:
+            lang === 'ar'
+              ? 'الغرض من الزيارة'
+              : lang === 'fr'
+                ? 'Motif de visite'
+                : 'Purpose of Visit',
+          value: getLocalizedVisitorPurpose(
+            visitor.purpose || visitor.visit_purpose,
+            lang
+          ),
+        },
+        {
+          label:
+            lang === 'ar'
+              ? 'القسم أو الإدارة'
+              : lang === 'fr'
+                ? 'Département ou service'
+                : 'Target Department or Administration',
+          value: getLocalizedDepartment(
+            visitor.department,
+            lang
+          ),
+        },
+
       ],
       rawRecord: visitor,
     });

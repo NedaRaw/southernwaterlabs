@@ -34,6 +34,111 @@ interface VisitorData {
   created_at: string;
 }
 
+function getLocalizedVisitorPurpose(
+  purpose: string | null | undefined,
+  lang: 'ar' | 'en' | 'fr'
+): string {
+  const value = purpose?.trim();
+  if (!value) return '—';
+
+  const translations: Record<string, { ar: string; en: string; fr: string }> = {
+    'Business Meeting': {
+      ar: 'اجتماع عمل',
+      en: 'Business Meeting',
+      fr: 'Réunion professionnelle',
+    },
+    'Equipment Service / Maintenance': {
+      ar: 'صيانة المعدات',
+      en: 'Equipment Service / Maintenance',
+      fr: 'Entretien / Maintenance des équipements',
+    },
+    'Sample Delivery': {
+      ar: 'تسليم العينات',
+      en: 'Sample Delivery',
+      fr: 'Livraison d’échantillons',
+    },
+    'Audit / Inspection': {
+      ar: 'تدقيق / تفتيش',
+      en: 'Audit / Inspection',
+      fr: 'Audit / Inspection',
+    },
+    Training: {
+      ar: 'تدريب',
+      en: 'Training',
+      fr: 'Formation',
+    },
+    'Job Interview': {
+      ar: 'مقابلة عمل',
+      en: 'Job Interview',
+      fr: 'Entretien d’embauche',
+    },
+    'Vendor Presentation': {
+      ar: 'عرض تقديمي للمورّد',
+      en: 'Vendor Presentation',
+      fr: 'Présentation du fournisseur',
+    },
+    'Research Collaboration': {
+      ar: 'تعاون بحثي',
+      en: 'Research Collaboration',
+      fr: 'Collaboration en recherche',
+    },
+    Other: {
+      ar: 'أخرى',
+      en: 'Other',
+      fr: 'Autre',
+    },
+  };
+
+  const key = Object.keys(translations).find(
+    item => item.toLowerCase() === value.toLowerCase()
+  );
+
+  return key ? translations[key][lang] : value;
+}
+
+function getLocalizedDepartment(
+  department: string | null | undefined,
+  lang: 'ar' | 'en' | 'fr'
+): string {
+  const value = department?.trim();
+  if (!value) return '—';
+
+  const translations: Record<string, { ar: string; en: string; fr: string }> = {
+    'quality control': {
+      ar: 'مراقبة الجودة',
+      en: 'Quality Control',
+      fr: 'Contrôle qualité',
+    },
+    'chemical analysis': {
+      ar: 'التحاليل الكيميائية',
+      en: 'Chemical Analysis',
+      fr: 'Analyses chimiques',
+    },
+    microbiology: {
+      ar: 'الأحياء الدقيقة (الميكروبيولوجي)',
+      en: 'Microbiology',
+      fr: 'Microbiologie',
+    },
+    'sample reception': {
+      ar: 'استقبال وتسجيل العينات',
+      en: 'Sample Reception',
+      fr: 'Réception des échantillons',
+    },
+    calibration: {
+      ar: 'المعايرة والأجهزة',
+      en: 'Calibration',
+      fr: 'Étalonnage et métrologie',
+    },
+    administration: {
+      ar: 'الشؤون الإدارية والفنية',
+      en: 'Administrative and Technical Affairs',
+      fr: 'Affaires administratives et techniques',
+    },
+  };
+
+  return translations[value.toLowerCase()]?.[lang] ?? value;
+}
+
 export default function VisitorDetail() {
   const { id } = useParams<{ id: string }>();
   const { lang, t, dir } = useLang();
@@ -89,7 +194,10 @@ export default function VisitorDetail() {
     (visitor.branch ? ` - ${getBranchLabel(visitor.laboratory, visitor.branch, lang)}` : '')
     : visitor?.department || 'Southern Sector Water Laboratories';
 
-  const displayPurpose = visitor?.purpose || visitor?.visit_purpose || '';
+  const displayPurpose = getLocalizedVisitorPurpose(
+    visitor?.purpose || visitor?.visit_purpose,
+    lang
+  );
 
   if (loading) {
     return (
@@ -304,7 +412,7 @@ export default function VisitorDetail() {
                         : 'Target Department or Administration'}
                   </p>
                   <p className="text-sm font-bold text-slate-700">
-                    {visitor.department}
+                    {getLocalizedDepartment(visitor.department, lang)}
                   </p>
                 </div>
               </div>
@@ -366,12 +474,14 @@ export default function VisitorDetail() {
                   <div>
                     <p className="text-xs text-navy-300">
                       {lang === 'ar'
-                        ? 'القسم أو الإدارة ة'
+                        ? 'القسم أو الإدارة'
                         : lang === 'fr'
                           ? 'Département ou administration ciblée'
                           : 'Target Department or Administration'}
                     </p>
-                    <p className="font-medium text-slate-200">{visitor.department}</p>
+                    <p className="font-medium text-slate-200">
+  {getLocalizedDepartment(visitor.department, lang)}
+</p>
                   </div>
                 )}
 
