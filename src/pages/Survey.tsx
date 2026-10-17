@@ -9,7 +9,26 @@ import { useLang } from '@/lib/i18n';
 import Breadcrumb from '@/components/Breadcrumb';
 import { LAB_HIERARCHY, APPROVED_SERVICES } from '@/data/labServices';
 const MAIN_LAB_VALUE = '__main_lab__';
+const getLocalizedServiceLabel = (
+  value: string | null | undefined,
+  lang: 'ar' | 'en' | 'fr'
+): string => {
+  if (!value) return '—';
 
+  const normalizedValue = value.trim().toLowerCase();
+
+  const service = APPROVED_SERVICES.find((item) =>
+    [item.value, item.ar, item.en, item.fr].some(
+      (label) =>
+        typeof label === 'string' &&
+        label.trim().toLowerCase() === normalizedValue
+    )
+  );
+
+  if (!service) return value;
+
+  return service[lang] || service.en || service.value;
+};
 interface FormData {
   laboratory: string;
   branch: string;
@@ -180,9 +199,9 @@ export default function Survey() {
         {
           laboratory: formData.laboratory,
           branch:
-  formData.branch === MAIN_LAB_VALUE
-    ? null
-    : formData.branch || null,
+            formData.branch === MAIN_LAB_VALUE
+              ? null
+              : formData.branch || null,
           service_used: formData.service_used,
           how_heard: formData.how_heard || null,
           overall_satisfaction: formData.overall_satisfaction || null,

@@ -66,6 +66,26 @@ import {
 } from '@/data/labServices';
 import { APPROVED_SERVICES } from '@/data/labServices';
 
+const getLocalizedServiceLabel = (
+  value: string | null | undefined,
+  lang: 'ar' | 'en' | 'fr'
+): string => {
+  if (!value) return '—';
+
+  const normalizedValue = value.trim().toLowerCase();
+
+  const service = APPROVED_SERVICES.find((item) =>
+    [item.value, item.ar, item.en, item.fr].some(
+      (label) =>
+        typeof label === 'string' &&
+        label.trim().toLowerCase() === normalizedValue
+    )
+  );
+
+  if (!service) return value;
+
+  return service[lang] || service.en || service.value;
+};
 // ============================================================
 // Types & Hierarchy Roles
 // ============================================================
@@ -3258,6 +3278,53 @@ export default function Admin() {
     }
   };
 
+  // ============================================================
+  // Shared record scope for Visitors, Surveys and Enquiries
+  // ============================================================
+
+  const isRecordInAdminScope = (record: {
+    laboratory?: string | null;
+    branch?: string | null;
+  }): boolean => {
+    if (!adminUser) return false;
+
+    // Super admin: all laboratories and branches.
+    if (isSuperAdmin(adminUser.role)) {
+      return true;
+    }
+
+    // Every non-super-admin must have an explicit laboratory.
+    if (
+      !adminUser.laboratory ||
+      !record.laboratory ||
+      !isLabMatch(record.laboratory, adminUser.laboratory)
+    ) {
+      return false;
+    }
+
+    // Lab admin: all records in their own laboratory and branches.
+    if (isLabAdmin(adminUser.role)) {
+      return true;
+    }
+
+    // Read-only central-laboratory user:
+    // no branch assignment means central lab + all its branches.
+    if (isReadOnly(adminUser.role)) {
+      if (getUserBranches(adminUser).length === 0) {
+        return true;
+      }
+
+      return isUserBranchAuthorized(adminUser, record.branch);
+    }
+
+    // Local admin: only their explicitly authorized branch(es).
+    if (isLocalAdmin(adminUser.role)) {
+      return isUserBranchAuthorized(adminUser, record.branch);
+    }
+
+    return false;
+  };
+
 
   // ============================================================
   // Filter Visitors (Scoped by Role and Laboratory)
@@ -3265,17 +3332,7 @@ export default function Admin() {
 
   const filteredVisitors = visitors.filter((visitor) => {
     // Role-based scoping
-    if (isLabAdmin(adminUser?.role) && adminUser?.laboratory) {
-      if (!isLabMatch(visitor.laboratory, adminUser.laboratory)) return false;
-    }
-    if (isLocalAdmin(adminUser?.role)) {
-      if (adminUser?.laboratory && !isLabMatch(visitor.laboratory, adminUser.laboratory)) return false;
-      if (!isUserBranchAuthorized(adminUser, visitor.branch)) return false;
-    }
-    if (isReadOnly(adminUser?.role)) {
-      if (adminUser?.laboratory && !isLabMatch(visitor.laboratory, adminUser.laboratory)) return false;
-      if (!isUserBranchAuthorized(adminUser, visitor.branch)) return false;
-    }
+    if (!isRecordInAdminScope(visitor)) return false;
 
     const search = searchTerm.trim().toLowerCase();
 
@@ -3362,17 +3419,7 @@ export default function Admin() {
 
   const filteredSurveys = surveys.filter((survey) => {
     // Role-based scoping
-    if (isLabAdmin(adminUser?.role) && adminUser?.laboratory) {
-      if (!isLabMatch(survey.laboratory, adminUser.laboratory)) return false;
-    }
-    if (isLocalAdmin(adminUser?.role)) {
-      if (adminUser?.laboratory && !isLabMatch(survey.laboratory, adminUser.laboratory)) return false;
-      if (!isUserBranchAuthorized(adminUser, survey.branch)) return false;
-    }
-    if (isReadOnly(adminUser?.role)) {
-      if (adminUser?.laboratory && !isLabMatch(survey.laboratory, adminUser.laboratory)) return false;
-      if (!isUserBranchAuthorized(adminUser, survey.branch)) return false;
-    }
+    if (!isRecordInAdminScope(survey)) return false;
 
     const search = searchTerm.trim().toLowerCase();
 
@@ -3482,17 +3529,7 @@ export default function Admin() {
 
   const filteredEnquiries = enquiries.filter((enquiry) => {
     // Role-based scoping
-    if (isLabAdmin(adminUser?.role) && adminUser?.laboratory) {
-      if (!isLabMatch(enquiry.laboratory, adminUser.laboratory)) return false;
-    }
-    if (isLocalAdmin(adminUser?.role)) {
-      if (adminUser?.laboratory && !isLabMatch(enquiry.laboratory, adminUser.laboratory)) return false;
-      if (!isUserBranchAuthorized(adminUser, enquiry.branch)) return false;
-    }
-    if (isReadOnly(adminUser?.role)) {
-      if (adminUser?.laboratory && !isLabMatch(enquiry.laboratory, adminUser.laboratory)) return false;
-      if (!isUserBranchAuthorized(adminUser, enquiry.branch)) return false;
-    }
+    if (!isRecordInAdminScope(enquiry)) return false;
 
     const search = searchTerm.trim().toLowerCase();
 
@@ -5656,41 +5693,18 @@ export default function Admin() {
                             <div className="min-w-0">
                               <h3 className="font-bold">
                                 {(() => {
-                                  const serviceTranslations: Record<
-                                    string,
-                                    { ar: string; en: string; fr: string }
-                                  > = {
-                                    'Laboratory Testing': {
-                                      ar: 'الفحوصات المخبرية',
-                                      en: 'Laboratory Testing',
-                                      fr: 'Analyses de laboratoire',
-                                    },
-                                    'Test Results / Reports': {
-                                      ar: 'نتائج التحاليل / التقارير',
-                                      en: 'Test Results / Reports',
-                                      fr: "Résultats d'analyses / Rapports",
-                                    },
-                                    'Environmental Analysis': {
-                                      ar: 'التحاليل البيئية',
-                                      en: 'Environmental Analysis',
-                                      fr: 'Analyse environnementale',
-                                    },
-                                    'Drinking Water Analysis': {
-                                      ar: 'تحليل مياه الشرب',
-                                      en: 'Drinking Water Analysis',
-                                      fr: "Analyse de l'eau potable",
-                                    },
-                                  };
-
-                                  const service = survey.service_used;
+                                  const service = APPROVED_SERVICES.find(
+                                    (item) => item.value === survey.service_used
+                                  );
 
                                   return service
-                                    ? serviceTranslations[service]?.[lang] ?? service
-                                    : lang === 'ar'
+                                    ? service[lang] || service.en
+                                    : survey.service_used ||
+                                    (lang === 'ar'
                                       ? 'استبيان'
                                       : lang === 'fr'
                                         ? 'Enquête'
-                                        : 'Survey';
+                                        : 'Survey');
                                 })()}
                               </h3>
 
