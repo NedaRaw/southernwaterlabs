@@ -1219,7 +1219,9 @@ export default function VisitorDashboard() {
                                 {appt.department && (
                                   <span className="flex items-center gap-1.5">
                                     <Building2 className="w-3.5 h-3.5 text-slate-400" />
-                                    <span>{appt.department}</span>
+                                    <span> 
+                                     {getLocalizedDepartment(appt.department, lang as VisitorLanguage)}
+                                     </span>
                                   </span>
                                 )}
                               </div>
@@ -1378,7 +1380,9 @@ export default function VisitorDashboard() {
                                 {visit.department && (
                                   <span className="flex items-center gap-1">
                                     <Building2 className="w-3.5 h-3.5 text-slate-400" />
-                                    <span>{visit.department}</span>
+                                    <span>
+                                      {getLocalizedDepartment(visit.department, lang as VisitorLanguage)}
+                                      </span>
                                   </span>
                                 )}
                               </div>
