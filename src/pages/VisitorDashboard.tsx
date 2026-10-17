@@ -185,18 +185,62 @@ export default function VisitorDashboard() {
         setCurrentVisitor(stored);
         loadVisitorData(stored);
       }
+
+      // Automatically open login form if requested via query or hash
+      if (
+        searchParams.get('action') === 'login' ||
+        searchParams.get('login') === '1' ||
+        window.location.hash === '#login'
+      ) {
+        setTimeout(() => {
+          const formEl = document.getElementById('visitor-login-section');
+          formEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          const inputEl = document.getElementById('visitor-login-input') as HTMLInputElement | null;
+          inputEl?.focus();
+        }, 80);
+      }
     };
     init();
   }, [searchParams, loadVisitorData, routeVisitorId]);
 
+  // Logout & clear active visitor session
+  const handleLogout = useCallback(() => {
+    visitorPortalService.clearSession();
+    setCurrentVisitor(null);
+    setUpcomingAppointments([]);
+    setVisitHistory([]);
+    setLabReports([]);
+    setLoginError('');
+  }, []);
+
+  // Open & focus login form (resets active session if user wants to switch/sign in)
+  const openLoginForm = useCallback(() => {
+    if (currentVisitor) {
+      handleLogout();
+    }
+    setTimeout(() => {
+      const formEl = document.getElementById('visitor-login-section');
+      if (formEl) {
+        formEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      const inputEl = document.getElementById('visitor-login-input') as HTMLInputElement | null;
+      if (inputEl) {
+        inputEl.focus();
+      }
+    }, 60);
+  }, [currentVisitor, handleLogout]);
+
   // Handle Login submission
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!loginQuery.trim()) {
+    const query = loginQuery.trim();
+    if (!query) {
       setLoginError(
         lang === 'ar'
           ? 'يرجى إدخال رقم التصريح أو الهوية أو رقم الجوال'
-          : 'Please enter Visitor ID, National ID, or Mobile number'
+          : lang === 'fr'
+            ? 'Veuillez saisir votre code de visite, ID ou numéro de téléphone'
+            : 'Please enter Visitor ID, National ID, or Mobile number'
       );
       return;
     }
@@ -204,47 +248,76 @@ export default function VisitorDashboard() {
     setLoginLoading(true);
     setLoginError('');
 
-    const found = await visitorPortalService.findVisitorByQuery(loginQuery.trim());
-    setLoginLoading(false);
-
-    if (found) {
-      setCurrentVisitor(found);
-      loadVisitorData(found);
-      setLoginQuery('');
-
-    } else {
+    try {
+      const found = await visitorPortalService.findVisitorByQuery(query);
+      if (found) {
+        setCurrentVisitor(found);
+        await loadVisitorData(found);
+        setLoginQuery('');
+        setPortalFeedback({
+          type: 'success',
+          message:
+            lang === 'ar'
+              ? `مرحباً بك، ${found.visitor_name}`
+              : `Welcome, ${found.visitor_name}`,
+        });
+      } else {
+        setLoginError(
+          lang === 'ar'
+            ? 'لم يتم العثور على تصريح زيارة مطابق لهذه البيانات. يرجى التحقق من رقم التصريح أو رقم الهوية أو رقم الجوال، أو تجربة الحساب التجريبي المعتمد.'
+            : lang === 'fr'
+              ? 'Aucune visite trouvée pour ces identifiants. Vérifiez votre code, numéro d\'identité ou téléphone, ou essayez le compte de démonstration.'
+              : 'No visit permit found matching these credentials. Please check your Permit ID, National ID, or mobile number, or try the Demo Account.'
+        );
+      }
+    } catch (err) {
+      console.error('Visitor login error:', err);
       setLoginError(
         lang === 'ar'
-          ? 'تسجيل دخول الزوار غير متاح مؤقتًا. لم يتم التحقق من بياناتك.'
-          : lang === 'fr'
-            ? 'La connexion des visiteurs est temporairement indisponible. Vos données n’ont pas été vérifiées.'
-            : 'Visitor login is temporarily unavailable. Your information has not been verified.'
+          ? 'حدث خطأ في الاتصال أثناء التحقق من بياناتك. يرجى إعادة المحاولة.'
+          : 'A connection error occurred while verifying your information. Please try again.'
       );
+    } finally {
+      setLoginLoading(false);
     }
-
-
-
   };
 
-  // Demo Login quick action
+  // Demo Login quick action (One-click certified visitor experience)
   const handleDemoLogin = async () => {
     setLoginLoading(true);
     setLoginError('');
-    const demo = await visitorPortalService.findVisitorByQuery('demo');
-    setLoginLoading(false);
-    if (demo) {
-      setCurrentVisitor(demo);
-      loadVisitorData(demo);
+    try {
+      setLoginQuery('LAB-2026-0001');
+      const demo = await visitorPortalService.findVisitorByQuery('demo');
+      if (demo) {
+        setCurrentVisitor(demo);
+        await loadVisitorData(demo);
+        setPortalFeedback({
+          type: 'success',
+          message:
+            lang === 'ar'
+              ? 'تم تسجيل الدخول بنجاح بحساب الزائر المعتمد التجريبي (LAB-2026-0001)'
+              : lang === 'fr'
+                ? 'Connexion réussie avec le compte visiteur de démonstration (LAB-2026-0001)'
+                : 'Signed in successfully with Demo Visitor Account (LAB-2026-0001)',
+        });
+      } else {
+        setLoginError(
+          lang === 'ar'
+            ? 'تعذر تحميل حساب الزائر التجريبي'
+            : 'Could not load demo visitor account'
+        );
+      }
+    } catch (err) {
+      console.error('Error during demo login:', err);
+      setLoginError(
+        lang === 'ar'
+          ? 'حدث خطأ أثناء تسجيل الدخول التجريبي. يرجى المحاولة ثانية.'
+          : 'An error occurred during demo login. Please try again.'
+      );
+    } finally {
+      setLoginLoading(false);
     }
-  };
-
-  // Logout
-  const handleLogout = () => {
-    visitorPortalService.clearSession();
-    setCurrentVisitor(null);
-    setUpcomingAppointments([]);
-    setVisitHistory([]);
-    setLabReports([]);
   };
 
   // Copy visitor ID
@@ -477,9 +550,23 @@ export default function VisitorDashboard() {
 
               {/* Quick Actions */}
               <div className="pt-2 flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={openLoginForm}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs sm:text-sm transition-all duration-200 shadow-lg shadow-blue-900/30 hover:shadow-blue-600/40 cursor-pointer"
+                >
+                  <LogIn className="w-4 h-4" />
+                  <span>
+                    {lang === 'ar'
+                      ? 'الدخول إلى حسابي'
+                      : lang === 'fr'
+                        ? 'Accéder à mon compte'
+                        : 'Sign In to My Account'}
+                  </span>
+                </button>
                 <Link
                   to="/register"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs sm:text-sm transition-all duration-200 shadow-lg shadow-blue-900/30 hover:shadow-blue-600/40"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium text-xs sm:text-sm transition-all duration-200 ring-1 ring-white/20"
                 >
                   <PlusCircle className="w-4 h-4" />
                   <span>
@@ -558,7 +645,7 @@ export default function VisitorDashboard() {
             02: VISITOR AUTHENTICATION & LOGIN FORM (IF NOT LOGGED IN)
         ============================================================= */}
         {!currentVisitor ? (
-          <div className="max-w-2xl mx-auto mb-16">
+          <div id="visitor-login-section" className="max-w-2xl mx-auto mb-16 scroll-mt-28">
             <div className="p-6 sm:p-8 rounded-2xl bg-white dark:bg-[#172033] border border-slate-200/80 dark:border-slate-800 shadow-sm">
               <div className="flex items-center gap-3 pb-5 border-b border-slate-100 dark:border-slate-800 mb-6">
                 <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
@@ -591,7 +678,7 @@ export default function VisitorDashboard() {
 
               <form onSubmit={handleLogin} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  <label htmlFor="visitor-login-input" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                     {lang === 'ar'
                       ? 'معرف الزائر / رقم الهوية / رقم الجوال'
                       : lang === 'fr'
@@ -601,6 +688,7 @@ export default function VisitorDashboard() {
                   <div className="relative">
                     <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
+                      id="visitor-login-input"
                       type="text"
                       value={loginQuery}
                       onChange={(e) => setLoginQuery(e.target.value)}
@@ -733,7 +821,7 @@ export default function VisitorDashboard() {
                 </Link>
                 <button
                   type="button"
-                  onClick={handleLogout}
+                  onClick={openLoginForm}
                   className="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-xs transition-colors cursor-pointer flex items-center gap-1.5"
                 >
                   <LogOut className="w-3.5 h-3.5" />
