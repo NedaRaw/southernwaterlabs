@@ -458,6 +458,53 @@ type Tab =
 // Helpers
 // ============================================================
 
+function getLocalizedDepartment(
+  department: string | null | undefined,
+  language: 'ar' | 'en' | 'fr'
+): string {
+  const value = department?.trim();
+
+  if (!value) return '—';
+
+  const translations: Record<
+    string,
+    { ar: string; en: string; fr: string }
+  > = {
+    'Quality Control': {
+      ar: 'مراقبة الجودة',
+      en: 'Quality Control',
+      fr: 'Contrôle qualité',
+    },
+    'Chemical Analysis': {
+      ar: 'التحاليل الكيميائية',
+      en: 'Chemical Analysis',
+      fr: 'Analyses chimiques',
+    },
+    Microbiology: {
+      ar: 'الأحياء الدقيقة (الميكروبيولوجي)',
+      en: 'Microbiology',
+      fr: 'Microbiologie',
+    },
+    'Sample Reception': {
+      ar: 'استقبال وتسجيل العينات',
+      en: 'Sample Reception',
+      fr: 'Réception des échantillons',
+    },
+    Calibration: {
+      ar: 'المعايرة والأجهزة',
+      en: 'Calibration',
+      fr: 'Étalonnage et métrologie',
+    },
+    Administration: {
+      ar: 'الشؤون الإدارية والفنية',
+      en: 'Administrative and Technical Affairs',
+      fr: 'Affaires administratives et techniques',
+    },
+  };
+
+  return translations[value]?.[language] ?? value;
+}
+
 function getErrorMessage(error: unknown): string {
   if (!error) return 'Unknown error';
 
@@ -5091,6 +5138,7 @@ export default function Admin() {
                                   )}
                                 </p>
 
+
                                 <p className="text-xs text-slate-500">
                                   {visitor.laboratory
                                     ? getLabLabel(
@@ -5099,6 +5147,19 @@ export default function Admin() {
                                     )
                                     : '—'}
                                 </p>
+
+                                <p className="text-xs text-slate-500 mt-1">
+                                  {lang === 'ar'
+                                    ? 'القسم أو الإدارة: '
+                                    : lang === 'fr'
+                                      ? 'Département : '
+                                      : 'Department: '}
+                                  {getLocalizedDepartment(
+                                    visitor.department,
+                                    lang
+                                  )}
+                                </p>
+
                               </div>
 
                               <span className="text-xs text-slate-500">
