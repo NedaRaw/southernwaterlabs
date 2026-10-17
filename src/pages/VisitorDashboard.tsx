@@ -179,7 +179,7 @@ function getLocalizedDepartment(
 
   const normalizedValue = value.replace(/\s+/g, ' ').toLowerCase();
 
-return translations[normalizedValue]?.[language] ?? value;
+  return translations[normalizedValue]?.[language] ?? value;
 }
 
 export default function VisitorDashboard() {
@@ -248,6 +248,11 @@ export default function VisitorDashboard() {
         ar: 'تدقيق وتفتيش بيئي / جودة',
         en: 'Audit / Inspection',
         fr: 'Audit et inspection',
+      },
+      'Chemical Analysis': {
+        ar: 'التحليل الكيميائي',
+        en: 'Chemical Analysis',
+        fr: 'Analyse chimique',
       },
       Training: {
         ar: 'تدريب وتأهيل فني',
@@ -1208,7 +1213,7 @@ export default function VisitorDashboard() {
                                 {appt.arrival_time && (
                                   <span className="flex items-center gap-1.5">
                                     <Clock className="w-3.5 h-3.5 text-slate-400" />
-                                    <span>{appt.arrival_time}</span>
+                                    <span>{appt.arrival_time?.slice(0, 5)}</span>
                                   </span>
                                 )}
                                 {appt.department && (
@@ -1253,7 +1258,15 @@ export default function VisitorDashboard() {
                               onClick={() => {
                                 setRescheduleModalAppt(appt);
                                 setRescheduleDate(appt.visit_date);
-                                setRescheduleTime(appt.arrival_time || '09:30 صباحاً');
+
+                                const existingTime = (appt.arrival_time || '').trim();
+
+                                const validTime =
+                                  /^([01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/.test(existingTime)
+                                    ? existingTime.slice(0, 5)
+                                    : '09:30';
+
+                                setRescheduleTime(validTime);
                               }}
                               className="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs transition-colors cursor-pointer flex items-center gap-1.5"
                             >
@@ -1735,11 +1748,11 @@ export default function VisitorDashboard() {
                     onChange={(e) => setRescheduleTime(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-900 dark:text-white"
                   >
-                    <option value="08:00 صباحاً">08:00 صباحاً (08:00 AM)</option>
-                    <option value="09:00 صباحاً">09:00 صباحاً (09:00 AM)</option>
-                    <option value="10:00 صباحاً">10:00 صباحاً (10:00 AM)</option>
-                    <option value="11:30 صباحاً">11:30 صباحاً (11:30 AM)</option>
-                    <option value="01:00 ظهراً">01:00 ظهراً (01:00 PM)</option>
+                    <option value="08:00">08:00 صباحاً (08:00 AM)</option>
+                    <option value="09:00">09:00 صباحاً (09:00 AM)</option>
+                    <option value="10:00">10:00 صباحاً (10:00 AM)</option>
+                    <option value="11:30">11:30 صباحاً (11:30 AM)</option>
+                    <option value="13:00">01:00 ظهراً (01:00 PM)</option>
                   </select>
                 </div>
 

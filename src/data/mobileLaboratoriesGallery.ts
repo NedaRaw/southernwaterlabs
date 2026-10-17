@@ -69,7 +69,7 @@ export const mobileLaboratoriesData: Record<'asir' | 'jazan' | 'alBaha' | 'najra
   asir: {
     id: 'asir',
     anchorId: 'mobile-asir',
-    titleArabic: 'المختبر المرجعي لمياه الشرب والخدمات البيئية بمنطقة عسير',
+    titleArabic: 'المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة عسير',
     titleEnglish: 'Asir Central Laboratory for Drinking Water and Environmental Services',
     titleFrench: 'Laboratoire Central d\'Eau Potable et de Services Environnementaux de la Région d\'Asir',
     region: { ar: 'منطقة عسير', en: 'Asir Region', fr: 'Région d\'Asir' },
@@ -143,7 +143,7 @@ export const mobileLaboratoriesData: Record<'asir' | 'jazan' | 'alBaha' | 'najra
         roleTitle: { ar: 'المنظر الجانبي للمختبر المتنقل', en: 'Mobile laboratory side view', fr: 'Vue latérale du laboratoire mobile' },
         image: asirSideImg,
         caption: {
-          ar: 'المنظر الجانبي لمركبة عسير يوضح كتابات الهوية الرسمية: المختبر المرجعي لمياه الشرب والخدمات البيئية بمنطقة عسير.',
+          ar: 'المنظر الجانبي لمركبة عسير يوضح كتابات الهوية الرسمية: المختبر المركزي لمياه الشرب والخدمات البيئية بمنطقة عسير.',
           en: 'Side profile showing official inscriptions: Asir Central Laboratory for Drinking Water & Environmental Services.',
           fr: 'Vue latérale avec inscriptions officielles : Laboratoire Central d\'Asir pour l\'eau potable et les services environnementaux.',
         },

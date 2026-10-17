@@ -28,39 +28,48 @@ interface FormData {
   notes: string;
 }
 
+
 function formatPostgresTime(rawTime: string): string {
-  if (!rawTime) return '09:00:00';
-  // Normalize Arabic-Indic digits to ASCII digits
+  if (!rawTime?.trim()) return '09:00:00';
+
   const normalized = rawTime
     .trim()
-    .replace(/[٠-٩]/g, (d) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
+    .replace(/[٠-٩]/g, (d) =>
+      String('٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+    )
+    .replace(/[۰-۹]/g, (d) =>
+      String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+    );
 
-  // If already in HH:MM:SS format
-  if (/^\d{1,2}:\d{2}:\d{2}$/.test(normalized)) {
-    const parts = normalized.split(':');
-    return `${parts[0].padStart(2, '0')}:${parts[1]}:${parts[2]}`;
+  const match = normalized.match(
+    /^(\d{1,2}):([0-5]\d)(?::([0-5]\d))?\s*(AM|PM|صباحاً|صباحا|ظهراً|ظهرا|مساءً|مساء)?$/i
+  );
+
+  if (!match) {
+    throw new Error(`Invalid arrival time: ${rawTime}`);
   }
 
-  // If in HH:MM format
-  if (/^\d{1,2}:\d{2}$/.test(normalized)) {
-    const parts = normalized.split(':');
-    return `${parts[0].padStart(2, '0')}:${parts[1]}:00`;
+  let hours = Number(match[1]);
+  const minutes = match[2];
+  const seconds = match[3] ?? '00';
+  const period = match[4]?.toLowerCase();
+
+  if (period) {
+    if (hours < 1 || hours > 12) {
+      throw new Error(`Invalid 12-hour arrival time: ${rawTime}`);
+    }
+
+    const isPM = ['pm', 'ظهراً', 'ظهرا', 'مساءً', 'مساء'].includes(period);
+
+    hours = hours % 12;
+    if (isPM) hours += 12;
+  } else if (hours > 23) {
+    throw new Error(`Invalid arrival time: ${rawTime}`);
   }
 
-  // If in 12h format like 9:30 AM / 09:30 PM
-  const ampm = normalized.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)$/i);
-  if (ampm) {
-    let h = parseInt(ampm[1], 10);
-    const m = ampm[2];
-    const s = ampm[3] || '00';
-    const isPM = ampm[4].toUpperCase() === 'PM';
-    if (isPM && h < 12) h += 12;
-    if (!isPM && h === 12) h = 0;
-    return `${String(h).padStart(2, '0')}:${m}:${s}`;
-  }
-
-  return normalized;
+  return `${String(hours).padStart(2, '0')}:${minutes}:${seconds}`;
 }
+
 
 export default function Register() {
   const navigate = useNavigate();
@@ -100,6 +109,7 @@ export default function Register() {
       'Equipment Service / Maintenance': 'purpose.maintenance',
       'Sample Delivery': 'purpose.samples',
       'Audit / Inspection': 'purpose.audit',
+      'Chemical Analysis': 'purpose.chemicalAnalysis',
       Training: 'purpose.training',
       'Job Interview': 'purpose.interview',
       'Vendor Presentation': 'purpose.vendor',

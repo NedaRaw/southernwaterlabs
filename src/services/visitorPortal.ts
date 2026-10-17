@@ -674,52 +674,122 @@ export const visitorPortalService = {
     }));
   },
 
+
+
+
   /**
-   * Reschedule appointment date & time
+   * Reschedule appointment date & time.
+   * Accepts Arabic and English time labels.
    */
   async rescheduleAppointment(
     appointmentId: string,
     newDate: string,
     newTime: string
   ): Promise<boolean> {
-    if (!appointmentId || !newDate) return false;
+    if (!appointmentId || !newDate || !newTime) {
+      return false;
+    }
 
-    const demoAppt = DEMO_VISITS.upcoming.find((a) => a.id === appointmentId);
+    // Convert Arabic/English time labels to PostgreSQL HH:mm:ss.
+    const match = String(newTime)
+      .trim()
+      .match(
+        /^(\d{1,2}):([0-5]\d)(?::([0-5]\d))?\s*(صباحاً|صباحا|مساءً|مساء|AM|PM)?$/i
+      );
+
+    if (!match) {
+      console.error('Reschedule failed: invalid arrival time.', newTime);
+      return false;
+    }
+
+    let hours = Number(match[1]);
+    const minutes = match[2];
+    const seconds = match[3] || '00';
+    const period = match[4]?.toUpperCase();
+
+    if (period) {
+      if (hours < 1 || hours > 12) {
+        console.error('Reschedule failed: invalid 12-hour time.', newTime);
+        return false;
+      }
+
+      const isPM = ['مساءً', 'مساء', 'PM'].includes(period);
+      hours = hours % 12;
+
+      if (isPM) {
+        hours += 12;
+      }
+    } else if (hours > 23) {
+      console.error('Reschedule failed: invalid hour.', newTime);
+      return false;
+    }
+
+    const normalizedTime =
+      `${String(hours).padStart(2, '0')}:${minutes}`;
+
+    // Demo appointments
+    const demoAppt = DEMO_VISITS.upcoming.find(
+      (appointment) => appointment.id === appointmentId
+    );
+
     if (demoAppt) {
       demoAppt.visit_date = newDate;
-      if (newTime) demoAppt.arrival_time = newTime;
+      demoAppt.arrival_time = normalizedTime;
       return true;
     }
 
+    // Real Supabase records
     if (isSupabaseConfigured) {
       try {
         const { error } = await supabase
           .from('visitors')
-          .update({ visit_date: newDate, arrival_time: newTime })
+          .update({
+            visit_date: newDate,
+            arrival_time: normalizedTime,
+          })
           .eq('id', appointmentId);
-        if (!error) return true;
-      } catch {
-        // fallback to localStorage
+
+        if (error) {
+          console.error('Appointment reschedule failed:', error);
+          return false;
+        }
+
+        return true;
+      } catch (error) {
+        console.error('Appointment reschedule failed:', error);
+        return false;
       }
     }
 
+    // Local mock mode only
     try {
       const raw = localStorage.getItem('swl_visitors');
-      if (raw) {
-        const list: Array<{ id: string; visitor_id?: string; visit_date: string; arrival_time?: string }> = JSON.parse(raw);
-        const item = list.find((v) => v.id === appointmentId || v.visitor_id === appointmentId);
-        if (item) {
-          item.visit_date = newDate;
-          if (newTime) item.arrival_time = newTime;
-          localStorage.setItem('swl_visitors', JSON.stringify(list));
-          return true;
-        }
-      }
-    } catch {
-      // ignore
-    }
+      if (!raw) return false;
 
-    return true;
+      const list: Array<{
+        id: string;
+        visitor_id?: string;
+        visit_date: string;
+        arrival_time?: string;
+      }> = JSON.parse(raw);
+
+      const item = list.find(
+        (visitor) =>
+          visitor.id === appointmentId ||
+          visitor.visitor_id === appointmentId
+      );
+
+      if (!item) return false;
+
+      item.visit_date = newDate;
+      item.arrival_time = normalizedTime;
+
+      localStorage.setItem('swl_visitors', JSON.stringify(list));
+      return true;
+    } catch (error) {
+      console.error('Local appointment reschedule failed:', error);
+      return false;
+    }
   },
 
   /**
