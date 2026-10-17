@@ -486,6 +486,7 @@ function formatDate(value?: string | null): string {
   }
 }
 
+
 function getVisitorName(visitor: Visitor): string {
   if (visitor.visitor_name) {
     return visitor.visitor_name;
@@ -500,6 +501,70 @@ function getVisitorName(visitor: Visitor): string {
     .trim();
 
   return name || '—';
+}
+
+function getLocalizedVisitorPurpose(
+  purpose: string | null | undefined,
+  language: 'ar' | 'en' | 'fr'
+): string {
+  const value = purpose?.trim();
+
+  if (!value) {
+    return '—';
+  }
+
+  const translations: Record<
+    string,
+    { ar: string; en: string; fr: string }
+  > = {
+    'Business Meeting': {
+      ar: 'اجتماع عمل',
+      en: 'Business Meeting',
+      fr: 'Réunion professionnelle',
+    },
+    'Equipment Service / Maintenance': {
+      ar: 'صيانة المعدات',
+      en: 'Equipment Service / Maintenance',
+      fr: 'Entretien / Maintenance des équipements',
+    },
+    'Sample Delivery': {
+      ar: 'تسليم العينات',
+      en: 'Sample Delivery',
+      fr: 'Livraison d’échantillons',
+    },
+    'Audit / Inspection': {
+      ar: 'تدقيق / تفتيش',
+      en: 'Audit / Inspection',
+      fr: 'Audit / Inspection',
+    },
+    Training: {
+      ar: 'تدريب',
+      en: 'Training',
+      fr: 'Formation',
+    },
+    'Job Interview': {
+      ar: 'مقابلة عمل',
+      en: 'Job Interview',
+      fr: 'Entretien d’embauche',
+    },
+    'Vendor Presentation': {
+      ar: 'عرض تقديمي للمورّد',
+      en: 'Vendor Presentation',
+      fr: 'Présentation du fournisseur',
+    },
+    'Research Collaboration': {
+      ar: 'تعاون بحثي',
+      en: 'Research Collaboration',
+      fr: 'Collaboration en recherche',
+    },
+    Other: {
+      ar: 'أخرى',
+      en: 'Other',
+      fr: 'Autre',
+    },
+  };
+
+  return translations[value]?.[language] ?? value;
 }
 
 function getEnquiryName(enquiry: Enquiry): string {
@@ -5372,28 +5437,12 @@ export default function Admin() {
 
                               <td className="px-4 py-4 max-w-xs">
                                 <span className="line-clamp-2">
-                                  {(() => {
-                                    const purpose =
-                                      visitor.purpose || visitor.visit_purpose || '';
-
-                                    const translations: Record<
-                                      string,
-                                      { ar: string; en: string; fr: string }
-                                    > = {
-                                      'Job Interview': {
-                                        ar: 'مقابلة عمل',
-                                        en: 'Job Interview',
-                                        fr: "Entretien d'embauche",
-                                      },
-                                    };
-
-                                    return purpose
-                                      ? translations[purpose]?.[lang] ?? purpose
-                                      : '—';
-                                  })()}
+                                  {getLocalizedVisitorPurpose(
+                                    visitor.purpose || visitor.visit_purpose,
+                                    lang
+                                  )}
                                 </span>
                               </td>
-
 
                               <td className="px-4 py-4">
                                 {isReadOnly(adminUser?.role) ? (
