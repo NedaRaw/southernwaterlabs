@@ -582,6 +582,16 @@ export default function Admin() {
 
   const [loading, setLoading] = useState(false);
 
+
+  // QR codes count for the dashboard
+  const dashboardQrCount = adminUser?.laboratory
+    ? QR_REGISTRY.filter(
+      (item) =>
+        item.category === 'forms' ||
+        item.labId === adminUser.laboratory
+    ).length
+    : QR_REGISTRY.length;
+
   // Unified delete target and confirmation modal state
   interface DeleteTarget {
     type: 'visitor' | 'survey' | 'enquiry' | 'user';
@@ -3977,9 +3987,7 @@ export default function Admin() {
           : lang === 'fr'
             ? 'QR Codes'
             : 'QR Codes',
-      value: isLabAdmin(adminUser?.role) && adminUser?.laboratory
-        ? QR_REGISTRY.filter((q) => q.labId === adminUser.laboratory || !q.labId).length
-        : QR_REGISTRY.length,
+      value: dashboardQrCount,
       icon: QrCode,
     },
   ];

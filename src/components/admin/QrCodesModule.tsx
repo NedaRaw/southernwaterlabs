@@ -266,31 +266,50 @@ export const QrCodesModule: React.FC<QrCodesModuleProps> = ({ currentLabId }) =>
     printWindow.document.close();
   };
 
-  // Filter items
-  const filteredItems = QR_REGISTRY.filter((item) => {
-    // Category filter
-    if (activeCategory !== 'all' && item.category !== activeCategory) {
+  // Scope QR codes by laboratory.
+  // Public forms remain available within each laboratory scope.
+  // The global registry is never modified.
+  const scopedItems = QR_REGISTRY.filter((item) => {
+    if (selectedLab === 'all') {
+      return true;
+    }
+
+    if (item.category === 'forms') {
+      return true;
+    }
+
+    return item.labId === selectedLab;
+  });
+
+  // Count the entire authorized scope, independent of search/category filters.
+  const scopedQrCount = scopedItems.length;
+
+  // Apply the category and search filters to the displayed cards.
+  const filteredItems = scopedItems.filter((item) => {
+    if (
+      activeCategory !== 'all' &&
+      item.category !== activeCategory
+    ) {
       return false;
     }
 
-    // Lab filter
-    if (selectedLab !== 'all') {
-      if (item.category === 'forms') {
-        // keep forms or filter out if lab selected
-        return false;
-      }
-      if (item.labId !== selectedLab) {
-        return false;
-      }
-    }
-
-    // Search query filter
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
-      const matchAr = item.titleAr.toLowerCase().includes(q) || item.descAr.toLowerCase().includes(q);
-      const matchEn = item.titleEn.toLowerCase().includes(q) || item.descEn.toLowerCase().includes(q);
-      const matchFr = item.titleFr.toLowerCase().includes(q) || item.descFr.toLowerCase().includes(q);
+
+      const matchAr =
+        item.titleAr.toLowerCase().includes(q) ||
+        item.descAr.toLowerCase().includes(q);
+
+      const matchEn =
+        item.titleEn.toLowerCase().includes(q) ||
+        item.descEn.toLowerCase().includes(q);
+
+      const matchFr =
+        item.titleFr.toLowerCase().includes(q) ||
+        item.descFr.toLowerCase().includes(q);
+
       const matchPath = item.path.toLowerCase().includes(q);
+
       if (!matchAr && !matchEn && !matchFr && !matchPath) {
         return false;
       }
@@ -311,29 +330,29 @@ export const QrCodesModule: React.FC<QrCodesModuleProps> = ({ currentLabId }) =>
                 {lang === 'ar'
                   ? 'سجل الروابط ونظام رموز الاستجابة السريعة'
                   : lang === 'fr'
-                  ? 'Registre officiel des URLs & QR Codes'
-                  : 'Official URL Registry & QR Code System'}
+                    ? 'Registre officiel des URLs & QR Codes'
+                    : 'Official URL Registry & QR Code System'}
               </span>
             </div>
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
               {lang === 'ar'
                 ? 'إدارة وطباعة رموز QR للمختبرات والفروع'
                 : lang === 'fr'
-                ? 'Gestion & Impression des QR Codes des Laboratoires'
-                : 'Laboratory & Branch QR Code Management'}
+                  ? 'Gestion & Impression des QR Codes des Laboratoires'
+                  : 'Laboratory & Branch QR Code Management'}
             </h2>
             <p className="text-slate-300 text-xs sm:text-sm max-w-2xl leading-relaxed">
               {lang === 'ar'
                 ? 'جميع الروابط المستخدمة مطابقة تماماً للمسارات الرسمية المعتمدة في النظام. يمكنك نسخ الرابط، معاينة الرمز، تنزيله بدقة عالية، أو طباعته كلوحة إرشادية.'
                 : lang === 'fr'
-                ? 'Toutes les URLs correspondent aux routes exactes du projet. Téléchargez, imprimez ou copiez les liens officiels des formulaires, laboratoires centraux et branches.'
-                : 'All URLs match project routes accurately. Download, print, or copy official links for public forms, central laboratories, and affiliated branches.'}
+                  ? 'Toutes les URLs correspondent aux routes exactes du projet. Téléchargez, imprimez ou copiez les liens officiels des formulaires, laboratoires centraux et branches.'
+                  : 'All URLs match project routes accurately. Download, print, or copy official links for public forms, central laboratories, and affiliated branches.'}
             </p>
           </div>
 
           <div className="shrink-0 flex items-center gap-3">
             <div className="px-4 py-3 rounded-xl bg-slate-800/80 border border-slate-700/80 text-center">
-              <div className="text-2xl font-extrabold text-blue-400">{QR_REGISTRY.length}</div>
+              <div className="text-2xl font-extrabold text-blue-400">{scopedQrCount}</div>
               <div className="text-[11px] text-slate-400">
                 {lang === 'ar' ? 'رمز مسجل' : lang === 'fr' ? 'QR Enregistrés' : 'Registered QRs'}
               </div>
@@ -374,11 +393,10 @@ export const QrCodesModule: React.FC<QrCodesModuleProps> = ({ currentLabId }) =>
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveCategory(tab.id)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                    active
-                      ? 'bg-blue-600 text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                  }`}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${active
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    }`}
                 >
                   <Icon className="w-3.5 h-3.5 shrink-0" />
                   <span>{label}</span>
@@ -398,12 +416,11 @@ export const QrCodesModule: React.FC<QrCodesModuleProps> = ({ currentLabId }) =>
                 lang === 'ar'
                   ? 'بحث بالاسم أو المسار...'
                   : lang === 'fr'
-                  ? 'Rechercher par nom ou URL...'
-                  : 'Search by name or URL...'
+                    ? 'Rechercher par nom ou URL...'
+                    : 'Search by name or URL...'
               }
-              className={`w-full py-2 rounded-lg text-xs bg-slate-50 border border-slate-200 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition ${
-                isRtl ? 'pr-9 pl-3 text-right' : 'pl-9 pr-3 text-left'
-              }`}
+              className={`w-full py-2 rounded-lg text-xs bg-slate-50 border border-slate-200 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition ${isRtl ? 'pr-9 pl-3 text-right' : 'pl-9 pr-3 text-left'
+                }`}
             />
           </div>
         </div>
@@ -415,29 +432,59 @@ export const QrCodesModule: React.FC<QrCodesModuleProps> = ({ currentLabId }) =>
             {lang === 'ar' ? 'تصفية حسب المنطقة:' : lang === 'fr' ? 'Filtrer par région :' : 'Filter by Region:'}
           </span>
           {[
-            { id: 'all', labelAr: 'كافة المناطق', labelEn: 'All Regions', labelFr: 'Toutes les régions' },
-            { id: 'asir', labelAr: 'منطقة عسير (3)', labelEn: 'Asir Region (3)', labelFr: 'Région Asir (3)' },
-            { id: 'najran', labelAr: 'منطقة نجران (2)', labelEn: 'Najran Region (2)', labelFr: 'Région Najran (2)' },
-            { id: 'al-baha', labelAr: 'منطقة الباحة (2)', labelEn: 'Al-Baha Region (2)', labelFr: 'Région Al-Baha (2)' },
-            { id: 'jazan', labelAr: 'منطقة جازان (3)', labelEn: 'Jazan Region (3)', labelFr: 'Région Jazan (3)' },
-          ].map((lab) => {
-            const active = selectedLab === lab.id;
-            const label = lang === 'ar' ? lab.labelAr : lang === 'fr' ? lab.labelFr : lab.labelEn;
-            return (
-              <button
-                key={lab.id}
-                type="button"
-                onClick={() => setSelectedLab(lab.id)}
-                className={`px-2.5 py-1 rounded-md transition text-xs font-medium cursor-pointer shrink-0 ${
-                  active
+            ...(currentLabId
+              ? []
+              : [
+                {
+                  id: 'all',
+                  labelAr: 'كافة المناطق',
+                  labelEn: 'All Regions',
+                  labelFr: 'Toutes les régions',
+                },
+              ]),
+            {
+              id: 'asir',
+              labelAr: 'منطقة عسير',
+              labelEn: 'Asir Region',
+              labelFr: 'Région Asir',
+            },
+            {
+              id: 'najran',
+              labelAr: 'منطقة نجران',
+              labelEn: 'Najran Region',
+              labelFr: 'Région Najran',
+            },
+            {
+              id: 'al-baha',
+              labelAr: 'منطقة الباحة',
+              labelEn: 'Al-Baha Region',
+              labelFr: 'Région Al-Baha',
+            },
+            {
+              id: 'jazan',
+              labelAr: 'منطقة جازان',
+              labelEn: 'Jazan Region',
+              labelFr: 'Région Jazan',
+            },
+          ]
+            .filter((lab) => !currentLabId || lab.id === currentLabId)
+            .map((lab) => {
+              const active = selectedLab === lab.id;
+              const label = lang === 'ar' ? lab.labelAr : lang === 'fr' ? lab.labelFr : lab.labelEn;
+              return (
+                <button
+                  key={lab.id}
+                  type="button"
+                  onClick={() => setSelectedLab(lab.id)}
+                  className={`px-2.5 py-1 rounded-md transition text-xs font-medium cursor-pointer shrink-0 ${active
                     ? 'bg-slate-900 text-white'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-              >
-                {label}
-              </button>
-            );
-          })}
+                    }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
         </div>
       </div>
 
