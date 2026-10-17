@@ -562,26 +562,19 @@ export default function Admin() {
   // ============================================================
   // Dashboard
   // ============================================================
-
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
-
   const [visitors, setVisitors] = useState<Visitor[]>([]);
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
-
   const [selectedSurveyIds, setSelectedSurveyIds] = useState<string[]>([]);
   const [selectedVisitorIds, setSelectedVisitorIds] = useState<string[]>([]);
   const [selectedEnquiryIds, setSelectedEnquiryIds] = useState<string[]>([]);
-
-
   const [bulkSurveyDeleteOpen, setBulkSurveyDeleteOpen] = useState(false);
   const [bulkSurveyDeleteLoading, setBulkSurveyDeleteLoading] = useState(false);
   const [bulkSurveyDeleteError, setBulkSurveyDeleteError] = useState<string | null>(null);
-
   const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
-
   const [loading, setLoading] = useState(false);
-
+  const [dashboardUserCount, setDashboardUserCount] = useState<number>(0);
 
   // QR codes count for the dashboard
   const dashboardQrCount = adminUser?.laboratory
@@ -1503,6 +1496,61 @@ export default function Admin() {
         }
       } else {
         setAdminUsers([]);
+      }
+
+      // --------------------------------------------------------
+      // Dashboard user count — count only, without exposing users
+      // --------------------------------------------------------
+      console.log('USER COUNT DEBUG:', {
+        loggedIn,
+        role: adminUser?.role,
+        laboratory: adminUser?.laboratory,
+        branch: adminUser?.branch,
+        hasToken: Boolean(token),
+      });
+      if (isSupabaseConfigured) {
+        const userCountRes = await supabase.rpc(
+          'get_dashboard_user_count',
+          { p_token: token }
+        );
+
+        if (userCountRes.error) {
+          console.error(
+            'DASHBOARD USER COUNT ERROR DETAILS:',
+            JSON.stringify(userCountRes.error, null, 2)
+          );
+          setDashboardUserCount(0);
+        } else {
+          const rawCount = userCountRes.data;
+          console.log('DASHBOARD USER COUNT SUCCESS:', rawCount);
+          const count =
+            rawCount &&
+              typeof rawCount === 'object' &&
+              'count' in rawCount
+              ? Number(
+                (rawCount as { count: unknown }).count
+              )
+              : Number.NaN;
+
+          setDashboardUserCount(
+            Number.isInteger(count) && count >= 0
+              ? count
+              : 0
+          );
+        }
+      } else {
+        const localUsers = loadData<AdminUserData[]>(
+          STORAGE_KEYS.ADMIN_USERS,
+          defaultAdminUsers
+        );
+
+        const scopedLocalUsers = localUsers.filter(
+          (u) =>
+            isLabMatch(u.laboratory, adminUser?.laboratory) &&
+            ['lab_admin', 'local_admin', 'user'].includes(u.role)
+        );
+
+        setDashboardUserCount(scopedLocalUsers.length);
       }
     } catch (error) {
       console.warn(
@@ -3977,7 +4025,7 @@ export default function Admin() {
           : lang === 'fr'
             ? 'Utilisateurs'
             : 'Users',
-      value: overviewAdminUsers.length,
+      value: dashboardUserCount,
       icon: UserCog,
     },
     {
