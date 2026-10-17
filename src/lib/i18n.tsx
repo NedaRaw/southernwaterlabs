@@ -393,7 +393,7 @@ export const translations: Record<string, { ar: string; en: string; fr: string }
   'admin.enquiries': { ar: 'الاستفسارات والرسائل', en: 'Enquiries & Messages', fr: 'Demandes & Messages' },
   'admin.users': { ar: 'إدارة المستخدمين', en: 'User Management', fr: 'Gestion des Utilisateurs' },
   'admin.totalVisitors': { ar: 'إجمالي الزيارات المسجلة', en: 'Total Registered Visits', fr: 'Total des Visites' },
-  'admin.export': { ar: 'تصدير البيانات (CSV)', en: 'Export (CSV)', fr: 'Exporter (CSV)' },
+  'admin.export': { ar: 'تصدير البيانات (XLS)', en: 'Export (XLS)', fr: 'Exporter (XLS)' },
   'admin.search': { ar: 'بحث سريع بالاسم، الهاتف، الجهة...', en: 'Quick search by name, phone, lab...', fr: 'Recherche par nom, tél, labo...' },
   'admin.noData': { ar: 'لا توجد بيانات مسجلة حالياً', en: 'No data records found', fr: 'Aucune donnée enregistrée' },
   'admin.addUser': { ar: 'إضافة مسؤول جديد', en: 'Add New Admin', fr: 'Ajouter un Utilisateur' },

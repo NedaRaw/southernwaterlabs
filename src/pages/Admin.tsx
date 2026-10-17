@@ -3401,10 +3401,10 @@ export default function Admin() {
   });
 
   // ============================================================
-  // CSV Export
+  // Excel Xls Export
   // ============================================================
 
-  const exportVisitorsCsv = () => {
+  const exportVisitorsXls = () => {
     const rows = filteredVisitors;
 
     const headers = [
@@ -3426,22 +3426,33 @@ export default function Admin() {
       'Created At',
     ];
 
-    const escapeCsv = (
-      value: unknown
-    ) => {
+    const escapeHtml = (value: unknown): string => {
       const text =
-        value === null ||
-          value === undefined
+        value === null || value === undefined
           ? ''
           : String(value);
 
-      return `"${text.replace(/"/g, '""')}"`;
+      return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
     };
 
-    const csv = [
-      headers.join(','),
-      ...rows.map((visitor) =>
-        [
+    const cell = (value: unknown) =>
+      `<td style="border:1px solid #ccc;mso-number-format:'\\@';">${escapeHtml(value)}</td>`;
+
+    const tableHeader = headers
+      .map(
+        (header) =>
+          `<th style="background:#1f4e78;color:#ffffff;border:1px solid #ccc;">${escapeHtml(header)}</th>`
+      )
+      .join('');
+
+    const tableRows = rows
+      .map((visitor) => {
+        const values = [
           visitor.visitor_id,
           getVisitorName(visitor),
           visitor.national_id,
@@ -3452,43 +3463,66 @@ export default function Admin() {
           visitor.branch,
           visitor.department,
           visitor.employee,
-          visitor.purpose ||
-          visitor.visit_purpose,
+          visitor.purpose || visitor.visit_purpose,
           visitor.visit_date,
           visitor.arrival_time,
           visitor.status,
           visitor.notes,
           visitor.created_at,
-        ]
-          .map(escapeCsv)
-          .join(',')
-      ),
-    ].join('\n');
+        ];
+
+        return `<tr>${values.map(cell).join('')}</tr>`;
+      })
+      .join('');
+
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <style>
+        table {
+          border-collapse: collapse;
+          font-family: Arial, sans-serif;
+        }
+        th, td {
+          padding: 6px;
+          border: 1px solid #ccc;
+        }
+        th {
+          background-color: #1f4e78;
+          color: white;
+          font-weight: bold;
+        }
+      </style>
+    </head>
+    <body>
+      <table>
+        <thead><tr>${tableHeader}</tr></thead>
+        <tbody>${tableRows}</tbody>
+      </table>
+    </body>
+    </html>
+  `;
 
     const blob = new Blob(
-      [csv],
-      {
-        type: 'text/csv;charset=utf-8;',
-      }
+      ['\uFEFF', html],
+      { type: 'application/vnd.ms-excel;charset=utf-8;' }
     );
 
-    const url =
-      URL.createObjectURL(blob);
-
-    const link =
-      document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
 
     link.href = url;
-    link.download =
-      `visitors-${new Date()
-        .toISOString()
-        .slice(0, 10)}.csv`;
+    link.download = `visitors-${new Date()
+      .toISOString()
+      .slice(0, 10)}.xls`;
 
     document.body.appendChild(link);
     link.click();
     link.remove();
 
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
 
@@ -4720,15 +4754,15 @@ export default function Admin() {
 
                       <button
                         type="button"
-                        onClick={exportVisitorsCsv}
+                        onClick={exportVisitorsXls}
                         className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm"
                       >
                         <Download className="w-4 h-4" />
                         {lang === 'ar'
-                          ? 'تصدير CSV'
+                          ? 'تصدير Xls'
                           : lang === 'fr'
-                            ? 'Exporter CSV'
-                            : 'Export CSV'}
+                            ? 'Exporter Xls'
+                            : 'Export Xls'}
                       </button>
                     </div>
 

@@ -215,12 +215,14 @@ export default function VisitorDashboard() {
     } else {
       setLoginError(
         lang === 'ar'
-          ? 'تسجيل دخول الزوار غير متاح مؤقتًا حتى تفعيل التحقق الآمن من الهوية. لم يتم التحقق من بياناتك.'
+          ? 'تسجيل دخول الزوار غير متاح مؤقتًا. لم يتم التحقق من بياناتك.'
           : lang === 'fr'
-            ? 'La connexion des visiteurs est temporairement indisponible jusqu’à la mise en place d’une vérification sécurisée de l’identité. Vos données n’ont pas été vérifiées.'
-            : 'Visitor login is temporarily unavailable until secure identity verification is implemented. Your information has not been verified.'
+            ? 'La connexion des visiteurs est temporairement indisponible. Vos données n’ont pas été vérifiées.'
+            : 'Visitor login is temporarily unavailable. Your information has not been verified.'
       );
     }
+
+
 
   };
 
@@ -881,8 +883,8 @@ export default function VisitorDashboard() {
               <div
                 role="alert"
                 className={`mb-4 p-4 rounded-2xl flex items-start justify-between gap-3 border shadow-xs animate-in fade-in duration-200 ${portalFeedback.type === 'success'
-                    ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200'
-                    : 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800 text-red-900 dark:text-red-200'
+                  ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200'
+                  : 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800 text-red-900 dark:text-red-200'
                   }`}
               >
                 <div className="flex items-start gap-3">
