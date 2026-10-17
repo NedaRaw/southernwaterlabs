@@ -149,12 +149,16 @@ export function getUserBranches(
     .filter(Boolean);
 }
 
+
 export function isUserBranchAuthorized(
   actor: AdminUser | null,
   recordBranch?: string | null
 ): boolean {
   if (!actor) return false;
-  if (isSuperAdmin(actor.role) || isLabAdmin(actor.role)) return true;
+
+  if (isSuperAdmin(actor.role) || isLabAdmin(actor.role)) {
+    return true;
+  }
 
   const branches = getUserBranches(actor);
 
@@ -164,14 +168,22 @@ export function isUserBranchAuthorized(
     return branches.some((b) => isBranchMatch(recordBranch, b));
   }
 
-  if (isStandardUser(actor.role) || isReadOnly(actor.role)) {
-    if (branches.length === 0) return true;
-    if (!recordBranch) return true;
+  if (isReadOnly(actor.role)) {
+    // A central-laboratory user can view the central lab
+    // and all its branches, but only within their own lab.
+    if (!actor.laboratory) return false;
+
+    // A central-laboratory account has no assigned branch.
+    // A branch user must have explicit branch assignments.
+    if (!recordBranch) return branches.length === 0;
+    if (branches.length === 0) return false;
+
     return branches.some((b) => isBranchMatch(recordBranch, b));
   }
 
   return false;
 }
+
 
 export function canCreateRole(actorRole?: string | null, targetRole?: string | null): boolean {
   if (isSuperAdmin(actorRole)) return true;
@@ -937,7 +949,8 @@ export default function Admin() {
         return;
       }
 
-      // Strict access enforcement: standard users have NO administrative access
+      // Allow the read-only user role into the portal.
+      // Individual tabs and actions must enforce read-only permissions.
       if (!hasAdminAccess(userRole)) {
         sessionStorage.removeItem('admin_user');
         sessionStorage.removeItem('admin_token');
@@ -1442,13 +1455,42 @@ export default function Admin() {
 
           setAdminUsers(parsedUsers);
         }
-      } else if (isReadOnly(adminUser?.role) && adminUser) {
-        setAdminUsers([
-          {
-            ...adminUser,
-            active: adminUser.active !== false,
-          },
-        ]);
+      } else if (isReadOnly(adminUser?.role) && adminUser) { } else if (isReadOnly(adminUser?.role) && adminUser) {
+        // Overview: load the existing local account list only in mock mode.
+        // In Supabase mode, do not bypass the server-side authorization.
+        if (!isSupabaseConfigured) {
+          const localUsers = loadData<AdminUserData[]>(
+            STORAGE_KEYS.ADMIN_USERS,
+            defaultAdminUsers
+          );
+
+          setAdminUsers(
+            localUsers
+              .filter(
+                (u) =>
+                  isLabMatch(u.laboratory, adminUser.laboratory) &&
+                  ['lab_admin', 'local_admin', 'user'].includes(u.role)
+              )
+              .map((u) => ({
+                id: u.id,
+                username: u.username,
+                full_name: u.full_name,
+                role: u.role,
+                laboratory: u.laboratory || null,
+                branch: u.branch || null,
+                active: u.active !== false,
+                is_primary: u.is_primary || false,
+                created_at: null,
+              }))
+          );
+        } else {
+          setAdminUsers([
+            {
+              ...adminUser,
+              active: adminUser.active !== false,
+            },
+          ]);
+        }
       } else {
         setAdminUsers([]);
       }
@@ -3147,18 +3189,42 @@ export default function Admin() {
     );
   });
 
+
   const overviewVisitors = visitors.filter((visitor) => {
+    if (!adminUser) return false;
+
+    // Read-only users: only the assigned central laboratory.
+    if (isReadOnly(adminUser.role)) {
+      if (!adminUser.laboratory || !visitor.laboratory) {
+        return false;
+      }
+
+      if (!isLabMatch(visitor.laboratory, adminUser.laboratory)) {
+        return false;
+      }
+
+      // A central-laboratory user with no branch assignment
+      // can view records from the central lab and its branches.
+      if (!getUserBranches(adminUser).length) {
+        return true;
+      }
+
+      return isUserBranchAuthorized(adminUser, visitor.branch);
+    }
+
+    // Preserve the existing scope for lab and local administrators.
     if (
-      isLabAdmin(adminUser?.role) &&
-      adminUser?.laboratory &&
+      isLabAdmin(adminUser.role) &&
+      adminUser.laboratory &&
       !isLabMatch(visitor.laboratory, adminUser.laboratory)
     ) {
       return false;
     }
 
-    if (isLocalAdmin(adminUser?.role) || isReadOnly(adminUser?.role)) {
+    if (isLocalAdmin(adminUser.role)) {
       if (
-        adminUser?.laboratory &&
+        !adminUser.laboratory ||
+        !visitor.laboratory ||
         !isLabMatch(visitor.laboratory, adminUser.laboratory)
       ) {
         return false;
@@ -3171,6 +3237,7 @@ export default function Admin() {
 
     return true;
   });
+
   // ============================================================
   // Filter Surveys (Scoped by Role and Laboratory)
   // ============================================================
@@ -3369,34 +3436,55 @@ export default function Admin() {
       return isUserBranchAuthorized(adminUser, user.branch);
     }
 
-    // Ordinary user: own account only, for the Overview
+    // Read-only user: show accounts from the assigned central laboratory
+    // and its branches, without granting User Management access.
     if (isReadOnly(adminUser?.role)) {
-      return user.id === adminUser?.id;
+      if (user.id === adminUser?.id) return true;
+
+      if (!adminUser?.laboratory) return false;
+
+      if (!isLabMatch(user.laboratory, adminUser.laboratory)) {
+        return false;
+      }
+
+      // Include central-laboratory accounts and accounts assigned
+      // to its branches.
+      return true;
     }
 
     return false;
   });
 
   const overviewAdminUsers = adminUsers.filter((user) => {
-    // Le compte connecté doit toujours être visible.
-    if (user.id === adminUser?.id) return true;
+    if (!adminUser) return false;
 
-    // Les autres comptes visibles dans Overview doivent
-    // appartenir au même laboratoire central.
-    if (!isLabMatch(user.laboratory, adminUser?.laboratory)) {
+    // The connected account must belong to a valid laboratory.
+    if (
+      !adminUser.laboratory ||
+      !user.laboratory ||
+      !isLabMatch(user.laboratory, adminUser.laboratory)
+    ) {
       return false;
     }
 
-    // Dans Overview, les comptes des branches sont visibles
-    // uniquement si la branche est autorisée.
+    // Overview for read-only users: show only the permitted account roles
+    // from the same central laboratory and its branches.
+    if (isReadOnly(adminUser.role)) {
+      return (
+        ['lab_admin', 'local_admin', 'user'].includes(user.role) &&
+        (user.active !== false || user.id === adminUser.id)
+      );
+    }
+
+    // Preserve the existing branch scope for other roles.
+    if (user.id === adminUser.id) return true;
+
     if (user.branch) {
       return isUserBranchAuthorized(adminUser, user.branch);
     }
 
-    // Compte du laboratoire central, sans branche.
     return true;
   });
-
 
   // ============================================================
   // Shared Excel XLS Export Helper
@@ -6042,1006 +6130,1006 @@ export default function Admin() {
                   </div>
 
                   <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300">
-                          <tr>
-                            <th className="text-start px-4 py-3">
-                              {lang === 'ar'
-                                ? 'الاسم الكامل'
-                                : lang === 'fr'
-                                  ? 'Nom complet'
-                                  : 'Full Name'}
-                            </th>
-
-                            <th className="text-start px-4 py-3">
-                              {lang === 'ar'
-                                ? 'اسم المستخدم'
-                                : lang === 'fr'
-                                  ? "Nom d'utilisateur"
-                                  : 'Username'}
-                            </th>
-
-                            <th className="text-start px-4 py-3">
-                              {lang === 'ar'
-                                ? 'الدور والنطاق'
-                                : lang === 'fr'
-                                  ? 'Rôle & Périmètre'
-                                  : 'Role & Scope'}
-                            </th>
-
-                            <th className="text-start px-4 py-3">
-                              {lang === 'ar'
-                                ? 'الحالة'
-                                : lang === 'fr'
-                                  ? 'Statut'
-                                  : 'Status'}
-                            </th>
-
-                            <th className="text-end px-4 py-3">
-                              {lang === 'ar'
-                                ? 'إجراءات'
-                                : lang === 'fr'
-                                  ? 'Actions'
-                                  : 'Actions'}
-                            </th>
-                          </tr>
-                        </thead>
-
-
-                        <tbody>
-                          {scopedAdminUsers.map(
-                            (user) => (
-                              <tr
-                                key={user.id}
-                                className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
-                              >
-                                <td className="px-4 py-4">
-                                  <div className="font-medium text-slate-900 dark:text-slate-100">
-                                    {user.full_name ||
-                                      '—'}
-                                  </div>
-
-                                  {user.is_primary && (
-                                    <span className="inline-flex mt-1 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                                      Primary
-                                    </span>
-                                  )}
-                                </td>
-
-                                <td className="px-4 py-4 font-mono text-sm text-slate-700 dark:text-slate-300">
-                                  {user.username}
-                                </td>
-
-                                <td className="px-4 py-4">
-                                  <div className="space-y-1">
-                                    <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold ${user.role === 'super_admin' || user.role === 'admin'
-                                      ? 'bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
-                                      : user.role === 'lab_admin'
-                                        ? 'bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
-                                        : user.role === 'local_admin'
-                                          ? 'bg-teal-100 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800'
-                                          : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
-                                      }`}>
-                                      {getRoleLabel(user.role, lang)}
-                                    </span>
-
-                                    {user.laboratory && (
-                                      <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                                        <Building2 className="w-3 h-3 text-slate-400 shrink-0" />
-                                        <span>{getLabLabel(user.laboratory, lang)}</span>
-                                        {user.branch && (
-                                          <span>• {getBranchLabel(user.laboratory, user.branch, lang)}</span>
-                                        )}
-                                      </div>
-                                    )}
-                                  </div>
-                                </td>
-
-                                <td className="px-4 py-4">
-                                  <span
-                                    className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${user.active ===
-                                      false
-                                      ? 'bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-900/50'
-                                      : 'bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-900/50'
-                                      }`}
-                                  >
-                                    {user.active ===
-                                      false
-                                      ? lang === 'ar'
-                                        ? 'غير نشط'
-                                        : lang === 'fr'
-                                          ? 'Inactif'
-                                          : 'Inactive'
-                                      : lang === 'ar'
-                                        ? 'نشط'
-                                        : lang === 'fr'
-                                          ? 'Actif'
-                                          : 'Active'}
-                                  </span>
-                                </td>
-
-                                <td className="px-4 py-4">
-                                  <div className="flex items-center justify-end gap-2">
-
-                                    {/* Edit button */}
-                                    {canEditUser(adminUser, user) && (
-                                      <button
-                                        type="button"
-                                        onClick={() => openEditUserModal(user)}
-                                        className="p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/40 text-blue-700 dark:text-blue-400 transition-colors cursor-pointer"
-                                        title={lang === 'ar' ? 'تعديل' : lang === 'fr' ? 'Modifier' : 'Edit'}
-                                      >
-                                        <UserCog className="w-4 h-4" />
-                                      </button>
-                                    )}
-
-                                    {canEditUser(adminUser, user) && !user.is_primary && user.username !== 'admin' && (
-                                      <button
-                                        type="button"
-                                        onClick={() => handleToggleUser(user)}
-                                        className={`px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition ${user.active === false
-                                          ? 'bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900/50'
-                                          : 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/50'
-                                          }`}
-                                      >
-                                        {user.active === false
-                                          ? (lang === 'ar' ? 'تفعيل' : lang === 'fr' ? 'Activer' : 'Enable')
-                                          : (lang === 'ar' ? 'تعطيل' : lang === 'fr' ? 'Désactiver' : 'Disable')}
-                                      </button>
-                                    )}
-
-                                    {canDeleteUser(adminUser, user) && (
-                                      <button
-                                        type="button"
-                                        onClick={() => openDeleteUser(user)}
-                                        className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/40 text-red-600 dark:text-red-400 cursor-pointer transition"
-                                        title={lang === 'ar' ? 'حذف' : lang === 'fr' ? 'Supprimer' : 'Delete'}
-                                      >
-                                        <Trash2 className="w-4 h-4" />
-                                      </button>
-                                    )}
-                                  </div>
-                                </td>
-                              </tr>
-                            )
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-
-
-                    {usersError ? (
-                      <div className="py-12 px-6 text-center bg-red-50 border-t border-red-200">
-                        <div className="mx-auto w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mb-3">
-                          <AlertCircle className="w-6 h-6" />
-                        </div>
-                        <h3 className="font-bold text-base text-red-900 mb-1">
-                          {usersError.toLowerCase().includes('unauthorized') || sessionExpired
-                            ? (lang === 'ar'
-                              ? 'جلسة الدخول منتهية أو غير مصرح بها'
-                              : lang === 'fr'
-                                ? 'Session expirée ou non autorisée'
-                                : 'Session Expired or Unauthorized')
-                            : (lang === 'ar'
-                              ? 'تعذر تحميل المستخدمين'
-                              : lang === 'fr'
-                                ? 'Impossible de charger les utilisateurs'
-                                : 'Could not load users')}
-                        </h3>
-                        <p className="text-sm text-slate-600 max-w-md mx-auto mb-4">
-                          {usersError.toLowerCase().includes('unauthorized') || sessionExpired
-                            ? (lang === 'ar'
-                              ? 'انتهت صلاحية رمز الجلسة للوصول إلى إدارة المستخدمين. يرجى تسجيل الخروج ثم إعادة تسجيل الدخول.'
-                              : lang === 'fr'
-                                ? 'Votre session a expiré. Veuillez vous déconnecter et vous reconnecter.'
-                                : 'Your session token has expired or is unauthorized. Please log out and sign in again.')
-                            : usersError}
-                        </p>
-                        <button
-                          type="button"
-                          onClick={handleLogout}
-                          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-semibold cursor-pointer transition shadow-xs"
-                          title={lang === 'ar' ? 'تسجيل الخروج وإعادة الدخول' : lang === 'fr' ? 'Déconnexion et reconnexion' : 'Log Out & Sign In Again'}
-                          aria-label={lang === 'ar' ? 'تسجيل الخروج وإعادة الدخول' : lang === 'fr' ? 'Déconnexion et reconnexion' : 'Log Out & Sign In Again'}
-                          data-testid="users-error-logout-button"
-                        >
-                          <LogOut className="w-4 h-4" />
-                          <span className="sr-only">Logout </span>
-                          <span>
+                    <table className="w-full text-sm">
+                      <thead className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300">
+                        <tr>
+                          <th className="text-start px-4 py-3">
                             {lang === 'ar'
-                              ? 'تسجيل الخروج وإعادة الدخول'
+                              ? 'الاسم الكامل'
                               : lang === 'fr'
-                                ? 'Déconnexion et reconnexion'
-                                : 'Log Out & Sign In Again'}
-                          </span>
-                        </button>
-                      </div>
-                    ) : scopedAdminUsers.length === 0 ? (
-                      <div className="py-16 text-center bg-white dark:bg-slate-900">
-                        <div className="mx-auto w-14 h-14 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
-                          <UserCog className="w-7 h-7 text-slate-400" />
-                        </div>
+                                ? 'Nom complet'
+                                : 'Full Name'}
+                          </th>
 
-                        <p className="font-medium text-slate-700 dark:text-slate-300">
-                          {lang === 'ar'
-                            ? 'لا توجد بيانات مستخدمين في هذا النطاق'
-                            : lang === 'fr'
-                              ? 'Aucun utilisateur trouvé dans ce périmètre'
-                              : 'No user accounts found in this scope'}
-                        </p>
-                      </div>
-                    ) : null}
+                          <th className="text-start px-4 py-3">
+                            {lang === 'ar'
+                              ? 'اسم المستخدم'
+                              : lang === 'fr'
+                                ? "Nom d'utilisateur"
+                                : 'Username'}
+                          </th>
+
+                          <th className="text-start px-4 py-3">
+                            {lang === 'ar'
+                              ? 'الدور والنطاق'
+                              : lang === 'fr'
+                                ? 'Rôle & Périmètre'
+                                : 'Role & Scope'}
+                          </th>
+
+                          <th className="text-start px-4 py-3">
+                            {lang === 'ar'
+                              ? 'الحالة'
+                              : lang === 'fr'
+                                ? 'Statut'
+                                : 'Status'}
+                          </th>
+
+                          <th className="text-end px-4 py-3">
+                            {lang === 'ar'
+                              ? 'إجراءات'
+                              : lang === 'fr'
+                                ? 'Actions'
+                                : 'Actions'}
+                          </th>
+                        </tr>
+                      </thead>
+
+
+                      <tbody>
+                        {scopedAdminUsers.map(
+                          (user) => (
+                            <tr
+                              key={user.id}
+                              className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
+                            >
+                              <td className="px-4 py-4">
+                                <div className="font-medium text-slate-900 dark:text-slate-100">
+                                  {user.full_name ||
+                                    '—'}
+                                </div>
+
+                                {user.is_primary && (
+                                  <span className="inline-flex mt-1 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                                    Primary
+                                  </span>
+                                )}
+                              </td>
+
+                              <td className="px-4 py-4 font-mono text-sm text-slate-700 dark:text-slate-300">
+                                {user.username}
+                              </td>
+
+                              <td className="px-4 py-4">
+                                <div className="space-y-1">
+                                  <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold ${user.role === 'super_admin' || user.role === 'admin'
+                                    ? 'bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
+                                    : user.role === 'lab_admin'
+                                      ? 'bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
+                                      : user.role === 'local_admin'
+                                        ? 'bg-teal-100 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800'
+                                        : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
+                                    }`}>
+                                    {getRoleLabel(user.role, lang)}
+                                  </span>
+
+                                  {user.laboratory && (
+                                    <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                                      <Building2 className="w-3 h-3 text-slate-400 shrink-0" />
+                                      <span>{getLabLabel(user.laboratory, lang)}</span>
+                                      {user.branch && (
+                                        <span>• {getBranchLabel(user.laboratory, user.branch, lang)}</span>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              </td>
+
+                              <td className="px-4 py-4">
+                                <span
+                                  className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${user.active ===
+                                    false
+                                    ? 'bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-900/50'
+                                    : 'bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-900/50'
+                                    }`}
+                                >
+                                  {user.active ===
+                                    false
+                                    ? lang === 'ar'
+                                      ? 'غير نشط'
+                                      : lang === 'fr'
+                                        ? 'Inactif'
+                                        : 'Inactive'
+                                    : lang === 'ar'
+                                      ? 'نشط'
+                                      : lang === 'fr'
+                                        ? 'Actif'
+                                        : 'Active'}
+                                </span>
+                              </td>
+
+                              <td className="px-4 py-4">
+                                <div className="flex items-center justify-end gap-2">
+
+                                  {/* Edit button */}
+                                  {canEditUser(adminUser, user) && (
+                                    <button
+                                      type="button"
+                                      onClick={() => openEditUserModal(user)}
+                                      className="p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/40 text-blue-700 dark:text-blue-400 transition-colors cursor-pointer"
+                                      title={lang === 'ar' ? 'تعديل' : lang === 'fr' ? 'Modifier' : 'Edit'}
+                                    >
+                                      <UserCog className="w-4 h-4" />
+                                    </button>
+                                  )}
+
+                                  {canEditUser(adminUser, user) && !user.is_primary && user.username !== 'admin' && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleToggleUser(user)}
+                                      className={`px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition ${user.active === false
+                                        ? 'bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900/50'
+                                        : 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/50'
+                                        }`}
+                                    >
+                                      {user.active === false
+                                        ? (lang === 'ar' ? 'تفعيل' : lang === 'fr' ? 'Activer' : 'Enable')
+                                        : (lang === 'ar' ? 'تعطيل' : lang === 'fr' ? 'Désactiver' : 'Disable')}
+                                    </button>
+                                  )}
+
+                                  {canDeleteUser(adminUser, user) && (
+                                    <button
+                                      type="button"
+                                      onClick={() => openDeleteUser(user)}
+                                      className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/40 text-red-600 dark:text-red-400 cursor-pointer transition"
+                                      title={lang === 'ar' ? 'حذف' : lang === 'fr' ? 'Supprimer' : 'Delete'}
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </button>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          )
+                        )}
+                      </tbody>
+                    </table>
                   </div>
+
+
+                  {usersError ? (
+                    <div className="py-12 px-6 text-center bg-red-50 border-t border-red-200">
+                      <div className="mx-auto w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mb-3">
+                        <AlertCircle className="w-6 h-6" />
+                      </div>
+                      <h3 className="font-bold text-base text-red-900 mb-1">
+                        {usersError.toLowerCase().includes('unauthorized') || sessionExpired
+                          ? (lang === 'ar'
+                            ? 'جلسة الدخول منتهية أو غير مصرح بها'
+                            : lang === 'fr'
+                              ? 'Session expirée ou non autorisée'
+                              : 'Session Expired or Unauthorized')
+                          : (lang === 'ar'
+                            ? 'تعذر تحميل المستخدمين'
+                            : lang === 'fr'
+                              ? 'Impossible de charger les utilisateurs'
+                              : 'Could not load users')}
+                      </h3>
+                      <p className="text-sm text-slate-600 max-w-md mx-auto mb-4">
+                        {usersError.toLowerCase().includes('unauthorized') || sessionExpired
+                          ? (lang === 'ar'
+                            ? 'انتهت صلاحية رمز الجلسة للوصول إلى إدارة المستخدمين. يرجى تسجيل الخروج ثم إعادة تسجيل الدخول.'
+                            : lang === 'fr'
+                              ? 'Votre session a expiré. Veuillez vous déconnecter et vous reconnecter.'
+                              : 'Your session token has expired or is unauthorized. Please log out and sign in again.')
+                          : usersError}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-semibold cursor-pointer transition shadow-xs"
+                        title={lang === 'ar' ? 'تسجيل الخروج وإعادة الدخول' : lang === 'fr' ? 'Déconnexion et reconnexion' : 'Log Out & Sign In Again'}
+                        aria-label={lang === 'ar' ? 'تسجيل الخروج وإعادة الدخول' : lang === 'fr' ? 'Déconnexion et reconnexion' : 'Log Out & Sign In Again'}
+                        data-testid="users-error-logout-button"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span className="sr-only">Logout </span>
+                        <span>
+                          {lang === 'ar'
+                            ? 'تسجيل الخروج وإعادة الدخول'
+                            : lang === 'fr'
+                              ? 'Déconnexion et reconnexion'
+                              : 'Log Out & Sign In Again'}
+                        </span>
+                      </button>
+                    </div>
+                  ) : scopedAdminUsers.length === 0 ? (
+                    <div className="py-16 text-center bg-white dark:bg-slate-900">
+                      <div className="mx-auto w-14 h-14 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
+                        <UserCog className="w-7 h-7 text-slate-400" />
+                      </div>
+
+                      <p className="font-medium text-slate-700 dark:text-slate-300">
+                        {lang === 'ar'
+                          ? 'لا توجد بيانات مستخدمين في هذا النطاق'
+                          : lang === 'fr'
+                            ? 'Aucun utilisateur trouvé dans ce périmètre'
+                            : 'No user accounts found in this scope'}
+                      </p>
+                    </div>
+                  ) : null}
+                </div>
               )}
 
-                  {/* ====================================================
+            {/* ====================================================
                 QR Codes Module
             ===================================================== */}
 
-                  {!loading && activeTab === 'qrcodes' && (
-                    <QrCodesModule currentLabId={adminUser?.laboratory || null} />
-                  )}
-                </main>
+            {!loading && activeTab === 'qrcodes' && (
+              <QrCodesModule currentLabId={adminUser?.laboratory || null} />
+            )}
+          </main>
         </>
-          )
+      )
       }
 
 
-          {/* ======================================================
+      {/* ======================================================
           User Modal
       ======================================================= */}
 
-          {
-            showUserModal && (
-              <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-                <div
-                  className="w-full max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl text-slate-900 dark:text-slate-100 overflow-hidden"
-                  dir={dir}
-                >
+      {
+        showUserModal && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <div
+              className="w-full max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl text-slate-900 dark:text-slate-100 overflow-hidden"
+              dir={dir}
+            >
 
-                  <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800">
-                    <div>
-                      <h2 className="text-lg font-bold">
-                        {editingUserId
-                          ? lang === 'ar'
-                            ? 'تعديل المستخدم'
-                            : lang === 'fr'
-                              ? "Modifier l'utilisateur"
-                              : 'Edit User'
-                          : lang === 'ar'
-                            ? 'إضافة مستخدم'
-                            : lang === 'fr'
-                              ? 'Ajouter un utilisateur'
-                              : 'Add New User'}
-                      </h2>
+              <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800">
+                <div>
+                  <h2 className="text-lg font-bold">
+                    {editingUserId
+                      ? lang === 'ar'
+                        ? 'تعديل المستخدم'
+                        : lang === 'fr'
+                          ? "Modifier l'utilisateur"
+                          : 'Edit User'
+                      : lang === 'ar'
+                        ? 'إضافة مستخدم'
+                        : lang === 'fr'
+                          ? 'Ajouter un utilisateur'
+                          : 'Add New User'}
+                  </h2>
 
-                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                        {editingUserId
-                          ? lang === 'ar'
-                            ? 'تحديث بيانات المستخدم وصلاحياته'
-                            : lang === 'fr'
-                              ? "Mettre à jour l'utilisateur et ses permissions"
-                              : 'Update user information and permissions'
-                          : lang === 'ar'
-                            ? 'إنشاء حساب جديد في نطاق صلاحياتك الإدارية'
-                            : lang === 'fr'
-                              ? 'Créer un nouveau compte dans votre périmètre'
-                              : 'Create a new user within your authorized scope'}
-                      </p>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={closeUserModal}
-                      className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
-
-
-                  <form
-                    onSubmit={handleSaveUser}
-                    className="p-5 space-y-4 max-h-[80vh] overflow-y-auto"
-                  >
-
-                    {userError && (
-                      <div className="p-4 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 text-red-700 dark:text-red-300 text-sm flex gap-3">
-                        <AlertCircle className="w-5 h-5 shrink-0" />
-                        <span>{userError}</span>
-                      </div>
-                    )}
-
-
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        {lang === 'ar'
-                          ? 'الاسم الكامل'
-                          : lang === 'fr'
-                            ? 'Nom complet'
-                            : 'Full Name'}
-                      </label>
-
-                      <input
-                        type="text"
-                        value={userForm.full_name}
-                        onChange={(e) =>
-                          setUserForm((prev) => ({
-                            ...prev,
-                            full_name: e.target.value,
-                          }))
-                        }
-                        placeholder={lang === 'ar' ? 'مثال: د. عبدالله الشهري' : 'e.g. Dr. Abdullah'}
-                        className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-
-
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        {lang === 'ar'
-                          ? 'اسم المستخدم'
-                          : lang === 'fr'
-                            ? "Nom d'utilisateur"
-                            : 'Username'}
-                      </label>
-
-                      <input
-                        type="text"
-                        value={userForm.username}
-                        disabled={!!editingUserId}
-                        onChange={(e) =>
-                          setUserForm((prev) => ({
-                            ...prev,
-                            username: e.target.value,
-                          }))
-                        }
-                        placeholder="e.g. user_asir"
-                        className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-slate-100 dark:disabled:bg-slate-800/60 disabled:text-slate-500"
-                        dir="ltr"
-                      />
-                    </div>
-
-
-
-                    <div className="relative">
-                      <input
-                        type={showNewUserPassword ? 'text' : 'password'}
-                        value={userForm.password}
-                        onChange={(e) =>
-                          setUserForm((prev) => ({
-                            ...prev,
-                            password: e.target.value,
-                          }))
-                        }
-                        placeholder={
-                          editingUserId
-                            ? '••••••••'
-                            : ''
-                        }
-                        className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 pr-12 outline-none focus:ring-2 focus:ring-blue-500"
-                        dir="ltr"
-                      />
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setShowNewUserPassword((prev) => !prev)
-                        }
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400"
-                        aria-label={
-                          showNewUserPassword
-                            ? 'Hide password'
-                            : 'Show password'
-                        }
-                        title={
-                          showNewUserPassword
-                            ? 'Hide password'
-                            : 'Show password'
-                        }
-                      >
-                        {showNewUserPassword ? (
-                          <EyeOff size={20} />
-                        ) : (
-                          <Eye size={20} />
-                        )}
-                      </button>
-                    </div>
-
-
-
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        {lang === 'ar'
-                          ? 'الدور الإداري'
-                          : lang === 'fr'
-                            ? 'Rôle administratif'
-                            : 'Administrative Role'}
-                      </label>
-
-                      <select
-                        value={userForm.role}
-                        disabled={isLocalAdmin(adminUser?.role)}
-                        onChange={(e) => {
-                          const newRole = e.target.value;
-                          setUserForm((prev) => ({
-                            ...prev,
-                            role: newRole,
-                            laboratory: newRole === 'super_admin' ? '' : prev.laboratory,
-                            branch: newRole === 'super_admin' ? '' : prev.branch,
-                          }));
-                        }}
-                        className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-75 disabled:bg-slate-100 dark:disabled:bg-slate-800/60"
-                      >
-                        {isSuperAdmin(adminUser?.role) && (
-                          <option value="super_admin">
-                            {lang === 'ar'
-                              ? 'مشرف عام (وصول شامل لكافة المختبرات والفروع)'
-                              : lang === 'fr'
-                                ? 'Super Admin (Accès global)'
-                                : 'Super Admin (Global Access)'}
-                          </option>
-                        )}
-
-                        {isSuperAdmin(adminUser?.role) && (
-                          <option value="lab_admin">
-                            {lang === 'ar'
-                              ? 'مدير مختبر مركزي (إدارة المختبر وفروعه)'
-                              : lang === 'fr'
-                                ? 'Administrateur de Laboratoire'
-                                : 'Lab Administrator'}
-                          </option>
-                        )}
-
-                        {(isSuperAdmin(adminUser?.role) || isLabAdmin(adminUser?.role)) && (
-                          <option value="local_admin">
-                            {lang === 'ar'
-                              ? 'مسؤول محلي (فرع محدد)'
-                              : lang === 'fr'
-                                ? 'Administrateur Local'
-                                : 'Local Administrator'}
-                          </option>
-                        )}
-
-                        <option value="user">
-                          {lang === 'ar'
-                            ? 'مستخدم عادي (قراءة فقط للسجلات)'
-                            : lang === 'fr'
-                              ? 'Utilisateur standard (Lecture seule)'
-                              : 'Standard User (Read-Only)'}
-                        </option>
-                      </select>
-
-                      {isLabAdmin(adminUser?.role) && (
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                          {lang === 'ar'
-                            ? 'بصفتك مدير مختبر، يمكنك إنشاء حسابات المسؤولين المحليين والمستخدمين العاديين فقط.'
-                            : lang === 'fr'
-                              ? 'En tant que directeur de labo, vous ne pouvez créer que des admins locaux et utilisateurs.'
-                              : 'As a Lab Admin, you can only create Local Administrators and Standard Users.'}
-                        </p>
-                      )}
-
-                      {isLocalAdmin(adminUser?.role) && (
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                          {lang === 'ar'
-                            ? 'بصفتك مسؤولاً محلياً، يمكنك فقط إدارة حسابات المستخدمين العاديين في فرعك.'
-                            : lang === 'fr'
-                              ? 'En tant qu’admin local, vous ne pouvez gérer que des utilisateurs standard de votre agence.'
-                              : 'As a Local Admin, you can only manage standard users for your branch.'}
-                        </p>
-                      )}
-                    </div>
-
-
-                    {userForm.role !== 'super_admin' && (
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                          {lang === 'ar'
-                            ? 'المختبر المركزي المعيّن'
-                            : lang === 'fr'
-                              ? 'Laboratoire central'
-                              : 'Assigned Central Laboratory'}
-                        </label>
-
-                        <select
-                          value={userForm.laboratory || ''}
-                          disabled={isLabAdmin(adminUser?.role) || isLocalAdmin(adminUser?.role)}
-                          onChange={(e) => {
-                            const newLab = e.target.value;
-                            setUserForm((prev) => ({
-                              ...prev,
-                              laboratory: newLab,
-                              branch: '',
-                            }));
-                          }}
-                          className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-75 disabled:bg-slate-100 dark:disabled:bg-slate-800/60"
-                        >
-                          <option value="">
-                            {lang === 'ar'
-                              ? '— اختر المختبر المركزي —'
-                              : lang === 'fr'
-                                ? '— Choisir le laboratoire —'
-                                : '— Select Central Laboratory —'}
-                          </option>
-
-                          {LAB_HIERARCHY.map((lab) => (
-                            <option key={lab.id} value={lab.id}>
-                              {getLabLabel(lab.id, lang)}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
-
-
-                    {userForm.laboratory && userForm.role === 'local_admin' && (
-                      <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                            {lang === 'ar'
-                              ? 'الفروع المصرح بها (اختر فرعاً واحداً أو فرعين كحد أقصى)'
-                              : lang === 'fr'
-                                ? 'Agences autorisées (Sélectionnez 1 ou 2 agences maximum)'
-                                : 'Authorized Branches (Select 1 or 2 branches maximum)'}
-                          </label>
-                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${selectedBranches.length > 0 && selectedBranches.length <= 2
-                            ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300'
-                            : 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300'
-                            }`}>
-                            {selectedBranches.length} / 2 {lang === 'ar' ? 'فروع' : 'branches'}
-                          </span>
-                        </div>
-
-                        <div className="space-y-2 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40">
-                          {(LAB_HIERARCHY.find((l) => l.id === userForm.laboratory)?.branches || []).map((branch) => {
-                            const isChecked = selectedBranches.includes(branch.id);
-                            const isDisabled = !isChecked && selectedBranches.length >= 2;
-
-                            return (
-                              <label
-                                key={branch.id}
-                                className={`flex items-center gap-3 p-2.5 rounded-lg border transition select-none ${isChecked
-                                  ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-400 dark:border-blue-600 text-blue-900 dark:text-blue-200 font-medium'
-                                  : isDisabled
-                                    ? 'opacity-40 cursor-not-allowed border-slate-200 dark:border-slate-700 text-slate-400'
-                                    : 'hover:bg-white dark:hover:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 cursor-pointer'
-                                  }`}
-                              >
-                                <input
-                                  type="checkbox"
-                                  checked={isChecked}
-                                  disabled={isDisabled}
-                                  onChange={(e) => {
-                                    if (e.target.checked) {
-                                      if (selectedBranches.length < 2) {
-                                        const next = [...selectedBranches, branch.id];
-                                        setSelectedBranches(next);
-                                        setUserForm((prev) => ({ ...prev, branch: next.join(',') }));
-                                      }
-                                    } else {
-                                      const next = selectedBranches.filter((b) => b !== branch.id);
-                                      setSelectedBranches(next);
-                                      setUserForm((prev) => ({ ...prev, branch: next.join(',') }));
-                                    }
-                                  }}
-                                  className="w-4 h-4 accent-blue-600 rounded cursor-pointer"
-                                />
-                                <span className="text-sm">
-                                  {getBranchLabel(userForm.laboratory!, branch.id, lang)}
-                                </span>
-                              </label>
-                            );
-                          })}
-                        </div>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
-                          {lang === 'ar'
-                            ? 'يمكن تعيين المسؤول المحلي لإدارة فرع واحد أو فرعين في آن واحد ضمن نفس المختبر المركزي.'
-                            : lang === 'fr'
-                              ? "Un administrateur local peut être affecté à 1 ou 2 agences simultanément au sein du même laboratoire."
-                              : 'A local administrator can be assigned to 1 or 2 branches simultaneously within the same laboratory.'}
-                        </p>
-                      </div>
-                    )}
-
-                    {userForm.laboratory && userForm.role !== 'local_admin' && (
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                          {lang === 'ar'
-                            ? 'الفرع المعيّن'
-                            : lang === 'fr'
-                              ? 'Agence / Branche'
-                              : 'Assigned Branch'}
-                        </label>
-
-                        <select
-                          value={userForm.branch || ''}
-                          onChange={(e) =>
-                            setUserForm((prev) => ({
-                              ...prev,
-                              branch: e.target.value,
-                            }))
-                          }
-                          className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-75 disabled:bg-slate-100 dark:disabled:bg-slate-800/60"
-                        >
-                          {!isLocalAdmin(adminUser?.role) && (
-                            <option value="">
-                              {lang === 'ar'
-                                ? 'المقر الرئيسي للمختبر المركزي (كافة الفروع)'
-                                : lang === 'fr'
-                                  ? 'Siège central du laboratoire (Toutes agences)'
-                                  : 'Main Central Lab Office (All Branches)'}
-                            </option>
-                          )}
-
-                          {(isLocalAdmin(adminUser?.role)
-                            ? (LAB_HIERARCHY.find((l) => l.id === userForm.laboratory)?.branches || []).filter((b) =>
-                              getUserBranches(adminUser).includes(b.id)
-                            )
-                            : (LAB_HIERARCHY.find((l) => l.id === userForm.laboratory)?.branches || [])
-                          ).map((branch) => (
-                            <option key={branch.id} value={branch.id}>
-                              {getBranchLabel(userForm.laboratory!, branch.id, lang)}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
-
-
-                    <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
-                      <button
-                        type="button"
-                        onClick={closeUserModal}
-                        className="px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors"
-                      >
-                        {lang === 'ar'
-                          ? 'إلغاء'
-                          : lang === 'fr'
-                            ? 'Annuler'
-                            : 'Cancel'}
-                      </button>
-
-                      <button
-                        type="submit"
-                        disabled={loading}
-                        className="px-5 py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-medium flex items-center gap-2 disabled:opacity-60 transition shadow-xs cursor-pointer"
-                      >
-                        {loading && (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        )}
-
-                        {editingUserId
-                          ? lang === 'ar'
-                            ? 'حفظ التعديلات'
-                            : lang === 'fr'
-                              ? 'Enregistrer'
-                              : 'Save Changes'
-                          : lang === 'ar'
-                            ? 'إنشاء المستخدم'
-                            : lang === 'fr'
-                              ? 'Créer'
-                              : 'Create User'}
-                      </button>
-                    </div>
-                  </form>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                    {editingUserId
+                      ? lang === 'ar'
+                        ? 'تحديث بيانات المستخدم وصلاحياته'
+                        : lang === 'fr'
+                          ? "Mettre à jour l'utilisateur et ses permissions"
+                          : 'Update user information and permissions'
+                      : lang === 'ar'
+                        ? 'إنشاء حساب جديد في نطاق صلاحياتك الإدارية'
+                        : lang === 'fr'
+                          ? 'Créer un nouveau compte dans votre périmètre'
+                          : 'Create a new user within your authorized scope'}
+                  </p>
                 </div>
-              </div>
-            )
-          }
 
-          {/* ============================================================
-          CHANGE PASSWORD MODAL
-      ============================================================= */}
-          {showChangePasswordModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-              <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-in fade-in duration-200">
-                <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-100 dark:border-blue-900/50">
-                      <Key className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
-                        {lang === 'ar' ? 'تغيير كلمة المرور' : lang === 'fr' ? 'Modifier le mot de passe' : 'Change Password'}
-                      </h3>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
-                        {adminUser?.username} ({getRoleLabel(adminUser?.role || '', lang)})
-                      </p>
-                    </div>
+                <button
+                  type="button"
+                  onClick={closeUserModal}
+                  className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+
+              <form
+                onSubmit={handleSaveUser}
+                className="p-5 space-y-4 max-h-[80vh] overflow-y-auto"
+              >
+
+                {userError && (
+                  <div className="p-4 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 text-red-700 dark:text-red-300 text-sm flex gap-3">
+                    <AlertCircle className="w-5 h-5 shrink-0" />
+                    <span>{userError}</span>
                   </div>
+                )}
+
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    {lang === 'ar'
+                      ? 'الاسم الكامل'
+                      : lang === 'fr'
+                        ? 'Nom complet'
+                        : 'Full Name'}
+                  </label>
+
+                  <input
+                    type="text"
+                    value={userForm.full_name}
+                    onChange={(e) =>
+                      setUserForm((prev) => ({
+                        ...prev,
+                        full_name: e.target.value,
+                      }))
+                    }
+                    placeholder={lang === 'ar' ? 'مثال: د. عبدالله الشهري' : 'e.g. Dr. Abdullah'}
+                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    {lang === 'ar'
+                      ? 'اسم المستخدم'
+                      : lang === 'fr'
+                        ? "Nom d'utilisateur"
+                        : 'Username'}
+                  </label>
+
+                  <input
+                    type="text"
+                    value={userForm.username}
+                    disabled={!!editingUserId}
+                    onChange={(e) =>
+                      setUserForm((prev) => ({
+                        ...prev,
+                        username: e.target.value,
+                      }))
+                    }
+                    placeholder="e.g. user_asir"
+                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-slate-100 dark:disabled:bg-slate-800/60 disabled:text-slate-500"
+                    dir="ltr"
+                  />
+                </div>
+
+
+
+                <div className="relative">
+                  <input
+                    type={showNewUserPassword ? 'text' : 'password'}
+                    value={userForm.password}
+                    onChange={(e) =>
+                      setUserForm((prev) => ({
+                        ...prev,
+                        password: e.target.value,
+                      }))
+                    }
+                    placeholder={
+                      editingUserId
+                        ? '••••••••'
+                        : ''
+                    }
+                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 pr-12 outline-none focus:ring-2 focus:ring-blue-500"
+                    dir="ltr"
+                  />
 
                   <button
                     type="button"
-                    onClick={() => setShowChangePasswordModal(false)}
-                    className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors cursor-pointer"
+                    onClick={() =>
+                      setShowNewUserPassword((prev) => !prev)
+                    }
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400"
+                    aria-label={
+                      showNewUserPassword
+                        ? 'Hide password'
+                        : 'Show password'
+                    }
+                    title={
+                      showNewUserPassword
+                        ? 'Hide password'
+                        : 'Show password'
+                    }
                   >
-                    <X className="w-5 h-5" />
+                    {showNewUserPassword ? (
+                      <EyeOff size={20} />
+                    ) : (
+                      <Eye size={20} />
+                    )}
                   </button>
                 </div>
 
-                <form onSubmit={handleChangeOwnPassword} className="p-5 space-y-4">
-                  {changePasswordError && (
-                    <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 text-red-700 dark:text-red-300 text-sm flex gap-2.5 items-start">
-                      <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-                      <span>{changePasswordError}</span>
-                    </div>
+
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    {lang === 'ar'
+                      ? 'الدور الإداري'
+                      : lang === 'fr'
+                        ? 'Rôle administratif'
+                        : 'Administrative Role'}
+                  </label>
+
+                  <select
+                    value={userForm.role}
+                    disabled={isLocalAdmin(adminUser?.role)}
+                    onChange={(e) => {
+                      const newRole = e.target.value;
+                      setUserForm((prev) => ({
+                        ...prev,
+                        role: newRole,
+                        laboratory: newRole === 'super_admin' ? '' : prev.laboratory,
+                        branch: newRole === 'super_admin' ? '' : prev.branch,
+                      }));
+                    }}
+                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-75 disabled:bg-slate-100 dark:disabled:bg-slate-800/60"
+                  >
+                    {isSuperAdmin(adminUser?.role) && (
+                      <option value="super_admin">
+                        {lang === 'ar'
+                          ? 'مشرف عام (وصول شامل لكافة المختبرات والفروع)'
+                          : lang === 'fr'
+                            ? 'Super Admin (Accès global)'
+                            : 'Super Admin (Global Access)'}
+                      </option>
+                    )}
+
+                    {isSuperAdmin(adminUser?.role) && (
+                      <option value="lab_admin">
+                        {lang === 'ar'
+                          ? 'مدير مختبر مركزي (إدارة المختبر وفروعه)'
+                          : lang === 'fr'
+                            ? 'Administrateur de Laboratoire'
+                            : 'Lab Administrator'}
+                      </option>
+                    )}
+
+                    {(isSuperAdmin(adminUser?.role) || isLabAdmin(adminUser?.role)) && (
+                      <option value="local_admin">
+                        {lang === 'ar'
+                          ? 'مسؤول محلي (فرع محدد)'
+                          : lang === 'fr'
+                            ? 'Administrateur Local'
+                            : 'Local Administrator'}
+                      </option>
+                    )}
+
+                    <option value="user">
+                      {lang === 'ar'
+                        ? 'مستخدم عادي (قراءة فقط للسجلات)'
+                        : lang === 'fr'
+                          ? 'Utilisateur standard (Lecture seule)'
+                          : 'Standard User (Read-Only)'}
+                    </option>
+                  </select>
+
+                  {isLabAdmin(adminUser?.role) && (
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      {lang === 'ar'
+                        ? 'بصفتك مدير مختبر، يمكنك إنشاء حسابات المسؤولين المحليين والمستخدمين العاديين فقط.'
+                        : lang === 'fr'
+                          ? 'En tant que directeur de labo, vous ne pouvez créer que des admins locaux et utilisateurs.'
+                          : 'As a Lab Admin, you can only create Local Administrators and Standard Users.'}
+                    </p>
                   )}
 
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                      {lang === 'ar' ? 'كلمة المرور الحالية' : lang === 'fr' ? 'Mot de passe actuel' : 'Current Password'}
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showChangePwdCurrent ? 'text' : 'password'}
-                        value={changePasswordForm.currentPassword}
-                        onChange={(e) =>
-                          setChangePasswordForm((prev) => ({
-                            ...prev,
-                            currentPassword: e.target.value,
-                          }))
-                        }
-                        placeholder="••••••••"
-                        className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 pr-11 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                        dir="ltr"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowChangePwdCurrent((prev) => !prev)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
-                      >
-                        {showChangePwdCurrent ? <EyeOff size={18} /> : <Eye size={18} />}
-                      </button>
-                    </div>
-                  </div>
+                  {isLocalAdmin(adminUser?.role) && (
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      {lang === 'ar'
+                        ? 'بصفتك مسؤولاً محلياً، يمكنك فقط إدارة حسابات المستخدمين العاديين في فرعك.'
+                        : lang === 'fr'
+                          ? 'En tant qu’admin local, vous ne pouvez gérer que des utilisateurs standard de votre agence.'
+                          : 'As a Local Admin, you can only manage standard users for your branch.'}
+                    </p>
+                  )}
+                </div>
 
+
+                {userForm.role !== 'super_admin' && (
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                      {lang === 'ar' ? 'كلمة المرور الجديدة' : lang === 'fr' ? 'Nouveau mot de passe' : 'New Password'}
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      {lang === 'ar'
+                        ? 'المختبر المركزي المعيّن'
+                        : lang === 'fr'
+                          ? 'Laboratoire central'
+                          : 'Assigned Central Laboratory'}
                     </label>
-                    <div className="relative">
-                      <input
-                        type={showChangePwdNew ? 'text' : 'password'}
-                        value={changePasswordForm.newPassword}
-                        onChange={(e) =>
-                          setChangePasswordForm((prev) => ({
-                            ...prev,
-                            newPassword: e.target.value,
-                          }))
-                        }
-                        placeholder="••••••••"
-                        className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 pr-11 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                        dir="ltr"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowChangePwdNew((prev) => !prev)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
-                      >
-                        {showChangePwdNew ? <EyeOff size={18} /> : <Eye size={18} />}
-                      </button>
+
+                    <select
+                      value={userForm.laboratory || ''}
+                      disabled={isLabAdmin(adminUser?.role) || isLocalAdmin(adminUser?.role)}
+                      onChange={(e) => {
+                        const newLab = e.target.value;
+                        setUserForm((prev) => ({
+                          ...prev,
+                          laboratory: newLab,
+                          branch: '',
+                        }));
+                      }}
+                      className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-75 disabled:bg-slate-100 dark:disabled:bg-slate-800/60"
+                    >
+                      <option value="">
+                        {lang === 'ar'
+                          ? '— اختر المختبر المركزي —'
+                          : lang === 'fr'
+                            ? '— Choisir le laboratoire —'
+                            : '— Select Central Laboratory —'}
+                      </option>
+
+                      {LAB_HIERARCHY.map((lab) => (
+                        <option key={lab.id} value={lab.id}>
+                          {getLabLabel(lab.id, lang)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+
+                {userForm.laboratory && userForm.role === 'local_admin' && (
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                        {lang === 'ar'
+                          ? 'الفروع المصرح بها (اختر فرعاً واحداً أو فرعين كحد أقصى)'
+                          : lang === 'fr'
+                            ? 'Agences autorisées (Sélectionnez 1 ou 2 agences maximum)'
+                            : 'Authorized Branches (Select 1 or 2 branches maximum)'}
+                      </label>
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${selectedBranches.length > 0 && selectedBranches.length <= 2
+                        ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300'
+                        : 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300'
+                        }`}>
+                        {selectedBranches.length} / 2 {lang === 'ar' ? 'فروع' : 'branches'}
+                      </span>
                     </div>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-                      {lang === 'ar' ? 'يجب ألا تقل عن 6 أحرف' : 'Minimum 6 characters'}
+
+                    <div className="space-y-2 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40">
+                      {(LAB_HIERARCHY.find((l) => l.id === userForm.laboratory)?.branches || []).map((branch) => {
+                        const isChecked = selectedBranches.includes(branch.id);
+                        const isDisabled = !isChecked && selectedBranches.length >= 2;
+
+                        return (
+                          <label
+                            key={branch.id}
+                            className={`flex items-center gap-3 p-2.5 rounded-lg border transition select-none ${isChecked
+                              ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-400 dark:border-blue-600 text-blue-900 dark:text-blue-200 font-medium'
+                              : isDisabled
+                                ? 'opacity-40 cursor-not-allowed border-slate-200 dark:border-slate-700 text-slate-400'
+                                : 'hover:bg-white dark:hover:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 cursor-pointer'
+                              }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              disabled={isDisabled}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  if (selectedBranches.length < 2) {
+                                    const next = [...selectedBranches, branch.id];
+                                    setSelectedBranches(next);
+                                    setUserForm((prev) => ({ ...prev, branch: next.join(',') }));
+                                  }
+                                } else {
+                                  const next = selectedBranches.filter((b) => b !== branch.id);
+                                  setSelectedBranches(next);
+                                  setUserForm((prev) => ({ ...prev, branch: next.join(',') }));
+                                }
+                              }}
+                              className="w-4 h-4 accent-blue-600 rounded cursor-pointer"
+                            />
+                            <span className="text-sm">
+                              {getBranchLabel(userForm.laboratory!, branch.id, lang)}
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
+                      {lang === 'ar'
+                        ? 'يمكن تعيين المسؤول المحلي لإدارة فرع واحد أو فرعين في آن واحد ضمن نفس المختبر المركزي.'
+                        : lang === 'fr'
+                          ? "Un administrateur local peut être affecté à 1 ou 2 agences simultanément au sein du même laboratoire."
+                          : 'A local administrator can be assigned to 1 or 2 branches simultaneously within the same laboratory.'}
                     </p>
                   </div>
+                )}
 
+                {userForm.laboratory && userForm.role !== 'local_admin' && (
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                      {lang === 'ar' ? 'تأكيد كلمة المرور الجديدة' : lang === 'fr' ? 'Confirmer le mot de passe' : 'Confirm New Password'}
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      {lang === 'ar'
+                        ? 'الفرع المعيّن'
+                        : lang === 'fr'
+                          ? 'Agence / Branche'
+                          : 'Assigned Branch'}
                     </label>
-                    <input
-                      type="password"
-                      value={changePasswordForm.confirmPassword}
+
+                    <select
+                      value={userForm.branch || ''}
                       onChange={(e) =>
-                        setChangePasswordForm((prev) => ({
+                        setUserForm((prev) => ({
                           ...prev,
-                          confirmPassword: e.target.value,
+                          branch: e.target.value,
                         }))
                       }
-                      placeholder="••••••••"
-                      className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                      dir="ltr"
-                    />
-                  </div>
+                      className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-75 disabled:bg-slate-100 dark:disabled:bg-slate-800/60"
+                    >
+                      {!isLocalAdmin(adminUser?.role) && (
+                        <option value="">
+                          {lang === 'ar'
+                            ? 'المقر الرئيسي للمختبر المركزي (كافة الفروع)'
+                            : lang === 'fr'
+                              ? 'Siège central du laboratoire (Toutes agences)'
+                              : 'Main Central Lab Office (All Branches)'}
+                        </option>
+                      )}
 
-                  <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
-                    <button
-                      type="button"
-                      onClick={() => setShowChangePasswordModal(false)}
-                      className="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm transition-colors cursor-pointer"
-                    >
-                      {lang === 'ar' ? 'إلغاء' : lang === 'fr' ? 'Annuler' : 'Cancel'}
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={changePasswordLoading}
-                      className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm flex items-center gap-2 disabled:opacity-60 transition shadow-xs cursor-pointer"
-                    >
-                      {changePasswordLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-                      {lang === 'ar' ? 'حفظ كلمة المرور' : lang === 'fr' ? 'Enregistrer' : 'Save Password'}
-                    </button>
+                      {(isLocalAdmin(adminUser?.role)
+                        ? (LAB_HIERARCHY.find((l) => l.id === userForm.laboratory)?.branches || []).filter((b) =>
+                          getUserBranches(adminUser).includes(b.id)
+                        )
+                        : (LAB_HIERARCHY.find((l) => l.id === userForm.laboratory)?.branches || [])
+                      ).map((branch) => (
+                        <option key={branch.id} value={branch.id}>
+                          {getBranchLabel(userForm.laboratory!, branch.id, lang)}
+                        </option>
+                      ))}
+                    </select>
                   </div>
-                </form>
-              </div>
+                )}
+
+
+                <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+                  <button
+                    type="button"
+                    onClick={closeUserModal}
+                    className="px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors"
+                  >
+                    {lang === 'ar'
+                      ? 'إلغاء'
+                      : lang === 'fr'
+                        ? 'Annuler'
+                        : 'Cancel'}
+                  </button>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="px-5 py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-medium flex items-center gap-2 disabled:opacity-60 transition shadow-xs cursor-pointer"
+                  >
+                    {loading && (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    )}
+
+                    {editingUserId
+                      ? lang === 'ar'
+                        ? 'حفظ التعديلات'
+                        : lang === 'fr'
+                          ? 'Enregistrer'
+                          : 'Save Changes'
+                      : lang === 'ar'
+                        ? 'إنشاء المستخدم'
+                        : lang === 'fr'
+                          ? 'Créer'
+                          : 'Create User'}
+                  </button>
+                </div>
+              </form>
             </div>
-          )}
+          </div>
+        )
+      }
+
+      {/* ============================================================
+          CHANGE PASSWORD MODAL
+      ============================================================= */}
+      {showChangePasswordModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-in fade-in duration-200">
+            <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-100 dark:border-blue-900/50">
+                  <Key className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
+                    {lang === 'ar' ? 'تغيير كلمة المرور' : lang === 'fr' ? 'Modifier le mot de passe' : 'Change Password'}
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    {adminUser?.username} ({getRoleLabel(adminUser?.role || '', lang)})
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowChangePasswordModal(false)}
+                className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleChangeOwnPassword} className="p-5 space-y-4">
+              {changePasswordError && (
+                <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 text-red-700 dark:text-red-300 text-sm flex gap-2.5 items-start">
+                  <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                  <span>{changePasswordError}</span>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  {lang === 'ar' ? 'كلمة المرور الحالية' : lang === 'fr' ? 'Mot de passe actuel' : 'Current Password'}
+                </label>
+                <div className="relative">
+                  <input
+                    type={showChangePwdCurrent ? 'text' : 'password'}
+                    value={changePasswordForm.currentPassword}
+                    onChange={(e) =>
+                      setChangePasswordForm((prev) => ({
+                        ...prev,
+                        currentPassword: e.target.value,
+                      }))
+                    }
+                    placeholder="••••••••"
+                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 pr-11 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    dir="ltr"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowChangePwdCurrent((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                  >
+                    {showChangePwdCurrent ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  {lang === 'ar' ? 'كلمة المرور الجديدة' : lang === 'fr' ? 'Nouveau mot de passe' : 'New Password'}
+                </label>
+                <div className="relative">
+                  <input
+                    type={showChangePwdNew ? 'text' : 'password'}
+                    value={changePasswordForm.newPassword}
+                    onChange={(e) =>
+                      setChangePasswordForm((prev) => ({
+                        ...prev,
+                        newPassword: e.target.value,
+                      }))
+                    }
+                    placeholder="••••••••"
+                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 pr-11 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    dir="ltr"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowChangePwdNew((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                  >
+                    {showChangePwdNew ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                  {lang === 'ar' ? 'يجب ألا تقل عن 6 أحرف' : 'Minimum 6 characters'}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  {lang === 'ar' ? 'تأكيد كلمة المرور الجديدة' : lang === 'fr' ? 'Confirmer le mot de passe' : 'Confirm New Password'}
+                </label>
+                <input
+                  type="password"
+                  value={changePasswordForm.confirmPassword}
+                  onChange={(e) =>
+                    setChangePasswordForm((prev) => ({
+                      ...prev,
+                      confirmPassword: e.target.value,
+                    }))
+                  }
+                  placeholder="••••••••"
+                  className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  dir="ltr"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setShowChangePasswordModal(false)}
+                  className="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm transition-colors cursor-pointer"
+                >
+                  {lang === 'ar' ? 'إلغاء' : lang === 'fr' ? 'Annuler' : 'Cancel'}
+                </button>
+                <button
+                  type="submit"
+                  disabled={changePasswordLoading}
+                  className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm flex items-center gap-2 disabled:opacity-60 transition shadow-xs cursor-pointer"
+                >
+                  {changePasswordLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {lang === 'ar' ? 'حفظ كلمة المرور' : lang === 'fr' ? 'Enregistrer' : 'Save Password'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
 
-          {/* ============================================================
+      {/* ============================================================
           CONFIRM DELETE MODAL (Visitors, Surveys, Enquiries, Users)
       ============================================================= */}
-          {deleteTarget && (
-            <ConfirmModal
-              isOpen={Boolean(deleteTarget)}
-              onClose={() => {
-                if (!deleteLoading) {
-                  setDeleteTarget(null);
-                  setDeleteModalError(null);
-                }
-              }}
-              onConfirm={executeDelete}
-              title={deleteTarget.title}
-              message={deleteTarget.message}
-              itemName={deleteTarget.name}
-              details={deleteTarget.details}
-              confirmText={
-                lang === 'ar'
-                  ? 'تأكيد الحذف'
-                  : lang === 'fr'
-                    ? 'Confirmer la suppression'
-                    : 'Confirm Delete'
-              }
-              cancelText={
-                lang === 'ar'
-                  ? 'إلغاء'
-                  : lang === 'fr'
-                    ? 'Annuler'
-                    : 'Cancel'
-              }
-              confirmVariant="danger"
-              isLoading={deleteLoading}
-              errorMessage={deleteModalError}
-            />
-          )}
+      {deleteTarget && (
+        <ConfirmModal
+          isOpen={Boolean(deleteTarget)}
+          onClose={() => {
+            if (!deleteLoading) {
+              setDeleteTarget(null);
+              setDeleteModalError(null);
+            }
+          }}
+          onConfirm={executeDelete}
+          title={deleteTarget.title}
+          message={deleteTarget.message}
+          itemName={deleteTarget.name}
+          details={deleteTarget.details}
+          confirmText={
+            lang === 'ar'
+              ? 'تأكيد الحذف'
+              : lang === 'fr'
+                ? 'Confirmer la suppression'
+                : 'Confirm Delete'
+          }
+          cancelText={
+            lang === 'ar'
+              ? 'إلغاء'
+              : lang === 'fr'
+                ? 'Annuler'
+                : 'Cancel'
+          }
+          confirmVariant="danger"
+          isLoading={deleteLoading}
+          errorMessage={deleteModalError}
+        />
+      )}
 
-          {/* ============================================================
+      {/* ============================================================
           BULK DELETE SURVEYS CONFIRMATION
       ============================================================= */}
-          {bulkSurveyDeleteOpen && (
-            <ConfirmModal
-              isOpen={bulkSurveyDeleteOpen}
-              onClose={() => {
-                if (!bulkSurveyDeleteLoading) {
-                  setBulkSurveyDeleteOpen(false);
-                  setBulkSurveyDeleteError(null);
-                }
-              }}
-              onConfirm={executeBulkSurveyDelete}
-              title={
-                lang === 'ar'
-                  ? 'تأكيد حذف الاستبيانات'
-                  : lang === 'fr'
-                    ? 'Confirmer la suppression des enquêtes'
-                    : 'Confirm Survey Deletion'
-              }
-              message={
-                lang === 'ar'
-                  ? `هل أنتِ متأكدة من حذف ${selectedSurveyIds.length} استبيان محدد؟`
-                  : lang === 'fr'
-                    ? `Voulez-vous vraiment supprimer les ${selectedSurveyIds.length} enquêtes sélectionnées ?`
-                    : `Are you sure you want to delete the ${selectedSurveyIds.length} selected surveys?`
-              }
-              confirmText={
-                lang === 'ar'
-                  ? 'حذف الاستبيانات المحددة'
-                  : lang === 'fr'
-                    ? 'Supprimer les enquêtes sélectionnées'
-                    : 'Delete Selected Surveys'
-              }
-              cancelText={
-                lang === 'ar'
-                  ? 'إلغاء'
-                  : lang === 'fr'
-                    ? 'Annuler'
-                    : 'Cancel'
-              }
-              confirmVariant="danger"
-              isLoading={bulkSurveyDeleteLoading}
-              errorMessage={bulkSurveyDeleteError}
-            />
-          )}
+      {bulkSurveyDeleteOpen && (
+        <ConfirmModal
+          isOpen={bulkSurveyDeleteOpen}
+          onClose={() => {
+            if (!bulkSurveyDeleteLoading) {
+              setBulkSurveyDeleteOpen(false);
+              setBulkSurveyDeleteError(null);
+            }
+          }}
+          onConfirm={executeBulkSurveyDelete}
+          title={
+            lang === 'ar'
+              ? 'تأكيد حذف الاستبيانات'
+              : lang === 'fr'
+                ? 'Confirmer la suppression des enquêtes'
+                : 'Confirm Survey Deletion'
+          }
+          message={
+            lang === 'ar'
+              ? `هل أنتِ متأكدة من حذف ${selectedSurveyIds.length} استبيان محدد؟`
+              : lang === 'fr'
+                ? `Voulez-vous vraiment supprimer les ${selectedSurveyIds.length} enquêtes sélectionnées ?`
+                : `Are you sure you want to delete the ${selectedSurveyIds.length} selected surveys?`
+          }
+          confirmText={
+            lang === 'ar'
+              ? 'حذف الاستبيانات المحددة'
+              : lang === 'fr'
+                ? 'Supprimer les enquêtes sélectionnées'
+                : 'Delete Selected Surveys'
+          }
+          cancelText={
+            lang === 'ar'
+              ? 'إلغاء'
+              : lang === 'fr'
+                ? 'Annuler'
+                : 'Cancel'
+          }
+          confirmVariant="danger"
+          isLoading={bulkSurveyDeleteLoading}
+          errorMessage={bulkSurveyDeleteError}
+        />
+      )}
 
-          {/* BULK DELETE VISITORS CONFIRMATION */}
-          {bulkVisitorDeleteOpen && (
-            <ConfirmModal
-              isOpen={bulkVisitorDeleteOpen}
-              onClose={() => {
-                if (!bulkVisitorDeleteLoading) {
-                  setBulkVisitorDeleteOpen(false);
-                  setBulkVisitorDeleteError(null);
-                }
-              }}
-              onConfirm={executeBulkVisitorDelete}
-              title={
-                lang === 'ar'
-                  ? 'تأكيد حذف الزوار'
-                  : lang === 'fr'
-                    ? 'Confirmer la suppression des visiteurs'
-                    : 'Confirm Visitor Deletion'
-              }
-              message={
-                lang === 'ar'
-                  ? `هل أنتِ متأكدة من حذف ${selectedVisitorIds.length} سجل زائر محدد؟ لا يمكن التراجع عن هذا الإجراء.`
-                  : lang === 'fr'
-                    ? `Voulez-vous supprimer ${selectedVisitorIds.length} visiteur(s) sélectionné(s) ? Cette action est irréversible.`
-                    : `Are you sure you want to delete ${selectedVisitorIds.length} selected visitor record(s)? This action cannot be undone.`
-              }
-              confirmText={
-                lang === 'ar'
-                  ? 'حذف الزوار المحددين'
-                  : lang === 'fr'
-                    ? 'Supprimer les visiteurs sélectionnés'
-                    : 'Delete Selected Visitors'
-              }
-              cancelText={
-                lang === 'ar'
-                  ? 'إلغاء'
-                  : lang === 'fr'
-                    ? 'Annuler'
-                    : 'Cancel'
-              }
-              confirmVariant="danger"
-              isLoading={bulkVisitorDeleteLoading}
-              errorMessage={bulkVisitorDeleteError}
-            />
-          )}
+      {/* BULK DELETE VISITORS CONFIRMATION */}
+      {bulkVisitorDeleteOpen && (
+        <ConfirmModal
+          isOpen={bulkVisitorDeleteOpen}
+          onClose={() => {
+            if (!bulkVisitorDeleteLoading) {
+              setBulkVisitorDeleteOpen(false);
+              setBulkVisitorDeleteError(null);
+            }
+          }}
+          onConfirm={executeBulkVisitorDelete}
+          title={
+            lang === 'ar'
+              ? 'تأكيد حذف الزوار'
+              : lang === 'fr'
+                ? 'Confirmer la suppression des visiteurs'
+                : 'Confirm Visitor Deletion'
+          }
+          message={
+            lang === 'ar'
+              ? `هل أنتِ متأكدة من حذف ${selectedVisitorIds.length} سجل زائر محدد؟ لا يمكن التراجع عن هذا الإجراء.`
+              : lang === 'fr'
+                ? `Voulez-vous supprimer ${selectedVisitorIds.length} visiteur(s) sélectionné(s) ? Cette action est irréversible.`
+                : `Are you sure you want to delete ${selectedVisitorIds.length} selected visitor record(s)? This action cannot be undone.`
+          }
+          confirmText={
+            lang === 'ar'
+              ? 'حذف الزوار المحددين'
+              : lang === 'fr'
+                ? 'Supprimer les visiteurs sélectionnés'
+                : 'Delete Selected Visitors'
+          }
+          cancelText={
+            lang === 'ar'
+              ? 'إلغاء'
+              : lang === 'fr'
+                ? 'Annuler'
+                : 'Cancel'
+          }
+          confirmVariant="danger"
+          isLoading={bulkVisitorDeleteLoading}
+          errorMessage={bulkVisitorDeleteError}
+        />
+      )}
 
-          {/* BULK DELETE ENQUIRIES CONFIRMATION */}
-          {bulkEnquiryDeleteOpen && (
-            <ConfirmModal
-              isOpen={bulkEnquiryDeleteOpen}
-              onClose={() => {
-                if (!bulkEnquiryDeleteLoading) {
-                  setBulkEnquiryDeleteOpen(false);
-                  setBulkEnquiryDeleteError(null);
-                }
-              }}
-              onConfirm={executeBulkEnquiryDelete}
-              title={
-                lang === 'ar'
-                  ? 'تأكيد حذف الاستفسارات'
-                  : lang === 'fr'
-                    ? 'Confirmer la suppression des demandes'
-                    : 'Confirm Enquiry Deletion'
-              }
-              message={
-                lang === 'ar'
-                  ? `هل أنت متأكد من حذف ${selectedEnquiryIds.length} استفسار محدد؟ لا يمكن التراجع عن هذا الإجراء.`
-                  : lang === 'fr'
-                    ? `Voulez-vous supprimer les ${selectedEnquiryIds.length} demandes sélectionnées ? Cette action est irréversible.`
-                    : `Are you sure you want to delete the ${selectedEnquiryIds.length} selected enquiries? This action cannot be undone.`
-              }
-              confirmText={
-                lang === 'ar'
-                  ? 'حذف الاستفسارات'
-                  : lang === 'fr'
-                    ? 'Supprimer les demandes'
-                    : 'Delete Enquiries'
-              }
-              cancelText={
-                lang === 'ar'
-                  ? 'إلغاء'
-                  : lang === 'fr'
-                    ? 'Annuler'
-                    : 'Cancel'
-              }
-              confirmVariant="danger"
-              isLoading={bulkEnquiryDeleteLoading}
-              errorMessage={bulkEnquiryDeleteError}
-            />
-          )}
-        </div>
-      );
+      {/* BULK DELETE ENQUIRIES CONFIRMATION */}
+      {bulkEnquiryDeleteOpen && (
+        <ConfirmModal
+          isOpen={bulkEnquiryDeleteOpen}
+          onClose={() => {
+            if (!bulkEnquiryDeleteLoading) {
+              setBulkEnquiryDeleteOpen(false);
+              setBulkEnquiryDeleteError(null);
+            }
+          }}
+          onConfirm={executeBulkEnquiryDelete}
+          title={
+            lang === 'ar'
+              ? 'تأكيد حذف الاستفسارات'
+              : lang === 'fr'
+                ? 'Confirmer la suppression des demandes'
+                : 'Confirm Enquiry Deletion'
+          }
+          message={
+            lang === 'ar'
+              ? `هل أنت متأكد من حذف ${selectedEnquiryIds.length} استفسار محدد؟ لا يمكن التراجع عن هذا الإجراء.`
+              : lang === 'fr'
+                ? `Voulez-vous supprimer les ${selectedEnquiryIds.length} demandes sélectionnées ? Cette action est irréversible.`
+                : `Are you sure you want to delete the ${selectedEnquiryIds.length} selected enquiries? This action cannot be undone.`
+          }
+          confirmText={
+            lang === 'ar'
+              ? 'حذف الاستفسارات'
+              : lang === 'fr'
+                ? 'Supprimer les demandes'
+                : 'Delete Enquiries'
+          }
+          cancelText={
+            lang === 'ar'
+              ? 'إلغاء'
+              : lang === 'fr'
+                ? 'Annuler'
+                : 'Cancel'
+          }
+          confirmVariant="danger"
+          isLoading={bulkEnquiryDeleteLoading}
+          errorMessage={bulkEnquiryDeleteError}
+        />
+      )}
+    </div>
+  );
 }
