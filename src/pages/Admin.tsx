@@ -602,6 +602,7 @@ const LAB_Central_ACTIVITY = [
   { name: 'Jazan Central Laboratory', arName: 'مختبر جازان المركزي', frName: 'Laboratoire Central Jazan', samples: 966, completed: 948, compliance: '99.1%', labId: 'jazan' },
 ];
 
+
 function getLocalizedDepartment(
   department: string | null | undefined,
   language: 'ar' | 'en' | 'fr'
@@ -619,27 +620,62 @@ function getLocalizedDepartment(
       en: 'Quality Control',
       fr: 'Contrôle qualité',
     },
+    'مراقبة الجودة': {
+      ar: 'مراقبة الجودة',
+      en: 'Quality Control',
+      fr: 'Contrôle qualité',
+    },
+
     'chemical analysis': {
       ar: 'التحاليل الكيميائية',
       en: 'Chemical Analysis',
       fr: 'Analyses chimiques',
     },
+    'التحاليل الكيميائية': {
+      ar: 'التحاليل الكيميائية',
+      en: 'Chemical Analysis',
+      fr: 'Analyses chimiques',
+    },
+
     microbiology: {
       ar: 'الأحياء الدقيقة (الميكروبيولوجي)',
       en: 'Microbiology',
       fr: 'Microbiologie',
     },
+    'الأحياء الدقيقة (الميكروبيولوجي)': {
+      ar: 'الأحياء الدقيقة (الميكروبيولوجي)',
+      en: 'Microbiology',
+      fr: 'Microbiologie',
+    },
+
     'sample reception': {
       ar: 'استقبال وتسجيل العينات',
       en: 'Sample Reception',
       fr: 'Réception des échantillons',
     },
+    'استقبال وتسجيل العينات': {
+      ar: 'استقبال وتسجيل العينات',
+      en: 'Sample Reception',
+      fr: 'Réception des échantillons',
+    },
+
     calibration: {
       ar: 'المعايرة والأجهزة',
       en: 'Calibration',
       fr: 'Étalonnage et métrologie',
     },
+    'المعايرة والأجهزة': {
+      ar: 'المعايرة والأجهزة',
+      en: 'Calibration',
+      fr: 'Étalonnage et métrologie',
+    },
+
     administration: {
+      ar: 'الشؤون الإدارية والفنية',
+      en: 'Administrative and Technical Affairs',
+      fr: 'Affaires administratives et techniques',
+    },
+    'الشؤون الإدارية والفنية': {
       ar: 'الشؤون الإدارية والفنية',
       en: 'Administrative and Technical Affairs',
       fr: 'Affaires administratives et techniques',
@@ -650,6 +686,7 @@ function getLocalizedDepartment(
 
   return translations[normalizedValue]?.[language] ?? value;
 }
+
 
 
 // ============================================================

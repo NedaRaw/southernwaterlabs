@@ -42,6 +42,146 @@ import {
 } from '@/services/visitorPortal';
 import { getLabLabel, getBranchLabel } from '@/data/labServices';
 
+type VisitorLanguage = 'ar' | 'en' | 'fr';
+
+function getLocalizedVisitorPurpose(
+  purpose: string | null | undefined,
+  language: VisitorLanguage
+): string {
+  const value = purpose?.trim();
+  if (!value) return '—';
+
+  const translations: Record<string, Record<VisitorLanguage, string>> = {
+    'Business Meeting': {
+      ar: 'اجتماع عمل',
+      en: 'Business Meeting',
+      fr: 'Réunion professionnelle',
+    },
+    'Equipment Service / Maintenance': {
+      ar: 'صيانة المعدات',
+      en: 'Equipment Service / Maintenance',
+      fr: 'Entretien et maintenance des équipements',
+    },
+    'Sample Delivery': {
+      ar: 'تسليم العينات',
+      en: 'Sample Delivery',
+      fr: 'Livraison d’échantillons',
+    },
+    'Audit / Inspection': {
+      ar: 'تدقيق / تفتيش',
+      en: 'Audit / Inspection',
+      fr: 'Audit / Inspection',
+    },
+    Training: {
+      ar: 'تدريب',
+      en: 'Training',
+      fr: 'Formation',
+    },
+    'Job Interview': {
+      ar: 'مقابلة عمل',
+      en: 'Job Interview',
+      fr: 'Entretien d’embauche',
+    },
+    'Vendor Presentation': {
+      ar: 'عرض تقديمي للمورّد',
+      en: 'Vendor Presentation',
+      fr: 'Présentation du fournisseur',
+    },
+    'Research Collaboration': {
+      ar: 'تعاون بحثي',
+      en: 'Research Collaboration',
+      fr: 'Collaboration en recherche',
+    },
+    Other: {
+      ar: 'أخرى',
+      en: 'Other',
+      fr: 'Autre',
+    },
+  };
+
+  return translations[value]?.[language] ?? value;
+}
+
+function getLocalizedDepartment(
+  department: string | null | undefined,
+  language: VisitorLanguage
+): string {
+  const value = department?.trim();
+  if (!value) return '—';
+
+  const translations: Record<string, Record<VisitorLanguage, string>> = {
+    'quality control': {
+      ar: 'مراقبة الجودة',
+      en: 'Quality Control',
+      fr: 'Contrôle Qualité',
+    },
+    'مراقبة الجودة': {
+      ar: 'مراقبة الجودة',
+      en: 'Quality Control',
+      fr: 'Contrôle Qualité',
+    },
+
+    'chemical analysis': {
+      ar: 'التحاليل الكيميائية',
+      en: 'Chemical Analysis',
+      fr: 'Analyses Chimiques',
+    },
+    'التحاليل الكيميائية': {
+      ar: 'التحاليل الكيميائية',
+      en: 'Chemical Analysis',
+      fr: 'Analyses Chimiques',
+    },
+
+    microbiology: {
+      ar: 'الأحياء الدقيقة (الميكروبيولوجي)',
+      en: 'Microbiology',
+      fr: 'Microbiologie',
+    },
+    'الأحياء الدقيقة (الميكروبيولوجي)': {
+      ar: 'الأحياء الدقيقة (الميكروبيولوجي)',
+      en: 'Microbiology',
+      fr: 'Microbiologie',
+    },
+
+    'sample reception': {
+      ar: 'استقبال وتسجيل العينات',
+      en: 'Sample Reception',
+      fr: 'Réception des Échantillons',
+    },
+    'استقبال وتسجيل العينات': {
+      ar: 'استقبال وتسجيل العينات',
+      en: 'Sample Reception',
+      fr: 'Réception des Échantillons',
+    },
+
+    calibration: {
+      ar: 'المعايرة والأجهزة',
+      en: 'Calibration',
+      fr: 'Étalonnage et Métrologie',
+    },
+    'المعايرة والأجهزة': {
+      ar: 'المعايرة والأجهزة',
+      en: 'Calibration',
+      fr: 'Étalonnage et Métrologie',
+    },
+
+    administration: {
+      ar: 'الشؤون الإدارية والفنية',
+      en: 'Administration',
+      fr: 'Administration',
+    },
+    'الشؤون الإدارية والفنية': {
+      ar: 'الشؤون الإدارية والفنية',
+      en: 'Administration',
+      fr: 'Administration',
+    },
+  };
+
+  const normalizedValue = value.replace(/\s+/g, ' ').toLowerCase();
+
+return translations[normalizedValue]?.[language] ?? value;
+}
+
 export default function VisitorDashboard() {
   const { lang, t, dir } = useLang();
   const [searchParams] = useSearchParams();
@@ -1403,8 +1543,8 @@ export default function VisitorDashboard() {
         )}
 
         {/* ============================================================
-            MODAL 1: VISITOR BADGE & QR PASS
-        ============================================================= */}
+    MODAL 1: VISITOR BADGE & QR PASS
+============================================================= */}
         {badgeModalAppt && (
           <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4">
             <div className="bg-white dark:bg-[#172033] rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-700 animate-in fade-in zoom-in-95 duration-200 relative">
@@ -1421,7 +1561,11 @@ export default function VisitorDashboard() {
                   <img src={nwcLogo} alt="NWC" className="max-h-full max-w-full object-contain" />
                 </div>
                 <h3 className="font-bold text-base text-slate-900 dark:text-white">
-                  {lang === 'ar' ? 'تصريح وبطاقة دخول الزائر' : 'Official Visitor Security Pass'}
+                  {lang === 'ar'
+                    ? 'تصريح وبطاقة دخول الزائر'
+                    : lang === 'fr'
+                      ? 'Badge officiel d’accès du visiteur'
+                      : 'Official Visitor Security Pass'}
                 </h3>
                 <p className="text-xs text-blue-600 dark:text-blue-400 font-mono font-bold mt-0.5">
                   {badgeModalAppt.visitor_id}
@@ -1444,34 +1588,70 @@ export default function VisitorDashboard() {
                 <p className="text-[11px] text-slate-400 mt-2">
                   {lang === 'ar'
                     ? 'أبرز هذا الرمز عند البوابة الأمنية بالمختبر للتحقق الفوري'
-                    : 'Present this QR pass at the security gate for immediate verification'}
+                    : lang === 'fr'
+                      ? 'Présentez ce QR code au poste de sécurité du laboratoire pour vérification.'
+                      : 'Present this QR pass at the security gate for immediate verification'}
                 </p>
               </div>
 
               {/* Summary Details */}
               <div className="space-y-2 text-xs bg-slate-50 dark:bg-slate-900/60 p-4 rounded-2xl border border-slate-100 dark:border-slate-800">
-                <div className="flex justify-between">
-                  <span className="text-slate-500">{lang === 'ar' ? 'اسم الزائر:' : 'Visitor:'}</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200">
+                <div className="flex justify-between gap-3">
+                  <span className="text-slate-500 shrink-0">
+                    {lang === 'ar' ? 'اسم الزائر:' : lang === 'fr' ? 'Visiteur :' : 'Visitor:'}
+                  </span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200 text-end">
                     {badgeModalAppt.visitor_name}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">{lang === 'ar' ? 'المختبر :' : 'Target Lab:'}</span>
-                  <span className="font-medium text-slate-800 dark:text-slate-200">
+
+                <div className="flex justify-between gap-3">
+                  <span className="text-slate-500 shrink-0">
+                    {lang === 'ar' ? 'المختبر:' : lang === 'fr' ? 'Laboratoire cible :' : 'Target Lab:'}
+                  </span>
+                  <span className="font-medium text-slate-800 dark:text-slate-200 text-end">
                     {getLabLabel(badgeModalAppt.laboratory, lang)}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">{lang === 'ar' ? 'تاريخ وموعد الزيارة:' : 'Date & Time:'}</span>
-                  <span className="font-mono font-medium text-blue-600 dark:text-blue-400">
+
+                <div className="flex justify-between gap-3">
+                  <span className="text-slate-500 shrink-0">
+                    {lang === 'ar'
+                      ? 'تاريخ وموعد الزيارة:'
+                      : lang === 'fr'
+                        ? 'Date et heure :'
+                        : 'Date & Time:'}
+                  </span>
+                  <span className="font-mono font-medium text-blue-600 dark:text-blue-400 text-end">
                     {badgeModalAppt.visit_date} ({badgeModalAppt.arrival_time})
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">{lang === 'ar' ? 'الغرض:' : 'Purpose:'}</span>
-                  <span className="text-slate-800 dark:text-slate-200 truncate max-w-[200px]">
-                    {getLocalizedPurpose(badgeModalAppt.purpose)}
+
+                <div className="flex justify-between gap-3">
+                  <span className="text-slate-500 shrink-0">
+                    {lang === 'ar' ? 'الغرض:' : lang === 'fr' ? 'Motif :' : 'Purpose:'}
+                  </span>
+                  <span className="text-slate-800 dark:text-slate-200 text-end break-words">
+                    {getLocalizedVisitorPurpose(
+                      badgeModalAppt.purpose || badgeModalAppt.visit_purpose,
+                      lang as 'ar' | 'en' | 'fr'
+                    )}
+                  </span>
+                </div>
+
+                <div className="flex justify-between gap-3">
+                  <span className="text-slate-500 shrink-0">
+                    {lang === 'ar'
+                      ? 'القسم المستهدف:'
+                      : lang === 'fr'
+                        ? 'Département cible :'
+                        : 'Target Department:'}
+                  </span>
+                  <span className="text-slate-800 dark:text-slate-200 text-end break-words">
+                    {getLocalizedDepartment(
+                      badgeModalAppt.department,
+                      lang as 'ar' | 'en' | 'fr'
+                    )}
                   </span>
                 </div>
               </div>
@@ -1484,19 +1664,27 @@ export default function VisitorDashboard() {
                   className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs sm:text-sm transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
                 >
                   <Printer className="w-4 h-4" />
-                  <span>{lang === 'ar' ? 'طباعة البطاقة' : 'Print Pass'}</span>
+                  <span>
+                    {lang === 'ar'
+                      ? 'طباعة البطاقة'
+                      : lang === 'fr'
+                        ? 'Imprimer le badge'
+                        : 'Print Pass'}
+                  </span>
                 </button>
+
                 <button
                   type="button"
                   onClick={() => setBadgeModalAppt(null)}
                   className="px-5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 text-xs font-semibold transition-colors cursor-pointer"
                 >
-                  {lang === 'ar' ? 'إغلاق' : 'Close'}
+                  {lang === 'ar' ? 'إغلاق' : lang === 'fr' ? 'Fermer' : 'Close'}
                 </button>
               </div>
             </div>
           </div>
         )}
+
 
         {/* ============================================================
             MODAL 2: RESCHEDULE APPOINTMENT
@@ -1712,6 +1900,6 @@ export default function VisitorDashboard() {
           />
         )}
       </div>
-    </div>
+    </div >
   );
 }

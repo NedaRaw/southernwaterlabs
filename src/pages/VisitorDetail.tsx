@@ -96,6 +96,7 @@ function getLocalizedVisitorPurpose(
   return key ? translations[key][lang] : value;
 }
 
+
 function getLocalizedDepartment(
   department: string | null | undefined,
   lang: 'ar' | 'en' | 'fr'
@@ -103,41 +104,82 @@ function getLocalizedDepartment(
   const value = department?.trim();
   if (!value) return '—';
 
-  const translations: Record<string, { ar: string; en: string; fr: string }> = {
+  const translations: Record<
+    string,
+    { ar: string; en: string; fr: string }
+  > = {
     'quality control': {
       ar: 'مراقبة الجودة',
       en: 'Quality Control',
       fr: 'Contrôle qualité',
     },
+    'مراقبة الجودة': {
+      ar: 'مراقبة الجودة',
+      en: 'Quality Control',
+      fr: 'Contrôle qualité',
+    },
+
     'chemical analysis': {
       ar: 'التحاليل الكيميائية',
       en: 'Chemical Analysis',
       fr: 'Analyses chimiques',
     },
+    'التحاليل الكيميائية': {
+      ar: 'التحاليل الكيميائية',
+      en: 'Chemical Analysis',
+      fr: 'Analyses chimiques',
+    },
+
     microbiology: {
       ar: 'الأحياء الدقيقة (الميكروبيولوجي)',
       en: 'Microbiology',
       fr: 'Microbiologie',
     },
+    'الأحياء الدقيقة (الميكروبيولوجي)': {
+      ar: 'الأحياء الدقيقة (الميكروبيولوجي)',
+      en: 'Microbiology',
+      fr: 'Microbiologie',
+    },
+
     'sample reception': {
       ar: 'استقبال وتسجيل العينات',
       en: 'Sample Reception',
       fr: 'Réception des échantillons',
     },
+    'استقبال وتسجيل العينات': {
+      ar: 'استقبال وتسجيل العينات',
+      en: 'Sample Reception',
+      fr: 'Réception des échantillons',
+    },
+
     calibration: {
       ar: 'المعايرة والأجهزة',
       en: 'Calibration',
       fr: 'Étalonnage et métrologie',
     },
+    'المعايرة والأجهزة': {
+      ar: 'المعايرة والأجهزة',
+      en: 'Calibration',
+      fr: 'Étalonnage et métrologie',
+    },
+
     administration: {
+      ar: 'الشؤون الإدارية والفنية',
+      en: 'Administrative and Technical Affairs',
+      fr: 'Affaires administratives et techniques',
+    },
+    'الشؤون الإدارية والفنية': {
       ar: 'الشؤون الإدارية والفنية',
       en: 'Administrative and Technical Affairs',
       fr: 'Affaires administratives et techniques',
     },
   };
 
-  return translations[value.toLowerCase()]?.[lang] ?? value;
+  const normalizedValue = value.replace(/\s+/g, ' ').toLowerCase();
+
+  return translations[normalizedValue]?.[lang] ?? value;
 }
+
 
 export default function VisitorDetail() {
   const { id } = useParams<{ id: string }>();
@@ -480,8 +522,8 @@ export default function VisitorDetail() {
                           : 'Target Department or Administration'}
                     </p>
                     <p className="font-medium text-slate-200">
-  {getLocalizedDepartment(visitor.department, lang)}
-</p>
+                      {getLocalizedDepartment(visitor.department, lang)}
+                    </p>
                   </div>
                 )}
 
