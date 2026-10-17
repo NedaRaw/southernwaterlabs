@@ -1455,7 +1455,7 @@ export default function Admin() {
 
           setAdminUsers(parsedUsers);
         }
-      } else if (isReadOnly(adminUser?.role) && adminUser) { } else if (isReadOnly(adminUser?.role) && adminUser) {
+      } else if (isReadOnly(adminUser?.role) && adminUser) {
         // Overview: load the existing local account list only in mock mode.
         // In Supabase mode, do not bypass the server-side authorization.
         if (!isSupabaseConfigured) {
@@ -1527,7 +1527,7 @@ export default function Admin() {
       if (document.visibilityState === 'visible') {
         void fetchData();
       }
-    }, 30_000);
+    }, 120_000); // Actualisation toutes les 120 secondes
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
@@ -2149,6 +2149,18 @@ export default function Admin() {
     visitor: Visitor,
     status: string
   ) => {
+    if (isReadOnly(adminUser?.role)) {
+      setFeedback({
+        type: 'error',
+        message:
+          lang === 'ar'
+            ? 'ليس لديك صلاحية تعديل حالة الزيارة.'
+            : lang === 'fr'
+              ? "Vous n'avez pas l'autorisation de modifier le statut de la visite."
+              : 'You are not authorized to change visitor status.',
+      });
+      return;
+    }
     setLoading(true);
 
     try {
@@ -2188,6 +2200,18 @@ export default function Admin() {
   // ============================================================
 
   const openDeleteVisitor = (visitor: Visitor) => {
+    if (isReadOnly(adminUser?.role)) {
+      setFeedback({
+        type: 'error',
+        message:
+          lang === 'ar'
+            ? 'ليس لديك صلاحية حذف السجلات.'
+            : lang === 'fr'
+              ? "Vous n'avez pas l'autorisation de supprimer des enregistrements."
+              : 'You are not authorized to delete records.',
+      });
+      return;
+    }
     setDeleteModalError(null);
     setDeleteTarget({
       type: 'visitor',
@@ -2236,6 +2260,18 @@ export default function Admin() {
   // ============================================================
 
   const openDeleteSurvey = (survey: Survey) => {
+    if (isReadOnly(adminUser?.role)) {
+      setFeedback({
+        type: 'error',
+        message:
+          lang === 'ar'
+            ? 'ليس لديك صلاحية حذف السجلات.'
+            : lang === 'fr'
+              ? "Vous n'avez pas l'autorisation de supprimer des enregistrements."
+              : 'You are not authorized to delete records.',
+      });
+      return;
+    }
     setDeleteModalError(null);
     setDeleteTarget({
       type: 'survey',
@@ -2283,6 +2319,18 @@ export default function Admin() {
     enquiry: Enquiry,
     status: string
   ) => {
+    if (isReadOnly(adminUser?.role)) {
+      setFeedback({
+        type: 'error',
+        message:
+          lang === 'ar'
+            ? 'ليس لديك صلاحية تعديل حالة الاستفسار.'
+            : lang === 'fr'
+              ? "Vous n'avez pas l'autorisation de modifier le statut de la demande."
+              : 'You are not authorized to change enquiry status.',
+      });
+      return;
+    }
     setLoading(true);
 
     try {
@@ -2322,6 +2370,18 @@ export default function Admin() {
   // ============================================================
 
   const openDeleteEnquiry = (enquiry: Enquiry) => {
+    if (isReadOnly(adminUser?.role)) {
+      setFeedback({
+        type: 'error',
+        message:
+          lang === 'ar'
+            ? 'ليس لديك صلاحية حذف السجلات.'
+            : lang === 'fr'
+              ? "Vous n'avez pas l'autorisation de supprimer des enregistrements."
+              : 'You are not authorized to delete records.',
+      });
+      return;
+    }
     setDeleteModalError(null);
     setDeleteTarget({
       type: 'enquiry',
@@ -3308,16 +3368,43 @@ export default function Admin() {
     surveyEndDate,
     visibleIds: filteredSurveys.map((s) => s.id),
   });
+
   const overviewSurveys = surveys.filter((survey) => {
-    if (isLabAdmin(adminUser?.role) && adminUser?.laboratory) {
+    if (!adminUser) return false;
+
+    // Read-only users: restrict surveys to their central laboratory.
+    if (isReadOnly(adminUser.role)) {
+      if (!adminUser.laboratory || !survey.laboratory) {
+        return false;
+      }
+
       if (!isLabMatch(survey.laboratory, adminUser.laboratory)) {
         return false;
       }
+
+      // A central-laboratory user without a branch assignment
+      // can view surveys from the central lab and its branches.
+      if (!getUserBranches(adminUser).length) {
+        return true;
+      }
+
+      return isUserBranchAuthorized(adminUser, survey.branch);
     }
 
-    if (isLocalAdmin(adminUser?.role) || isReadOnly(adminUser?.role)) {
+    // Preserve the existing scope for lab administrators.
+    if (
+      isLabAdmin(adminUser.role) &&
+      adminUser.laboratory &&
+      !isLabMatch(survey.laboratory, adminUser.laboratory)
+    ) {
+      return false;
+    }
+
+    // Local administrators are restricted to their assigned lab and branches.
+    if (isLocalAdmin(adminUser.role)) {
       if (
-        adminUser?.laboratory &&
+        !adminUser.laboratory ||
+        !survey.laboratory ||
         !isLabMatch(survey.laboratory, adminUser.laboratory)
       ) {
         return false;
@@ -3330,6 +3417,7 @@ export default function Admin() {
 
     return true;
   });
+
   // ============================================================
   // Filter Enquiries (Scoped by Role and Laboratory)
   // ============================================================
@@ -3377,16 +3465,43 @@ export default function Admin() {
     );
   });
 
+
   const overviewEnquiries = enquiries.filter((enquiry) => {
-    if (isLabAdmin(adminUser?.role) && adminUser?.laboratory) {
+    if (!adminUser) return false;
+
+    // Read-only users: restrict enquiries to their central laboratory.
+    if (isReadOnly(adminUser.role)) {
+      if (!adminUser.laboratory || !enquiry.laboratory) {
+        return false;
+      }
+
       if (!isLabMatch(enquiry.laboratory, adminUser.laboratory)) {
         return false;
       }
+
+      // A central-laboratory user without a branch assignment
+      // can view enquiries from the central lab and its branches.
+      if (!getUserBranches(adminUser).length) {
+        return true;
+      }
+
+      return isUserBranchAuthorized(adminUser, enquiry.branch);
     }
 
-    if (isLocalAdmin(adminUser?.role) || isReadOnly(adminUser?.role)) {
+    // Preserve the existing scope for lab administrators.
+    if (
+      isLabAdmin(adminUser.role) &&
+      adminUser.laboratory &&
+      !isLabMatch(enquiry.laboratory, adminUser.laboratory)
+    ) {
+      return false;
+    }
+
+    // Local administrators are restricted to their assigned lab and branches.
+    if (isLocalAdmin(adminUser.role)) {
       if (
-        adminUser?.laboratory &&
+        !adminUser.laboratory ||
+        !enquiry.laboratory ||
         !isLabMatch(enquiry.laboratory, adminUser.laboratory)
       ) {
         return false;
@@ -3399,6 +3514,7 @@ export default function Admin() {
 
     return true;
   });
+
 
 
   // ============================================================
@@ -3455,10 +3571,16 @@ export default function Admin() {
     return false;
   });
 
+
   const overviewAdminUsers = adminUsers.filter((user) => {
     if (!adminUser) return false;
 
-    // The connected account must belong to a valid laboratory.
+    // Super admin: all user accounts across all laboratories.
+    if (isSuperAdmin(adminUser.role)) {
+      return true;
+    }
+
+    // All other roles must have an explicit laboratory scope.
     if (
       !adminUser.laboratory ||
       !user.laboratory ||
@@ -3467,8 +3589,8 @@ export default function Admin() {
       return false;
     }
 
-    // Overview for read-only users: show only the permitted account roles
-    // from the same central laboratory and its branches.
+    // Read-only users: only lab_admin, local_admin and user accounts
+    // within their central laboratory.
     if (isReadOnly(adminUser.role)) {
       return (
         ['lab_admin', 'local_admin', 'user'].includes(user.role) &&
@@ -3485,6 +3607,7 @@ export default function Admin() {
 
     return true;
   });
+
 
   // ============================================================
   // Shared Excel XLS Export Helper
@@ -4956,18 +5079,21 @@ export default function Admin() {
                         </button>
                       )}
 
-                      <button
-                        type="button"
-                        onClick={exportVisitorsXls}
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm"
-                      >
-                        <Download className="w-4 h-4" />
-                        {lang === 'ar'
-                          ? 'تصدير Xls'
-                          : lang === 'fr'
-                            ? 'Exporter Xls'
-                            : 'Export Xls'}
-                      </button>
+                      {!isReadOnly(adminUser?.role) && (
+                        <button
+                          type="button"
+                          onClick={exportVisitorsXls}
+                          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm"
+                        >
+                          <Download className="w-4 h-4" />
+                          {lang === 'ar'
+                            ? 'تصدير Xls'
+                            : lang === 'fr'
+                              ? 'Exporter Xls'
+                              : 'Export Xls'}
+                        </button>
+                      )}
+
                     </div>
 
                   </div>
@@ -5283,18 +5409,22 @@ export default function Admin() {
                             : 'Surveys'}
                       </h2>
 
-                      <button
-                        type="button"
-                        onClick={exportSurveysXls}
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm shrink-0 shadow-xs cursor-pointer"
-                      >
-                        <Download className="w-4 h-4" />
-                        {lang === 'ar'
-                          ? 'تصدير Excel'
-                          : lang === 'fr'
-                            ? 'Exporter Excel'
-                            : 'Export Excel'}
-                      </button>
+
+                      {!isReadOnly(adminUser?.role) && (
+                        <button
+                          type="button"
+                          onClick={exportSurveysXls}
+                          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm shrink-0 shadow-xs cursor-pointer"
+                        >
+                          <Download className="w-4 h-4" />
+                          {lang === 'ar'
+                            ? 'تصدير Excel'
+                            : lang === 'fr'
+                              ? 'Exporter Excel'
+                              : 'Export Excel'}
+                        </button>
+                      )}
+
                     </div>
 
                     <p className="text-sm text-slate-500 mt-1">
@@ -5761,18 +5891,22 @@ export default function Admin() {
                             : 'Enquiries & Messages'}
                       </h2>
 
-                      <button
-                        type="button"
-                        onClick={exportEnquiriesXls}
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm shrink-0 shadow-xs cursor-pointer"
-                      >
-                        <Download className="w-4 h-4" />
-                        {lang === 'ar'
-                          ? 'تصدير Excel'
-                          : lang === 'fr'
-                            ? 'Exporter Excel'
-                            : 'Export Excel'}
-                      </button>
+
+                      {!isReadOnly(adminUser?.role) && (
+                        <button
+                          type="button"
+                          onClick={exportEnquiriesXls}
+                          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm shrink-0 shadow-xs cursor-pointer"
+                        >
+                          <Download className="w-4 h-4" />
+                          {lang === 'ar'
+                            ? 'تصدير Excel'
+                            : lang === 'fr'
+                              ? 'Exporter Excel'
+                              : 'Export Excel'}
+                        </button>
+                      )}
+
                     </div>
 
                     <p className="text-sm text-slate-500 mt-1">
@@ -6075,7 +6209,8 @@ export default function Admin() {
         ===================================================== */}
 
             {!loading &&
-              activeTab === 'users' && (
+              activeTab === 'users' &&
+              canManageUsers(adminUser?.role) && (
                 <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs">
 
                   <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-4">
