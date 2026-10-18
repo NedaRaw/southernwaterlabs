@@ -1187,7 +1187,7 @@ export const visitorPortalService = {
           </div>
           <div style="text-align: ${isAr ? 'left' : 'right'}; font-size: 11px;">
             <strong>رقم التقرير:</strong> ${report.report_number}<br>
-            <strong>كود العينة:</strong> ${report.sample_code}
+            <strong>الكود:</strong> ${report.sample_code}
           </div>
         </div>
 

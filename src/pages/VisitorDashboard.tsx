@@ -1431,7 +1431,7 @@ export default function VisitorDashboard() {
                           onChange={(e) => setReportsSearch(e.target.value)}
                           placeholder={
                             lang === 'ar'
-                              ? 'البحث برقم التقرير (NWC-SL-...) أو كود العينة أو نوع المياه...'
+                              ? 'البحث برقم التقرير (NWC-SL-...) أو الكود أو نوع المياه...'
                               : 'Search by report number, sample code, or water type...'
                           }
                           className="w-full ps-10 pe-4 py-2 text-xs sm:text-sm rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -1488,7 +1488,7 @@ export default function VisitorDashboard() {
                               {/* Details strip */}
                               <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-600 dark:text-slate-400">
                                 <div>
-                                  <span className="text-slate-400 block">{lang === 'ar' ? 'كود العينة:' : 'Sample Code:'}</span>
+                                  <span className="text-slate-400 block">{lang === 'ar' ? 'الكود:' : 'Sample Code:'}</span>
                                   <span className="font-mono font-bold text-slate-800 dark:text-slate-200">
                                     {report.sample_code}
                                   </span>
