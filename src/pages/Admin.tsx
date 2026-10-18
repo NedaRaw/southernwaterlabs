@@ -1211,27 +1211,48 @@ export default function Admin() {
         password: '',
       });
 
-      // Automatically scope filters according to user's assigned role
-      if (isLabAdmin(user.role) && user.laboratory) {
+
+      // Initialize filters according to the authenticated user's role.
+      // Global administrators must always start with all laboratories.
+      if (
+        user.role === 'super_admin' ||
+        user.role === 'admin'
+      ) {
+        setLabFilter('');
+        setBranchFilter('');
+        setReportLabFilter('');
+        setReportBranchFilter('');
+      } else if (isLabAdmin(user.role) && user.laboratory) {
         setLabFilter(user.laboratory);
         setBranchFilter('');
+        setReportLabFilter(user.laboratory);
+        setReportBranchFilter('');
       } else if (isLocalAdmin(user.role)) {
-        if (user.laboratory) setLabFilter(user.laboratory);
-        const branches = getUserBranches(user);
-        if (branches.length === 1) {
-          setBranchFilter(branches[0]);
-        } else {
-          setBranchFilter('');
+        if (user.laboratory) {
+          setLabFilter(user.laboratory);
+          setReportLabFilter(user.laboratory);
         }
+
+        const branches = getUserBranches(user);
+        const initialBranch =
+          branches.length === 1 ? branches[0] : '';
+
+        setBranchFilter(initialBranch);
+        setReportBranchFilter(initialBranch);
       } else if (isReadOnly(user.role)) {
-        if (user.laboratory) setLabFilter(user.laboratory);
-        const branches = getUserBranches(user);
-        if (branches.length === 1) {
-          setBranchFilter(branches[0]);
-        } else {
-          setBranchFilter('');
+        if (user.laboratory) {
+          setLabFilter(user.laboratory);
+          setReportLabFilter(user.laboratory);
         }
+
+        const branches = getUserBranches(user);
+        const initialBranch =
+          branches.length === 1 ? branches[0] : '';
+
+        setBranchFilter(initialBranch);
+        setReportBranchFilter(initialBranch);
       }
+
     } catch (error) {
       console.warn('Admin login exception caught:', error);
 
