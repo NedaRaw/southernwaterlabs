@@ -1556,12 +1556,13 @@ export default function Admin() {
       }
 
       
+      
       // --------------------------------------------------------
       // Analysis Reports
       // --------------------------------------------------------
 
       if (!isSupabaseConfigured) {
-        // MODE LOCAL : lire le stockage local sans appeler de RPC.
+        // MODE LOCAL : ne jamais appeler Supabase.
         const localReports = loadData<AnalysisReportRecord[]>(
           STORAGE_KEYS.ANALYSIS_REPORTS,
           defaultAnalysisReports
@@ -1571,50 +1572,80 @@ export default function Admin() {
 
         setAnalysisReports(localReports);
       } else {
-        // MODE SUPABASE : RPC protégée par le jeton.
+        // MODE SUPABASE : consultation via l'Edge Function sécurisée.
         try {
-          const reportsRes = await supabase.rpc(
-            'admin_list_analysis_reports',
-            {
-              p_token: token,
-            }
-          );
+          const reportToken =
+            token ||
+            adminToken ||
+            sessionStorage.getItem('admin_token') ||
+            '';
 
-          if (reportsRes.error) {
-            console.error(
-              'Error loading analysis reports:',
-              reportsRes.error
-            );
-
+          if (!reportToken) {
             setAnalysisReports([]);
-
-            const errMsg = getErrorMessage(reportsRes.error);
-            if (
-              errMsg.toLowerCase().includes('expired') ||
-              errMsg.toLowerCase().includes('invalid token') ||
-              errMsg.toLowerCase().includes('unauthorized') ||
-              reportsRes.error.code === 'P0001'
-            ) {
-              setSessionExpired(true);
-            }
+            setSessionExpired(true);
           } else {
-            setAnalysisReports(
-              Array.isArray(reportsRes.data)
-                ? (reportsRes.data as AnalysisReportRecord[])
-                : []
+            const { data, error } = await supabase.functions.invoke(
+              'analysis-reports',
+              {
+                body: {
+                  action: 'list',
+                  token: reportToken,
+                },
+              }
             );
+
+            if (error) {
+              console.error(
+                'Error loading analysis reports:',
+                error
+              );
+
+              setAnalysisReports([]);
+
+              const errMsg = getErrorMessage(error).toLowerCase();
+
+              if (
+                errMsg.includes('expired') ||
+                errMsg.includes('invalid session') ||
+                errMsg.includes('unauthorized') ||
+                errMsg.includes('401')
+              ) {
+                setSessionExpired(true);
+              }
+            } else if (data?.error) {
+              console.error(
+                'Analysis reports API error:',
+                data.error
+              );
+
+              setAnalysisReports([]);
+
+              const errMsg = String(data.error).toLowerCase();
+
+              if (
+                errMsg.includes('expired') ||
+                errMsg.includes('invalid session') ||
+                errMsg.includes('unauthorized')
+              ) {
+                setSessionExpired(true);
+              }
+            } else {
+              setAnalysisReports(
+                Array.isArray(data?.reports)
+                  ? (data.reports as AnalysisReportRecord[])
+                  : []
+              );
+            }
           }
         } catch (err) {
           console.error(
             'Error loading analysis reports in Admin:',
             err
           );
+
           setAnalysisReports([]);
         }
       }
-
-      // --------------------------------------------------------
-      // Users
 
 
       // --------------------------------------------------------
@@ -2914,203 +2945,334 @@ export default function Admin() {
     reader.readAsDataURL(file);
   };
 
-  const handleUploadReportSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  
+const handleUploadReportSubmit = async (e: FormEvent) => {
+  e.preventDefault();
 
-    if (isReadOnly(adminUser?.role)) {
-      setFeedback({
-        type: 'error',
-        message: lang === 'ar' ? 'صلاحيات قراءة فقط.' : 'Read-only role.',
-      });
-      return;
+  if (isReadOnly(adminUser?.role)) {
+    setFeedback({
+      type: 'error',
+      message: lang === 'ar' ? 'صلاحيات قراءة فقط.' : 'Read-only role.',
+    });
+    return;
+  }
+
+  const file = uploadReportForm.file;
+
+  if (
+    !uploadReportForm.file_name ||
+    !uploadReportForm.file_data_url ||
+    !file
+  ) {
+    setFeedback({
+      type: 'error',
+      message:
+        lang === 'ar'
+          ? 'يرجى اختيار ملف التقرير الأصلي (.pdf, .xls, .xlsx).'
+          : 'Please select the original report file (.pdf, .xls, .xlsx).',
+    });
+    return;
+  }
+
+  const extension = uploadReportForm.file_name
+    .split('.')
+    .pop()
+    ?.toLowerCase();
+
+  if (!extension || !['pdf', 'xls', 'xlsx'].includes(extension)) {
+    setFeedback({
+      type: 'error',
+      message:
+        lang === 'ar'
+          ? 'نوع الملف غير مسموح. يرجى اختيار PDF أو Excel.'
+          : 'Unsupported file type. Choose PDF, XLS or XLSX.',
+    });
+    return;
+  }
+
+  if (file.size <= 0 || file.size > 15 * 1024 * 1024) {
+    setFeedback({
+      type: 'error',
+      message:
+        lang === 'ar'
+          ? 'يجب ألا يتجاوز حجم الملف 15 ميجابايت.'
+          : 'The file must not exceed 15 MB.',
+    });
+    return;
+  }
+
+  if (
+    !uploadReportForm.visitor_id ||
+    !uploadReportForm.report_number.trim() ||
+    !uploadReportForm.sample_code.trim() ||
+    !uploadReportForm.sample_type.trim() ||
+    !uploadReportForm.issue_date
+  ) {
+    setFeedback({
+      type: 'error',
+      message:
+        lang === 'ar'
+          ? 'يرجى إكمال جميع الحقول المطلوبة.'
+          : 'Please complete all required fields.',
+    });
+    return;
+  }
+
+  setUploadingReport(true);
+
+  try {
+    const token =
+      adminToken ||
+      sessionStorage.getItem('admin_token') ||
+      '';
+
+    if (isSupabaseConfigured && !token) {
+      throw new Error(
+        lang === 'ar'
+          ? 'انتهت جلسة الدخول. يرجى تسجيل الدخول مرة أخرى.'
+          : 'Your session has expired. Please sign in again.',
+      );
     }
 
-    if (!uploadReportForm.file_name || !uploadReportForm.file_data_url) {
-      setFeedback({
-        type: 'error',
-        message:
-          lang === 'ar'
-            ? 'يرجى اختيار ملف التقرير الأصلي (.pdf, .xls, .xlsx).'
-            : 'Please select an original report file (.pdf, .xls, .xlsx).',
-      });
-      return;
+    const selectedVisitor = visitors.find(
+      (v) => v.id === uploadReportForm.visitor_id,
+    );
+
+    if (!selectedVisitor) {
+      throw new Error(
+        lang === 'ar'
+          ? 'الزائر المحدد غير موجود ضمن البيانات المحملة.'
+          : 'The selected visitor was not found in the loaded records.',
+      );
     }
 
-    if (!uploadReportForm.visitor_id) {
-      setFeedback({
-        type: 'error',
-        message: lang === 'ar' ? 'يرجى تحديد الزائر المستفيد.' : 'Please select a visitor.',
-      });
-      return;
-    }
+    const visitorName = getVisitorName(selectedVisitor);
 
-    setUploadingReport(true);
+    const payload: Partial<AnalysisReportRecord> = {
+      report_number: uploadReportForm.report_number.trim(),
+      visitor_id: selectedVisitor.id,
+      visitor_name: visitorName,
+      sample_code: uploadReportForm.sample_code.trim(),
+      sample_type: uploadReportForm.sample_type.trim(),
+      sample_type_ar: uploadReportForm.sample_type.trim(),
+      sample_type_en: uploadReportForm.sample_type.trim(),
+      laboratory: uploadReportForm.laboratory,
+      branch: uploadReportForm.branch || null,
+      file_name: uploadReportForm.file_name,
+      file_path: `analysis-reports/${uploadReportForm.laboratory}/${uploadReportForm.branch || 'central'}/${uploadReportForm.file_name}`,
+      file_type:
+        file.type ||
+        (extension === 'pdf'
+          ? 'application/pdf'
+          : extension === 'xls'
+            ? 'application/vnd.ms-excel'
+            : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'),
+      file_size: file.size,
+      notes: uploadReportForm.notes || null,
+      issue_date: uploadReportForm.issue_date,
+      status: 'available',
+    };
 
-    try {
-      const token =
-        adminToken ||
-        sessionStorage.getItem('admin_token') ||
-        '';
+    if (!isSupabaseConfigured) {
+      // MODE LOCAL : aucun appel à Supabase.
+      const localReports = loadData<AnalysisReportRecord[]>(
+        STORAGE_KEYS.ANALYSIS_REPORTS,
+        defaultAnalysisReports,
+      );
 
-      const selectedVisitor = visitors.find((v) => v.id === uploadReportForm.visitor_id);
-      const visitorName = selectedVisitor ? getVisitorName(selectedVisitor) : uploadReportForm.visitor_name || 'زائر';
-
-      const payload: Partial<AnalysisReportRecord> = {
-        report_number: uploadReportForm.report_number,
-        visitor_id: uploadReportForm.visitor_id,
-        visitor_name: visitorName,
-        sample_code: uploadReportForm.sample_code,
-        sample_type: uploadReportForm.sample_type,
-        sample_type_ar: uploadReportForm.sample_type,
-        sample_type_en: uploadReportForm.sample_type,
-        laboratory: uploadReportForm.laboratory,
-        branch: uploadReportForm.branch || null,
-        file_name: uploadReportForm.file_name,
-        file_path: `analysis-reports/${uploadReportForm.laboratory}/${uploadReportForm.branch || 'central'}/${uploadReportForm.file_name}`,
-        file_type: uploadReportForm.file_type,
-        file_size: uploadReportForm.file_size,
+      const newRecord: AnalysisReportRecord = {
+        id: `rep-${Date.now()}`,
+        report_number: payload.report_number!,
+        visitor_id: payload.visitor_id!,
+        visitor_name: payload.visitor_name!,
+        sample_code: payload.sample_code!,
+        sample_type: payload.sample_type!,
+        sample_type_ar: payload.sample_type_ar,
+        sample_type_en: payload.sample_type_en,
+        laboratory: payload.laboratory!,
+        branch: payload.branch,
+        file_name: payload.file_name!,
+        file_path: payload.file_path!,
+        file_type: payload.file_type!,
+        file_size: payload.file_size!,
         file_data_url: uploadReportForm.file_data_url,
-        notes: uploadReportForm.notes || null,
-        issue_date: uploadReportForm.issue_date,
         status: 'available',
+        notes: payload.notes,
+        issue_date: payload.issue_date!,
+        uploaded_by: adminUser?.id,
+        uploaded_by_name: adminUser?.full_name,
+        created_at: new Date().toISOString(),
       };
 
-     
-if (!isSupabaseConfigured) {
-  // MODE LOCAL : aucune RPC Supabase ne doit être appelée.
-  const localReports = loadData<AnalysisReportRecord[]>(
-    STORAGE_KEYS.ANALYSIS_REPORTS,
-    defaultAnalysisReports
-  );
+      saveData(STORAGE_KEYS.ANALYSIS_REPORTS, [
+        newRecord,
+        ...localReports,
+      ]);
 
-  // Conserve ici ton bloc existant qui construit newRecord
-  // à partir de payload, avec tous ses champs actuels.
+      setAnalysisReports((prev) => [newRecord, ...prev]);
+    } else {
+      // MODE SUPABASE : le fichier original est envoyé au serveur.
+      const formData = new FormData();
 
-  const newRecord: AnalysisReportRecord = {
-    // REPRENDRE ICI les champs de newRecord déjà présents
-    // dans ton code actuel : ne pas laisser ce commentaire seul.
-  };
+      formData.append('action', 'upload');
+      formData.append('token', token);
+      formData.append('report', JSON.stringify(payload));
+      formData.append('file', file, uploadReportForm.file_name);
 
-  saveData(STORAGE_KEYS.ANALYSIS_REPORTS, [
-    newRecord,
-    ...localReports,
-  ]);
+      const { data, error } = await supabase.functions.invoke(
+        'analysis-reports',
+        {
+          body: formData,
+        },
+      );
 
-  setAnalysisReports((prev) => [newRecord, ...prev]);
+      if (error) {
+        throw error;
+      }
 
-  // Le traitement local est terminé : sortir avant toute RPC.
-  await fetchData();
-  return;
-}
+      if (data?.error) {
+        throw new Error(String(data.error));
+      }
 
+      if (!data?.report?.id) {
+        throw new Error(
+          lang === 'ar'
+            ? 'لم يؤكد الخادم حفظ التقرير.'
+            : 'The server did not confirm that the report was saved.',
+        );
+      }
 
-if (!isSupabaseConfigured) {
-  // MODE LOCAL : aucune RPC Supabase.
-  const localReports = loadData<AnalysisReportRecord[]>(
-    STORAGE_KEYS.ANALYSIS_REPORTS,
-    defaultAnalysisReports
-  );
-
-  const newRecord: AnalysisReportRecord = {
-    id: `rep-${Date.now()}`,
-    report_number: payload.report_number!,
-    visitor_id: payload.visitor_id!,
-    visitor_name: payload.visitor_name!,
-    sample_code: payload.sample_code!,
-    sample_type: payload.sample_type!,
-    laboratory: payload.laboratory!,
-    branch: payload.branch,
-    file_name: payload.file_name!,
-    file_path: payload.file_path!,
-    file_type: payload.file_type!,
-    file_size: payload.file_size!,
-    file_data_url: payload.file_data_url,
-    status: 'available',
-    notes: payload.notes,
-    issue_date: payload.issue_date,
-    uploaded_by: adminUser?.id,
-    uploaded_by_name: adminUser?.full_name,
-    created_at: new Date().toISOString(),
-  };
-
-  saveData(STORAGE_KEYS.ANALYSIS_REPORTS, [
-    newRecord,
-    ...localReports,
-  ]);
-
-  setAnalysisReports((prev) => [newRecord, ...prev]);
-} else {
-  // MODE SUPABASE : uniquement si Supabase est configuré.
-  const { error } = await supabase.rpc(
-    'admin_upload_analysis_report',
-    {
-      p_token: token,
-      p_report: payload,
+      setAnalysisReports((prev) => [
+        data.report as AnalysisReportRecord,
+        ...prev,
+      ]);
     }
-  );
 
-  if (error) throw error;
-}
+    setFeedback({
+      type: 'success',
+      message:
+        lang === 'ar'
+          ? 'تم رفع تقرير التحليل وربطه بالزائر بنجاح.'
+          : lang === 'fr'
+            ? 'Rapport d’analyse téléversé et lié au visiteur avec succès.'
+            : 'Analysis report uploaded and linked to the visitor successfully.',
+    });
 
-setFeedback({
-  type: 'success',
-  message:
-    lang === 'ar'
-      ? 'تم رفع تقرير التحليل وربطه بنجاح بالزائر وبوابة النتائج.'
-      : lang === 'fr'
-        ? 'Rapport d’analyse téléversé et lié au visiteur avec succès.'
-        : 'Analysis report uploaded and linked to visitor successfully.',
-});
+    setUploadModalOpen(false);
+  } catch (err: unknown) {
+    console.error('Upload report error:', err);
 
-setUploadModalOpen(false);
-await fetchData();
+    setFeedback({
+      type: 'error',
+      message: getErrorMessage(err),
+    });
+  } finally {
+    setUploadingReport(false);
+  }
+};
 
+  
+const handleDownloadReportFile = async (
+  report: AnalysisReportRecord
+) => {
+  if (!report?.id) {
+    setFeedback({
+      type: 'error',
+      message:
+        lang === 'ar'
+          ? 'معرّف التقرير غير صالح.'
+          : 'Invalid report identifier.',
+    });
+    return;
+  }
 
-    } catch (err: unknown) {
-      console.error('Upload report error:', err);
-      setFeedback({
-        type: 'error',
-        message: getErrorMessage(err),
-      });
-    } finally {
-      setUploadingReport(false);
-    }
-  };
+  try {
+    if (!isSupabaseConfigured) {
+      // MODE LOCAL : télécharger uniquement le fichier original sauvegardé.
+      if (!report.file_data_url) {
+        throw new Error(
+          lang === 'ar'
+            ? 'الملف الأصلي غير متوفر في التخزين المحلي.'
+            : 'The original file is not available in local storage.'
+        );
+      }
 
-  const handleDownloadReportFile = (report: AnalysisReportRecord) => {
-    if (report.file_data_url) {
       const link = document.createElement('a');
       link.href = report.file_data_url;
-      link.download = report.file_name || `${report.report_number}.pdf`;
+      link.download =
+        report.file_name || `${report.report_number}.pdf`;
+      link.style.display = 'none';
+
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
+      link.remove();
       return;
     }
 
-    // Fallback: create printable window
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
-    printWindow.document.write(`
-      <html dir="${lang === 'ar' ? 'rtl' : 'ltr'}">
-        <head>
-          <title>${report.report_number}</title>
-          <style>body{font-family:sans-serif;padding:30px;line-height:1.6}h1{color:#1e3a8a}</style>
-        </head>
-        <body>
-          <h1>شركة المياه الوطنية — تقرير التحليل المخبري</h1>
-          <p><strong>رقم التقرير:</strong> ${report.report_number}</p>
-          <p><strong>اسم الزائر:</strong> ${report.visitor_name}</p>
-          <p><strong>كود العينة:</strong> ${report.sample_code}</p>
-          <p><strong>المختبر:</strong> ${report.laboratory}</p>
-          <p><strong>الفرع:</strong> ${report.branch || 'المركزي'}</p>
-          <p><strong>تاريخ الإصدار:</strong> ${report.issue_date || report.created_at.slice(0, 10)}</p>
-          <p><strong>حالة التقرير:</strong> ${report.status}</p>
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-  };
+    // MODE SUPABASE : demander le fichier original au serveur.
+    const token =
+      adminToken ||
+      sessionStorage.getItem('admin_token') ||
+      '';
+
+    if (!token) {
+      setSessionExpired(true);
+      throw new Error(
+        lang === 'ar'
+          ? 'انتهت جلسة الدخول. يرجى تسجيل الدخول مرة أخرى.'
+          : 'Your session has expired. Please sign in again.'
+      );
+    }
+
+    const { data, error } = await supabase.functions.invoke(
+      'analysis-reports',
+      {
+        body: {
+          action: 'download',
+          token,
+          id: report.id,
+        },
+        responseType: 'blob',
+      }
+    );
+
+    if (error) {
+      console.error('Download analysis report error:', error);
+      throw error;
+    }
+
+    if (!(data instanceof Blob) || data.size === 0) {
+      const message =
+        lang === 'ar'
+          ? 'لم يتم استلام ملف أصلي صالح من الخادم.'
+          : 'The server did not return a valid original file.';
+      throw new Error(message);
+    }
+
+    const objectUrl = URL.createObjectURL(data);
+    const link = document.createElement('a');
+
+    link.href = objectUrl;
+    link.download =
+      report.file_name || `${report.report_number}.pdf`;
+    link.style.display = 'none';
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    // Revoke after the browser has had time to start the download.
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+  } catch (err: unknown) {
+    console.error('Download report error:', err);
+
+    setFeedback({
+      type: 'error',
+      message: getErrorMessage(err),
+    });
+  }
+};
+
 
   const exportReportsXls = () => {
     const headers = [
@@ -3515,13 +3677,14 @@ await fetchData();
           break;
         }
 
-        case 'report': {
+               case 'report': {
           const token =
             adminToken ||
             sessionStorage.getItem('admin_token') ||
             '';
 
           if (!token) {
+            setSessionExpired(true);
             throw new Error(
               lang === 'ar'
                 ? 'انتهت جلسة المسؤول. يرجى تسجيل الدخول مجددًا.'
@@ -3536,84 +3699,123 @@ await fetchData();
               lang === 'ar'
                 ? 'ليس لديك صلاحية حذف تقارير التحاليل.'
                 : lang === 'fr'
-                  ? "Vous n'avez pas l'autorisation de supprimer les rapports d'analyse."
-                  : 'You are not authorized to delete analysis reports.'
+                  ? "Vous n'avez pas l'autorisation d'archiver les rapports d'analyse."
+                  : 'You are not authorized to archive analysis reports.'
             );
           }
 
-          const targetReport = analysisReports.find((item) => item.id === deleteTarget.id);
-          if (!targetReport || !isRecordInAdminScope(targetReport)) {
-            throw new Error(
-              lang === 'ar'
-                ? 'التقرير خارج نطاق صلاحياتك المخبرية.'
-                : lang === 'fr'
-                  ? 'Le rapport est hors de votre périmètre autorisé.'
-                  : 'Report is outside your authorized laboratory scope.'
-            );
-          }
-
-          const { data, error } = await supabase.rpc(
-            'admin_delete_analysis_report',
-            {
-              p_token: token,
-              p_id: deleteTarget.id,
-            }
+          const targetReport = analysisReports.find(
+            (item) => item.id === deleteTarget.id
           );
 
-          if (error) {
-            const message = getErrorMessage(error).toLowerCase();
-            if (
-              message.includes('unauthorized') ||
-              message.includes('invalid token') ||
-              message.includes('expired') ||
-              error.code === 'P0001'
-            ) {
-              setSessionExpired(true);
-            }
-            throw error;
-          }
-
-          const result = Array.isArray(data) ? data[0] : data;
           if (
-            result &&
-            typeof result === 'object' &&
-            result.success === false
+            !targetReport ||
+            !isRecordInAdminScope(targetReport)
           ) {
             throw new Error(
-              String(
-                result.error ||
-                (lang === 'ar'
-                  ? 'فشلت عملية حذف التقرير.'
-                  : 'Failed to delete analysis report.')
-              )
+              lang === 'ar'
+                ? 'التقرير غير موجود أو خارج نطاق صلاحياتك المخبرية.'
+                : lang === 'fr'
+                  ? 'Le rapport est introuvable ou hors de votre périmètre autorisé.'
+                  : 'The report was not found or is outside your authorized laboratory scope.'
             );
           }
 
           if (!isSupabaseConfigured) {
+            // Mode local uniquement : archivage dans localStorage.
             const localReports = loadData<AnalysisReportRecord[]>(
               STORAGE_KEYS.ANALYSIS_REPORTS,
               defaultAnalysisReports
             );
+
+            const now = new Date().toISOString();
+
             saveData(
               STORAGE_KEYS.ANALYSIS_REPORTS,
-              localReports.map((r) =>
-                r.id === deleteTarget.id
-                  ? { ...r, deleted_at: new Date().toISOString(), status: 'archived' as const }
-                  : r
+              localReports.map((report) =>
+                report.id === deleteTarget.id
+                  ? {
+                      ...report,
+                      status: 'archived' as const,
+                      deleted_at: now,
+                    }
+                  : report
               )
             );
+          } else {
+            // Mode Supabase : l'Edge Function valide la session,
+            // les droits et le périmètre avant l'archivage.
+            const { data, error } =
+              await supabase.functions.invoke('analysis-reports', {
+                body: {
+                  action: 'delete',
+                  token,
+                  id: deleteTarget.id,
+                },
+              });
+
+            if (error) {
+              const message = getErrorMessage(error).toLowerCase();
+
+              if (
+                message.includes('unauthorized') ||
+                message.includes('invalid token') ||
+                message.includes('expired') ||
+                message.includes('session') ||
+                message.includes('401') ||
+                message.includes('403')
+              ) {
+                setSessionExpired(true);
+              }
+
+              console.error(
+                'analysis-reports Edge Function archive failed:',
+                error
+              );
+
+              throw error;
+            }
+
+            if (data?.error) {
+              const message = String(data.error);
+              const normalizedMessage = message.toLowerCase();
+
+              if (
+                normalizedMessage.includes('unauthorized') ||
+                normalizedMessage.includes('invalid token') ||
+                normalizedMessage.includes('expired') ||
+                normalizedMessage.includes('session')
+              ) {
+                setSessionExpired(true);
+              }
+
+              throw new Error(message);
+            }
+
+            // Ne jamais annoncer un succès sans confirmation du serveur.
+            if (data?.success !== true) {
+              throw new Error(
+                lang === 'ar'
+                  ? 'لم يؤكد الخادم أرشفة التقرير. لم يتم تأكيد نجاح العملية.'
+                  : lang === 'fr'
+                    ? "Le serveur n’a pas confirmé l’archivage du rapport."
+                    : 'The server did not confirm report archival.'
+              );
+            }
           }
 
-          setAnalysisReports((prev) => prev.filter((r) => r.id !== deleteTarget.id));
+          setAnalysisReports((prev) =>
+            prev.filter((report) => report.id !== deleteTarget.id)
+          );
 
           setFeedback({
             type: 'success',
             message:
               lang === 'ar'
-                ? 'تم حذف تقرير التحليل وأرشفته بنجاح.'
+                ? 'تمت أرشفة تقرير التحليل بنجاح.'
                 : lang === 'fr'
-                  ? 'Rapport d’analyse supprimé et archivé avec succès.'
-                  : 'Analysis report deleted and archived successfully.',
+                  ? 'Rapport d’analyse archivé avec succès.'
+                  : 'Analysis report archived successfully.',
           });
 
           setDeleteTarget(null);
