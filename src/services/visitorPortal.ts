@@ -661,150 +661,172 @@ export const visitorPortalService = {
   },
 
   
+  
   /**
-   * Visitor lab reports (including original uploaded PDF / Excel files).
+   * Load reports belonging to the active visitor.
+   * Supabase mode uses the private Edge Function.
+   * Local mock mode reads only local mock data.
    */
-  async getVisitorReports(visitor: VisitorProfile): Promise<LabReportItem[]> {
+  async getVisitorReports(
+    visitor: VisitorProfile
+  ): Promise<LabReportItem[]> {
     if (!visitor?.id) return [];
 
-    if (isSupabaseConfigured) {
+    const mapReport = (
+      r: any,
+      visitor: VisitorProfile
+    ): LabReportItem => ({
+      id: r.id,
+      report_number: r.report_number || '',
+      sample_code: r.sample_code || '',
+      visitor_id: visitor.visitor_id,
+      visitor_name: r.visitor_name || visitor.visitor_name,
+
+      sample_type_ar: r.sample_type_ar || r.sample_type || '',
+      sample_type_en: r.sample_type_en || r.sample_type || '',
+      sample_type_fr:
+        r.sample_type_fr || r.sample_type_en || r.sample_type || '',
+
+      source_location_ar: r.branch
+        ? `فرع ${r.branch} — مختبر ${r.laboratory || ''}`
+        : `مختبر ${r.laboratory || ''}`,
+
+      source_location_en: r.branch
+        ? `${r.branch} Branch — ${r.laboratory || ''} Laboratory`
+        : `${r.laboratory || ''} Laboratory`,
+
+      laboratory_id: r.laboratory || '',
+      laboratory_name_ar: r.laboratory_name_ar || r.laboratory || '',
+      laboratory_name_en: r.laboratory_name_en || r.laboratory || '',
+
+      collection_date: r.collection_date || '',
+      analysis_date: r.analysis_date || '',
+      issue_date: r.issue_date || r.created_at || '',
+
+      status: ['approved', 'available'].includes(
+        String(r.status || '').toLowerCase()
+      )
+        ? 'Approved'
+        : 'Under Review',
+
+      compliance_status_ar: '',
+      compliance_status_en: '',
+      compliance_status_fr: '',
+      is_compliant: false,
+
+      authorized_specialist: {
+        name_ar: '',
+        name_en: '',
+        title_ar: '',
+        title_en: '',
+      },
+
+      qa_officer: {
+        name_ar: '',
+        name_en: '',
+        title_ar: '',
+        title_en: '',
+      },
+
+      parameters: [],
+      file_name: r.file_name || '',
+      file_type: r.file_type || '',
+      file_size: r.file_size || 0,
+
+      // Private storage paths must not be exposed to the portal.
+      file_path: '',
+      is_uploaded_file: true,
+    });
+
+    /*
+     * Supabase mode:
+     * Retrieve only the verified visitor's available reports.
+     */
+    if (
+      isSupabaseConfigured &&
+      visitor.id !== DEMO_VISITOR.id &&
+      visitor.visitor_id !== DEMO_VISITOR.visitor_id
+    ) {
       try {
-        const { data, error } = await supabase
-          .from('analysis_reports')
-          .select('*')
-          .eq('visitor_id', visitor.id)
-          .order('created_at', { ascending: false });
+        const { data, error } = await supabase.functions.invoke(
+          'analysis-reports',
+          {
+            body: {
+              action: 'visitor_list',
+              visitor_id: visitor.id,
+              phone: visitor.phone,
+              national_id: visitor.national_id,
+            },
+          }
+        );
 
         if (error) {
-          console.error('Failed to fetch visitor reports:', error);
+          console.error(
+            'Failed to invoke analysis-reports:',
+            error
+          );
           return [];
         }
 
-        return (data || [])
-          .filter((r: any) =>
-            !r.deleted_at &&
-            !['archived', 'deleted', 'unavailable'].includes(
-              String(r.status || '').toLowerCase()
-            )
+        if (!data || !Array.isArray(data.reports)) {
+          console.error(
+            'Invalid response from analysis-reports'
+          );
+          return [];
+        }
+
+        return data.reports
+          .filter(
+            (r: any) =>
+              r.visitor_id === visitor.id &&
+              String(r.status || '').toLowerCase() === 'available' &&
+              !r.deleted_at
           )
-          .map((r: any): LabReportItem => ({
-            id: r.id,
-            report_number: r.report_number || '',
-            sample_code: r.sample_code || '',
-            visitor_id: visitor.visitor_id,
-            visitor_name: r.visitor_name || visitor.visitor_name,
-            sample_type_ar: r.sample_type_ar || r.sample_type || '',
-            sample_type_en: r.sample_type_en || r.sample_type || '',
-            sample_type_fr: r.sample_type_fr || r.sample_type || '',
-            source_location_ar: r.branch
-              ? `فرع ${r.branch} — مختبر ${r.laboratory || ''}`
-              : `مختبر ${r.laboratory || ''}`,
-            source_location_en: r.branch
-              ? `${r.branch} Branch — ${r.laboratory || ''} Laboratory`
-              : `${r.laboratory || ''} Laboratory`,
-            laboratory_id: r.laboratory || '',
-            laboratory_name_ar: r.laboratory_name_ar || r.laboratory || '',
-            laboratory_name_en: r.laboratory_name_en || r.laboratory || '',
-            collection_date: r.collection_date || '',
-            analysis_date: r.analysis_date || '',
-            issue_date: r.issue_date || r.created_at || '',
-            status: ['approved', 'available'].includes(
-              String(r.status || '').toLowerCase()
-            ) ? 'Approved' : 'Under Review',
-            compliance_status_ar: '',
-            compliance_status_en: '',
-            compliance_status_fr: '',
-            is_compliant: false,
-            authorized_specialist: {
-              name_ar: '',
-              name_en: '',
-              title_ar: '',
-              title_en: '',
-            },
-            qa_officer: {
-              name_ar: '',
-              name_en: '',
-              title_ar: '',
-              title_en: '',
-            },
-            parameters: [],
-            file_name: r.file_name || '',
-            file_type: r.file_type || '',
-            file_size: r.file_size || 0,
-            file_path: r.file_path || '',
-            is_uploaded_file: true,
-          }));
+          .map((r: any) => mapReport(r, visitor));
       } catch (error) {
-        console.error('Failed to load visitor reports:', error);
+        console.error(
+          'Failed to load visitor reports:',
+          error
+        );
         return [];
       }
     }
 
-    // Local mock mode only.
+    /*
+     * Local mock mode, including the demo visitor.
+     * This is not persistent Supabase file storage.
+     */
     try {
       const raw = localStorage.getItem('swl_analysis_reports');
       if (!raw) return [];
 
-      const reports = JSON.parse(raw) as any[];
+      const reports = JSON.parse(raw);
+
+      if (!Array.isArray(reports)) return [];
 
       return reports
-        .filter((r) =>
-          !r.deleted_at &&
-          !['archived', 'deleted', 'unavailable'].includes(
-            String(r.status || '').toLowerCase()
-          ) &&
-          (r.visitor_id === visitor.id ||
-            r.visitor_id === visitor.visitor_id)
+        .filter(
+          (r: any) =>
+            !r.deleted_at &&
+            String(r.status || '').toLowerCase() === 'available' &&
+            (
+              r.visitor_id === visitor.id ||
+              r.visitor_id === visitor.visitor_id
+            )
         )
-        .map((r): LabReportItem => ({
-          id: r.id,
-          report_number: r.report_number || '',
-          sample_code: r.sample_code || '',
-          visitor_id: visitor.visitor_id,
-          visitor_name: visitor.visitor_name,
-          sample_type_ar: r.sample_type_ar || r.sample_type || '',
-          sample_type_en: r.sample_type_en || r.sample_type || '',
-          sample_type_fr: r.sample_type_fr || r.sample_type || '',
-          source_location_ar: '',
-          source_location_en: '',
-          laboratory_id: r.laboratory || '',
-          laboratory_name_ar: r.laboratory || '',
-          laboratory_name_en: r.laboratory || '',
-          collection_date: '',
-          analysis_date: '',
-          issue_date: r.issue_date || r.created_at || '',
-          status: String(r.status || '').toLowerCase() === 'approved'
-            ? 'Approved'
-            : 'Under Review',
-          compliance_status_ar: '',
-          compliance_status_en: '',
-          compliance_status_fr: '',
-          is_compliant: false,
-          authorized_specialist: {
-            name_ar: '',
-            name_en: '',
-            title_ar: '',
-            title_en: '',
-          },
-          qa_officer: {
-            name_ar: '',
-            name_en: '',
-            title_ar: '',
-            title_en: '',
-          },
-          parameters: [],
-          file_name: r.file_name || '',
-          file_type: r.file_type || '',
-          file_size: r.file_size || 0,
+        .map((r: any) => ({
+          ...mapReport(r, visitor),
           file_data_url: r.file_data_url,
-          file_path: r.file_path || '',
-          is_uploaded_file: true,
         }));
     } catch (error) {
-      console.error('Failed to load local mock reports:', error);
+      console.error(
+        'Failed to load local mock reports:',
+        error
+      );
       return [];
     }
   },
+
 
 
   /**
