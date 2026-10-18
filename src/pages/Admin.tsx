@@ -4920,7 +4920,11 @@ const handleDownloadReportFile = async (
     );
   }, [analysisReports]);
 
-  const filteredAnalysisReports = analysisReports.filter((report) => {
+  
+const filteredAnalysisReports = analysisReports.filter((report) => {
+    // Toujours exclure les rapports archivés ou marqués comme supprimés.
+    if (report.status === 'archived' || report.deleted_at) return false;
+
     // Role-based scoping
     if (!isRecordInAdminScope(report)) return false;
 
@@ -4934,8 +4938,11 @@ const handleDownloadReportFile = async (
       report.file_name.toLowerCase().includes(search) ||
       (report.notes && report.notes.toLowerCase().includes(search));
 
-    const matchesLab = !reportLabFilter || isLabMatch(report.laboratory, reportLabFilter);
-    const matchesBranch = !reportBranchFilter || isBranchMatch(report.branch, reportBranchFilter);
+    const matchesLab =
+      !reportLabFilter || isLabMatch(report.laboratory, reportLabFilter);
+
+    const matchesBranch =
+      !reportBranchFilter || isBranchMatch(report.branch, reportBranchFilter);
 
     const matchesFileType =
       reportFileTypeFilter === 'all' ||
@@ -4951,8 +4958,15 @@ const handleDownloadReportFile = async (
       (reportStatusFilter === 'available' && report.status === 'available') ||
       (reportStatusFilter === 'not_available' && report.status !== 'available');
 
-    return matchesSearch && matchesLab && matchesBranch && matchesFileType && matchesStatus;
-  });
+    return (
+      matchesSearch &&
+      matchesLab &&
+      matchesBranch &&
+      matchesFileType &&
+      matchesStatus
+    );
+});
+
 
   const overviewReports = analysisReports.filter((r) => isRecordInAdminScope(r) && !r.deleted_at && r.status !== 'archived');
 
