@@ -20,6 +20,7 @@ import {
   Search,
   Trash2,
   Plus,
+  Pencil,
   Eye,
   EyeOff,
   Download,
@@ -765,6 +766,8 @@ export default function Admin() {
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [uploadingReport, setUploadingReport] = useState(false);
   const [viewReportModal, setViewReportModal] = useState<AnalysisReportRecord | null>(null);
+  const [editingReport, setEditingReport] =
+    useState<AnalysisReportRecord | null>(null);
   const [uploadReportForm, setUploadReportForm] = useState({
     visitor_id: '',
     visitor_name: '',
@@ -2866,6 +2869,7 @@ export default function Admin() {
   };
 
   const handleOpenUploadModal = (visitor?: Visitor) => {
+    setEditingReport(null);
     if (isReadOnly(adminUser?.role)) {
       setFeedback({
         type: 'error',
@@ -2902,7 +2906,61 @@ export default function Admin() {
 
     setUploadModalOpen(true);
   };
+  const handleOpenEditReportModal = (
+    report: AnalysisReportRecord,
+  ) => {
+    if (isReadOnly(adminUser?.role)) {
+      setFeedback({
+        type: 'error',
+        message:
+          lang === 'ar'
+            ? 'ليس لديك صلاحية تعديل تقارير التحاليل.'
+            : lang === 'fr'
+              ? "Vous n'avez pas l'autorisation de modifier les rapports."
+              : 'You are not authorized to edit analysis reports.',
+      });
+      return;
+    }
 
+    const visitor = visitors.find(
+      (item) => item.id === report.visitor_id,
+    );
+
+    if (!visitor) {
+      setFeedback({
+        type: 'error',
+        message:
+          lang === 'ar'
+            ? 'تعذر العثور على الزائر المرتبط بالتقرير.'
+            : lang === 'fr'
+              ? 'Impossible de trouver le visiteur associé au rapport.'
+              : 'The visitor linked to this report could not be found.',
+      });
+      return;
+    }
+
+    setEditingReport(report);
+
+    setUploadReportForm({
+      visitor_id: report.visitor_id,
+      visitor_name: report.visitor_name,
+      report_number: report.report_number,
+      sample_code: report.sample_code,
+      sample_type: report.sample_type,
+      laboratory: report.laboratory,
+      branch: report.branch || '',
+      notes: report.notes || '',
+      issue_date:
+        report.issue_date || new Date().toISOString().slice(0, 10),
+      file: null,
+      file_name: report.file_name,
+      file_type: report.file_type,
+      file_size: report.file_size,
+      file_data_url: report.file_data_url || '',
+    });
+
+    setUploadModalOpen(true);
+  };
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -2947,60 +3005,72 @@ export default function Admin() {
     reader.readAsDataURL(file);
   };
 
-
   const handleUploadReportSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     if (isReadOnly(adminUser?.role)) {
       setFeedback({
         type: 'error',
-        message: lang === 'ar' ? 'صلاحيات قراءة فقط.' : 'Read-only role.',
+        message:
+          lang === 'ar'
+            ? 'صلاحيات قراءة فقط.'
+            : lang === 'fr'
+              ? 'Accès en lecture seule.'
+              : 'Read-only role.',
       });
       return;
     }
 
+    const isEditing = Boolean(editingReport);
     const file = uploadReportForm.file;
 
+    // A new report requires a file. Editing does not unless replacing it.
     if (
-      !uploadReportForm.file_name ||
-      !uploadReportForm.file_data_url ||
-      !file
+      !isEditing &&
+      (!file || !uploadReportForm.file_name || !uploadReportForm.file_data_url)
     ) {
       setFeedback({
         type: 'error',
         message:
           lang === 'ar'
             ? 'يرجى اختيار ملف التقرير الأصلي (.pdf, .xls, .xlsx).'
-            : 'Please select the original report file (.pdf, .xls, .xlsx).',
+            : lang === 'fr'
+              ? 'Veuillez sélectionner le fichier original (.pdf, .xls, .xlsx).'
+              : 'Please select the original report file (.pdf, .xls, .xlsx).',
       });
       return;
     }
 
-    const extension = uploadReportForm.file_name
-      .split('.')
-      .pop()
-      ?.toLowerCase();
+    let extension: string | undefined;
 
-    if (!extension || !['pdf', 'xls', 'xlsx'].includes(extension)) {
-      setFeedback({
-        type: 'error',
-        message:
-          lang === 'ar'
-            ? 'نوع الملف غير مسموح. يرجى اختيار PDF أو Excel.'
-            : 'Unsupported file type. Choose PDF, XLS or XLSX.',
-      });
-      return;
-    }
+    if (file) {
+      extension = file.name.split('.').pop()?.toLowerCase();
 
-    if (file.size <= 0 || file.size > 15 * 1024 * 1024) {
-      setFeedback({
-        type: 'error',
-        message:
-          lang === 'ar'
-            ? 'يجب ألا يتجاوز حجم الملف 15 ميجابايت.'
-            : 'The file must not exceed 15 MB.',
-      });
-      return;
+      if (!extension || !['pdf', 'xls', 'xlsx'].includes(extension)) {
+        setFeedback({
+          type: 'error',
+          message:
+            lang === 'ar'
+              ? 'نوع الملف غير مسموح. يرجى اختيار PDF أو Excel.'
+              : lang === 'fr'
+                ? 'Type de fichier non autorisé. Choisissez PDF ou Excel.'
+                : 'Unsupported file type. Choose PDF, XLS or XLSX.',
+        });
+        return;
+      }
+
+      if (file.size <= 0 || file.size > 15 * 1024 * 1024) {
+        setFeedback({
+          type: 'error',
+          message:
+            lang === 'ar'
+              ? 'يجب أن يكون حجم الملف أكبر من صفر وألا يتجاوز 15 ميجابايت.'
+              : lang === 'fr'
+                ? 'Le fichier doit faire entre 1 octet et 15 Mo.'
+                : 'The file must be between 1 byte and 15 MB.',
+        });
+        return;
+      }
     }
 
     if (
@@ -3015,7 +3085,9 @@ export default function Admin() {
         message:
           lang === 'ar'
             ? 'يرجى إكمال جميع الحقول المطلوبة.'
-            : 'Please complete all required fields.',
+            : lang === 'fr'
+              ? 'Veuillez remplir tous les champs obligatoires.'
+              : 'Please complete all required fields.',
       });
       return;
     }
@@ -3032,7 +3104,9 @@ export default function Admin() {
         throw new Error(
           lang === 'ar'
             ? 'انتهت جلسة الدخول. يرجى تسجيل الدخول مرة أخرى.'
-            : 'Your session has expired. Please sign in again.',
+            : lang === 'fr'
+              ? 'Votre session a expiré. Veuillez vous reconnecter.'
+              : 'Your session has expired. Please sign in again.',
         );
       }
 
@@ -3044,13 +3118,40 @@ export default function Admin() {
         throw new Error(
           lang === 'ar'
             ? 'الزائر المحدد غير موجود ضمن البيانات المحملة.'
-            : 'The selected visitor was not found in the loaded records.',
+            : lang === 'fr'
+              ? 'Le visiteur sélectionné est introuvable dans les données chargées.'
+              : 'The selected visitor was not found in the loaded records.',
         );
       }
 
       const visitorName = getVisitorName(selectedVisitor);
 
-      const payload: Partial<AnalysisReportRecord> = {
+      // Keep existing file metadata when editing without a replacement.
+      const existingReport = editingReport;
+
+      const reportFileName = file
+        ? file.name
+        : existingReport?.file_name || uploadReportForm.file_name;
+
+      const reportFileType = file
+        ? file.type ||
+        (extension === 'pdf'
+          ? 'application/pdf'
+          : extension === 'xls'
+            ? 'application/vnd.ms-excel'
+            : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        : existingReport?.file_type || uploadReportForm.file_type;
+
+      const reportFileSize = file
+        ? file.size
+        : existingReport?.file_size || uploadReportForm.file_size;
+
+      const reportFilePath = file
+        ? `analysis-reports/${uploadReportForm.laboratory}/${uploadReportForm.branch || 'central'}/${reportFileName}`
+        : existingReport?.file_path || '';
+
+      const payload: Partial<AnalysisReportRecord> & { id?: string } = {
+        ...(isEditing && existingReport ? { id: existingReport.id } : {}),
         report_number: uploadReportForm.report_number.trim(),
         visitor_id: selectedVisitor.id,
         visitor_name: visitorName,
@@ -3060,77 +3161,117 @@ export default function Admin() {
         sample_type_en: uploadReportForm.sample_type.trim(),
         laboratory: uploadReportForm.laboratory,
         branch: uploadReportForm.branch || null,
-        file_name: uploadReportForm.file_name,
-        file_path: `analysis-reports/${uploadReportForm.laboratory}/${uploadReportForm.branch || 'central'}/${uploadReportForm.file_name}`,
-        file_type:
-          file.type ||
-          (extension === 'pdf'
-            ? 'application/pdf'
-            : extension === 'xls'
-              ? 'application/vnd.ms-excel'
-              : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'),
-        file_size: file.size,
+        file_name: reportFileName,
+        file_path: reportFilePath,
+        file_type: reportFileType,
+        file_size: reportFileSize,
         notes: uploadReportForm.notes || null,
         issue_date: uploadReportForm.issue_date,
         status: 'available',
       };
 
       if (!isSupabaseConfigured) {
-        // MODE LOCAL : aucun appel à Supabase.
+        // LOCAL MOCK MODE: update the existing record instead of duplicating it.
         const localReports = loadData<AnalysisReportRecord[]>(
           STORAGE_KEYS.ANALYSIS_REPORTS,
           defaultAnalysisReports,
         );
 
-        const newRecord: AnalysisReportRecord = {
-          id: `rep-${Date.now()}`,
-          report_number: payload.report_number!,
-          visitor_id: payload.visitor_id!,
-          visitor_name: payload.visitor_name!,
-          sample_code: payload.sample_code!,
-          sample_type: payload.sample_type!,
-          sample_type_ar: payload.sample_type_ar,
-          sample_type_en: payload.sample_type_en,
-          laboratory: payload.laboratory!,
-          branch: payload.branch,
-          file_name: payload.file_name!,
-          file_path: payload.file_path!,
-          file_type: payload.file_type!,
-          file_size: payload.file_size!,
-          file_data_url: uploadReportForm.file_data_url,
-          status: 'available',
-          notes: payload.notes,
-          issue_date: payload.issue_date!,
-          uploaded_by: adminUser?.id,
-          uploaded_by_name: adminUser?.full_name,
-          created_at: new Date().toISOString(),
-        };
+        let savedRecord: AnalysisReportRecord;
 
-        saveData(STORAGE_KEYS.ANALYSIS_REPORTS, [
-          newRecord,
-          ...localReports,
-        ]);
+        if (isEditing && existingReport) {
+          const existingLocal = localReports.find(
+            (report) => report.id === existingReport.id,
+          );
 
-        setAnalysisReports((prev) => [newRecord, ...prev]);
+          if (!existingLocal) {
+            throw new Error(
+              lang === 'ar'
+                ? 'التقرير المراد تعديله غير موجود في التخزين المحلي.'
+                : lang === 'fr'
+                  ? 'Le rapport à modifier est introuvable dans le stockage local.'
+                  : 'The report to edit was not found in local storage.',
+            );
+          }
+
+          savedRecord = {
+            ...existingLocal,
+            ...payload,
+            id: existingLocal.id,
+            file_data_url: file
+              ? uploadReportForm.file_data_url
+              : existingLocal.file_data_url,
+            file_name: reportFileName,
+            file_type: reportFileType,
+            file_size: reportFileSize,
+            file_path: file
+              ? reportFilePath
+              : existingLocal.file_path,
+            created_at: existingLocal.created_at,
+          } as AnalysisReportRecord;
+
+          const updatedReports = localReports.map((report) =>
+            report.id === existingLocal.id ? savedRecord : report,
+          );
+
+          saveData(STORAGE_KEYS.ANALYSIS_REPORTS, updatedReports);
+
+          setAnalysisReports((prev) =>
+            prev.map((report) =>
+              report.id === savedRecord.id ? savedRecord : report,
+            ),
+          );
+        } else {
+          savedRecord = {
+            id: `rep-${Date.now()}`,
+            report_number: payload.report_number!,
+            visitor_id: payload.visitor_id!,
+            visitor_name: payload.visitor_name!,
+            sample_code: payload.sample_code!,
+            sample_type: payload.sample_type!,
+            sample_type_ar: payload.sample_type_ar,
+            sample_type_en: payload.sample_type_en,
+            laboratory: payload.laboratory!,
+            branch: payload.branch,
+            file_name: payload.file_name!,
+            file_path: payload.file_path!,
+            file_type: payload.file_type!,
+            file_size: payload.file_size!,
+            file_data_url: uploadReportForm.file_data_url,
+            status: 'available',
+            notes: payload.notes,
+            issue_date: payload.issue_date!,
+            uploaded_by: adminUser?.id,
+            uploaded_by_name: adminUser?.full_name,
+            created_at: new Date().toISOString(),
+          };
+
+          saveData(STORAGE_KEYS.ANALYSIS_REPORTS, [
+            savedRecord,
+            ...localReports,
+          ]);
+
+          setAnalysisReports((prev) => [savedRecord, ...prev]);
+        }
       } else {
-        // MODE SUPABASE : le fichier original est envoyé au serveur.
+        // SUPABASE MODE: call upload for new reports, update for existing ones.
         const formData = new FormData();
 
-        formData.append('action', 'upload');
+        formData.append('action', isEditing ? 'update' : 'upload');
         formData.append('token', token);
         formData.append('report', JSON.stringify(payload));
-        formData.append('file', file, uploadReportForm.file_name);
+
+        // Do not send a file unless the user selected one.
+        if (file) {
+          formData.append('file', file, file.name);
+        }
 
         const { data, error } = await supabase.functions.invoke(
           'analysis-reports',
-          {
-            body: formData,
-          },
+          { body: formData },
         );
 
-        if (error) {
-          throw error;
-        }
+        if (error) throw error;
 
         if (data?.error) {
           throw new Error(String(data.error));
@@ -3140,20 +3281,34 @@ export default function Admin() {
           throw new Error(
             lang === 'ar'
               ? 'لم يؤكد الخادم حفظ التقرير.'
-              : 'The server did not confirm that the report was saved.',
+              : lang === 'fr'
+                ? "Le serveur n'a pas confirmé l'enregistrement du rapport."
+                : 'The server did not confirm that the report was saved.',
           );
         }
 
-        setAnalysisReports((prev) => [
-          data.report as AnalysisReportRecord,
-          ...prev,
-        ]);
+        const savedRecord = data.report as AnalysisReportRecord;
+
+        if (isEditing) {
+          setAnalysisReports((prev) =>
+            prev.map((report) =>
+              report.id === savedRecord.id ? savedRecord : report,
+            ),
+          );
+        } else {
+          setAnalysisReports((prev) => [savedRecord, ...prev]);
+        }
       }
 
       setFeedback({
         type: 'success',
-        message:
-          lang === 'ar'
+        message: isEditing
+          ? lang === 'ar'
+            ? 'تم تحديث التقرير بنجاح.'
+            : lang === 'fr'
+              ? 'Le rapport a été modifié avec succès.'
+              : 'Report updated successfully.'
+          : lang === 'ar'
             ? 'تم رفع تقرير التحليل وربطه بالزائر بنجاح.'
             : lang === 'fr'
               ? 'Rapport d’analyse téléversé et lié au visiteur avec succès.'
@@ -3161,8 +3316,12 @@ export default function Admin() {
       });
 
       setUploadModalOpen(false);
+      setEditingReport(null);
     } catch (err: unknown) {
-      console.error('Upload report error:', err);
+      console.error(
+        isEditing ? 'Update report error:' : 'Upload report error:',
+        err,
+      );
 
       setFeedback({
         type: 'error',
@@ -3172,6 +3331,7 @@ export default function Admin() {
       setUploadingReport(false);
     }
   };
+
 
 
   const handleDownloadReportFile = async (
@@ -3397,7 +3557,7 @@ export default function Admin() {
           type: 'error',
           message:
             lang === 'ar'
-              ? 'منع المتصفح فتح نافذة المعاينة. اسمح بالنوافذ المنبثقة لهذا الموقع.'
+              ? 'منع المتصفح فتح نافذة المعاينة. اسمحي بالنوافذ المنبثقة لهذا الموقع.'
               : lang === 'fr'
                 ? 'Le navigateur a bloqué le nouvel onglet. Autorisez les fenêtres contextuelles pour ce site.'
                 : 'The browser blocked the preview tab. Allow pop-ups for this site.',
@@ -6983,17 +7143,31 @@ export default function Admin() {
                                   )}
                                 </td>
 
+
                                 {/* Action Buttons */}
                                 <td className="px-4 py-3.5 text-end">
-                                  <div className="flex items-center justify-end gap-1.5">
+                                  <div className="flex flex-wrap items-center justify-end gap-1.5">
                                     {isAvailable && report ? (
                                       <>
-                                        {/* View Report Details */}
+                                        {/* View Report */}
                                         <button
                                           type="button"
                                           onClick={() => void handleViewReportFile(report)}
                                           className="p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/40 text-blue-600 dark:text-blue-400 transition-colors cursor-pointer"
-                                          title={lang === 'ar' ? 'عرض تفاصيل التقرير' : 'View report details'}
+                                          title={
+                                            lang === 'ar'
+                                              ? 'عرض تفاصيل التقرير'
+                                              : lang === 'fr'
+                                                ? 'Voir les détails du rapport'
+                                                : 'View report details'
+                                          }
+                                          aria-label={
+                                            lang === 'ar'
+                                              ? 'عرض تفاصيل التقرير'
+                                              : lang === 'fr'
+                                                ? 'Voir les détails du rapport'
+                                                : 'View report details'
+                                          }
                                         >
                                           <Eye className="w-4 h-4" />
                                         </button>
@@ -7003,18 +7177,69 @@ export default function Admin() {
                                           type="button"
                                           onClick={() => handleDownloadReportFile(report)}
                                           className="p-1.5 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 transition-colors cursor-pointer"
-                                          title={lang === 'ar' ? 'تحميل الملف الأصلي (PDF/Excel)' : 'Download original file'}
+                                          title={
+                                            lang === 'ar'
+                                              ? 'تحميل الملف الأصلي (PDF/Excel)'
+                                              : lang === 'fr'
+                                                ? 'Télécharger le fichier original'
+                                                : 'Download original file'
+                                          }
+                                          aria-label={
+                                            lang === 'ar'
+                                              ? 'تحميل الملف الأصلي'
+                                              : lang === 'fr'
+                                                ? 'Télécharger le fichier original'
+                                                : 'Download original file'
+                                          }
                                         >
                                           <Download className="w-4 h-4" />
                                         </button>
 
-                                        {/* Delete Report (Authorized admins only) */}
+                                        {/* Edit Report */}
+                                        {!isReadOnly(adminUser?.role) && (
+                                          <button
+                                            type="button"
+                                            onClick={() => handleOpenEditReportModal(report)}
+                                            className="p-1.5 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-950/40 text-amber-600 dark:text-amber-400 transition-colors cursor-pointer"
+                                            title={
+                                              lang === 'ar'
+                                                ? 'تعديل بيانات التقرير'
+                                                : lang === 'fr'
+                                                  ? 'Modifier le rapport'
+                                                  : 'Edit report'
+                                            }
+                                            aria-label={
+                                              lang === 'ar'
+                                                ? 'تعديل بيانات التقرير'
+                                                : lang === 'fr'
+                                                  ? 'Modifier le rapport'
+                                                  : 'Edit report'
+                                            }
+                                          >
+                                            <Pencil className="w-4 h-4" />
+                                          </button>
+                                        )}
+
+                                        {/* Delete Report */}
                                         {!isReadOnly(adminUser?.role) && (
                                           <button
                                             type="button"
                                             onClick={() => openDeleteReport(report)}
                                             className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/40 text-red-600 dark:text-red-400 transition-colors cursor-pointer"
-                                            title={lang === 'ar' ? 'حذف وأرشفة التقرير' : 'Delete and archive report'}
+                                            title={
+                                              lang === 'ar'
+                                                ? 'حذف وأرشفة التقرير'
+                                                : lang === 'fr'
+                                                  ? 'Supprimer et archiver le rapport'
+                                                  : 'Delete and archive report'
+                                            }
+                                            aria-label={
+                                              lang === 'ar'
+                                                ? 'حذف وأرشفة التقرير'
+                                                : lang === 'fr'
+                                                  ? 'Supprimer et archiver le rapport'
+                                                  : 'Delete and archive report'
+                                            }
                                           >
                                             <Trash2 className="w-4 h-4" />
                                           </button>
@@ -7027,20 +7252,37 @@ export default function Admin() {
                                             type="button"
                                             onClick={() => handleOpenUploadModal(visitor)}
                                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/60 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 font-semibold text-xs transition cursor-pointer border border-blue-200 dark:border-blue-800"
-                                            title={lang === 'ar' ? 'رفع التقرير الأصلي للزائر' : 'Upload original report for this visitor'}
+                                            title={
+                                              lang === 'ar'
+                                                ? 'رفع التقرير الأصلي للزائر'
+                                                : lang === 'fr'
+                                                  ? 'Téléverser le rapport original du visiteur'
+                                                  : 'Upload original report for this visitor'
+                                            }
                                           >
                                             <Upload className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                                            <span>{lang === 'ar' ? 'رفع التقرير' : 'Upload'}</span>
+                                            <span>
+                                              {lang === 'ar'
+                                                ? 'رفع التقرير'
+                                                : lang === 'fr'
+                                                  ? 'Téléverser'
+                                                  : 'Upload'}
+                                            </span>
                                           </button>
                                         ) : (
                                           <span className="text-[11px] text-slate-400 italic">
-                                            {lang === 'ar' ? 'بانتظار الرفع' : 'Pending upload'}
+                                            {lang === 'ar'
+                                              ? 'بانتظار الرفع'
+                                              : lang === 'fr'
+                                                ? 'En attente du téléversement'
+                                                : 'Pending upload'}
                                           </span>
                                         )}
                                       </>
                                     )}
                                   </div>
                                 </td>
+
                               </tr>
                             );
                           })}
@@ -9484,8 +9726,8 @@ export default function Admin() {
                   type="submit"
                   disabled={
                     uploadingReport ||
-                    !uploadReportForm.file_name ||
-                    !uploadReportForm.visitor_id
+                    !uploadReportForm.visitor_id ||
+                    (!editingReport && !uploadReportForm.file_name)
                   }
                   className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold flex items-center gap-2 transition disabled:opacity-50 cursor-pointer shadow-xs"
                 >
@@ -9494,89 +9736,21 @@ export default function Admin() {
                   )}
 
                   <span>
-                    {lang === 'ar'
-                      ? 'رفع واعتماد التقرير'
-                      : lang === 'fr'
-                        ? 'Téléverser et certifier le rapport'
-                        : 'Upload & Certify Report'}
+                    {editingReport
+                      ? lang === 'ar'
+                        ? 'حفظ التعديلات'
+                        : lang === 'fr'
+                          ? 'Enregistrer les modifications'
+                          : 'Save Changes'
+                      : lang === 'ar'
+                        ? 'رفع واعتماد التقرير'
+                        : lang === 'fr'
+                          ? 'Téléverser et certifier le rapport'
+                          : 'Upload & Certify Report'}
                   </span>
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
-
-      {/* ============================================================
-          REPORT PREVIEW MODAL
-      ============================================================= */}
-      {viewReportModal && (
-        <div className="fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-3 sm:p-6">
-          <div
-            className="bg-white dark:bg-slate-900 w-full max-w-6xl h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden"
-            role="dialog"
-            aria-modal="true"
-          >
-            <div className="flex items-center justify-between gap-3 p-4 border-b border-slate-200 dark:border-slate-700">
-              <div className="min-w-0">
-                <h2 className="font-bold text-slate-900 dark:text-white truncate">
-                  {viewReportModal.report_number}
-                </h2>
-                <p className="text-xs text-slate-500 truncate">
-                  {viewReportModal.file_name}
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={closeReportPreview}
-                className="shrink-0 rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800"
-              >
-                {lang === 'ar' ? 'إغلاق' : lang === 'fr' ? 'Fermer' : 'Close'}
-              </button>
-            </div>
-
-            <div className="flex-1 min-h-0 bg-slate-100 dark:bg-slate-950">
-              {reportPreviewLoading ? (
-                <div className="h-full flex items-center justify-center text-slate-500">
-                  {lang === 'ar'
-                    ? 'جارٍ تحميل التقرير...'
-                    : lang === 'fr'
-                      ? 'Chargement du rapport...'
-                      : 'Loading report...'}
-                </div>
-              ) : reportPreviewUrl ? (
-                <iframe
-                  src={reportPreviewUrl}
-                  title={viewReportModal.file_name}
-                  className="w-full h-full border-0"
-                  referrerPolicy="no-referrer"
-                  allow="fullscreen"
-                />
-              ) : (
-                <div className="h-full flex items-center justify-center text-slate-500">
-                  {lang === 'ar'
-                    ? 'تعذرت معاينة التقرير.'
-                    : lang === 'fr'
-                      ? 'Impossible de prévisualiser le rapport.'
-                      : 'Unable to preview the report.'}
-                </div>
-              )}
-            </div>
-
-            <div className="p-3 border-t border-slate-200 dark:border-slate-700 flex justify-end">
-              <button
-                type="button"
-                onClick={() => void handleDownloadReportFile(viewReportModal)}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm"
-              >
-                {lang === 'ar'
-                  ? 'تنزيل الملف الأصلي'
-                  : lang === 'fr'
-                    ? 'Télécharger le fichier original'
-                    : 'Download original file'}
-              </button>
-            </div>
           </div>
         </div>
       )}
