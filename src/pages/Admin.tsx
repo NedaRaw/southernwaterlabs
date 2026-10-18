@@ -755,6 +755,8 @@ export default function Admin() {
   const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
   const [analysisReports, setAnalysisReports] = useState<AnalysisReportRecord[]>([]);
   const [reportSearch, setReportSearch] = useState<string>('');
+  const [reportPreviewUrl, setReportPreviewUrl] = useState<string | null>(null);
+  const [reportPreviewLoading, setReportPreviewLoading] = useState(false);
   const [reportStatusFilter, setReportStatusFilter] = useState<string>('all');
   const [reportFileTypeFilter, setReportFileTypeFilter] = useState<string>('all');
   const [reportLabFilter, setReportLabFilter] = useState<string>('');
@@ -1555,8 +1557,8 @@ export default function Admin() {
         setSurveys(parsedSurveys);
       }
 
-      
-      
+
+
       // --------------------------------------------------------
       // Analysis Reports
       // --------------------------------------------------------
@@ -2945,260 +2947,314 @@ export default function Admin() {
     reader.readAsDataURL(file);
   };
 
-  
-const handleUploadReportSubmit = async (e: FormEvent) => {
-  e.preventDefault();
 
-  if (isReadOnly(adminUser?.role)) {
-    setFeedback({
-      type: 'error',
-      message: lang === 'ar' ? 'صلاحيات قراءة فقط.' : 'Read-only role.',
-    });
-    return;
-  }
+  const handleUploadReportSubmit = async (e: FormEvent) => {
+    e.preventDefault();
 
-  const file = uploadReportForm.file;
-
-  if (
-    !uploadReportForm.file_name ||
-    !uploadReportForm.file_data_url ||
-    !file
-  ) {
-    setFeedback({
-      type: 'error',
-      message:
-        lang === 'ar'
-          ? 'يرجى اختيار ملف التقرير الأصلي (.pdf, .xls, .xlsx).'
-          : 'Please select the original report file (.pdf, .xls, .xlsx).',
-    });
-    return;
-  }
-
-  const extension = uploadReportForm.file_name
-    .split('.')
-    .pop()
-    ?.toLowerCase();
-
-  if (!extension || !['pdf', 'xls', 'xlsx'].includes(extension)) {
-    setFeedback({
-      type: 'error',
-      message:
-        lang === 'ar'
-          ? 'نوع الملف غير مسموح. يرجى اختيار PDF أو Excel.'
-          : 'Unsupported file type. Choose PDF, XLS or XLSX.',
-    });
-    return;
-  }
-
-  if (file.size <= 0 || file.size > 15 * 1024 * 1024) {
-    setFeedback({
-      type: 'error',
-      message:
-        lang === 'ar'
-          ? 'يجب ألا يتجاوز حجم الملف 15 ميجابايت.'
-          : 'The file must not exceed 15 MB.',
-    });
-    return;
-  }
-
-  if (
-    !uploadReportForm.visitor_id ||
-    !uploadReportForm.report_number.trim() ||
-    !uploadReportForm.sample_code.trim() ||
-    !uploadReportForm.sample_type.trim() ||
-    !uploadReportForm.issue_date
-  ) {
-    setFeedback({
-      type: 'error',
-      message:
-        lang === 'ar'
-          ? 'يرجى إكمال جميع الحقول المطلوبة.'
-          : 'Please complete all required fields.',
-    });
-    return;
-  }
-
-  setUploadingReport(true);
-
-  try {
-    const token =
-      adminToken ||
-      sessionStorage.getItem('admin_token') ||
-      '';
-
-    if (isSupabaseConfigured && !token) {
-      throw new Error(
-        lang === 'ar'
-          ? 'انتهت جلسة الدخول. يرجى تسجيل الدخول مرة أخرى.'
-          : 'Your session has expired. Please sign in again.',
-      );
+    if (isReadOnly(adminUser?.role)) {
+      setFeedback({
+        type: 'error',
+        message: lang === 'ar' ? 'صلاحيات قراءة فقط.' : 'Read-only role.',
+      });
+      return;
     }
 
-    const selectedVisitor = visitors.find(
-      (v) => v.id === uploadReportForm.visitor_id,
-    );
+    const file = uploadReportForm.file;
 
-    if (!selectedVisitor) {
-      throw new Error(
-        lang === 'ar'
-          ? 'الزائر المحدد غير موجود ضمن البيانات المحملة.'
-          : 'The selected visitor was not found in the loaded records.',
-      );
+    if (
+      !uploadReportForm.file_name ||
+      !uploadReportForm.file_data_url ||
+      !file
+    ) {
+      setFeedback({
+        type: 'error',
+        message:
+          lang === 'ar'
+            ? 'يرجى اختيار ملف التقرير الأصلي (.pdf, .xls, .xlsx).'
+            : 'Please select the original report file (.pdf, .xls, .xlsx).',
+      });
+      return;
     }
 
-    const visitorName = getVisitorName(selectedVisitor);
+    const extension = uploadReportForm.file_name
+      .split('.')
+      .pop()
+      ?.toLowerCase();
 
-    const payload: Partial<AnalysisReportRecord> = {
-      report_number: uploadReportForm.report_number.trim(),
-      visitor_id: selectedVisitor.id,
-      visitor_name: visitorName,
-      sample_code: uploadReportForm.sample_code.trim(),
-      sample_type: uploadReportForm.sample_type.trim(),
-      sample_type_ar: uploadReportForm.sample_type.trim(),
-      sample_type_en: uploadReportForm.sample_type.trim(),
-      laboratory: uploadReportForm.laboratory,
-      branch: uploadReportForm.branch || null,
-      file_name: uploadReportForm.file_name,
-      file_path: `analysis-reports/${uploadReportForm.laboratory}/${uploadReportForm.branch || 'central'}/${uploadReportForm.file_name}`,
-      file_type:
-        file.type ||
-        (extension === 'pdf'
-          ? 'application/pdf'
-          : extension === 'xls'
-            ? 'application/vnd.ms-excel'
-            : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'),
-      file_size: file.size,
-      notes: uploadReportForm.notes || null,
-      issue_date: uploadReportForm.issue_date,
-      status: 'available',
-    };
+    if (!extension || !['pdf', 'xls', 'xlsx'].includes(extension)) {
+      setFeedback({
+        type: 'error',
+        message:
+          lang === 'ar'
+            ? 'نوع الملف غير مسموح. يرجى اختيار PDF أو Excel.'
+            : 'Unsupported file type. Choose PDF, XLS or XLSX.',
+      });
+      return;
+    }
 
-    if (!isSupabaseConfigured) {
-      // MODE LOCAL : aucun appel à Supabase.
-      const localReports = loadData<AnalysisReportRecord[]>(
-        STORAGE_KEYS.ANALYSIS_REPORTS,
-        defaultAnalysisReports,
+    if (file.size <= 0 || file.size > 15 * 1024 * 1024) {
+      setFeedback({
+        type: 'error',
+        message:
+          lang === 'ar'
+            ? 'يجب ألا يتجاوز حجم الملف 15 ميجابايت.'
+            : 'The file must not exceed 15 MB.',
+      });
+      return;
+    }
+
+    if (
+      !uploadReportForm.visitor_id ||
+      !uploadReportForm.report_number.trim() ||
+      !uploadReportForm.sample_code.trim() ||
+      !uploadReportForm.sample_type.trim() ||
+      !uploadReportForm.issue_date
+    ) {
+      setFeedback({
+        type: 'error',
+        message:
+          lang === 'ar'
+            ? 'يرجى إكمال جميع الحقول المطلوبة.'
+            : 'Please complete all required fields.',
+      });
+      return;
+    }
+
+    setUploadingReport(true);
+
+    try {
+      const token =
+        adminToken ||
+        sessionStorage.getItem('admin_token') ||
+        '';
+
+      if (isSupabaseConfigured && !token) {
+        throw new Error(
+          lang === 'ar'
+            ? 'انتهت جلسة الدخول. يرجى تسجيل الدخول مرة أخرى.'
+            : 'Your session has expired. Please sign in again.',
+        );
+      }
+
+      const selectedVisitor = visitors.find(
+        (v) => v.id === uploadReportForm.visitor_id,
       );
 
-      const newRecord: AnalysisReportRecord = {
-        id: `rep-${Date.now()}`,
-        report_number: payload.report_number!,
-        visitor_id: payload.visitor_id!,
-        visitor_name: payload.visitor_name!,
-        sample_code: payload.sample_code!,
-        sample_type: payload.sample_type!,
-        sample_type_ar: payload.sample_type_ar,
-        sample_type_en: payload.sample_type_en,
-        laboratory: payload.laboratory!,
-        branch: payload.branch,
-        file_name: payload.file_name!,
-        file_path: payload.file_path!,
-        file_type: payload.file_type!,
-        file_size: payload.file_size!,
-        file_data_url: uploadReportForm.file_data_url,
+      if (!selectedVisitor) {
+        throw new Error(
+          lang === 'ar'
+            ? 'الزائر المحدد غير موجود ضمن البيانات المحملة.'
+            : 'The selected visitor was not found in the loaded records.',
+        );
+      }
+
+      const visitorName = getVisitorName(selectedVisitor);
+
+      const payload: Partial<AnalysisReportRecord> = {
+        report_number: uploadReportForm.report_number.trim(),
+        visitor_id: selectedVisitor.id,
+        visitor_name: visitorName,
+        sample_code: uploadReportForm.sample_code.trim(),
+        sample_type: uploadReportForm.sample_type.trim(),
+        sample_type_ar: uploadReportForm.sample_type.trim(),
+        sample_type_en: uploadReportForm.sample_type.trim(),
+        laboratory: uploadReportForm.laboratory,
+        branch: uploadReportForm.branch || null,
+        file_name: uploadReportForm.file_name,
+        file_path: `analysis-reports/${uploadReportForm.laboratory}/${uploadReportForm.branch || 'central'}/${uploadReportForm.file_name}`,
+        file_type:
+          file.type ||
+          (extension === 'pdf'
+            ? 'application/pdf'
+            : extension === 'xls'
+              ? 'application/vnd.ms-excel'
+              : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'),
+        file_size: file.size,
+        notes: uploadReportForm.notes || null,
+        issue_date: uploadReportForm.issue_date,
         status: 'available',
-        notes: payload.notes,
-        issue_date: payload.issue_date!,
-        uploaded_by: adminUser?.id,
-        uploaded_by_name: adminUser?.full_name,
-        created_at: new Date().toISOString(),
       };
 
-      saveData(STORAGE_KEYS.ANALYSIS_REPORTS, [
-        newRecord,
-        ...localReports,
-      ]);
+      if (!isSupabaseConfigured) {
+        // MODE LOCAL : aucun appel à Supabase.
+        const localReports = loadData<AnalysisReportRecord[]>(
+          STORAGE_KEYS.ANALYSIS_REPORTS,
+          defaultAnalysisReports,
+        );
 
-      setAnalysisReports((prev) => [newRecord, ...prev]);
-    } else {
-      // MODE SUPABASE : le fichier original est envoyé au serveur.
-      const formData = new FormData();
+        const newRecord: AnalysisReportRecord = {
+          id: `rep-${Date.now()}`,
+          report_number: payload.report_number!,
+          visitor_id: payload.visitor_id!,
+          visitor_name: payload.visitor_name!,
+          sample_code: payload.sample_code!,
+          sample_type: payload.sample_type!,
+          sample_type_ar: payload.sample_type_ar,
+          sample_type_en: payload.sample_type_en,
+          laboratory: payload.laboratory!,
+          branch: payload.branch,
+          file_name: payload.file_name!,
+          file_path: payload.file_path!,
+          file_type: payload.file_type!,
+          file_size: payload.file_size!,
+          file_data_url: uploadReportForm.file_data_url,
+          status: 'available',
+          notes: payload.notes,
+          issue_date: payload.issue_date!,
+          uploaded_by: adminUser?.id,
+          uploaded_by_name: adminUser?.full_name,
+          created_at: new Date().toISOString(),
+        };
 
-      formData.append('action', 'upload');
-      formData.append('token', token);
-      formData.append('report', JSON.stringify(payload));
-      formData.append('file', file, uploadReportForm.file_name);
+        saveData(STORAGE_KEYS.ANALYSIS_REPORTS, [
+          newRecord,
+          ...localReports,
+        ]);
+
+        setAnalysisReports((prev) => [newRecord, ...prev]);
+      } else {
+        // MODE SUPABASE : le fichier original est envoyé au serveur.
+        const formData = new FormData();
+
+        formData.append('action', 'upload');
+        formData.append('token', token);
+        formData.append('report', JSON.stringify(payload));
+        formData.append('file', file, uploadReportForm.file_name);
+
+        const { data, error } = await supabase.functions.invoke(
+          'analysis-reports',
+          {
+            body: formData,
+          },
+        );
+
+        if (error) {
+          throw error;
+        }
+
+        if (data?.error) {
+          throw new Error(String(data.error));
+        }
+
+        if (!data?.report?.id) {
+          throw new Error(
+            lang === 'ar'
+              ? 'لم يؤكد الخادم حفظ التقرير.'
+              : 'The server did not confirm that the report was saved.',
+          );
+        }
+
+        setAnalysisReports((prev) => [
+          data.report as AnalysisReportRecord,
+          ...prev,
+        ]);
+      }
+
+      setFeedback({
+        type: 'success',
+        message:
+          lang === 'ar'
+            ? 'تم رفع تقرير التحليل وربطه بالزائر بنجاح.'
+            : lang === 'fr'
+              ? 'Rapport d’analyse téléversé et lié au visiteur avec succès.'
+              : 'Analysis report uploaded and linked to the visitor successfully.',
+      });
+
+      setUploadModalOpen(false);
+    } catch (err: unknown) {
+      console.error('Upload report error:', err);
+
+      setFeedback({
+        type: 'error',
+        message: getErrorMessage(err),
+      });
+    } finally {
+      setUploadingReport(false);
+    }
+  };
+
+
+  const handleDownloadReportFile = async (
+    report: AnalysisReportRecord
+  ) => {
+    if (!report?.id) {
+      setFeedback({
+        type: 'error',
+        message:
+          lang === 'ar'
+            ? 'معرّف التقرير غير صالح.'
+            : 'Invalid report identifier.',
+      });
+      return;
+    }
+
+    try {
+      if (!isSupabaseConfigured) {
+        // MODE LOCAL : télécharger uniquement le fichier original sauvegardé.
+        if (!report.file_data_url) {
+          throw new Error(
+            lang === 'ar'
+              ? 'الملف الأصلي غير متوفر في التخزين المحلي.'
+              : 'The original file is not available in local storage.'
+          );
+        }
+
+        const link = document.createElement('a');
+        link.href = report.file_data_url;
+        link.download =
+          report.file_name || `${report.report_number}.pdf`;
+        link.style.display = 'none';
+
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        return;
+      }
+
+      // MODE SUPABASE : demander le fichier original au serveur.
+      const token =
+        adminToken ||
+        sessionStorage.getItem('admin_token') ||
+        '';
+
+      if (!token) {
+        setSessionExpired(true);
+        throw new Error(
+          lang === 'ar'
+            ? 'انتهت جلسة الدخول. يرجى تسجيل الدخول مرة أخرى.'
+            : 'Your session has expired. Please sign in again.'
+        );
+      }
 
       const { data, error } = await supabase.functions.invoke(
         'analysis-reports',
         {
-          body: formData,
-        },
+          body: {
+            action: 'download',
+            token,
+            id: report.id,
+          },
+          responseType: 'blob',
+        }
       );
 
       if (error) {
+        console.error('Download analysis report error:', error);
         throw error;
       }
 
-      if (data?.error) {
-        throw new Error(String(data.error));
-      }
-
-      if (!data?.report?.id) {
-        throw new Error(
+      if (!(data instanceof Blob) || data.size === 0) {
+        const message =
           lang === 'ar'
-            ? 'لم يؤكد الخادم حفظ التقرير.'
-            : 'The server did not confirm that the report was saved.',
-        );
+            ? 'لم يتم استلام ملف أصلي صالح من الخادم.'
+            : 'The server did not return a valid original file.';
+        throw new Error(message);
       }
 
-      setAnalysisReports((prev) => [
-        data.report as AnalysisReportRecord,
-        ...prev,
-      ]);
-    }
-
-    setFeedback({
-      type: 'success',
-      message:
-        lang === 'ar'
-          ? 'تم رفع تقرير التحليل وربطه بالزائر بنجاح.'
-          : lang === 'fr'
-            ? 'Rapport d’analyse téléversé et lié au visiteur avec succès.'
-            : 'Analysis report uploaded and linked to the visitor successfully.',
-    });
-
-    setUploadModalOpen(false);
-  } catch (err: unknown) {
-    console.error('Upload report error:', err);
-
-    setFeedback({
-      type: 'error',
-      message: getErrorMessage(err),
-    });
-  } finally {
-    setUploadingReport(false);
-  }
-};
-
-  
-const handleDownloadReportFile = async (
-  report: AnalysisReportRecord
-) => {
-  if (!report?.id) {
-    setFeedback({
-      type: 'error',
-      message:
-        lang === 'ar'
-          ? 'معرّف التقرير غير صالح.'
-          : 'Invalid report identifier.',
-    });
-    return;
-  }
-
-  try {
-    if (!isSupabaseConfigured) {
-      // MODE LOCAL : télécharger uniquement le fichier original sauvegardé.
-      if (!report.file_data_url) {
-        throw new Error(
-          lang === 'ar'
-            ? 'الملف الأصلي غير متوفر في التخزين المحلي.'
-            : 'The original file is not available in local storage.'
-        );
-      }
-
+      const objectUrl = URL.createObjectURL(data);
       const link = document.createElement('a');
-      link.href = report.file_data_url;
+
+      link.href = objectUrl;
       link.download =
         report.file_name || `${report.report_number}.pdf`;
       link.style.display = 'none';
@@ -3206,73 +3262,160 @@ const handleDownloadReportFile = async (
       document.body.appendChild(link);
       link.click();
       link.remove();
+
+      // Revoke after the browser has had time to start the download.
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+    } catch (err: unknown) {
+      console.error('Download report error:', err);
+
+      setFeedback({
+        type: 'error',
+        message: getErrorMessage(err),
+      });
+    }
+  };
+
+  const closeReportPreview = () => {
+    if (reportPreviewUrl) {
+      URL.revokeObjectURL(reportPreviewUrl);
+    }
+
+    setReportPreviewUrl(null);
+    setViewReportModal(null);
+    setReportPreviewLoading(false);
+  };
+  const handleViewReportFile = async (
+    report: AnalysisReportRecord
+  ) => {
+    if (!report?.id) {
+      setFeedback({
+        type: 'error',
+        message:
+          lang === 'ar'
+            ? 'معرّف التقرير غير صالح.'
+            : lang === 'fr'
+              ? 'Identifiant du rapport invalide.'
+              : 'Invalid report identifier.',
+      });
       return;
     }
 
-    // MODE SUPABASE : demander le fichier original au serveur.
-    const token =
-      adminToken ||
-      sessionStorage.getItem('admin_token') ||
-      '';
+    const fileName = (report.file_name || '').toLowerCase();
+    const isExcel =
+      /\.(xls|xlsx|csv)$/i.test(fileName) ||
+      report.file_type?.includes('excel') ||
+      report.file_type?.includes('spreadsheet');
 
-    if (!token) {
-      setSessionExpired(true);
-      throw new Error(
-        lang === 'ar'
-          ? 'انتهت جلسة الدخول. يرجى تسجيل الدخول مرة أخرى.'
-          : 'Your session has expired. Please sign in again.'
-      );
+    // Excel : télécharger le fichier original.
+    if (isExcel) {
+      void handleDownloadReportFile(report);
+      return;
     }
 
-    const { data, error } = await supabase.functions.invoke(
-      'analysis-reports',
-      {
-        body: {
-          action: 'download',
-          token,
-          id: report.id,
-        },
-        responseType: 'blob',
+    setReportPreviewLoading(true);
+
+    try {
+      let blob: Blob;
+
+      if (!isSupabaseConfigured) {
+        if (!report.file_data_url) {
+          throw new Error(
+            lang === 'ar'
+              ? 'الملف الأصلي غير متوفر في التخزين المحلي.'
+              : lang === 'fr'
+                ? 'Le fichier original est indisponible en stockage local.'
+                : 'The original file is not available in local storage.'
+          );
+        }
+
+        const response = await fetch(report.file_data_url);
+
+        if (!response.ok) {
+          throw new Error('Unable to read the original report.');
+        }
+
+        blob = await response.blob();
+      } else {
+        const token =
+          adminToken ||
+          sessionStorage.getItem('admin_token') ||
+          '';
+
+        if (!token) {
+          setSessionExpired(true);
+          throw new Error(
+            lang === 'ar'
+              ? 'انتهت جلسة الدخول. يرجى تسجيل الدخول مرة أخرى.'
+              : lang === 'fr'
+                ? 'Session expirée. Veuillez vous reconnecter.'
+                : 'Your session has expired. Please sign in again.'
+          );
+        }
+
+        const { data, error } = await supabase.functions.invoke(
+          'analysis-reports',
+          {
+            body: {
+              action: 'download',
+              token,
+              id: report.id,
+            },
+            responseType: 'blob',
+          }
+        );
+
+        if (error) throw error;
+
+        if (!(data instanceof Blob) || data.size === 0) {
+          throw new Error('The server did not return a valid report file.');
+        }
+
+        blob = data;
       }
-    );
 
-    if (error) {
-      console.error('Download analysis report error:', error);
-      throw error;
+      const isPdf =
+        blob.type === 'application/pdf' ||
+        fileName.endsWith('.pdf');
+
+      if (!isPdf) {
+        throw new Error(
+          lang === 'ar'
+            ? 'تعذرت معاينة هذا النوع من الملفات.'
+            : lang === 'fr'
+              ? 'Ce type de fichier ne peut pas être prévisualisé.'
+              : 'This file type cannot be previewed.'
+        );
+      }
+
+      const previewUrl = URL.createObjectURL(blob);
+      setReportPreviewUrl(previewUrl);
+
+      const previewTab = window.open(previewUrl, '_blank');
+
+      if (!previewTab) {
+        setFeedback({
+          type: 'error',
+          message:
+            lang === 'ar'
+              ? 'منع المتصفح فتح نافذة المعاينة. اسمحي بالنوافذ المنبثقة لهذا الموقع.'
+              : lang === 'fr'
+                ? 'Le navigateur a bloqué le nouvel onglet. Autorisez les fenêtres contextuelles pour ce site.'
+                : 'The browser blocked the preview tab. Allow pop-ups for this site.',
+        });
+      }
+    } catch (err: unknown) {
+      console.error('Preview report error:', err);
+
+      setViewReportModal(null);
+
+      setFeedback({
+        type: 'error',
+        message: getErrorMessage(err),
+      });
+    } finally {
+      setReportPreviewLoading(false);
     }
-
-    if (!(data instanceof Blob) || data.size === 0) {
-      const message =
-        lang === 'ar'
-          ? 'لم يتم استلام ملف أصلي صالح من الخادم.'
-          : 'The server did not return a valid original file.';
-      throw new Error(message);
-    }
-
-    const objectUrl = URL.createObjectURL(data);
-    const link = document.createElement('a');
-
-    link.href = objectUrl;
-    link.download =
-      report.file_name || `${report.report_number}.pdf`;
-    link.style.display = 'none';
-
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-
-    // Revoke after the browser has had time to start the download.
-    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
-  } catch (err: unknown) {
-    console.error('Download report error:', err);
-
-    setFeedback({
-      type: 'error',
-      message: getErrorMessage(err),
-    });
-  }
-};
-
+  };
 
   const exportReportsXls = () => {
     const headers = [
@@ -3677,7 +3820,7 @@ const handleDownloadReportFile = async (
           break;
         }
 
-               case 'report': {
+        case 'report': {
           const token =
             adminToken ||
             sessionStorage.getItem('admin_token') ||
@@ -3735,10 +3878,10 @@ const handleDownloadReportFile = async (
               localReports.map((report) =>
                 report.id === deleteTarget.id
                   ? {
-                      ...report,
-                      status: 'archived' as const,
-                      deleted_at: now,
-                    }
+                    ...report,
+                    status: 'archived' as const,
+                    deleted_at: now,
+                  }
                   : report
               )
             );
@@ -4920,8 +5063,8 @@ const handleDownloadReportFile = async (
     );
   }, [analysisReports]);
 
-  
-const filteredAnalysisReports = analysisReports.filter((report) => {
+
+  const filteredAnalysisReports = analysisReports.filter((report) => {
     // Toujours exclure les rapports archivés ou marqués comme supprimés.
     if (report.status === 'archived' || report.deleted_at) return false;
 
@@ -4965,7 +5108,7 @@ const filteredAnalysisReports = analysisReports.filter((report) => {
       matchesFileType &&
       matchesStatus
     );
-});
+  });
 
 
   const overviewReports = analysisReports.filter((r) => isRecordInAdminScope(r) && !r.deleted_at && r.status !== 'archived');
@@ -6848,7 +6991,7 @@ const filteredAnalysisReports = analysisReports.filter((report) => {
                                         {/* View Report Details */}
                                         <button
                                           type="button"
-                                          onClick={() => setViewReportModal(report)}
+                                          onClick={() => void handleViewReportFile(report)}
                                           className="p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/40 text-blue-600 dark:text-blue-400 transition-colors cursor-pointer"
                                           title={lang === 'ar' ? 'عرض تفاصيل التقرير' : 'View report details'}
                                         >
@@ -7055,7 +7198,7 @@ const filteredAnalysisReports = analysisReports.filter((report) => {
                                   <div className="flex items-center justify-end gap-1.5">
                                     <button
                                       type="button"
-                                      onClick={() => setViewReportModal(report)}
+                                      onClick={() => void handleViewReportFile(report)}
                                       className="p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/40 text-blue-600 dark:text-blue-400 transition-colors cursor-pointer"
                                       title={lang === 'ar' ? 'عرض التفاصيل' : 'View details'}
                                     >
@@ -8778,592 +8921,593 @@ const filteredAnalysisReports = analysisReports.filter((report) => {
       )}
 
 
-{/* ============================================================
+      {/* ============================================================
     UPLOAD ANALYSIS REPORT MODAL
 ============================================================= */}
-{uploadModalOpen && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/60 backdrop-blur-xs overflow-hidden">
-    <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-2xl max-h-[calc(100dvh-1.5rem)] sm:max-h-[92dvh] flex flex-col shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-in fade-in duration-200">
+      {uploadModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/60 backdrop-blur-xs overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-2xl max-h-[calc(100dvh-1.5rem)] sm:max-h-[92dvh] flex flex-col shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-in fade-in duration-200">
 
-      {/* Modal Header */}
-      <div className="shrink-0 p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-800/40">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-200 dark:border-blue-900/60 shrink-0">
-            <UploadCloud className="w-5 h-5" />
-          </div>
+            {/* Modal Header */}
+            <div className="shrink-0 p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-800/40">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-200 dark:border-blue-900/60 shrink-0">
+                  <UploadCloud className="w-5 h-5" />
+                </div>
 
-          <div className="min-w-0">
-            <h3 className="text-base font-bold text-slate-900 dark:text-white">
-              {lang === 'ar'
-                ? 'رفع تقرير تحليل مخبري أصلي'
-                : lang === 'fr'
-                  ? 'Téléverser un rapport d’analyse officiel'
-                  : 'Upload Official Analysis Report'}
-            </h3>
-
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              {lang === 'ar'
-                ? 'الملفات المدعومة: PDF أو Excel (.pdf, .xls, .xlsx)، بحد أقصى 15 ميغابايت'
-                : lang === 'fr'
-                  ? 'Formats acceptés : PDF ou Excel (.pdf, .xls, .xlsx), 15 Mo maximum'
-                  : 'Supported formats: PDF or Excel (.pdf, .xls, .xlsx), up to 15 MB'}
-            </p>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setUploadModalOpen(false)}
-          aria-label={
-            lang === 'ar'
-              ? 'إغلاق'
-              : lang === 'fr'
-                ? 'Fermer'
-                : 'Close'
-          }
-          className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer shrink-0"
-        >
-          <X className="w-5 h-5" />
-        </button>
-      </div>
-
-      {/* Modal Form */}
-      <form
-        onSubmit={handleUploadReportSubmit}
-        className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-4 text-xs"
-      >
-        {/* Visitor Selection */}
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-            {lang === 'ar'
-              ? 'الزائر المرتبط بالتقرير *'
-              : lang === 'fr'
-                ? 'Visiteur associé au rapport *'
-                : 'Linked Visitor *'}
-          </label>
-
-          
-<select
-  value={uploadReportForm.visitor_id}
-  onChange={(e) => {
-    const selId = e.target.value;
-
-    const matchedVis = visitors.find(
-      (v) => v.id === selId || v.visitor_id === selId
-    );
-
-    const purpose = String(
-      matchedVis?.purpose ||
-        matchedVis?.visit_purpose ||
-        ''
-    )
-      .trim()
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
-
-    
-       const allowSampleType =
-      purpose.includes('تحليل') ||
-      (purpose.includes('عينة') &&
-       (purpose.includes('استلام') ||
-      purpose.includes('تسليم'))) ||
-      purpose.includes('analysis') ||
-      purpose.includes('sample delivery') ||
-      purpose.includes('sample receipt') ||
-      purpose.includes('sample reception') ||
-      purpose.includes('sample collection') ||
-      purpose.includes('sample handover') ||
-      purpose.includes('analyse') ||
-      (purpose.includes('echantillon') &&
-      (purpose.includes('reception') ||
-      purpose.includes('livraison') ||
-      purpose.includes('remise') ||
-      purpose.includes('prelevement')));
-
-    setUploadReportForm((prev) => ({
-      ...prev,
-      visitor_id: selId,
-      visitor_name: matchedVis
-        ? getVisitorName(matchedVis)
-        : '',
-      laboratory: matchedVis?.laboratory || prev.laboratory,
-      branch: matchedVis?.branch || prev.branch,
-      sample_type: allowSampleType ? prev.sample_type : '',
-    }));
-  }}
-  className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
-  required
->
-  <option value="">
-    {lang === 'ar'
-      ? '-- اختر الزائر المستفيد --'
-      : lang === 'fr'
-        ? '-- Sélectionner le visiteur --'
-        : '-- Select Visitor --'}
-  </option>
-
-  {filteredVisitors.map((vis) => (
-    <option key={vis.id} value={vis.id}>
-      {getVisitorName(vis)} — ({vis.visitor_id || vis.id})
-      {vis.company ? ` • ${vis.company}` : ''}
-    </option>
-  ))}
-</select>
-
-          
-
-        </div>
-
-        {/* Visitor Purpose */}
-        <div>
-          <span className="text-slate-400 block text-[11px] mb-1">
-            {lang === 'ar'
-              ? 'الغرض من الزيارة:'
-              : lang === 'fr'
-                ? 'Objet de la visite :'
-                : 'Visit Purpose:'}
-          </span>
-
-          <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-medium break-words">
-            {(() => {
-              const linkedVisitor = visitors.find(
-                (visitor) =>
-                  visitor.id === uploadReportForm.visitor_id ||
-                  visitor.visitor_id === uploadReportForm.visitor_id
-              );
-
-              const purpose =
-                linkedVisitor?.purpose ||
-                linkedVisitor?.visit_purpose ||
-                '';
-
-              return purpose
-                ? getLocalizedVisitorPurpose(purpose, lang)
-                : '—';
-            })()}
-          </div>
-        </div>
-
-        {/* Report Number & Sample Code */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-              {lang === 'ar'
-                ? 'رقم التقرير المعتمد *'
-                : lang === 'fr'
-                  ? 'Numéro officiel du rapport *'
-                  : 'Report Number *'}
-            </label>
-
-            <input
-              type="text"
-              value={uploadReportForm.report_number}
-              onChange={(e) =>
-                setUploadReportForm((prev) => ({
-                  ...prev,
-                  report_number: e.target.value,
-                }))
-              }
-              placeholder="NWC-ASR-2026-0941"
-              className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2.5 font-mono outline-none focus:ring-2 focus:ring-blue-500"
-              dir="ltr"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-              {lang === 'ar'
-                ? 'رمز العينة *'
-                : lang === 'fr'
-                  ? "Code de l’échantillon *"
-                  : 'Sample Code *'}
-            </label>
-
-            <input
-              type="text"
-              value={uploadReportForm.sample_code}
-              onChange={(e) =>
-                setUploadReportForm((prev) => ({
-                  ...prev,
-                  sample_code: e.target.value,
-                }))
-              }
-              placeholder="SMP-2026-8819"
-              className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2.5 font-mono outline-none focus:ring-2 focus:ring-blue-500"
-              dir="ltr"
-              required
-            />
-          </div>
-        </div>
-
-        {/* Sample Type — only for analysis/sample visits */}
-        {(() => {
-          const linkedVisitor = visitors.find(
-            (visitor) =>
-              visitor.id === uploadReportForm.visitor_id ||
-              visitor.visitor_id === uploadReportForm.visitor_id
-          );
-
-          const purpose = String(
-            linkedVisitor?.purpose ||
-              linkedVisitor?.visit_purpose ||
-              ''
-          )
-            .trim()
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '');
-
-          const showSampleType =
-            purpose.includes('تحليل') ||
-            (purpose.includes('عينة') &&
-              (purpose.includes('استلام') ||
-                purpose.includes('تسليم'))) ||
-            purpose.includes('analysis') ||
-            purpose.includes('sample delivery') ||
-            purpose.includes('sample receipt') ||
-            purpose.includes('sample reception') ||
-            purpose.includes('sample collection') ||
-            purpose.includes('sample handover') ||
-            purpose.includes('analyse') ||
-            (purpose.includes('echantillon') &&
-              (purpose.includes('reception') ||
-                purpose.includes('livraison') ||
-                purpose.includes('remise') ||
-                purpose.includes('prelevement')));
-
-          if (!showSampleType) return null;
-
-          return (
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                {lang === 'ar'
-                  ? 'نوع العينة / الفحص *'
-                  : lang === 'fr'
-                    ? "Type d’échantillon / d’analyse *"
-                    : 'Sample / Analysis Type *'}
-              </label>
-
-              <input
-                type="text"
-                value={uploadReportForm.sample_type}
-                onChange={(e) =>
-                  setUploadReportForm((prev) => ({
-                    ...prev,
-                    sample_type: e.target.value,
-                  }))
-                }
-                placeholder={
-                  lang === 'ar'
-                    ? 'مياه شرب معالجة — شبكة التوزيع'
-                    : lang === 'fr'
-                      ? 'Eau potable traitée — réseau de distribution'
-                      : 'Treated potable water — distribution network'
-                }
-                className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-
-              <div className="flex flex-wrap gap-1.5 mt-2">
-                {[
-                  {
-                    ar: 'مياه شرب معالجة — شبكة التوزيع',
-                    en: 'Treated Potable Water — Distribution Network',
-                    fr: 'Eau potable traitée — réseau de distribution',
-                  },
-                  {
-                    ar: 'مياه آبار جوفية خام',
-                    en: 'Raw Groundwater',
-                    fr: 'Eau souterraine brute',
-                  },
-                  {
-                    ar: 'مخرجات محطة التحلية',
-                    en: 'Desalination Plant Output',
-                    fr: 'Eau produite par une station de dessalement',
-                  },
-                  {
-                    ar: 'مياه صرف صحي معالجة ثلاثياً',
-                    en: 'Tertiary-Treated Wastewater',
-                    fr: 'Eaux usées traitées tertiairement',
-                  },
-                  {
-                    ar: 'فحص بكتيريولوجي وكيميائي شامل',
-                    en: 'Comprehensive Bacteriological and Chemical Analysis',
-                    fr: 'Analyse bactériologique et chimique complète',
-                  },
-                ].map((preset) => {
-                  const value =
-                    lang === 'ar'
-                      ? preset.ar
+                <div className="min-w-0">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                    {lang === 'ar'
+                      ? 'رفع تقرير تحليل مخبري أصلي'
                       : lang === 'fr'
-                        ? preset.fr
-                        : preset.en;
+                        ? 'Téléverser un rapport d’analyse officiel'
+                        : 'Upload Official Analysis Report'}
+                  </h3>
 
-                  return (
-                    <button
-                      key={preset.en}
-                      type="button"
-                      onClick={() =>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    {lang === 'ar'
+                      ? 'الملفات المدعومة: PDF أو Excel (.pdf, .xls, .xlsx)، بحد أقصى 15 ميغابايت'
+                      : lang === 'fr'
+                        ? 'Formats acceptés : PDF ou Excel (.pdf, .xls, .xlsx), 15 Mo maximum'
+                        : 'Supported formats: PDF or Excel (.pdf, .xls, .xlsx), up to 15 MB'}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setUploadModalOpen(false)}
+                aria-label={
+                  lang === 'ar'
+                    ? 'إغلاق'
+                    : lang === 'fr'
+                      ? 'Fermer'
+                      : 'Close'
+                }
+                className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer shrink-0"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Form */}
+            <form
+              onSubmit={handleUploadReportSubmit}
+              className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-4 text-xs"
+            >
+              {/* Visitor Selection */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  {lang === 'ar'
+                    ? 'الزائر المرتبط بالتقرير *'
+                    : lang === 'fr'
+                      ? 'Visiteur associé au rapport *'
+                      : 'Linked Visitor *'}
+                </label>
+
+
+                <select
+                  value={uploadReportForm.visitor_id}
+                  onChange={(e) => {
+                    const selId = e.target.value;
+
+                    const matchedVis = visitors.find(
+                      (v) => v.id === selId || v.visitor_id === selId
+                    );
+
+                    const purpose = String(
+                      matchedVis?.purpose ||
+                      matchedVis?.visit_purpose ||
+                      ''
+                    )
+                      .trim()
+                      .toLowerCase()
+                      .normalize('NFD')
+                      .replace(/[\u0300-\u036f]/g, '');
+
+
+                    const allowSampleType =
+                      purpose.includes('تحليل') ||
+                      (purpose.includes('عينة') &&
+                        (purpose.includes('استلام') ||
+                          purpose.includes('تسليم'))) ||
+                      purpose.includes('analysis') ||
+                      purpose.includes('sample delivery') ||
+                      purpose.includes('sample receipt') ||
+                      purpose.includes('sample reception') ||
+                      purpose.includes('sample collection') ||
+                      purpose.includes('sample handover') ||
+                      purpose.includes('analyse') ||
+                      (purpose.includes('echantillon') &&
+                        (purpose.includes('reception') ||
+                          purpose.includes('livraison') ||
+                          purpose.includes('remise') ||
+                          purpose.includes('prelevement')));
+
+                    setUploadReportForm((prev) => ({
+                      ...prev,
+                      visitor_id: selId,
+                      visitor_name: matchedVis
+                        ? getVisitorName(matchedVis)
+                        : '',
+                      laboratory: matchedVis?.laboratory || prev.laboratory,
+                      branch: matchedVis?.branch || prev.branch,
+                      sample_type: allowSampleType ? prev.sample_type : '',
+                    }));
+                  }}
+                  className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                >
+                  <option value="">
+                    {lang === 'ar'
+                      ? '-- اختر الزائر المستفيد --'
+                      : lang === 'fr'
+                        ? '-- Sélectionner le visiteur --'
+                        : '-- Select Visitor --'}
+                  </option>
+
+                  {filteredVisitors.map((vis) => (
+                    <option key={vis.id} value={vis.id}>
+                      {getVisitorName(vis)} — ({vis.visitor_id || vis.id})
+                      {vis.company ? ` • ${vis.company}` : ''}
+                    </option>
+                  ))}
+                </select>
+
+
+
+              </div>
+
+              {/* Visitor Purpose */}
+              <div>
+                <span className="text-slate-400 block text-[11px] mb-1">
+                  {lang === 'ar'
+                    ? 'الغرض من الزيارة:'
+                    : lang === 'fr'
+                      ? 'Objet de la visite :'
+                      : 'Visit Purpose:'}
+                </span>
+
+                <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-medium break-words">
+                  {(() => {
+                    const linkedVisitor = visitors.find(
+                      (visitor) =>
+                        visitor.id === uploadReportForm.visitor_id ||
+                        visitor.visitor_id === uploadReportForm.visitor_id
+                    );
+
+                    const purpose =
+                      linkedVisitor?.purpose ||
+                      linkedVisitor?.visit_purpose ||
+                      '';
+
+                    return purpose
+                      ? getLocalizedVisitorPurpose(purpose, lang)
+                      : '—';
+                  })()}
+                </div>
+              </div>
+
+              {/* Report Number & Sample Code */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                    {lang === 'ar'
+                      ? 'رقم التقرير المعتمد *'
+                      : lang === 'fr'
+                        ? 'Numéro officiel du rapport *'
+                        : 'Report Number *'}
+                  </label>
+
+                  <input
+                    type="text"
+                    value={uploadReportForm.report_number}
+                    onChange={(e) =>
+                      setUploadReportForm((prev) => ({
+                        ...prev,
+                        report_number: e.target.value,
+                      }))
+                    }
+                    placeholder="NWC-ASR-2026-0941"
+                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2.5 font-mono outline-none focus:ring-2 focus:ring-blue-500"
+                    dir="ltr"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                    {lang === 'ar'
+                      ? 'رمز العينة *'
+                      : lang === 'fr'
+                        ? "Code de l’échantillon *"
+                        : 'Sample Code *'}
+                  </label>
+
+                  <input
+                    type="text"
+                    value={uploadReportForm.sample_code}
+                    onChange={(e) =>
+                      setUploadReportForm((prev) => ({
+                        ...prev,
+                        sample_code: e.target.value,
+                      }))
+                    }
+                    placeholder="SMP-2026-8819"
+                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2.5 font-mono outline-none focus:ring-2 focus:ring-blue-500"
+                    dir="ltr"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Sample Type — only for analysis/sample visits */}
+              {(() => {
+                const linkedVisitor = visitors.find(
+                  (visitor) =>
+                    visitor.id === uploadReportForm.visitor_id ||
+                    visitor.visitor_id === uploadReportForm.visitor_id
+                );
+
+                const purpose = String(
+                  linkedVisitor?.purpose ||
+                  linkedVisitor?.visit_purpose ||
+                  ''
+                )
+                  .trim()
+                  .toLowerCase()
+                  .normalize('NFD')
+                  .replace(/[\u0300-\u036f]/g, '');
+
+                const showSampleType =
+                  purpose.includes('تحليل') ||
+                  (purpose.includes('عينة') &&
+                    (purpose.includes('استلام') ||
+                      purpose.includes('تسليم'))) ||
+                  purpose.includes('analysis') ||
+                  purpose.includes('sample delivery') ||
+                  purpose.includes('sample receipt') ||
+                  purpose.includes('sample reception') ||
+                  purpose.includes('sample collection') ||
+                  purpose.includes('sample handover') ||
+                  purpose.includes('analyse') ||
+                  (purpose.includes('echantillon') &&
+                    (purpose.includes('reception') ||
+                      purpose.includes('livraison') ||
+                      purpose.includes('remise') ||
+                      purpose.includes('prelevement')));
+
+                if (!showSampleType) return null;
+
+                return (
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                      {lang === 'ar'
+                        ? 'نوع العينة / الفحص *'
+                        : lang === 'fr'
+                          ? "Type d’échantillon / d’analyse *"
+                          : 'Sample / Analysis Type *'}
+                    </label>
+
+                    <input
+                      type="text"
+                      value={uploadReportForm.sample_type}
+                      onChange={(e) =>
                         setUploadReportForm((prev) => ({
                           ...prev,
-                          sample_type: value,
+                          sample_type: e.target.value,
                         }))
                       }
-                      className="px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950/60 text-[10px] text-slate-600 dark:text-slate-400 hover:text-blue-600 transition cursor-pointer"
-                    >
-                      {value}
-                    </button>
-                  );
-                })}
+                      placeholder={
+                        lang === 'ar'
+                          ? 'مياه شرب معالجة — شبكة التوزيع'
+                          : lang === 'fr'
+                            ? 'Eau potable traitée — réseau de distribution'
+                            : 'Treated potable water — distribution network'
+                      }
+                      className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {[
+                        {
+                          ar: 'مياه شرب معالجة — شبكة التوزيع',
+                          en: 'Treated Potable Water — Distribution Network',
+                          fr: 'Eau potable traitée — réseau de distribution',
+                        },
+                        {
+                          ar: 'مياه آبار جوفية خام',
+                          en: 'Raw Groundwater',
+                          fr: 'Eau souterraine brute',
+                        },
+                        {
+                          ar: 'مخرجات محطة التحلية',
+                          en: 'Desalination Plant Output',
+                          fr: 'Eau produite par une station de dessalement',
+                        },
+                        {
+                          ar: 'مياه صرف صحي معالجة ثلاثياً',
+                          en: 'Tertiary-Treated Wastewater',
+                          fr: 'Eaux usées traitées tertiairement',
+                        },
+                        {
+                          ar: 'فحص بكتيريولوجي وكيميائي شامل',
+                          en: 'Comprehensive Bacteriological and Chemical Analysis',
+                          fr: 'Analyse bactériologique et chimique complète',
+                        },
+                      ].map((preset) => {
+                        const value =
+                          lang === 'ar'
+                            ? preset.ar
+                            : lang === 'fr'
+                              ? preset.fr
+                              : preset.en;
+
+                        return (
+                          <button
+                            key={preset.en}
+                            type="button"
+                            onClick={() =>
+                              setUploadReportForm((prev) => ({
+                                ...prev,
+                                sample_type: value,
+                              }))
+                            }
+                            className="px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950/60 text-[10px] text-slate-600 dark:text-slate-400 hover:text-blue-600 transition cursor-pointer"
+                          >
+                            {value}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Laboratory & Branch */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                    {lang === 'ar'
+                      ? 'المختبر المركزي *'
+                      : lang === 'fr'
+                        ? 'Laboratoire central *'
+                        : 'Central Laboratory *'}
+                  </label>
+
+                  <select
+                    value={uploadReportForm.laboratory}
+                    disabled={
+                      isLabAdmin(adminUser?.role) ||
+                      isLocalAdmin(adminUser?.role)
+                    }
+                    onChange={(e) =>
+                      setUploadReportForm((prev) => ({
+                        ...prev,
+                        laboratory: e.target.value,
+                        branch: '',
+                      }))
+                    }
+                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-75 disabled:bg-slate-100 dark:disabled:bg-slate-800/60"
+                    required
+                  >
+                    {LAB_HIERARCHY.map((lab) => (
+                      <option key={lab.id} value={lab.id}>
+                        {getLabLabel(lab.id, lang)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                    {lang === 'ar'
+                      ? 'الفرع التابع'
+                      : lang === 'fr'
+                        ? 'Agence rattachée'
+                        : 'Branch'}
+                  </label>
+
+                  <select
+                    value={uploadReportForm.branch}
+                    disabled={
+                      isLocalAdmin(adminUser?.role) &&
+                      getUserBranches(adminUser).length <= 1
+                    }
+                    onChange={(e) =>
+                      setUploadReportForm((prev) => ({
+                        ...prev,
+                        branch: e.target.value,
+                      }))
+                    }
+                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-75 disabled:bg-slate-100 dark:disabled:bg-slate-800/60"
+                  >
+                    <option value="">
+                      {lang === 'ar'
+                        ? 'المقر الرئيسي للمختبر المركزي'
+                        : lang === 'fr'
+                          ? 'Siège du laboratoire central'
+                          : 'Main Central Lab Office'}
+                    </option>
+
+                    {(
+                      LAB_HIERARCHY.find(
+                        (l) => l.id === uploadReportForm.laboratory
+                      )?.branches || []
+                    ).map((br) => (
+                      <option key={br.id} value={br.id}>
+                        {getBranchLabel(uploadReportForm.laboratory, br.id, lang)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
-            </div>
-          );
-        })()}
 
-        {/* Laboratory & Branch */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-              {lang === 'ar'
-                ? 'المختبر المركزي *'
-                : lang === 'fr'
-                  ? 'Laboratoire central *'
-                  : 'Central Laboratory *'}
-            </label>
+              {/* Issue Date */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  {lang === 'ar'
+                    ? 'تاريخ اعتماد التقرير *'
+                    : lang === 'fr'
+                      ? 'Date d’émission / de certification *'
+                      : 'Certification / Issue Date *'}
+                </label>
 
-            <select
-              value={uploadReportForm.laboratory}
-              disabled={
-                isLabAdmin(adminUser?.role) ||
-                isLocalAdmin(adminUser?.role)
-              }
-              onChange={(e) =>
-                setUploadReportForm((prev) => ({
-                  ...prev,
-                  laboratory: e.target.value,
-                  branch: '',
-                }))
-              }
-              className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-75 disabled:bg-slate-100 dark:disabled:bg-slate-800/60"
-              required
-            >
-              {LAB_HIERARCHY.map((lab) => (
-                <option key={lab.id} value={lab.id}>
-                  {getLabLabel(lab.id, lang)}
-                </option>
-              ))}
-            </select>
-          </div>
+                <input
+                  type="date"
+                  value={uploadReportForm.issue_date}
+                  onChange={(e) =>
+                    setUploadReportForm((prev) => ({
+                      ...prev,
+                      issue_date: e.target.value,
+                    }))
+                  }
+                  className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+                  required
+                />
+              </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-              {lang === 'ar'
-                ? 'الفرع التابع'
-                : lang === 'fr'
-                  ? 'Agence rattachée'
-                  : 'Branch'}
-            </label>
+              {/* File Upload Zone */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  {lang === 'ar'
+                    ? 'ملف التقرير الأصلي (.pdf أو .xls أو .xlsx) *'
+                    : lang === 'fr'
+                      ? 'Fichier original (.pdf, .xls, .xlsx) *'
+                      : 'Original Report File (.pdf, .xls, .xlsx) *'}
+                </label>
 
-            <select
-              value={uploadReportForm.branch}
-              disabled={
-                isLocalAdmin(adminUser?.role) &&
-                getUserBranches(adminUser).length <= 1
-              }
-              onChange={(e) =>
-                setUploadReportForm((prev) => ({
-                  ...prev,
-                  branch: e.target.value,
-                }))
-              }
-              className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-75 disabled:bg-slate-100 dark:disabled:bg-slate-800/60"
-            >
-              <option value="">
-                {lang === 'ar'
-                  ? 'المقر الرئيسي للمختبر المركزي'
-                  : lang === 'fr'
-                    ? 'Siège du laboratoire central'
-                    : 'Main Central Lab Office'}
-              </option>
+                <div className="relative border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-400 rounded-2xl p-5 text-center transition-colors bg-slate-50/50 dark:bg-slate-800/30">
+                  <input
+                    type="file"
+                    accept=".pdf,.xls,.xlsx,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    onChange={handleFileChange}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
 
-              {(
-                LAB_HIERARCHY.find(
-                  (l) => l.id === uploadReportForm.laboratory
-                )?.branches || []
-              ).map((br) => (
-                <option key={br.id} value={br.id}>
-                  {getBranchLabel(uploadReportForm.laboratory, br.id, lang)}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
+                  {uploadReportForm.file_name ? (
+                    <div className="flex items-center justify-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                        {uploadReportForm.file_type.includes('excel') ||
+                          /\.(xls|xlsx)$/i.test(uploadReportForm.file_name) ? (
+                          <FileSpreadsheet className="w-5 h-5" />
+                        ) : (
+                          <FileText className="w-5 h-5" />
+                        )}
+                      </div>
 
-        {/* Issue Date */}
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-            {lang === 'ar'
-              ? 'تاريخ اعتماد التقرير *'
-              : lang === 'fr'
-                ? 'Date d’émission / de certification *'
-                : 'Certification / Issue Date *'}
-          </label>
+                      <div className="text-start min-w-0">
+                        <div className="font-bold text-slate-900 dark:text-white truncate max-w-sm">
+                          {uploadReportForm.file_name}
+                        </div>
 
-          <input
-            type="date"
-            value={uploadReportForm.issue_date}
-            onChange={(e) =>
-              setUploadReportForm((prev) => ({
-                ...prev,
-                issue_date: e.target.value,
-              }))
-            }
-            className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 font-mono"
-            required
-          />
-        </div>
-
-        {/* File Upload Zone */}
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-            {lang === 'ar'
-              ? 'ملف التقرير الأصلي (.pdf أو .xls أو .xlsx) *'
-              : lang === 'fr'
-                ? 'Fichier original (.pdf, .xls, .xlsx) *'
-                : 'Original Report File (.pdf, .xls, .xlsx) *'}
-          </label>
-
-          <div className="relative border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-400 rounded-2xl p-5 text-center transition-colors bg-slate-50/50 dark:bg-slate-800/30">
-            <input
-              type="file"
-              accept=".pdf,.xls,.xlsx,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-              onChange={handleFileChange}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            />
-
-            {uploadReportForm.file_name ? (
-              <div className="flex items-center justify-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-                  {uploadReportForm.file_type.includes('excel') ||
-                  /\.(xls|xlsx)$/i.test(uploadReportForm.file_name) ? (
-                    <FileSpreadsheet className="w-5 h-5" />
+                        <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+                          {Math.round(uploadReportForm.file_size / 1024)} KB •{' '}
+                          {lang === 'ar'
+                            ? 'جاهز للرفع والاعتماد'
+                            : lang === 'fr'
+                              ? 'Prêt à être téléversé'
+                              : 'Ready to upload'}
+                        </div>
+                      </div>
+                    </div>
                   ) : (
-                    <FileText className="w-5 h-5" />
+                    <div className="space-y-1.5">
+                      <UploadCloud className="w-8 h-8 text-blue-500 mx-auto" />
+
+                      <div className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        {lang === 'ar'
+                          ? 'اضغط لاختيار الملف أو اسحبه هنا'
+                          : lang === 'fr'
+                            ? 'Cliquez pour choisir un fichier'
+                            : 'Click to select or drag and drop file here'}
+                      </div>
+
+                      <div className="text-[11px] text-slate-400">
+                        {lang === 'ar'
+                          ? 'PDF أو Excel (.pdf, .xls, .xlsx) — الحد الأقصى 15 MB'
+                          : lang === 'fr'
+                            ? 'PDF ou Excel (.pdf, .xls, .xlsx) — 15 Mo maximum'
+                            : 'PDF or Excel (.pdf, .xls, .xlsx) — maximum 15 MB'}
+                      </div>
+                    </div>
                   )}
                 </div>
+              </div>
 
-                <div className="text-start min-w-0">
-                  <div className="font-bold text-slate-900 dark:text-white truncate max-w-sm">
-                    {uploadReportForm.file_name}
-                  </div>
+              {/* Notes */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  {lang === 'ar'
+                    ? 'ملاحظات الفحص والاعتماد (اختياري)'
+                    : lang === 'fr'
+                      ? 'Remarques d’inspection et de certification (facultatif)'
+                      : 'Inspection & Certification Remarks (Optional)'}
+                </label>
 
-                  <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
-                    {Math.round(uploadReportForm.file_size / 1024)} KB •{' '}
-                    {lang === 'ar'
-                      ? 'جاهز للرفع والاعتماد'
+                <textarea
+                  value={uploadReportForm.notes}
+                  onChange={(e) =>
+                    setUploadReportForm((prev) => ({
+                      ...prev,
+                      notes: e.target.value,
+                    }))
+                  }
+                  placeholder={
+                    lang === 'ar'
+                      ? 'تقرير فحص دوري مطابق للمواصفة القياسية السعودية GSO 149/2014...'
                       : lang === 'fr'
-                        ? 'Prêt à être téléversé'
-                        : 'Ready to upload'}
-                  </div>
-                </div>
+                        ? 'Remarques sur la conformité et les résultats...'
+                        : 'Standard quality compliance notes...'
+                  }
+                  rows={2}
+                  className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 text-xs"
+                />
               </div>
-            ) : (
-              <div className="space-y-1.5">
-                <UploadCloud className="w-8 h-8 text-blue-500 mx-auto" />
 
-                <div className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              {/* Action buttons */}
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setUploadModalOpen(false)}
+                  className="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium transition cursor-pointer"
+                >
                   {lang === 'ar'
-                    ? 'اضغط لاختيار الملف أو اسحبه هنا'
+                    ? 'إلغاء'
                     : lang === 'fr'
-                      ? 'Cliquez pour choisir un fichier'
-                      : 'Click to select or drag and drop file here'}
-                </div>
+                      ? 'Annuler'
+                      : 'Cancel'}
+                </button>
 
-                <div className="text-[11px] text-slate-400">
-                  {lang === 'ar'
-                    ? 'PDF أو Excel (.pdf, .xls, .xlsx) — الحد الأقصى 15 MB'
-                    : lang === 'fr'
-                      ? 'PDF ou Excel (.pdf, .xls, .xlsx) — 15 Mo maximum'
-                      : 'PDF or Excel (.pdf, .xls, .xlsx) — maximum 15 MB'}
-                </div>
+                <button
+                  type="submit"
+                  disabled={
+                    uploadingReport ||
+                    !uploadReportForm.file_name ||
+                    !uploadReportForm.visitor_id
+                  }
+                  className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold flex items-center gap-2 transition disabled:opacity-50 cursor-pointer shadow-xs"
+                >
+                  {uploadingReport && (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  )}
+
+                  <span>
+                    {lang === 'ar'
+                      ? 'رفع واعتماد التقرير'
+                      : lang === 'fr'
+                        ? 'Téléverser et certifier le rapport'
+                        : 'Upload & Certify Report'}
+                  </span>
+                </button>
               </div>
-            )}
+            </form>
           </div>
         </div>
+      )}
 
-        {/* Notes */}
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-            {lang === 'ar'
-              ? 'ملاحظات الفحص والاعتماد (اختياري)'
-              : lang === 'fr'
-                ? 'Remarques d’inspection et de certification (facultatif)'
-                : 'Inspection & Certification Remarks (Optional)'}
-          </label>
-
-          <textarea
-            value={uploadReportForm.notes}
-            onChange={(e) =>
-              setUploadReportForm((prev) => ({
-                ...prev,
-                notes: e.target.value,
-              }))
-            }
-            placeholder={
-              lang === 'ar'
-                ? 'تقرير فحص دوري مطابق للمواصفة القياسية السعودية GSO 149/2014...'
-                : lang === 'fr'
-                  ? 'Remarques sur la conformité et les résultats...'
-                  : 'Standard quality compliance notes...'
-            }
-            rows={2}
-            className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 text-xs"
-          />
-        </div>
-
-        {/* Action buttons */}
-        <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
-          <button
-            type="button"
-            onClick={() => setUploadModalOpen(false)}
-            className="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium transition cursor-pointer"
-          >
-            {lang === 'ar'
-              ? 'إلغاء'
-              : lang === 'fr'
-                ? 'Annuler'
-                : 'Cancel'}
-          </button>
-
-          <button
-            type="submit"
-            disabled={
-              uploadingReport ||
-              !uploadReportForm.file_name ||
-              !uploadReportForm.visitor_id
-            }
-            className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold flex items-center gap-2 transition disabled:opacity-50 cursor-pointer shadow-xs"
-          >
-            {uploadingReport && (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            )}
-
-            <span>
-              {lang === 'ar'
-                ? 'رفع واعتماد التقرير'
-                : lang === 'fr'
-                  ? 'Téléverser et certifier le rapport'
-                  : 'Upload & Certify Report'}
-            </span>
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-)}
-
+      
       {/* ============================================================
           CONFIRM DELETE MODAL (Visitors, Surveys, Enquiries, Users)
       ============================================================= */}
