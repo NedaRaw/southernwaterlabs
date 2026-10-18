@@ -1555,34 +1555,67 @@ export default function Admin() {
         setSurveys(parsedSurveys);
       }
 
+      
       // --------------------------------------------------------
       // Analysis Reports
-      // IMPORTANT: Token-protected RPC with role-based scoping
       // --------------------------------------------------------
-      try {
-        const reportsRes = await supabase.rpc('admin_list_analysis_reports', {
-          p_token: token,
-        });
 
-        if (!reportsRes.error && Array.isArray(reportsRes.data)) {
-          setAnalysisReports(reportsRes.data as AnalysisReportRecord[]);
-        } else if (!isSupabaseConfigured) {
-          const localReports = loadData<AnalysisReportRecord[]>(
-            STORAGE_KEYS.ANALYSIS_REPORTS,
-            defaultAnalysisReports
-          ).filter((r) => !r.deleted_at && r.status !== 'archived');
-          setAnalysisReports(localReports);
-        }
-      } catch (err) {
-        console.warn('Error loading analysis reports in Admin:', err);
-        if (!isSupabaseConfigured) {
-          const localReports = loadData<AnalysisReportRecord[]>(
-            STORAGE_KEYS.ANALYSIS_REPORTS,
-            defaultAnalysisReports
-          ).filter((r) => !r.deleted_at && r.status !== 'archived');
-          setAnalysisReports(localReports);
+      if (!isSupabaseConfigured) {
+        // MODE LOCAL : lire le stockage local sans appeler de RPC.
+        const localReports = loadData<AnalysisReportRecord[]>(
+          STORAGE_KEYS.ANALYSIS_REPORTS,
+          defaultAnalysisReports
+        ).filter(
+          (r) => !r.deleted_at && r.status !== 'archived'
+        );
+
+        setAnalysisReports(localReports);
+      } else {
+        // MODE SUPABASE : RPC protégée par le jeton.
+        try {
+          const reportsRes = await supabase.rpc(
+            'admin_list_analysis_reports',
+            {
+              p_token: token,
+            }
+          );
+
+          if (reportsRes.error) {
+            console.error(
+              'Error loading analysis reports:',
+              reportsRes.error
+            );
+
+            setAnalysisReports([]);
+
+            const errMsg = getErrorMessage(reportsRes.error);
+            if (
+              errMsg.toLowerCase().includes('expired') ||
+              errMsg.toLowerCase().includes('invalid token') ||
+              errMsg.toLowerCase().includes('unauthorized') ||
+              reportsRes.error.code === 'P0001'
+            ) {
+              setSessionExpired(true);
+            }
+          } else {
+            setAnalysisReports(
+              Array.isArray(reportsRes.data)
+                ? (reportsRes.data as AnalysisReportRecord[])
+                : []
+            );
+          }
+        } catch (err) {
+          console.error(
+            'Error loading analysis reports in Admin:',
+            err
+          );
+          setAnalysisReports([]);
         }
       }
+
+      // --------------------------------------------------------
+      // Users
+
 
       // --------------------------------------------------------
       // Users
@@ -1819,7 +1852,7 @@ export default function Admin() {
       if (document.visibilityState === 'visible') {
         void fetchData();
       }
-    }, 120_000); // Actualisation toutes les 120 secondes
+    }, 2400_000); // Actualisation toutes les 240 secondes
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
@@ -2942,57 +2975,97 @@ export default function Admin() {
         status: 'available',
       };
 
-      const { data, error } = await supabase.rpc('admin_upload_analysis_report', {
-        p_token: token,
-        p_report: payload,
-      });
+     
+if (!isSupabaseConfigured) {
+  // MODE LOCAL : aucune RPC Supabase ne doit être appelée.
+  const localReports = loadData<AnalysisReportRecord[]>(
+    STORAGE_KEYS.ANALYSIS_REPORTS,
+    defaultAnalysisReports
+  );
 
-      if (error) {
-        throw error;
-      }
+  // Conserve ici ton bloc existant qui construit newRecord
+  // à partir de payload, avec tous ses champs actuels.
 
-      if (!isSupabaseConfigured) {
-        const localReports = loadData<AnalysisReportRecord[]>(
-          STORAGE_KEYS.ANALYSIS_REPORTS,
-          defaultAnalysisReports
-        );
-        const newRecord: AnalysisReportRecord = {
-          id: `rep-${Date.now()}`,
-          report_number: payload.report_number!,
-          visitor_id: payload.visitor_id!,
-          visitor_name: payload.visitor_name!,
-          sample_code: payload.sample_code!,
-          sample_type: payload.sample_type!,
-          laboratory: payload.laboratory!,
-          branch: payload.branch,
-          file_name: payload.file_name!,
-          file_path: payload.file_path!,
-          file_type: payload.file_type!,
-          file_size: payload.file_size!,
-          file_data_url: payload.file_data_url,
-          status: 'available',
-          notes: payload.notes,
-          issue_date: payload.issue_date,
-          uploaded_by: adminUser?.id,
-          uploaded_by_name: adminUser?.full_name,
-          created_at: new Date().toISOString(),
-        };
-        saveData(STORAGE_KEYS.ANALYSIS_REPORTS, [newRecord, ...localReports]);
-        setAnalysisReports((prev) => [newRecord, ...prev]);
-      }
+  const newRecord: AnalysisReportRecord = {
+    // REPRENDRE ICI les champs de newRecord déjà présents
+    // dans ton code actuel : ne pas laisser ce commentaire seul.
+  };
 
-      setFeedback({
-        type: 'success',
-        message:
-          lang === 'ar'
-            ? 'تم رفع تقرير التحليل وربطه بنجاح بالزائر وبوابة النتائج.'
-            : lang === 'fr'
-              ? 'Rapport d’analyse téléversé et lié au visiteur avec succès.'
-              : 'Analysis report uploaded and linked to visitor successfully.',
-      });
+  saveData(STORAGE_KEYS.ANALYSIS_REPORTS, [
+    newRecord,
+    ...localReports,
+  ]);
 
-      setUploadModalOpen(false);
-      await fetchData();
+  setAnalysisReports((prev) => [newRecord, ...prev]);
+
+  // Le traitement local est terminé : sortir avant toute RPC.
+  await fetchData();
+  return;
+}
+
+
+if (!isSupabaseConfigured) {
+  // MODE LOCAL : aucune RPC Supabase.
+  const localReports = loadData<AnalysisReportRecord[]>(
+    STORAGE_KEYS.ANALYSIS_REPORTS,
+    defaultAnalysisReports
+  );
+
+  const newRecord: AnalysisReportRecord = {
+    id: `rep-${Date.now()}`,
+    report_number: payload.report_number!,
+    visitor_id: payload.visitor_id!,
+    visitor_name: payload.visitor_name!,
+    sample_code: payload.sample_code!,
+    sample_type: payload.sample_type!,
+    laboratory: payload.laboratory!,
+    branch: payload.branch,
+    file_name: payload.file_name!,
+    file_path: payload.file_path!,
+    file_type: payload.file_type!,
+    file_size: payload.file_size!,
+    file_data_url: payload.file_data_url,
+    status: 'available',
+    notes: payload.notes,
+    issue_date: payload.issue_date,
+    uploaded_by: adminUser?.id,
+    uploaded_by_name: adminUser?.full_name,
+    created_at: new Date().toISOString(),
+  };
+
+  saveData(STORAGE_KEYS.ANALYSIS_REPORTS, [
+    newRecord,
+    ...localReports,
+  ]);
+
+  setAnalysisReports((prev) => [newRecord, ...prev]);
+} else {
+  // MODE SUPABASE : uniquement si Supabase est configuré.
+  const { error } = await supabase.rpc(
+    'admin_upload_analysis_report',
+    {
+      p_token: token,
+      p_report: payload,
+    }
+  );
+
+  if (error) throw error;
+}
+
+setFeedback({
+  type: 'success',
+  message:
+    lang === 'ar'
+      ? 'تم رفع تقرير التحليل وربطه بنجاح بالزائر وبوابة النتائج.'
+      : lang === 'fr'
+        ? 'Rapport d’analyse téléversé et lié au visiteur avec succès.'
+        : 'Analysis report uploaded and linked to visitor successfully.',
+});
+
+setUploadModalOpen(false);
+await fetchData();
+
+
     } catch (err: unknown) {
       console.error('Upload report error:', err);
       setFeedback({
