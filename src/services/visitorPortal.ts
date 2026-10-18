@@ -789,19 +789,8 @@ export const visitorPortalService = {
       return items;
     }
 
-    // Fallback to demo reports for demo visitor
-    if (visitor.id === DEMO_VISITOR.id || visitor.visitor_id === DEMO_VISITOR.visitor_id) {
-      return DEMO_LAB_REPORTS;
-    }
-
-    return DEMO_LAB_REPORTS.map((r, idx) => ({
-      ...r,
-      id: `report-${visitor.visitor_id}-${idx + 1}`,
-      visitor_id: visitor.visitor_id,
-      visitor_name: visitor.visitor_name,
-    }));
-  },
-
+    // Never display fabricated reports for a real visitor.
+return [];
   /**
    * Download the original uploaded file (PDF / Excel) or fallback to printable report
    */

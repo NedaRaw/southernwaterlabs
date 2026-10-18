@@ -297,8 +297,14 @@ export default function VisitorDashboard() {
       setUpcomingAppointments(upcoming);
       setVisitHistory(history);
 
-      const reports = visitorPortalService.getVisitorReports(visitor);
-      setLabReports(reports);
+      try {
+  const reports = await visitorPortalService.getVisitorReports(visitor);
+
+  setLabReports(Array.isArray(reports) ? reports : []);
+} catch (error) {
+  console.error('Failed to load visitor reports:', error);
+  setLabReports([]);
+}
     } catch (err) {
       console.error('Error loading visitor dashboard data:', err);
     } finally {
