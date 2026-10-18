@@ -8777,7 +8777,7 @@ const filteredAnalysisReports = analysisReports.filter((report) => {
         </div>
       )}
 
-     
+
 {/* ============================================================
     UPLOAD ANALYSIS REPORT MODAL
 ============================================================= */}
@@ -8842,44 +8842,80 @@ const filteredAnalysisReports = analysisReports.filter((report) => {
                 : 'Linked Visitor *'}
           </label>
 
-          <select
-            value={uploadReportForm.visitor_id}
-            onChange={(e) => {
-              const selId = e.target.value;
+          
+<select
+  value={uploadReportForm.visitor_id}
+  onChange={(e) => {
+    const selId = e.target.value;
 
-              const matchedVis = visitors.find(
-                (v) => v.id === selId || v.visitor_id === selId
-              );
+    const matchedVis = visitors.find(
+      (v) => v.id === selId || v.visitor_id === selId
+    );
 
-              setUploadReportForm((prev) => ({
-                ...prev,
-                visitor_id: selId,
-                visitor_name: matchedVis ? getVisitorName(matchedVis) : '',
-                laboratory: matchedVis?.laboratory || prev.laboratory,
-                branch: matchedVis?.branch || prev.branch,
-              }));
-            }}
-            className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          >
-            <option value="">
-              {lang === 'ar'
-                ? '-- اختر الزائر المستفيد --'
-                : lang === 'fr'
-                  ? '-- Sélectionner le visiteur --'
-                  : '-- Select Visitor --'}
-            </option>
+    const purpose = String(
+      matchedVis?.purpose ||
+        matchedVis?.visit_purpose ||
+        ''
+    )
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
 
-            {filteredVisitors.map((vis) => (
-              <option key={vis.id} value={vis.id}>
-                {getVisitorName(vis)} — ({vis.visitor_id || vis.id})
-                {vis.company ? ` • ${vis.company}` : ''}
-              </option>
-            ))}
-          </select>
+    
+       const allowSampleType =
+      purpose.includes('تحليل') ||
+      (purpose.includes('عينة') &&
+       (purpose.includes('استلام') ||
+      purpose.includes('تسليم'))) ||
+      purpose.includes('analysis') ||
+      purpose.includes('sample delivery') ||
+      purpose.includes('sample receipt') ||
+      purpose.includes('sample reception') ||
+      purpose.includes('sample collection') ||
+      purpose.includes('sample handover') ||
+      purpose.includes('analyse') ||
+      (purpose.includes('echantillon') &&
+      (purpose.includes('reception') ||
+      purpose.includes('livraison') ||
+      purpose.includes('remise') ||
+      purpose.includes('prelevement')));
+
+    setUploadReportForm((prev) => ({
+      ...prev,
+      visitor_id: selId,
+      visitor_name: matchedVis
+        ? getVisitorName(matchedVis)
+        : '',
+      laboratory: matchedVis?.laboratory || prev.laboratory,
+      branch: matchedVis?.branch || prev.branch,
+      sample_type: allowSampleType ? prev.sample_type : '',
+    }));
+  }}
+  className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
+  required
+>
+  <option value="">
+    {lang === 'ar'
+      ? '-- اختر الزائر المستفيد --'
+      : lang === 'fr'
+        ? '-- Sélectionner le visiteur --'
+        : '-- Select Visitor --'}
+  </option>
+
+  {filteredVisitors.map((vis) => (
+    <option key={vis.id} value={vis.id}>
+      {getVisitorName(vis)} — ({vis.visitor_id || vis.id})
+      {vis.company ? ` • ${vis.company}` : ''}
+    </option>
+  ))}
+</select>
+
+          
+
         </div>
 
-        {/* Visitor Purpose — sourced from the selected visitor */}
+        {/* Visitor Purpose */}
         <div>
           <span className="text-slate-400 block text-[11px] mb-1">
             {lang === 'ar'
@@ -8962,89 +8998,129 @@ const filteredAnalysisReports = analysisReports.filter((report) => {
           </div>
         </div>
 
-        {/* Actual Sample Type — independent from visitor purpose */}
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-            {lang === 'ar'
-              ? 'نوع العينة / الفحص *'
-              : lang === 'fr'
-                ? "Type d’échantillon / d’analyse *"
-                : 'Sample / Analysis Type *'}
-          </label>
+        {/* Sample Type — only for analysis/sample visits */}
+        {(() => {
+          const linkedVisitor = visitors.find(
+            (visitor) =>
+              visitor.id === uploadReportForm.visitor_id ||
+              visitor.visitor_id === uploadReportForm.visitor_id
+          );
 
-          <input
-            type="text"
-            value={uploadReportForm.sample_type}
-            onChange={(e) =>
-              setUploadReportForm((prev) => ({
-                ...prev,
-                sample_type: e.target.value,
-              }))
-            }
-            placeholder={
-              lang === 'ar'
-                ? 'مياه شرب معالجة — شبكة التوزيع'
-                : lang === 'fr'
-                  ? 'Eau potable traitée — réseau de distribution'
-                  : 'Treated potable water — distribution network'
-            }
-            className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
+          const purpose = String(
+            linkedVisitor?.purpose ||
+              linkedVisitor?.visit_purpose ||
+              ''
+          )
+            .trim()
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '');
 
-          <div className="flex flex-wrap gap-1.5 mt-2">
-            {[
-              {
-                ar: 'مياه شرب معالجة — شبكة التوزيع',
-                en: 'Treated Potable Water — Distribution Network',
-                fr: 'Eau potable traitée — réseau de distribution',
-              },
-              {
-                ar: 'مياه آبار جوفية خام',
-                en: 'Raw Groundwater',
-                fr: 'Eau souterraine brute',
-              },
-              {
-                ar: 'مخرجات محطة التحلية',
-                en: 'Desalination Plant Output',
-                fr: 'Eau produite par une station de dessalement',
-              },
-              {
-                ar: 'مياه صرف صحي معالجة ثلاثياً',
-                en: 'Tertiary-Treated Wastewater',
-                fr: 'Eaux usées traitées tertiairement',
-              },
-              {
-                ar: 'فحص بكتيريولوجي وكيميائي شامل',
-                en: 'Comprehensive Bacteriological and Chemical Analysis',
-                fr: 'Analyse bactériologique et chimique complète',
-              },
-            ].map((preset) => {
-              const value =
-                lang === 'ar'
-                  ? preset.ar
+          const showSampleType =
+            purpose.includes('تحليل') ||
+            (purpose.includes('عينة') &&
+              (purpose.includes('استلام') ||
+                purpose.includes('تسليم'))) ||
+            purpose.includes('analysis') ||
+            purpose.includes('sample delivery') ||
+            purpose.includes('sample receipt') ||
+            purpose.includes('sample reception') ||
+            purpose.includes('sample collection') ||
+            purpose.includes('sample handover') ||
+            purpose.includes('analyse') ||
+            (purpose.includes('echantillon') &&
+              (purpose.includes('reception') ||
+                purpose.includes('livraison') ||
+                purpose.includes('remise') ||
+                purpose.includes('prelevement')));
+
+          if (!showSampleType) return null;
+
+          return (
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                {lang === 'ar'
+                  ? 'نوع العينة / الفحص *'
                   : lang === 'fr'
-                    ? preset.fr
-                    : preset.en;
+                    ? "Type d’échantillon / d’analyse *"
+                    : 'Sample / Analysis Type *'}
+              </label>
 
-              return (
-                <button
-                  key={preset.en}
-                  type="button"
-                  onClick={() =>
-                    setUploadReportForm((prev) => ({
-                      ...prev,
-                      sample_type: value,
-                    }))
-                  }
-                  className="px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950/60 text-[10px] text-slate-600 dark:text-slate-400 hover:text-blue-600 transition cursor-pointer"
-                >
-                  {value}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+              <input
+                type="text"
+                value={uploadReportForm.sample_type}
+                onChange={(e) =>
+                  setUploadReportForm((prev) => ({
+                    ...prev,
+                    sample_type: e.target.value,
+                  }))
+                }
+                placeholder={
+                  lang === 'ar'
+                    ? 'مياه شرب معالجة — شبكة التوزيع'
+                    : lang === 'fr'
+                      ? 'Eau potable traitée — réseau de distribution'
+                      : 'Treated potable water — distribution network'
+                }
+                className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {[
+                  {
+                    ar: 'مياه شرب معالجة — شبكة التوزيع',
+                    en: 'Treated Potable Water — Distribution Network',
+                    fr: 'Eau potable traitée — réseau de distribution',
+                  },
+                  {
+                    ar: 'مياه آبار جوفية خام',
+                    en: 'Raw Groundwater',
+                    fr: 'Eau souterraine brute',
+                  },
+                  {
+                    ar: 'مخرجات محطة التحلية',
+                    en: 'Desalination Plant Output',
+                    fr: 'Eau produite par une station de dessalement',
+                  },
+                  {
+                    ar: 'مياه صرف صحي معالجة ثلاثياً',
+                    en: 'Tertiary-Treated Wastewater',
+                    fr: 'Eaux usées traitées tertiairement',
+                  },
+                  {
+                    ar: 'فحص بكتيريولوجي وكيميائي شامل',
+                    en: 'Comprehensive Bacteriological and Chemical Analysis',
+                    fr: 'Analyse bactériologique et chimique complète',
+                  },
+                ].map((preset) => {
+                  const value =
+                    lang === 'ar'
+                      ? preset.ar
+                      : lang === 'fr'
+                        ? preset.fr
+                        : preset.en;
+
+                  return (
+                    <button
+                      key={preset.en}
+                      type="button"
+                      onClick={() =>
+                        setUploadReportForm((prev) => ({
+                          ...prev,
+                          sample_type: value,
+                        }))
+                      }
+                      className="px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950/60 text-[10px] text-slate-600 dark:text-slate-400 hover:text-blue-600 transition cursor-pointer"
+                    >
+                      {value}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Laboratory & Branch */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
