@@ -789,12 +789,17 @@ export const visitorPortalService = {
       return items;
     }
 
-    // Never display fabricated reports for a real visitor.
-return [];
+       // Never display fabricated reports for a real visitor.
+    return [];
+  },
+
   /**
-   * Download the original uploaded file (PDF / Excel) or fallback to printable report
+   * Download the original uploaded file (PDF / Excel).
    */
-  downloadOriginalReport(report: LabReportItem, lang: 'ar' | 'en' | 'fr' = 'ar'): void {
+  downloadOriginalReport(
+    report: LabReportItem,
+    lang: 'ar' | 'en' | 'fr' = 'ar'
+  ): void {
     if (report.file_data_url) {
       const link = document.createElement('a');
       link.href = report.file_data_url;
