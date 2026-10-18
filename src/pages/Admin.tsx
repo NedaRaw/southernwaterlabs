@@ -3397,7 +3397,7 @@ export default function Admin() {
           type: 'error',
           message:
             lang === 'ar'
-              ? 'منع المتصفح فتح نافذة المعاينة. اسمحي بالنوافذ المنبثقة لهذا الموقع.'
+              ? 'منع المتصفح فتح نافذة المعاينة. اسمح بالنوافذ المنبثقة لهذا الموقع.'
               : lang === 'fr'
                 ? 'Le navigateur a bloqué le nouvel onglet. Autorisez les fenêtres contextuelles pour ce site.'
                 : 'The browser blocked the preview tab. Allow pop-ups for this site.',
@@ -9507,7 +9507,81 @@ export default function Admin() {
         </div>
       )}
 
-      
+      {/* ============================================================
+          REPORT PREVIEW MODAL
+      ============================================================= */}
+      {viewReportModal && (
+        <div className="fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-3 sm:p-6">
+          <div
+            className="bg-white dark:bg-slate-900 w-full max-w-6xl h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="flex items-center justify-between gap-3 p-4 border-b border-slate-200 dark:border-slate-700">
+              <div className="min-w-0">
+                <h2 className="font-bold text-slate-900 dark:text-white truncate">
+                  {viewReportModal.report_number}
+                </h2>
+                <p className="text-xs text-slate-500 truncate">
+                  {viewReportModal.file_name}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={closeReportPreview}
+                className="shrink-0 rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                {lang === 'ar' ? 'إغلاق' : lang === 'fr' ? 'Fermer' : 'Close'}
+              </button>
+            </div>
+
+            <div className="flex-1 min-h-0 bg-slate-100 dark:bg-slate-950">
+              {reportPreviewLoading ? (
+                <div className="h-full flex items-center justify-center text-slate-500">
+                  {lang === 'ar'
+                    ? 'جارٍ تحميل التقرير...'
+                    : lang === 'fr'
+                      ? 'Chargement du rapport...'
+                      : 'Loading report...'}
+                </div>
+              ) : reportPreviewUrl ? (
+                <iframe
+                  src={reportPreviewUrl}
+                  title={viewReportModal.file_name}
+                  className="w-full h-full border-0"
+                  referrerPolicy="no-referrer"
+                  allow="fullscreen"
+                />
+              ) : (
+                <div className="h-full flex items-center justify-center text-slate-500">
+                  {lang === 'ar'
+                    ? 'تعذرت معاينة التقرير.'
+                    : lang === 'fr'
+                      ? 'Impossible de prévisualiser le rapport.'
+                      : 'Unable to preview the report.'}
+                </div>
+              )}
+            </div>
+
+            <div className="p-3 border-t border-slate-200 dark:border-slate-700 flex justify-end">
+              <button
+                type="button"
+                onClick={() => void handleDownloadReportFile(viewReportModal)}
+                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm"
+              >
+                {lang === 'ar'
+                  ? 'تنزيل الملف الأصلي'
+                  : lang === 'fr'
+                    ? 'Télécharger le fichier original'
+                    : 'Download original file'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
       {/* ============================================================
           CONFIRM DELETE MODAL (Visitors, Surveys, Enquiries, Users)
       ============================================================= */}
