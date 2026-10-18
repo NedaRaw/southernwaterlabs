@@ -660,160 +660,244 @@ export const visitorPortalService = {
     return { upcoming, history };
   },
 
+  
   /**
-   * Visitor lab reports (including original PDF / Excel uploaded files)
+   * Visitor lab reports (including original uploaded PDF / Excel files).
    */
-  getVisitorReports(visitor: VisitorProfile): LabReportItem[] {
-    if (!visitor?.id && !visitor?.visitor_id) {
-      return [];
-    }
+  async getVisitorReports(visitor: VisitorProfile): Promise<LabReportItem[]> {
+    if (!visitor?.id) return [];
 
-    const items: LabReportItem[] = [];
+    if (isSupabaseConfigured) {
+      try {
+        const { data, error } = await supabase
+          .from('analysis_reports')
+          .select('*')
+          .eq('visitor_id', visitor.id)
+          .order('created_at', { ascending: false });
 
-    // 1. Check uploaded analysis reports in localStorage ('swl_analysis_reports')
-    try {
-      const rawReports = localStorage.getItem('swl_analysis_reports');
-      if (rawReports) {
-        const parsed = JSON.parse(rawReports) as Array<{
-          id: string;
-          report_number: string;
-          visitor_id: string;
-          visitor_name: string;
-          sample_code: string;
-          sample_type: string;
-          sample_type_ar?: string;
-          sample_type_en?: string;
-          sample_type_fr?: string;
-          laboratory: string;
-          branch?: string | null;
-          file_name: string;
-          file_path: string;
-          file_type: string;
-          file_size: number;
-          file_data_url?: string;
-          status: string;
-          notes?: string | null;
-          issue_date?: string;
-          created_at: string;
-          deleted_at?: string | null;
-        }>;
+        if (error) {
+          console.error('Failed to fetch visitor reports:', error);
+          return [];
+        }
 
-        const matched = parsed.filter(
-          (r) =>
+        return (data || [])
+          .filter((r: any) =>
             !r.deleted_at &&
-            r.status !== 'archived' &&
-            (r.visitor_id === visitor.id ||
-              r.visitor_id === visitor.visitor_id ||
-              (visitor.phone && r.visitor_id === visitor.phone) ||
-              (visitor.national_id && r.visitor_id === visitor.national_id))
-        );
-
-        matched.forEach((r) => {
-          items.push({
+            !['archived', 'deleted', 'unavailable'].includes(
+              String(r.status || '').toLowerCase()
+            )
+          )
+          .map((r: any): LabReportItem => ({
             id: r.id,
-            report_number: r.report_number,
-            sample_code: r.sample_code,
+            report_number: r.report_number || '',
+            sample_code: r.sample_code || '',
             visitor_id: visitor.visitor_id,
-            visitor_name: visitor.visitor_name,
-            sample_type_ar: r.sample_type_ar || r.sample_type,
-            sample_type_en: r.sample_type_en || 'Certified Water Analysis',
-            sample_type_fr: r.sample_type_fr || 'Analyse d’eau certifiée',
-            source_location_ar: r.branch ? `فرع ${r.branch} — مختبر ${r.laboratory}` : `مختبر ${r.laboratory} المركزي`,
-            source_location_en: r.branch ? `${r.branch} Branch - ${r.laboratory} Lab` : `${r.laboratory} Central Lab`,
-            laboratory_id: r.laboratory,
-            laboratory_name_ar: `المختبر المركزي (${r.laboratory})`,
-            laboratory_name_en: `${r.laboratory} Central Laboratory`,
-            collection_date: r.issue_date || r.created_at.slice(0, 10),
-            analysis_date: r.issue_date || r.created_at.slice(0, 10),
-            issue_date: r.issue_date || r.created_at.slice(0, 10),
-            status: 'Approved',
-            compliance_status_ar: 'التقرير معتمد رسمياً ومطابق للمواصفة القياسية',
-            compliance_status_en: 'Report officially certified & compliant with standards',
-            compliance_status_fr: 'Rapport officiellement certifié et conforme',
-            is_compliant: true,
+            visitor_name: r.visitor_name || visitor.visitor_name,
+            sample_type_ar: r.sample_type_ar || r.sample_type || '',
+            sample_type_en: r.sample_type_en || r.sample_type || '',
+            sample_type_fr: r.sample_type_fr || r.sample_type || '',
+            source_location_ar: r.branch
+              ? `فرع ${r.branch} — مختبر ${r.laboratory || ''}`
+              : `مختبر ${r.laboratory || ''}`,
+            source_location_en: r.branch
+              ? `${r.branch} Branch — ${r.laboratory || ''} Laboratory`
+              : `${r.laboratory || ''} Laboratory`,
+            laboratory_id: r.laboratory || '',
+            laboratory_name_ar: r.laboratory_name_ar || r.laboratory || '',
+            laboratory_name_en: r.laboratory_name_en || r.laboratory || '',
+            collection_date: r.collection_date || '',
+            analysis_date: r.analysis_date || '',
+            issue_date: r.issue_date || r.created_at || '',
+            status: ['approved', 'available'].includes(
+              String(r.status || '').toLowerCase()
+            ) ? 'Approved' : 'Under Review',
+            compliance_status_ar: '',
+            compliance_status_en: '',
+            compliance_status_fr: '',
+            is_compliant: false,
             authorized_specialist: {
-              name_ar: 'أخصائي ضبط جودة معتمد',
-              name_en: 'Certified Quality Analyst',
-              title_ar: 'كبير أخصائيي الفحوصات المخبرية',
-              title_en: 'Senior Water Quality Specialist',
+              name_ar: '',
+              name_en: '',
+              title_ar: '',
+              title_en: '',
             },
             qa_officer: {
-              name_ar: 'مدير الرقابة المخبرية وضبط الجودة',
-              name_en: 'QA Laboratory Director',
-              title_ar: 'إدارة توكيد الجودة والاعتماد',
-              title_en: 'Quality Assurance Directorate',
+              name_ar: '',
+              name_en: '',
+              title_ar: '',
+              title_en: '',
             },
-            parameters: [
-              {
-                name_ar: 'الأس الهيدروجيني (pH)',
-                name_en: 'pH Value',
-                unit: 'pH Units',
-                measured_value: '7.4',
-                standard_limit: '6.5 - 8.5',
-                method: 'SM 4500-H+ B',
-                status: 'normal',
-              },
-              {
-                name_ar: 'إجمالي الأملاح الذائبة (TDS)',
-                name_en: 'Total Dissolved Solids',
-                unit: 'mg/L',
-                measured_value: '220',
-                standard_limit: '< 600 mg/L',
-                method: 'SM 2540 C',
-                status: 'normal',
-              },
-              {
-                name_ar: 'العكارة (Turbidity)',
-                name_en: 'Turbidity',
-                unit: 'NTU',
-                measured_value: '0.2',
-                standard_limit: '< 1.0 NTU',
-                method: 'EPA 180.1',
-                status: 'normal',
-              },
-            ],
-            file_name: r.file_name,
-            file_type: r.file_type,
-            file_size: r.file_size,
-            file_data_url: r.file_data_url,
-            file_path: r.file_path,
+            parameters: [],
+            file_name: r.file_name || '',
+            file_type: r.file_type || '',
+            file_size: r.file_size || 0,
+            file_path: r.file_path || '',
             is_uploaded_file: true,
-          });
-        });
+          }));
+      } catch (error) {
+        console.error('Failed to load visitor reports:', error);
+        return [];
       }
-    } catch {
-      // ignore
     }
 
-    if (items.length > 0) {
-      return items;
-    }
+    // Local mock mode only.
+    try {
+      const raw = localStorage.getItem('swl_analysis_reports');
+      if (!raw) return [];
 
-       // Never display fabricated reports for a real visitor.
-    return [];
+      const reports = JSON.parse(raw) as any[];
+
+      return reports
+        .filter((r) =>
+          !r.deleted_at &&
+          !['archived', 'deleted', 'unavailable'].includes(
+            String(r.status || '').toLowerCase()
+          ) &&
+          (r.visitor_id === visitor.id ||
+            r.visitor_id === visitor.visitor_id)
+        )
+        .map((r): LabReportItem => ({
+          id: r.id,
+          report_number: r.report_number || '',
+          sample_code: r.sample_code || '',
+          visitor_id: visitor.visitor_id,
+          visitor_name: visitor.visitor_name,
+          sample_type_ar: r.sample_type_ar || r.sample_type || '',
+          sample_type_en: r.sample_type_en || r.sample_type || '',
+          sample_type_fr: r.sample_type_fr || r.sample_type || '',
+          source_location_ar: '',
+          source_location_en: '',
+          laboratory_id: r.laboratory || '',
+          laboratory_name_ar: r.laboratory || '',
+          laboratory_name_en: r.laboratory || '',
+          collection_date: '',
+          analysis_date: '',
+          issue_date: r.issue_date || r.created_at || '',
+          status: String(r.status || '').toLowerCase() === 'approved'
+            ? 'Approved'
+            : 'Under Review',
+          compliance_status_ar: '',
+          compliance_status_en: '',
+          compliance_status_fr: '',
+          is_compliant: false,
+          authorized_specialist: {
+            name_ar: '',
+            name_en: '',
+            title_ar: '',
+            title_en: '',
+          },
+          qa_officer: {
+            name_ar: '',
+            name_en: '',
+            title_ar: '',
+            title_en: '',
+          },
+          parameters: [],
+          file_name: r.file_name || '',
+          file_type: r.file_type || '',
+          file_size: r.file_size || 0,
+          file_data_url: r.file_data_url,
+          file_path: r.file_path || '',
+          is_uploaded_file: true,
+        }));
+    } catch (error) {
+      console.error('Failed to load local mock reports:', error);
+      return [];
+    }
   },
+
 
   /**
    * Download the original uploaded file (PDF / Excel).
+   * Never replace a failed original-file download with a generated report.
    */
-  downloadOriginalReport(
+  async downloadOriginalReport(
     report: LabReportItem,
     lang: 'ar' | 'en' | 'fr' = 'ar'
-  ): void {
+  ): Promise<void> {
+    const messages = {
+      ar: 'تعذّر تنزيل ملف التقرير الأصلي. يرجى المحاولة لاحقًا.',
+      en: 'Unable to download the original report file. Please try again later.',
+      fr: 'Impossible de télécharger le fichier original du rapport. Veuillez réessayer plus tard.',
+    };
+
+    const showError = () => window.alert(messages[lang]);
+
+    // Local mock mode: download the actual stored file.
     if (report.file_data_url) {
       const link = document.createElement('a');
       link.href = report.file_data_url;
-      link.download = report.file_name || `${report.report_number}.${report.file_type?.includes('excel') || report.file_type?.includes('spreadsheet') ? 'xlsx' : 'pdf'}`;
+      link.download =
+        report.file_name ||
+        `${report.report_number}.${report.file_type?.includes('excel') || report.file_type?.includes('spreadsheet') ? 'xlsx' : 'pdf'}`;
+
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       return;
     }
 
-    this.openPrintableReport(report, lang);
+    // Supabase files must be downloaded through an authorized server action.
+    if (
+      !isSupabaseConfigured ||
+      !supabase ||
+      !report.id ||
+      !report.file_path
+    ) {
+      showError();
+      return;
+    }
+
+    try {
+      const storedVisitor = localStorage.getItem(STORAGE_SESSION_KEY);
+
+      if (!storedVisitor) {
+        showError();
+        return;
+      }
+
+      const visitor = JSON.parse(storedVisitor);
+
+      if (!visitor?.id || !visitor?.phone || !visitor?.national_id) {
+        showError();
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke(
+        'analysis-reports',
+        {
+          body: {
+            action: 'visitor_download',
+            report_id: report.id,
+            visitor_id: visitor.id,
+            phone: visitor.phone,
+            national_id: visitor.national_id,
+          },
+        }
+      );
+
+      if (error || !(data instanceof Blob) || data.size === 0) {
+        showError();
+        return;
+      }
+
+      const url = URL.createObjectURL(data);
+      const link = document.createElement('a');
+
+      link.href = url;
+      link.download =
+        report.file_name ||
+        `${report.report_number}.${report.file_type?.includes('excel') || report.file_type?.includes('spreadsheet') ? 'xlsx' : 'pdf'}`;
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch {
+      showError();
+    }
   },
-
-
 
 
   /**

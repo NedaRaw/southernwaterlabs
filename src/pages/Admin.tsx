@@ -6745,7 +6745,7 @@ const filteredAnalysisReports = analysisReports.filter((report) => {
                             <th className="text-start px-4 py-3.5">{lang === 'ar' ? 'الزائر' : 'Visitor'}</th>
                             <th className="text-start px-4 py-3.5">{lang === 'ar' ? 'الهاتف / الهوية' : 'Phone / ID'}</th>
                             <th className="text-start px-4 py-3.5">{lang === 'ar' ? 'المختبر والفرع' : 'Lab & Branch'}</th>
-                            <th className="text-start px-4 py-3.5">{lang === 'ar' ? 'طلب الفحص / الغرض' : 'Sample / Purpose'}</th>
+                            <th className="text-start px-4 py-3.5">{lang === 'ar' ? 'الغرض' : 'Sample / Purpose'}</th>
                             <th className="text-start px-4 py-3.5">{lang === 'ar' ? 'تاريخ الطلب' : 'Request Date'}</th>
                             <th className="text-start px-4 py-3.5">{lang === 'ar' ? 'حالة التقرير' : 'Report Status'}</th>
                             <th className="text-end px-4 py-3.5">{lang === 'ar' ? 'الإجراءات' : 'Actions'}</th>
