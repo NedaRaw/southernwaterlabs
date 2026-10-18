@@ -17,7 +17,35 @@ export const STORAGE_KEYS = {
   ENQUIRIES: 'swl_enquiries',
   ADMIN_USERS: 'swl_admin_users',
   ACTIVE_SESSIONS: 'swl_active_sessions',
+  ANALYSIS_REPORTS: 'swl_analysis_reports',
 };
+
+export interface AnalysisReportRecord {
+  id: string;
+  report_number: string;
+  visitor_id: string;
+  visitor_name: string;
+  sample_code: string;
+  sample_type: string;
+  sample_type_ar?: string;
+  sample_type_en?: string;
+  sample_type_fr?: string;
+  laboratory: string;
+  branch?: string | null;
+  file_name: string;
+  file_path: string;
+  file_type: string;
+  file_size: number;
+  file_data_url?: string;
+  status: 'available' | 'pending' | 'archived';
+  notes?: string | null;
+  uploaded_by?: string | null;
+  uploaded_by_name?: string | null;
+  deleted_at?: string | null;
+  created_at: string;
+  issue_date?: string;
+  [key: string]: unknown;
+}
 
 export interface AdminUserData {
   id: string;
@@ -501,6 +529,105 @@ const defaultEnquiries: EnquiryDataRecord[] = [
   },
 ];
 
+export const defaultAnalysisReports: AnalysisReportRecord[] = [
+  {
+    id: 'rep-1001',
+    report_number: 'NWC-ASR-2026-0941',
+    visitor_id: 'vis-1001',
+    visitor_name: 'م. أحمد القحطاني',
+    sample_code: 'SMP-2026-8819',
+    sample_type: 'مياه شرب معالجة — شبكة التوزيع المركزية',
+    sample_type_ar: 'مياه شرب معالجة — شبكة التوزيع المركزية',
+    sample_type_en: 'Treated Potable Water - Central Network',
+    sample_type_fr: 'Eau potable traitée - Réseau central',
+    laboratory: 'asir',
+    branch: 'bisha',
+    file_name: 'Analysis_Report_NWC_ASR_2026_0941.pdf',
+    file_path: 'analysis-reports/asir/bisha/Analysis_Report_NWC_ASR_2026_0941.pdf',
+    file_type: 'application/pdf',
+    file_size: 1024 * 480, // ~480 KB
+    file_data_url: 'data:application/pdf;base64,JVBERi0xLjQKJeLjz9MKMSAwIG9iajw8L1R5cGUvQ2F0YWxvZy9QYWdlcyAyIDAgUj4+ZW5kb2JqCjIgMCBvYmo8PC9UeXBlL1BhZ2VzL0tpZHNbMyAwIFJdL0NvdW50IDE+PmVuZG9iagozIDAgb2JqPDwvVHlwZS9QYWdlL1BhcmVudCAyIDAgUi9NZWRpYUJveFswIDAgNjEyIDc5Ml0+PmVuZG9iagp4cmVmCjAgNAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMTggMDAwMDAgbiAKMDAwMDAwMDA2NiAwMDAwMCBuIAowMDAwMDAwMTIxIDAwMDAwIG4gCnRyYWlsZXI8PC9TaXplIDQvUm9vdCAxIDAgUj4+CnN0YXJ0eHJlZgoxODEKJSVFT0YK',
+    status: 'available',
+    notes: 'تقرير فحص دوري مطابق للمواصفة القياسية السعودية GSO 149/2014',
+    uploaded_by: '2',
+    uploaded_by_name: 'مدير مختبر عسير المرجعي',
+    issue_date: '2026-10-14',
+    created_at: new Date(Date.now() - 3600000 * 24 * 2).toISOString(),
+  },
+  {
+    id: 'rep-1002',
+    report_number: 'NWC-NJR-2026-0812',
+    visitor_id: 'vis-1003',
+    visitor_name: 'سالم بن علي الصيعري',
+    sample_code: 'SMP-2026-7240',
+    sample_type: 'مياه خام غير معالجة — حقل آبار الشرفة',
+    sample_type_ar: 'مياه خام غير معالجة — حقل آبار الشرفة',
+    sample_type_en: 'Raw Ground Water - Al-Shorfa Wells',
+    sample_type_fr: 'Eau brute souterraine - Puits Al-Shorfa',
+    laboratory: 'najran',
+    branch: 'sharurah',
+    file_name: 'Groundwater_Chemical_Analysis_2026_0812.xlsx',
+    file_path: 'analysis-reports/najran/sharurah/Groundwater_Chemical_Analysis_2026_0812.xlsx',
+    file_type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    file_size: 1024 * 315, // ~315 KB
+    file_data_url: 'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,UEsDBBQAAAAIAAAAAAAAAAAAAAAAAAAAAAA=',
+    status: 'available',
+    notes: 'جدول تحاليل كيميائية وفيزيائية شاملة لعينات بئر الشرفة وفرع شرورة',
+    uploaded_by: '7',
+    uploaded_by_name: 'مسؤول فرع شرورة - نجران',
+    issue_date: '2026-10-12',
+    created_at: new Date(Date.now() - 3600000 * 24 * 4).toISOString(),
+  },
+  {
+    id: 'rep-1003',
+    report_number: 'NWC-ABH-2026-0518',
+    visitor_id: 'vis-1004',
+    visitor_name: 'فهد عبدالله الزهراني',
+    sample_code: 'SMP-2026-5531',
+    sample_type: 'عينات مياه سد وادي قلوة',
+    sample_type_ar: 'عينات مياه سد وادي قلوة',
+    sample_type_en: 'Wadi Qalwah Dam Water Testing',
+    sample_type_fr: 'Analyse d’eau du barrage de Wadi Qalwah',
+    laboratory: 'al-baha',
+    branch: 'qalwah',
+    file_name: 'Dam_Water_Testing_ABH_0518.pdf',
+    file_path: 'analysis-reports/al-baha/qalwah/Dam_Water_Testing_ABH_0518.pdf',
+    file_type: 'application/pdf',
+    file_size: 1024 * 620, // ~620 KB
+    file_data_url: 'data:application/pdf;base64,JVBERi0xLjQKJeLjz9MKMSAwIG9iajw8L1R5cGUvQ2F0YWxvZy9QYWdlcyAyIDAgUj4+ZW5kb2JqCjIgMCBvYmo8PC9UeXBlL1BhZ2VzL0tpZHNbMyAwIFJdL0NvdW50IDE+PmVuZG9iagozIDAgb2JqPDwvVHlwZS9QYWdlL1BhcmVudCAyIDAgUi9NZWRpYUJveFswIDAgNjEyIDc5Ml0+PmVuZG9iagp4cmVmCjAgNAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMTggMDAwMDAgbiAKMDAwMDAwMDA2NiAwMDAwMCBuIAowMDAwMDAwMTIxIDAwMDAwIG4gCnRyYWlsZXI8PC9TaXplIDQvUm9vdCAxIDAgUj4+CnN0YXJ0eHJlZgoxODEKJSVFT0YK',
+    status: 'available',
+    notes: 'تحليل بيئي معتمد لسد وادي قلوة والتعكر ونسبة المواد العالقة',
+    uploaded_by: '10',
+    uploaded_by_name: 'مسؤول فرع قلوة - الباحة',
+    issue_date: '2026-10-10',
+    created_at: new Date(Date.now() - 3600000 * 24 * 6).toISOString(),
+  },
+  {
+    id: 'rep-1004',
+    report_number: 'NWC-JZN-2026-0319',
+    visitor_id: 'vis-1006',
+    visitor_name: 'فيصل عبده صيادي',
+    sample_code: 'SMP-2026-3199',
+    sample_type: 'فحص ملوحة وميكروبيولوجيا محطة التحلية',
+    sample_type_ar: 'فحص ملوحة وميكروبيولوجيا محطة التحلية',
+    sample_type_en: 'Desalination Plant Salinity & Microbiology Test',
+    sample_type_fr: 'Test de salinité et microbiologie de dessalement',
+    laboratory: 'jazan',
+    branch: 'farasan',
+    file_name: 'Farasan_Desalination_Output_2026_0319.xlsx',
+    file_path: 'analysis-reports/jazan/farasan/Farasan_Desalination_Output_2026_0319.xlsx',
+    file_type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    file_size: 1024 * 280, // ~280 KB
+    file_data_url: 'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,UEsDBBQAAAAIAAAAAAAAAAAAAAAAAAAAAAA=',
+    status: 'available',
+    notes: 'نتائج فحوصات جودة مخرجات محطة تحلية فرسان والتوصيلية الكهربائية',
+    uploaded_by: '13',
+    uploaded_by_name: 'مسؤول فرع جزر فرسان - جازان',
+    issue_date: '2026-10-08',
+    created_at: new Date(Date.now() - 3600000 * 24 * 8).toISOString(),
+  },
+];
+
 export function loadData<T>(key: string, defaultVal: T): T {
   try {
     const raw = localStorage.getItem(key);
@@ -609,6 +736,7 @@ function createMockSupabaseClient() {
           if (table === 'visitors') rows = loadData<GenericRow[]>(STORAGE_KEYS.VISITORS, defaultVisitors);
           else if (table === 'surveys') rows = loadData<GenericRow[]>(STORAGE_KEYS.SURVEYS, defaultSurveys);
           else if (table === 'enquiries') rows = loadData<GenericRow[]>(STORAGE_KEYS.ENQUIRIES, defaultEnquiries);
+          else if (table === 'analysis_reports') rows = loadData<GenericRow[]>(STORAGE_KEYS.ANALYSIS_REPORTS, defaultAnalysisReports);
 
           return {
             eq: (col: string, val: unknown) => {
@@ -645,7 +773,7 @@ function createMockSupabaseClient() {
           const newRecord: GenericRow = {
             id: generatedId,
             created_at: now,
-            status: table === 'enquiries' ? 'new' : 'pending',
+            status: table === 'enquiries' ? 'new' : table === 'analysis_reports' ? 'available' : 'pending',
             ...row,
           };
 
@@ -658,6 +786,9 @@ function createMockSupabaseClient() {
           } else if (table === 'enquiries') {
             const enquiries = loadData<GenericRow[]>(STORAGE_KEYS.ENQUIRIES, defaultEnquiries);
             saveData(STORAGE_KEYS.ENQUIRIES, [newRecord, ...enquiries]);
+          } else if (table === 'analysis_reports') {
+            const reports = loadData<GenericRow[]>(STORAGE_KEYS.ANALYSIS_REPORTS, defaultAnalysisReports);
+            saveData(STORAGE_KEYS.ANALYSIS_REPORTS, [newRecord, ...reports]);
           }
 
           return {
@@ -677,6 +808,7 @@ function createMockSupabaseClient() {
               if (table === 'visitors') storageKey = STORAGE_KEYS.VISITORS;
               else if (table === 'enquiries') storageKey = STORAGE_KEYS.ENQUIRIES;
               else if (table === 'surveys') storageKey = STORAGE_KEYS.SURVEYS;
+              else if (table === 'analysis_reports') storageKey = STORAGE_KEYS.ANALYSIS_REPORTS;
 
               if (storageKey) {
                 const items = loadData<GenericRow[]>(storageKey, []);
@@ -696,6 +828,7 @@ function createMockSupabaseClient() {
               if (table === 'visitors') storageKey = STORAGE_KEYS.VISITORS;
               else if (table === 'enquiries') storageKey = STORAGE_KEYS.ENQUIRIES;
               else if (table === 'surveys') storageKey = STORAGE_KEYS.SURVEYS;
+              else if (table === 'analysis_reports') storageKey = STORAGE_KEYS.ANALYSIS_REPORTS;
 
               if (storageKey) {
                 const items = loadData<GenericRow[]>(storageKey, []);
@@ -1989,6 +2122,267 @@ function createMockSupabaseClient() {
           };
         }
 
+        case 'admin_list_analysis_reports': {
+          const caller = getCaller(args.p_token as string);
+
+          if (!caller || caller.active === false) {
+            return {
+              data: null,
+              error: { message: 'Unauthorized: Invalid session' },
+            };
+          }
+
+          const reports = loadData<AnalysisReportRecord[]>(
+            STORAGE_KEYS.ANALYSIS_REPORTS,
+            defaultAnalysisReports
+          ).filter(r => !r.deleted_at && r.status !== 'archived');
+
+          if (caller.role === 'super_admin') {
+            return { data: reports, error: null };
+          }
+
+          if (caller.role === 'lab_admin') {
+            if (!caller.laboratory) {
+              return {
+                data: null,
+                error: { message: 'Unauthorized: No laboratory assigned' },
+              };
+            }
+            const scoped = reports.filter(r => r.laboratory === caller.laboratory);
+            return { data: scoped, error: null };
+          }
+
+          if (caller.role === 'local_admin') {
+            if (!caller.laboratory || !caller.branch) {
+              return {
+                data: null,
+                error: { message: 'Unauthorized: No laboratory or branch assigned' },
+              };
+            }
+            const callerBranches = caller.branch.split(',').map(b => b.trim()).filter(Boolean);
+            const scoped = reports.filter(
+              r =>
+                r.laboratory === caller.laboratory &&
+                checkBranchScope(callerBranches, r.branch)
+            );
+            return { data: scoped, error: null };
+          }
+
+          if (caller.role === 'user') {
+            const callerBranches = (caller.branch || '').split(',').map(b => b.trim()).filter(Boolean);
+            const scoped = reports.filter(r => {
+              if (caller.laboratory && r.laboratory !== caller.laboratory) return false;
+              if (callerBranches.length > 0 && !checkBranchScope(callerBranches, r.branch)) return false;
+              return true;
+            });
+            return { data: scoped, error: null };
+          }
+
+          return {
+            data: null,
+            error: { message: 'Unauthorized: Insufficient permissions' },
+          };
+        }
+
+        case 'admin_upload_analysis_report': {
+          const caller = getCaller(args.p_token as string);
+
+          if (!caller || caller.active === false) {
+            return {
+              data: null,
+              error: { message: 'Unauthorized: Invalid session' },
+            };
+          }
+
+          if (caller.role === 'user') {
+            return {
+              data: null,
+              error: { message: 'Unauthorized: Standard users have read-only access and cannot upload reports' },
+            };
+          }
+
+          const payload = (args.p_report || args) as Partial<AnalysisReportRecord>;
+
+          if (!payload.report_number || !payload.visitor_id || !payload.file_name) {
+            return {
+              data: null,
+              error: { message: 'Missing required report fields (report_number, visitor_id, file_name)' },
+            };
+          }
+
+          // Validate scope
+          if (caller.role === 'lab_admin') {
+            if (!caller.laboratory || payload.laboratory !== caller.laboratory) {
+              return {
+                data: null,
+                error: { message: 'Unauthorized: Cannot upload report outside your central laboratory' },
+              };
+            }
+          } else if (caller.role === 'local_admin') {
+            if (!caller.laboratory || !caller.branch) {
+              return {
+                data: null,
+                error: { message: 'Unauthorized: No laboratory or branch assigned' },
+              };
+            }
+            const callerBranches = caller.branch.split(',').map(b => b.trim()).filter(Boolean);
+            if (
+              payload.laboratory !== caller.laboratory ||
+              !checkBranchScope(callerBranches, payload.branch)
+            ) {
+              return {
+                data: null,
+                error: { message: 'Unauthorized: Cannot upload report outside your authorized branches' },
+              };
+            }
+          }
+
+          const reports = loadData<AnalysisReportRecord[]>(
+            STORAGE_KEYS.ANALYSIS_REPORTS,
+            defaultAnalysisReports
+          );
+
+          const newReport: AnalysisReportRecord = {
+            id: `rep-${Date.now()}`,
+            report_number: payload.report_number,
+            visitor_id: payload.visitor_id,
+            visitor_name: payload.visitor_name || 'زائر مختبر',
+            sample_code: payload.sample_code || `SMP-${Date.now().toString().slice(-4)}`,
+            sample_type: payload.sample_type || 'تحليل مياه معتمد',
+            sample_type_ar: payload.sample_type_ar || payload.sample_type || 'تحليل مياه معتمد',
+            sample_type_en: payload.sample_type_en || 'Certified Water Analysis',
+            sample_type_fr: payload.sample_type_fr || 'Analyse d’eau certifiée',
+            laboratory: payload.laboratory || caller.laboratory || 'asir',
+            branch: payload.branch || (caller.role === 'local_admin' ? caller.branch : null),
+            file_name: payload.file_name,
+            file_path: payload.file_path || `analysis-reports/${payload.file_name}`,
+            file_type: payload.file_type || 'application/pdf',
+            file_size: payload.file_size || 1024 * 100,
+            file_data_url: payload.file_data_url,
+            status: 'available',
+            notes: payload.notes || null,
+            uploaded_by: caller.id,
+            uploaded_by_name: caller.full_name,
+            issue_date: payload.issue_date || new Date().toISOString().slice(0, 10),
+            created_at: new Date().toISOString(),
+          };
+
+          saveData(STORAGE_KEYS.ANALYSIS_REPORTS, [newReport, ...reports]);
+
+          return { data: { success: true, report: newReport }, error: null };
+        }
+
+        case 'admin_delete_analysis_report': {
+          const caller = getCaller(args.p_token as string);
+
+          if (!caller || caller.active === false) {
+            return {
+              data: null,
+              error: { message: 'Unauthorized: Invalid session' },
+            };
+          }
+
+          if (caller.role === 'user') {
+            return {
+              data: null,
+              error: { message: 'Unauthorized: Standard users have read-only access and cannot delete reports' },
+            };
+          }
+
+          const { p_id } = args as { p_id: string };
+
+          if (!p_id) {
+            return {
+              data: null,
+              error: { message: 'Missing report ID' },
+            };
+          }
+
+          const reports = loadData<AnalysisReportRecord[]>(
+            STORAGE_KEYS.ANALYSIS_REPORTS,
+            defaultAnalysisReports
+          );
+
+          const target = reports.find(r => r.id === p_id);
+
+          if (!target || target.deleted_at || target.status === 'archived') {
+            return {
+              data: null,
+              error: { message: 'Report not found or already deleted' },
+            };
+          }
+
+          // Verify scope
+          if (caller.role === 'lab_admin') {
+            if (!caller.laboratory || target.laboratory !== caller.laboratory) {
+              return {
+                data: null,
+                error: { message: 'Unauthorized: Report is outside your laboratory scope' },
+              };
+            }
+          } else if (caller.role === 'local_admin') {
+            if (!caller.laboratory || !caller.branch) {
+              return {
+                data: null,
+                error: { message: 'Unauthorized: No laboratory or branch assigned' },
+              };
+            }
+            const callerBranches = caller.branch.split(',').map(b => b.trim()).filter(Boolean);
+            if (
+              target.laboratory !== caller.laboratory ||
+              !checkBranchScope(callerBranches, target.branch)
+            ) {
+              return {
+                data: null,
+                error: { message: 'Unauthorized: Report is outside your authorized branches' },
+              };
+            }
+          }
+
+          // Soft delete: keep record for audit / safe recovery
+          const updated = reports.map(r =>
+            r.id === p_id
+              ? { ...r, deleted_at: new Date().toISOString(), status: 'archived' as const }
+              : r
+          );
+          saveData(STORAGE_KEYS.ANALYSIS_REPORTS, updated);
+
+          return { data: { success: true }, error: null };
+        }
+
+        case 'get_visitor_analysis_reports': {
+          const { p_visitor_id, p_phone, p_national_id } = args as {
+            p_visitor_id?: string;
+            p_phone?: string;
+            p_national_id?: string;
+          };
+
+          const reports = loadData<AnalysisReportRecord[]>(
+            STORAGE_KEYS.ANALYSIS_REPORTS,
+            defaultAnalysisReports
+          ).filter(r => !r.deleted_at && r.status === 'available');
+
+          const visitors = loadData<VisitorDataRecord[]>(
+            STORAGE_KEYS.VISITORS,
+            defaultVisitors
+          );
+
+          // Find matches
+          const matched = reports.filter(r => {
+            if (p_visitor_id && (r.visitor_id === p_visitor_id || r.id === p_visitor_id)) {
+              return true;
+            }
+            const linkedVisitor = visitors.find(v => v.id === r.visitor_id || v.visitor_id === r.visitor_id);
+            if (linkedVisitor) {
+              if (p_phone && linkedVisitor.phone === p_phone) return true;
+              if (p_national_id && linkedVisitor.national_id === p_national_id) return true;
+              if (p_visitor_id && (linkedVisitor.id === p_visitor_id || linkedVisitor.visitor_id === p_visitor_id)) return true;
+            }
+            return false;
+          });
+
+          return { data: matched, error: null };
+        }
 
         default:
           return { data: null, error: { message: `Unknown function ${fnName}` } };

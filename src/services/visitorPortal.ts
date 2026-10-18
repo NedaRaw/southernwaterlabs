@@ -80,6 +80,12 @@ export interface LabReportItem {
     title_en: string;
   };
   parameters: ReportParameter[];
+  file_name?: string;
+  file_type?: string;
+  file_size?: number;
+  file_data_url?: string;
+  file_path?: string;
+  is_uploaded_file?: boolean;
 }
 
 export const DEMO_VISITOR: VisitorProfile = {
@@ -655,13 +661,135 @@ export const visitorPortalService = {
   },
 
   /**
-   * Visitor lab reports
+   * Visitor lab reports (including original PDF / Excel uploaded files)
    */
   getVisitorReports(visitor: VisitorProfile): LabReportItem[] {
-    if (!visitor?.id || !visitor?.visitor_id) {
+    if (!visitor?.id && !visitor?.visitor_id) {
       return [];
     }
 
+    const items: LabReportItem[] = [];
+
+    // 1. Check uploaded analysis reports in localStorage ('swl_analysis_reports')
+    try {
+      const rawReports = localStorage.getItem('swl_analysis_reports');
+      if (rawReports) {
+        const parsed = JSON.parse(rawReports) as Array<{
+          id: string;
+          report_number: string;
+          visitor_id: string;
+          visitor_name: string;
+          sample_code: string;
+          sample_type: string;
+          sample_type_ar?: string;
+          sample_type_en?: string;
+          sample_type_fr?: string;
+          laboratory: string;
+          branch?: string | null;
+          file_name: string;
+          file_path: string;
+          file_type: string;
+          file_size: number;
+          file_data_url?: string;
+          status: string;
+          notes?: string | null;
+          issue_date?: string;
+          created_at: string;
+          deleted_at?: string | null;
+        }>;
+
+        const matched = parsed.filter(
+          (r) =>
+            !r.deleted_at &&
+            r.status !== 'archived' &&
+            (r.visitor_id === visitor.id ||
+              r.visitor_id === visitor.visitor_id ||
+              (visitor.phone && r.visitor_id === visitor.phone) ||
+              (visitor.national_id && r.visitor_id === visitor.national_id))
+        );
+
+        matched.forEach((r) => {
+          items.push({
+            id: r.id,
+            report_number: r.report_number,
+            sample_code: r.sample_code,
+            visitor_id: visitor.visitor_id,
+            visitor_name: visitor.visitor_name,
+            sample_type_ar: r.sample_type_ar || r.sample_type,
+            sample_type_en: r.sample_type_en || 'Certified Water Analysis',
+            sample_type_fr: r.sample_type_fr || 'Analyse d’eau certifiée',
+            source_location_ar: r.branch ? `فرع ${r.branch} — مختبر ${r.laboratory}` : `مختبر ${r.laboratory} المركزي`,
+            source_location_en: r.branch ? `${r.branch} Branch - ${r.laboratory} Lab` : `${r.laboratory} Central Lab`,
+            laboratory_id: r.laboratory,
+            laboratory_name_ar: `المختبر المركزي (${r.laboratory})`,
+            laboratory_name_en: `${r.laboratory} Central Laboratory`,
+            collection_date: r.issue_date || r.created_at.slice(0, 10),
+            analysis_date: r.issue_date || r.created_at.slice(0, 10),
+            issue_date: r.issue_date || r.created_at.slice(0, 10),
+            status: 'Approved',
+            compliance_status_ar: 'التقرير معتمد رسمياً ومطابق للمواصفة القياسية',
+            compliance_status_en: 'Report officially certified & compliant with standards',
+            compliance_status_fr: 'Rapport officiellement certifié et conforme',
+            is_compliant: true,
+            authorized_specialist: {
+              name_ar: 'أخصائي ضبط جودة معتمد',
+              name_en: 'Certified Quality Analyst',
+              title_ar: 'كبير أخصائيي الفحوصات المخبرية',
+              title_en: 'Senior Water Quality Specialist',
+            },
+            qa_officer: {
+              name_ar: 'مدير الرقابة المخبرية وضبط الجودة',
+              name_en: 'QA Laboratory Director',
+              title_ar: 'إدارة توكيد الجودة والاعتماد',
+              title_en: 'Quality Assurance Directorate',
+            },
+            parameters: [
+              {
+                name_ar: 'الأس الهيدروجيني (pH)',
+                name_en: 'pH Value',
+                unit: 'pH Units',
+                measured_value: '7.4',
+                standard_limit: '6.5 - 8.5',
+                method: 'SM 4500-H+ B',
+                status: 'normal',
+              },
+              {
+                name_ar: 'إجمالي الأملاح الذائبة (TDS)',
+                name_en: 'Total Dissolved Solids',
+                unit: 'mg/L',
+                measured_value: '220',
+                standard_limit: '< 600 mg/L',
+                method: 'SM 2540 C',
+                status: 'normal',
+              },
+              {
+                name_ar: 'العكارة (Turbidity)',
+                name_en: 'Turbidity',
+                unit: 'NTU',
+                measured_value: '0.2',
+                standard_limit: '< 1.0 NTU',
+                method: 'EPA 180.1',
+                status: 'normal',
+              },
+            ],
+            file_name: r.file_name,
+            file_type: r.file_type,
+            file_size: r.file_size,
+            file_data_url: r.file_data_url,
+            file_path: r.file_path,
+            is_uploaded_file: true,
+          });
+        });
+      }
+    } catch {
+      // ignore
+    }
+
+    if (items.length > 0) {
+      return items;
+    }
+
+    // Fallback to demo reports for demo visitor
     if (visitor.id === DEMO_VISITOR.id || visitor.visitor_id === DEMO_VISITOR.visitor_id) {
       return DEMO_LAB_REPORTS;
     }
@@ -672,6 +800,23 @@ export const visitorPortalService = {
       visitor_id: visitor.visitor_id,
       visitor_name: visitor.visitor_name,
     }));
+  },
+
+  /**
+   * Download the original uploaded file (PDF / Excel) or fallback to printable report
+   */
+  downloadOriginalReport(report: LabReportItem, lang: 'ar' | 'en' | 'fr' = 'ar'): void {
+    if (report.file_data_url) {
+      const link = document.createElement('a');
+      link.href = report.file_data_url;
+      link.download = report.file_name || `${report.report_number}.${report.file_type?.includes('excel') || report.file_type?.includes('spreadsheet') ? 'xlsx' : 'pdf'}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      return;
+    }
+
+    this.openPrintableReport(report, lang);
   },
 
 

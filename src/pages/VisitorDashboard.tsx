@@ -1541,11 +1541,25 @@ export default function VisitorDashboard() {
 
                               <button
                                 type="button"
-                                onClick={() => visitorPortalService.openPrintableReport(report, lang as 'ar' | 'en' | 'fr')}
+                                onClick={() => {
+                                  if (report.file_data_url) {
+                                    visitorPortalService.downloadOriginalReport(report, lang as 'ar' | 'en' | 'fr');
+                                  } else {
+                                    visitorPortalService.openPrintableReport(report, lang as 'ar' | 'en' | 'fr');
+                                  }
+                                }}
                                 className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-colors shadow-2xs cursor-pointer flex items-center gap-1.5"
                               >
                                 <Download className="w-3.5 h-3.5" />
-                                <span>{lang === 'ar' ? 'تحميل التقرير (PDF)' : 'Download (PDF)'}</span>
+                                <span>
+                                  {report.file_type?.includes('excel') || report.file_type?.includes('spreadsheet')
+                                    ? lang === 'ar'
+                                      ? 'تحميل التقرير (Excel)'
+                                      : 'Download (Excel)'
+                                    : lang === 'ar'
+                                      ? 'تحميل التقرير (PDF)'
+                                      : 'Download (PDF)'}
+                                </span>
                               </button>
                             </div>
                           </div>
